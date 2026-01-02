@@ -161,6 +161,22 @@ fn send_json_request(command: &str, data: Option<Value>) -> Result<Value, IpcErr
     let json_payload = serde_json::to_vec(&request)
         .map_err(|e| IpcError::from(format!("JSON serialize error: {}", e)))?;
 
+    // SOTA 2026: Payload size validation and debug logging
+    let payload_size = json_payload.len();
+    eprintln!("[IPC DEBUG] Command: {}, Payload size: {} bytes", command, payload_size);
+
+    // Critical security check: prevent accidentally sending massive payloads
+    const MAX_REQUEST_SIZE: usize = 10 * 1024 * 1024; // 10MB limit for requests
+    if payload_size > MAX_REQUEST_SIZE {
+        eprintln!("[IPC ERROR] Payload too large for command '{}': {} bytes > {} limit",
+                  command, payload_size, MAX_REQUEST_SIZE);
+        return Err(IpcError {
+            code: "REQUEST_TOO_LARGE".to_string(),
+            message: format!("Request payload ({} MB) exceeds {} MB limit",
+                           payload_size >> 20, MAX_REQUEST_SIZE >> 20),
+        });
+    }
+
     // 3. Send with length-prefix framing (4 bytes big-endian + payload)
     let len = json_payload.len() as u32;
     stream
