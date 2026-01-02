@@ -195,10 +195,13 @@ export function useBackend(): [BackendState, BackendActions] {
   // --- POLL FUNCTION (for initial load and fallback) ---
   const pollStatus = useCallback(async () => {
     try {
+      console.debug("[useBackend] Polling daemon status...");
       const data = await invoke<DaemonState>("get_status");
+      console.debug("[useBackend] Received state:", data);
       handleStateUpdate(data);
       if (statusRef.current === "disconnected") setErrorMessage("");
-    } catch {
+    } catch (e) {
+      console.warn("[useBackend] Poll failed - daemon may be offline:", e);
       setIsConnected(false);
       setStatus("disconnected");
     }

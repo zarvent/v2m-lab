@@ -25,7 +25,9 @@ const WhisperConfigSchema = z.object({
   model: z.string().default("large-v3-turbo"),
   language: z.string().optional(),
   device: z.string().optional(),
-  compute_type: z.enum(["float16", "int8_float16", "int8"]).default("int8_float16"),
+  compute_type: z
+    .enum(["float16", "int8_float16", "int8"])
+    .default("int8_float16"),
   vad_filter: z.boolean().default(true),
   beam_size: z.number().optional(),
   vad_parameters: z
@@ -41,7 +43,7 @@ const WhisperConfigSchema = z.object({
  */
 const GeminiConfigSchema = z.object({
   api_key: z.string().optional(), // Often loaded from env, so optional in config.toml updates
-  model: z.string().default("gemini-1.5-flash"),
+  model: z.string().default("gemini-3-flash-preview"), // Match backend config.toml
 });
 
 /**

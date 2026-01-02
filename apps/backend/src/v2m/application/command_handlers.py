@@ -225,16 +225,40 @@ class ProcessTextHandler(CommandHandler):
 class UpdateConfigHandler(CommandHandler):
     """
     MANEJADOR PARA `UPDATECONFIGCOMMAND`.
+
+    Transforma el formato del frontend al formato TOML antes de guardar.
+    Frontend: whisper.model -> Backend: transcription.whisper.model
     """
     def __init__(self, config_manager: ConfigManager, notification_service: NotificationInterface) -> None:
         self.config_manager = config_manager
         self.notification_service = notification_service
 
     async def handle(self, command: UpdateConfigCommand) -> dict:
-        self.config_manager.update_config(command.updates)
+        updates = command.updates
+
+        # Transform frontend schema to TOML structure
+        toml_updates = {}
+
+        if "whisper" in updates:
+            toml_updates.setdefault("transcription", {})["whisper"] = updates["whisper"]
+
+        if "llm" in updates:
+            toml_updates["llm"] = updates["llm"]
+
+        if "gemini" in updates:
+            toml_updates["gemini"] = updates["gemini"]
+
+        if "paths" in updates:
+            toml_updates["paths"] = updates["paths"]
+
+        if "notifications" in updates:
+            toml_updates["notifications"] = updates["notifications"]
+
+        # Use transformed structure if we did any transforms, otherwise use original
+        final_updates = toml_updates if toml_updates else updates
+
+        self.config_manager.update_config(final_updates)
         self.notification_service.notify("⚙️ v2m config", "configuración actualizada")
-        # Por ahora, los cambios requieren reinicio para efecto completo en algunos subsistemas
-        # pero config.toml ya está guardado.
         return {"status": "ok", "message": "config updated, restart may be required"}
 
     def listen_to(self) -> type[Command]:
@@ -244,12 +268,26 @@ class UpdateConfigHandler(CommandHandler):
 class GetConfigHandler(CommandHandler):
     """
     MANEJADOR PARA `GETCONFIGCOMMAND`.
+
+    Transforma la estructura de config.toml al formato esperado por el frontend.
+    Backend: transcription.whisper.model -> Frontend: whisper.model
     """
     def __init__(self, config_manager: ConfigManager) -> None:
         self.config_manager = config_manager
 
     async def handle(self, command: GetConfigCommand) -> dict:
-        return self.config_manager.load_config()
+        raw = self.config_manager.load_config()
+
+        # Transform TOML structure to frontend-expected schema
+        # Backend (config.toml):  transcription.whisper.model
+        # Frontend (schema):      whisper.model
+        return {
+            "whisper": raw.get("transcription", {}).get("whisper", {}),
+            "llm": raw.get("llm", {}),
+            "gemini": raw.get("gemini", {}),
+            "paths": raw.get("paths", {}),
+            "notifications": raw.get("notifications", {}),
+        }
 
     def listen_to(self) -> type[Command]:
         return GetConfigCommand

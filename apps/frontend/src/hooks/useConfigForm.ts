@@ -20,7 +20,10 @@ import { useState, useEffect, useCallback } from "react";
 import { useForm, type UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { invoke } from "@tauri-apps/api/core";
-import { AppConfigSchema, type AppConfigSchemaInputType } from "../schemas/config";
+import {
+  AppConfigSchema,
+  type AppConfigSchemaInputType,
+} from "../schemas/config";
 
 interface UseConfigFormReturn {
   // Use Input type for the form to handle optional/defaults correctly
@@ -46,27 +49,34 @@ export function useConfigForm(onSaveSuccess?: () => void): UseConfigFormReturn {
     let mounted = true;
     const loadConfig = async () => {
       try {
-        const res = await invoke<string>("get_config");
+        // Tauri invoke returns typed Value (object), not string
+        const res = await invoke<Record<string, unknown>>("get_config");
+
         if (!mounted) return;
 
-        let loadedConfig = {};
-        if (typeof res === "string") {
-             const data = JSON.parse(res);
-             loadedConfig = data.config || {};
-        } else {
-             loadedConfig = (res as any).config || {};
-        }
+        // Debug: log raw response to verify backend transform
+        console.debug("[useConfigForm] Raw backend response:", res);
+
+        // The backend now returns flat structure: { whisper: {...}, llm: {...} }
+        // Previously it was wrapped in { config: {...} } but GET_CONFIG handler
+        // was returning raw TOML which had different structure
+        const loadedConfig = res ?? {};
+
+        console.debug("[useConfigForm] Loading into form:", loadedConfig);
 
         form.reset(loadedConfig);
       } catch (e) {
-        console.error("Error loading config:", e);
-        if (mounted) setError("Error loading configuration");
+        console.error("[useConfigForm] Error loading config:", e);
+        if (mounted)
+          setError("Error loading configuration - daemon may be offline");
       } finally {
         if (mounted) setIsLoading(false);
       }
     };
     loadConfig();
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const saveConfig = useCallback(async () => {
