@@ -1,92 +1,119 @@
 # 🛠️ Installation and Setup
 
-> **Prerequisite**: This project is optimized for **Linux (Debian/Ubuntu)**.
-> **State of the Art 2026**: We use hardware acceleration (CUDA) and a modular approach to guarantee privacy and performance.
-
-This guide will take you from zero to a fully functional dictation system on your local machine.
+> **Prerequisite**: Linux (Debian/Ubuntu/Fedora/Arch)
+> **SOTA 2026**: Uses GPU acceleration (CUDA), uv package manager, and Tauri for native performance.
 
 ---
 
 ## 🚀 Method 1: Automatic Installation (Recommended)
 
-We have created a script that handles all the "heavy lifting" for you: checks your system, installs dependencies (apt), creates the virtual environment (venv), and configures credentials.
-
 ```bash
-# Run from the project root
+# From project root
 ./scripts/install.sh
 ```
 
-**What this script does:**
-1.  📦 Installs system libraries (`ffmpeg`, `xclip`, `pulseaudio-utils`).
-2.  🐍 Creates an isolated Python environment (`venv`).
-3.  ⚙️ Installs project dependencies (`faster-whisper`, `torch`).
-4.  🔑 Helps you configure your Gemini API Key (optional, for generative AI).
-5.  🖥️ Checks if you have a compatible NVIDIA GPU.
+**Options:**
+
+```bash
+./scripts/install.sh --help          # Show all options
+./scripts/install.sh --skip-frontend # Backend only
+./scripts/install.sh --skip-gpu      # Skip GPU verification
+```
+
+**What it does:**
+
+1. ✅ Verifies Python 3.12+, Node.js 18+, Rust
+2. 📦 Installs system libraries (`ffmpeg`, `xclip`)
+3. 🐍 Creates Python venv and installs backend
+4. ⚛️ Installs frontend dependencies (npm)
+5. 🔑 Configures Gemini API key (optional)
+6. 🖥️ Verifies NVIDIA GPU
 
 ---
 
 ## 🛠️ Method 2: Manual Installation
 
-If you prefer total control or the automatic script fails, follow these steps.
-
-### 1. System Dependencies
-
-We need tools to manipulate audio and the clipboard at the OS level.
+### 1. Prerequisites
 
 ```bash
-sudo apt update
-sudo apt install ffmpeg xclip pulseaudio-utils python3-venv build-essential python3-dev
+# Python 3.12+
+sudo apt install python3.12 python3.12-venv
+
+# Node.js 20+ (for frontend)
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt install nodejs
+
+# Rust (for Tauri)
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+# System dependencies
+sudo apt install ffmpeg xclip pulseaudio-utils build-essential
 ```
 
-### 2. Python Environment
-
-We isolate libraries to avoid conflicts.
+### 2. Backend Setup
 
 ```bash
-# Create virtual environment
-python3 -m venv venv
+cd apps/backend
 
-# Activate environment (Do this every time you work on the project!)
+# Create and activate venv
+python3.12 -m venv venv
 source venv/bin/activate
 
-# Install dependencies
-pip install -r requirements.txt
+# Install (editable mode)
+pip install -e .
 ```
 
-### 3. AI Configuration (Optional)
-
-To use the "Text Refinement" features (LLM rewriting), you need a Google Gemini API Key.
-
-1.  Get your key at [Google AI Studio](https://aistudio.google.com/).
-2.  Create a `.env` file at the root:
+### 3. Frontend Setup
 
 ```bash
-echo 'GEMINI_API_KEY="your_api_key_here"' > .env
+cd apps/frontend
+npm install
+```
+
+### 4. Configure Gemini (Optional)
+
+```bash
+cd apps/backend
+echo 'GEMINI_API_KEY="your_key_here"' > .env
+```
+
+Get your key at [Google AI Studio](https://aistudio.google.com/).
+
+---
+
+## ✅ Running the Application
+
+**Terminal 1 - Backend:**
+
+```bash
+cd apps/backend
+source venv/bin/activate
+python -m v2m.main --daemon
+```
+
+**Terminal 2 - Frontend:**
+
+```bash
+cd apps/frontend
+npm run tauri dev
 ```
 
 ---
 
-## ✅ Verification
+## 🎯 Verification
 
-Ensure everything works before proceeding.
-
-**1. Verify GPU Acceleration**
-This confirms that Whisper can use your graphics card (essential for speed).
 ```bash
-python scripts/test_whisper_gpu.py
-```
+# Check daemon is running
+ls /run/user/$(id -u)/v2m/v2m.sock
 
-**2. System Diagnostic**
-Verifies that the daemon and audio services are ready.
-```bash
-python scripts/verify_daemon.py
+# Check GPU (optional)
+nvidia-smi
 ```
 
 ---
 
 ## ⏭️ Next Steps
 
-Once installed, it's time to configure how you interact with the tool.
-
-- [Detailed Configuration](configuration.md) - Adjust models and sensitivity.
-- [Keyboard Shortcuts](troubleshooting.md) - (Note: Check the Spanish docs for keybindings if missing here, or refer to `docs/atajos_teclado.md` translated).
+- [Configuration](configuration.md) - Adjust Whisper model, LLM settings
+- [Keyboard Shortcuts](../atajos_teclado.md) - Setup global hotkeys
+- [Troubleshooting](troubleshooting.md) - Common issues

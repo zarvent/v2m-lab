@@ -1,252 +1,402 @@
 #!/usr/bin/env bash
 # =============================================================================
-# install.sh - script de instalación automatizada de voice2machine
+# install.sh - Automated installation script for voice2machine
 # =============================================================================
-# QUÉ HACE ESTE SCRIPT
-#   1 detecta tu sistema operativo solo linux por ahora
-#   2 instala las dependencias del sistema
-#   3 crea el entorno virtual de python
-#   4 instala las dependencias de python
-#   5 configura tu clave de api para gemini
-#   6 verifica si tienes tarjeta gráfica compatible
+# WHAT THIS SCRIPT DOES:
+#   1. Detects your operating system (Linux only for now)
+#   2. Installs system dependencies
+#   3. Verifies Node.js and Rust (required for Tauri frontend)
+#   4. Creates Python virtual environment and installs backend
+#   5. Installs frontend dependencies
+#   6. Configures your Gemini API key (optional)
+#   7. Verifies GPU acceleration
 # =============================================================================
 
 set -euo pipefail
 
-# --- navegación al directorio correcto ---
-# este script está en scripts/, navegamos a apps/backend
+# --- Navigate to correct directory ---
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 PROJECT_ROOT="$( dirname "${SCRIPT_DIR}" )"
 BACKEND_DIR="${PROJECT_ROOT}/apps/backend"
+FRONTEND_DIR="${PROJECT_ROOT}/apps/frontend"
 
-# colores
+# Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-NC='\033[0m' # sin color
+CYAN='\033[0;36m'
+NC='\033[0m' # No color
 
 log_info() { echo -e "${BLUE}[info]${NC} $1"; }
 log_success() { echo -e "${GREEN}[ok]${NC} $1"; }
-log_warn() { echo -e "${YELLOW}[aviso]${NC} $1"; }
+log_warn() { echo -e "${YELLOW}[warn]${NC} $1"; }
 log_error() { echo -e "${RED}[error]${NC} $1"; }
+log_step() { echo -e "\n${CYAN}━━━ $1 ━━━${NC}"; }
+
+# --- Help flag ---
+show_help() {
+    echo "Usage: ./install.sh [OPTIONS]"
+    echo ""
+    echo "Options:"
+    echo "  --help          Show this help message"
+    echo "  --skip-frontend Skip frontend installation (backend only)"
+    echo "  --skip-gpu      Skip GPU verification"
+    echo ""
+    echo "Example:"
+    echo "  ./install.sh              # Full installation"
+    echo "  ./install.sh --skip-gpu   # Skip GPU check (for CPU-only systems)"
+    exit 0
+}
+
+# Parse arguments
+SKIP_FRONTEND=false
+SKIP_GPU=false
+for arg in "$@"; do
+    case $arg in
+        --help) show_help ;;
+        --skip-frontend) SKIP_FRONTEND=true ;;
+        --skip-gpu) SKIP_GPU=true ;;
+    esac
+done
 
 # -----------------------------------------------------------------------------
-# 1 DETECCIÓN DEL SISTEMA OPERATIVO
+# 1. PRE-FLIGHT CHECKS
 # -----------------------------------------------------------------------------
-check_os() {
-    log_info "verificando el sistema operativo..."
+preflight_checks() {
+    log_step "Pre-flight checks"
 
+    # Check OS
     if [[ "$OSTYPE" != "linux-gnu"* ]]; then
-        log_error "por ahora este script solo funciona en linux"
-        log_warn "sistema detectado: $OSTYPE"
-        log_warn "para macos o windows revisa la documentación para instalación manual"
+        log_error "This script only supports Linux"
+        log_warn "Detected: $OSTYPE"
+        log_warn "For macOS/Windows, see manual installation in docs/"
         exit 1
     fi
+    log_success "Linux detected"
 
-    log_success "linux detectado"
+    # Check curl (needed for uv install)
+    if ! command -v curl &>/dev/null; then
+        log_error "curl is required but not installed"
+        log_warn "Install with: sudo apt install curl"
+        exit 1
+    fi
+    log_success "curl available"
+
+    # Check git
+    if ! command -v git &>/dev/null; then
+        log_warn "git not found - some features may not work"
+    fi
 }
 
 # -----------------------------------------------------------------------------
-# 2 DETECTAR PYTHON COMPATIBLE (3.12+)
+# 2. DETECT PYTHON (3.12+)
 # -----------------------------------------------------------------------------
 detect_python() {
-    log_info "detectando versión de python compatible..."
+    log_step "Detecting Python 3.12+"
 
     for py in python3.13 python3.12 python3; do
         if command -v "$py" &>/dev/null; then
             local version
             version=$($py -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
-            # verificar que sea 3.12 o superior
             if [[ "${version}" =~ ^3\.(1[2-9]|[2-9][0-9])$ ]]; then
                 PYTHON_CMD="$py"
-                log_success "python ${version} detectado ($py)"
+                log_success "Python ${version} detected ($py)"
                 return 0
             fi
         fi
     done
 
-    log_error "se requiere python 3.12 o superior"
-    log_warn "instala python 3.12+: sudo apt install python3.12 python3.12-venv"
+    log_error "Python 3.12+ is required"
+    log_warn "Install with: sudo apt install python3.12 python3.12-venv"
     exit 1
 }
 
 # -----------------------------------------------------------------------------
-# 3 DEPENDENCIAS DEL SISTEMA
+# 3. DETECT NODE.JS (for frontend)
 # -----------------------------------------------------------------------------
-install_system_deps() {
-    log_info "instalando dependencias del sistema..."
+detect_nodejs() {
+    log_step "Detecting Node.js"
 
-    local deps=(ffmpeg xclip pulseaudio-utils python3-venv build-essential python3-dev)
-    local missing=()
+    if command -v node &>/dev/null; then
+        local node_version
+        node_version=$(node --version | sed 's/v//')
+        local major_version
+        major_version=$(echo "$node_version" | cut -d. -f1)
 
-    for dep in "${deps[@]}"; do
-        if ! dpkg -l "$dep" &>/dev/null; then
-            missing+=("$dep")
+        if [[ "$major_version" -ge 18 ]]; then
+            log_success "Node.js $node_version detected"
+
+            # Check npm
+            if command -v npm &>/dev/null; then
+                log_success "npm $(npm --version) detected"
+                return 0
+            fi
         fi
-    done
-
-    if [[ ${#missing[@]} -eq 0 ]]; then
-        log_success "todas las dependencias del sistema ya están instaladas"
-        return
     fi
 
-    log_info "instalando: ${missing[*]}"
-    sudo apt-get update -qq
-    sudo apt-get install -y "${missing[@]}"
+    log_warn "Node.js 18+ not found"
+    log_warn "Install with: curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - && sudo apt install nodejs"
+    log_warn "Or use nvm: https://github.com/nvm-sh/nvm"
 
-    log_success "dependencias del sistema instaladas correctamente"
+    if [[ "$SKIP_FRONTEND" == "false" ]]; then
+        log_error "Node.js is required for frontend. Use --skip-frontend to skip."
+        exit 1
+    fi
 }
 
 # -----------------------------------------------------------------------------
-# 4 INSTALAR UV (gestor de dependencias state-of-the-art 2026)
+# 4. DETECT RUST (for Tauri)
 # -----------------------------------------------------------------------------
-install_uv() {
-    if command -v uv &>/dev/null; then
-        log_success "uv ya está instalado ($(uv --version))"
+detect_rust() {
+    log_step "Detecting Rust (required for Tauri)"
+
+    if command -v cargo &>/dev/null; then
+        log_success "Rust $(cargo --version | cut -d' ' -f2) detected"
         return 0
     fi
 
-    log_info "instalando uv (10-100x más rápido que pip)..."
+    log_warn "Rust not found"
+    log_warn "Install with: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh"
+    log_warn "Then restart your terminal and run this script again"
+
+    if [[ "$SKIP_FRONTEND" == "false" ]]; then
+        log_error "Rust is required for Tauri frontend. Use --skip-frontend to skip."
+        exit 1
+    fi
+}
+
+# -----------------------------------------------------------------------------
+# 5. SYSTEM DEPENDENCIES
+# -----------------------------------------------------------------------------
+install_system_deps() {
+    log_step "Installing system dependencies"
+
+    local deps=(ffmpeg xclip pulseaudio-utils build-essential)
+    local missing=()
+
+    # Cross-distro check using command -v where possible
+    for dep in "${deps[@]}"; do
+        case "$dep" in
+            ffmpeg|xclip)
+                if ! command -v "$dep" &>/dev/null; then
+                    missing+=("$dep")
+                fi
+                ;;
+            *)
+                # For packages without CLI, try dpkg (Debian) or rpm (RHEL)
+                if command -v dpkg &>/dev/null; then
+                    if ! dpkg -l "$dep" &>/dev/null 2>&1; then
+                        missing+=("$dep")
+                    fi
+                fi
+                ;;
+        esac
+    done
+
+    if [[ ${#missing[@]} -eq 0 ]]; then
+        log_success "All system dependencies already installed"
+        return
+    fi
+
+    log_info "Installing: ${missing[*]}"
+
+    # Detect package manager
+    if command -v apt-get &>/dev/null; then
+        sudo apt-get update -qq
+        sudo apt-get install -y "${missing[@]}"
+    elif command -v dnf &>/dev/null; then
+        sudo dnf install -y "${missing[@]}"
+    elif command -v pacman &>/dev/null; then
+        sudo pacman -S --noconfirm "${missing[@]}"
+    else
+        log_error "Unsupported package manager. Install manually: ${missing[*]}"
+        exit 1
+    fi
+
+    log_success "System dependencies installed"
+}
+
+# -----------------------------------------------------------------------------
+# 6. INSTALL UV (SOTA 2026 package manager)
+# -----------------------------------------------------------------------------
+install_uv() {
+    log_step "Installing uv (fast Python package manager)"
+
+    if command -v uv &>/dev/null; then
+        log_success "uv already installed ($(uv --version))"
+        return 0
+    fi
+
+    log_info "Installing uv (10-100x faster than pip)..."
     curl -LsSf https://astral.sh/uv/install.sh | sh
     export PATH="$HOME/.local/bin:$PATH"
 
     if command -v uv &>/dev/null; then
-        log_success "uv instalado correctamente"
+        log_success "uv installed"
     else
-        log_warn "no se pudo instalar uv, usando pip como fallback"
+        log_warn "Could not install uv, using pip as fallback"
         return 1
     fi
 }
 
 # -----------------------------------------------------------------------------
-# 5 ENTORNO VIRTUAL DE PYTHON
+# 7. SETUP BACKEND VENV
 # -----------------------------------------------------------------------------
-setup_venv() {
-    log_info "configurando el entorno virtual de python..."
+setup_backend() {
+    log_step "Setting up Python backend"
 
     cd "${BACKEND_DIR}"
 
     if [[ -d "venv" ]]; then
-        log_warn "el entorno virtual ya existe así que no lo voy a crear de nuevo"
+        log_warn "Virtual environment already exists, skipping creation"
     else
-        # usar uv si está disponible, sino python3 -m venv
         if command -v uv &>/dev/null; then
             uv venv venv --python "${PYTHON_CMD}"
         else
             "${PYTHON_CMD}" -m venv venv
         fi
-        log_success "entorno virtual creado"
+        log_success "Virtual environment created"
     fi
 
     # shellcheck disable=SC1091
     source venv/bin/activate
-    log_success "entorno virtual activado"
-}
+    log_success "Virtual environment activated"
 
-# -----------------------------------------------------------------------------
-# 6 DEPENDENCIAS DE PYTHON
-# -----------------------------------------------------------------------------
-install_python_deps() {
-    log_info "instalando dependencias de python..."
-
-    # usar uv si está disponible (10-100x más rápido)
+    # Install dependencies
+    log_info "Installing Python dependencies..."
     if command -v uv &>/dev/null; then
         uv pip install --upgrade pip --quiet 2>/dev/null || pip install --upgrade pip -q
-        uv pip install -r requirements.txt --quiet
+        uv pip install -e . --quiet
     else
         pip install --upgrade pip -q
-        pip install -r requirements.txt -q
+        pip install -e . -q
     fi
 
-    log_success "dependencias de python instaladas correctamente"
+    log_success "Backend installed (v2m module ready)"
 }
 
 # -----------------------------------------------------------------------------
-# 7 CONFIGURAR VARIABLES DE ENTORNO
+# 8. SETUP FRONTEND
+# -----------------------------------------------------------------------------
+setup_frontend() {
+    if [[ "$SKIP_FRONTEND" == "true" ]]; then
+        log_warn "Skipping frontend installation (--skip-frontend)"
+        return
+    fi
+
+    log_step "Setting up frontend"
+
+    cd "${FRONTEND_DIR}"
+
+    log_info "Installing npm dependencies..."
+    npm install --silent 2>&1 | tail -3 || npm install
+
+    log_success "Frontend dependencies installed"
+}
+
+# -----------------------------------------------------------------------------
+# 9. CONFIGURE ENV
 # -----------------------------------------------------------------------------
 configure_env() {
-    log_info "configurando variables de entorno..."
+    log_step "Configuring environment"
+
+    cd "${BACKEND_DIR}"
 
     if [[ -f ".env" ]]; then
-        log_warn "el archivo .env ya existe así que lo dejaré como está"
+        log_warn ".env already exists, skipping"
         return
     fi
 
     echo ""
-    echo -e "${YELLOW}===========================================${NC}"
-    echo -e "${YELLOW}  CONFIGURACIÓN DE LA API DE GOOGLE GEMINI${NC}"
-    echo -e "${YELLOW}===========================================${NC}"
+    echo -e "${YELLOW}==========================================${NC}"
+    echo -e "${YELLOW}  GOOGLE GEMINI API CONFIGURATION${NC}"
+    echo -e "${YELLOW}==========================================${NC}"
     echo ""
-    echo "consigue tu clave de api gratis en: https://aistudio.google.com/"
+    echo "Get your free API key at: https://aistudio.google.com/"
     echo ""
-    read -rp "ingresa tu clave de api de gemini o presiona enter para omitir: " api_key
+    read -rp "Enter your Gemini API key (or press Enter to skip): " api_key
 
     if [[ -z "$api_key" ]]; then
-        log_warn "saltando configuración de la api key puedes agregarla después en el archivo .env"
-        cp .env.example .env 2>/dev/null || echo "GEMINI_API_KEY=" > .env
+        log_warn "Skipping API key, you can add it later to .env"
+        echo "GEMINI_API_KEY=" > .env
     else
         echo "GEMINI_API_KEY=$api_key" > .env
-        log_success "archivo .env configurado correctamente"
+        log_success ".env configured"
     fi
 }
 
 # -----------------------------------------------------------------------------
-# 8 VERIFICAR TARJETA GRÁFICA (nvidia-smi nativo, sin dependencias Python)
+# 10. VERIFY GPU
 # -----------------------------------------------------------------------------
 verify_gpu() {
-    log_info "verificando si hay aceleración por gpu..."
+    if [[ "$SKIP_GPU" == "true" ]]; then
+        log_warn "Skipping GPU verification (--skip-gpu)"
+        return
+    fi
 
-    # verificación robusta con nvidia-smi (no depende de Python)
+    log_step "Verifying GPU acceleration"
+
     if command -v nvidia-smi &>/dev/null; then
         if nvidia-smi &>/dev/null; then
-            log_success "GPU NVIDIA detectada:"
+            log_success "NVIDIA GPU detected:"
             nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv,noheader 2>/dev/null || true
 
-            # verificar CUDA disponible en Python
+            # Check CUDA in Python (with venv active)
+            cd "${BACKEND_DIR}"
+            source venv/bin/activate
             if python -c "import torch; assert torch.cuda.is_available()" 2>/dev/null; then
-                log_success "CUDA disponible en PyTorch"
+                log_success "CUDA available in PyTorch"
             else
-                log_warn "GPU detectada pero CUDA no disponible en Python"
-                log_warn "ejecuta: pip install torch --index-url https://download.pytorch.org/whl/cu121"
+                log_warn "GPU detected but CUDA not available in Python"
+                log_warn "Run: pip install torch --index-url https://download.pytorch.org/whl/cu121"
             fi
             return 0
         fi
     fi
 
-    log_warn "no detecté ninguna gpu así que whisper correrá en el procesador y será más lento"
-    log_warn "si tienes una tarjeta nvidia instala los controladores de cuda"
-    return 0
+    log_warn "No GPU detected - Whisper will run on CPU (slower)"
+    log_warn "For NVIDIA GPU, install CUDA drivers"
 }
 
 # -----------------------------------------------------------------------------
-# PRINCIPAL
+# MAIN
 # -----------------------------------------------------------------------------
 main() {
     echo ""
-    echo -e "${BLUE}========================================${NC}"
-    echo -e "${BLUE}  INSTALADOR DE VOICE2MACHINE${NC}"
-    echo -e "${BLUE}========================================${NC}"
+    echo -e "${BLUE}╔════════════════════════════════════════╗${NC}"
+    echo -e "${BLUE}║    VOICE2MACHINE INSTALLER             ║${NC}"
+    echo -e "${BLUE}║    State-of-the-Art 2026               ║${NC}"
+    echo -e "${BLUE}╚════════════════════════════════════════╝${NC}"
     echo ""
 
-    check_os
+    preflight_checks
     detect_python
+    detect_nodejs
+    detect_rust
     install_system_deps
     install_uv
-    setup_venv
-    install_python_deps
+    setup_backend
+    setup_frontend
     configure_env
     verify_gpu
 
     echo ""
-    echo -e "${GREEN}========================================${NC}"
-    echo -e "${GREEN}  INSTALACIÓN COMPLETADA${NC}"
-    echo -e "${GREEN}========================================${NC}"
+    echo -e "${GREEN}╔════════════════════════════════════════╗${NC}"
+    echo -e "${GREEN}║    INSTALLATION COMPLETE ✓             ║${NC}"
+    echo -e "${GREEN}╚════════════════════════════════════════╝${NC}"
     echo ""
-    echo "PRÓXIMOS PASOS:"
-    echo "  1 activa el entorno virtual:  source venv/bin/activate"
-    echo "  2 ejecuta el servicio:        python scripts/v2m-daemon.sh"
-    echo "  3 configura los atajos:       mira docs/instalacion.md"
+    echo "NEXT STEPS:"
+    echo ""
+    echo "  1. Start the backend daemon:"
+    echo "     cd apps/backend && source venv/bin/activate"
+    echo "     python -m v2m.main --daemon"
+    echo ""
+    echo "  2. Start the frontend (new terminal):"
+    echo "     cd apps/frontend && npm run tauri dev"
+    echo ""
+    echo "  3. Configure keyboard shortcuts:"
+    echo "     See docs/en/installation.md"
     echo ""
 }
 
