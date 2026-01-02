@@ -1,71 +1,81 @@
+# voice2machine (v2m) - Configuration File
+
+# LOAD PRIORITY (highest to lowest):
+#   1. Constructor arguments (programmatic overrides)
+#   2. Environment variables
+#   3. .env file (local secrets)
+#   4. THIS FILE (config.toml)
+#   5. Defaults from Pydantic models
+#
+# SECURITY: Never commit secrets to this file.
+# Use environment variables or .env for sensitive data.
+
+# ============================================================================
+# PATHS - XDG Base Directory Compliant
+# ============================================================================
+# All paths are auto-generated dynamically in code using XDG_RUNTIME_DIR
+# Default location: /run/user/<uid>/v2m (or /tmp/v2m_<uid> as fallback)
+# No configuration needed - defaults are correct.
 [paths]
-# recording_flag, audio_file y log_file se generan dinámicamente en directorios seguros
-# (/run/user/<uid>/v2m o /tmp/v2m_<uid>) para evitar vulnerabilidades de seguridad.
-# Descomentar solo si se requiere una ubicación específica y segura.
-# recording_flag = "/tmp/v2m_recording.pid"
-# audio_file = "/tmp/v2m_audio.wav"
-# log_file = "/tmp/v2m.log"
-# venv_path se auto-detecta relativo al proyecto (apps/backend/venv)
 
-[whisper]
-model = "large-v3-turbo"
-language = "auto"
-device = "cuda"
-compute_type = "int8_float16" # Eficiencia pura: 4x menos VRAM, usa Tensor Cores
-device_index = 0
-num_workers = 2  # 2 workers suficientes para single stream
-
-beam_size = 5  # SOTA: beam search para mayor precisión (~1.3x más lento)
-best_of = 3    # Candidatos por paso (equilibrio velocidad/calidad)
-temperature = 0.0  # Determinístico: requerido para que beam_size funcione
-vad_filter = true  # Enabled: uses faster-whisper native VAD
-
-[whisper.vad_parameters]
-# VAD optimizado para precisión con beam search
-threshold = 0.35              # Ligeramente más resistente a ruido
-min_speech_duration_ms = 250  # Default: beam maneja mejor audio corto
-min_silence_duration_ms = 600 # Mejor manejo de pausas naturales
-
-
-# --- TRANSCRIPTION CONFIG (arquitectura model-agnostic) ---
+# ============================================================================
+# TRANSCRIPTION SERVICE
+# ============================================================================
 [transcription]
-backend = "whisper"  # selector de backend: "whisper", futuro: "vosk", "custom"
+backend = "whisper"  # Backend selector: "whisper" (future: "vosk", "custom")
 
-# Configuración específica de whisper (alias de [whisper] para backwards compat)
 [transcription.whisper]
 model = "large-v3-turbo"
 language = "auto"
 device = "cuda"
-compute_type = "int8_float16"
+compute_type = "float16"  # Options: "float32", "float16", "int8" | Optimal: float16 for GPU
 device_index = 0
-num_workers = 2
-beam_size = 5
-best_of = 3
-temperature = 0.0
-vad_filter = true
+num_workers = 2  # 2 workers sufficient for single stream
 
+# Inference parameters (state-of-the-art 2026)
+beam_size = 5  # Beam search for higher accuracy (~1.3x slower but better quality)
+best_of = 5    # Candidate steps (improved from 3 → 5 for quality boost)
+temperature = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]  # ANTI-HALLUCINATION: fallback temperatures
+vad_filter = true  # Enable faster-whisper native VAD
 
+# VAD parameters (optimized for natural speech)
+[transcription.whisper.vad_parameters]
+threshold = 0.5              # Probability threshold 0.0-1.0 (higher = stricter detection)
+min_speech_duration_ms = 250  # Minimum speech segment duration (filters brief noise)
+min_silence_duration_ms = 2000  # Minimum silence for utterance end (2s allows natural pauses)
+
+# ============================================================================
+# LLM SERVICE
+# ============================================================================
 [gemini]
-model = "models/gemini-1.5-flash-latest"
-temperature = 0.3
-max_tokens = 2048
-max_input_chars = 6000
+model = "gemini-3-flash-preview"  # Latest: Gemini 3 Flash (Dec 17, 2025) | Alt: "gemini-2.5-flash"
+temperature = 0.3  # 0.0 (deterministic) to 2.0 (creative)
+max_tokens = 8192  # Gemini 3 Flash has 128k context - increased from 2048
+max_input_chars = 12000  # Proportional to max_tokens increase
 request_timeout = 30
 retry_attempts = 3
 retry_min_wait = 2
 retry_max_wait = 10
-api_key = "${GEMINI_API_KEY}" # Loaded from environment variable
 
+# SECURITY: Load from environment variable (never commit API keys)
+api_key = "${GEMINI_API_KEY}"
+
+# ============================================================================
+# DESKTOP NOTIFICATIONS
+# ============================================================================
 [notifications]
-expire_time_ms = 3000  # tiempo en ms antes de auto-cerrar (3s default)
-auto_dismiss = true    # forzar cierre programático via DBUS (para Unity/GNOME)
+expire_time_ms = 3000  # Auto-close time in milliseconds (3s default)
+auto_dismiss = true    # Programmatic close via DBUS (for Unity/GNOME that ignore expire-time)
 
+# ============================================================================
+# LOCAL LLM (Alternative to Gemini)
+# ============================================================================
 [llm]
-backend = "local"  # "local" para modelo local (Qwen + llama.cpp), "gemini" para API cloud
+backend = "local"  # Options: "local" (llama.cpp), "gemini" (Google API)
 
 [llm.local]
 model_path = "models/qwen2.5-3b-instruct-q4_k_m.gguf"
-n_gpu_layers = -1   # -1 = todas las capas en GPU (full offload)
-n_ctx = 2048        # context window en tokens
-temperature = 0.3   # 0.0-2.0, más bajo = más determinístico
-max_tokens = 512    # máximo de tokens a generar
+n_gpu_layers = -1   # -1 = full GPU offload (all layers to GPU for fastest inference)
+n_ctx = 2048        # Context window in tokens
+temperature = 0.3   # 0.0 (deterministic) to 2.0 (creative)
+max_tokens = 512    # Maximum tokens to generate

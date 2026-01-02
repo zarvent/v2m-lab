@@ -159,7 +159,9 @@ class WhisperConfig(BaseModel):
         best_of: número de candidatos a considerar en cada paso de
             decodificación por defecto 2
         temperature: temperatura para el muestreo 0.0 para decodificación
-            determinística greedy por defecto 0.0
+            determinística greedy acepta float único o lista de floats para
+            fallback anti-hallucination ej [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
+            por defecto 0.0
         vad_filter: si se debe aplicar filtro vad integrado de faster-whisper
             para remover silencios por defecto ``true``
         vad_parameters: configuración detallada de los parámetros vad
@@ -181,7 +183,7 @@ class WhisperConfig(BaseModel):
     num_workers: int = 4
     beam_size: int = 2
     best_of: int = 2
-    temperature: float = 0.0
+    temperature: float | list[float] = 0.0
     vad_filter: bool = True
     audio_device_index: int | None = None
     vad_parameters: VadParametersConfig = Field(default_factory=VadParametersConfig)
