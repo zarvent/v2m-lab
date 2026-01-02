@@ -1,41 +1,68 @@
-# Backend Voice2Machine
+# Backend Voice2Machine (Python Core)
 
-## Instalación Rápida
+El "cerebro" del sistema. Encargado de la lógica de negocio, procesamiento de audio e inferencia de IA.
+
+## 🚀 Quick Start (Dev Mode)
+
+Si ya ejecutaste `install.sh` en la raíz, todo esto está listo. Para desarrollo manual:
 
 ```bash
-# 1. Crear entorno virtual
-python3 -m venv venv
+# 1. Activar entorno virtual
+cd apps/backend
+source venv/bin/activate
 
-# 2. Instalar dependencias
-venv/bin/pip install -r requirements.txt
+# 2. Instalar dependencias en modo editable (útil para dev)
+pip install -e .
 
-# 3. Configurar API key (opcional, para LLM cloud)
-cp .env.example .env
-# Editar .env con tu GEMINI_API_KEY
-
-# 4. Ejecutar daemon
-PYTHONPATH=src venv/bin/python3 -m v2m.main --daemon
+# 3. Lanzar el Daemon (Servidor)
+# Esto mantendrá el proceso vivo escuchando en /tmp/v2m.sock
+python -m v2m.main --daemon
 ```
 
-## Notas de Portabilidad
+## 🏗️ Comandos de Desarrollo
 
-- **El venv DEBE recrearse** si mueves el proyecto a otra ubicación o PC
-- Las rutas se auto-detectan relativas al proyecto
-- Requisitos: Python 3.12+, GPU NVIDIA con CUDA (opcional pero recomendado)
+Utilizamos herramientas modernas para garantizar calidad de código.
 
-## Estructura
+### Testing (Pytest)
+```bash
+# Tests unitarios rápidos
+pytest tests/unit/
+
+# Tests de integración (requiere GPU/Audio)
+pytest tests/integration/
+```
+
+### Linting & Formatting (Ruff)
+Usamos `ruff` (el linter más rápido del oeste) para reemplazar a flake8, isort y black.
+
+```bash
+# Check y autofix
+ruff check src/ --fix
+
+# Formateo
+ruff format src/
+```
+
+## 📦 Estructura del Proyecto
 
 ```
 apps/backend/
-├── src/v2m/          # Código fuente principal
-├── tests/            # Tests
-├── config.toml       # Configuración
-├── requirements.txt  # Dependencias Python
-└── venv/             # Entorno virtual (no versionado)
+├── src/v2m/
+│   ├── application/    # Casos de uso (Commands/Handlers)
+│   ├── core/           # Bus de comandos y configuración global
+│   ├── domain/         # Entidades puras y excepciones
+│   ├── infrastructure/ # Implementaciones reales (Whisper, Gemini, Audio)
+│   └── main.py         # Entrypoint
+├── config.toml         # Configuración por defecto
+└── pyproject.toml      # Configuración de build y herramientas
 ```
 
-## Dependencias del Sistema (Linux)
+## 🔌 API de Sockets
 
-```bash
-sudo apt install ffmpeg xclip pulseaudio-utils python3-venv build-essential python3-dev
-```
+El backend expone un Socket Unix en `/tmp/v2m.sock`.
+
+**Protocolo:**
+1.  **Header**: 4 bytes (Big Endian) indicando la longitud del mensaje.
+2.  **Body**: JSON string codificado en UTF-8.
+
+*Ejemplo de mensaje:* `{"type": "toggle_recording"}`

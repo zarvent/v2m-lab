@@ -1,93 +1,56 @@
-#!/bin/bash
+# ⌨️ Atajos de Teclado y Scripts
 
-# ==============================================================================
-# v2m-llm.sh - Trigger cliente para procesamiento de texto con V2M Daemon
-# ==============================================================================
-# Mantiene la licencia GPLv3 del proyecto voice2machine.
-#
-# DESCRIPCIÓN TÉCNICA:
-#   Actúa como puente entre el portapapeles del SO (X11/Wayland) y el
-#   núcleo de inferencia (apps/backend).
-#   No realiza inferencia per se; delega al daemon via IPC/CLI.
-# ==============================================================================
+La filosofía de **Voice2Machine** es integrarse con tu sistema operativo, no reemplazarlo. Por eso, delegamos la gestión de atajos globales a tu gestor de ventanas (GNOME, KDE, i3, Hyprland).
 
-# Modo estricto: detiene ejecución ante errores, variables no definidas o fallos en pipes
-set -euo pipefail
+---
 
-# --- Resolución de Rutas (Monorepo Aware) ---
-# Obtiene la ruta real del script, resolviendo symlinks
-SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
-SCRIPT_DIR="$(dirname "$SCRIPT_PATH")"
-# Asumimos estructura: root/scripts/v2m-llm.sh -> root/apps/backend
-PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
-BACKEND_DIR="${PROJECT_ROOT}/apps/backend"
-VENV_PYTHON="${BACKEND_DIR}/venv/bin/python"
-ENTRY_POINT="${BACKEND_DIR}/src/v2m/main.py"
+## 🔗 Vinculación de Scripts
 
-# --- Configuración Visual ---
-ICON_SUCCESS="face-wink"
-ICON_ERROR="dialog-error"
-ICON_WORKING="system-run"
-APP_NAME="Voice2Machine"
+Para usar la herramienta, debes asignar atajos de teclado globales a los siguientes scripts.
 
-# --- Funciones Auxiliares ---
+### 1. Dictado (Start/Stop)
+*   **Script**: `/ruta/al/repo/scripts/v2m-toggle.sh`
+*   **Acción**:
+    *   **Primer toque**: Inicia grabación (Sonido: `beep-high`).
+    *   **Segundo toque**: Detiene grabación, transcribe y copia al portapapeles (Sonido: `beep-low`).
+*   **Atajo Sugerido**: `Super + V` (o una tecla Fx libre).
 
-notify() {
-    local level="$1" # low, normal, critical
-    local title="$2"
-    local msg="$3"
-    local icon="$4"
+### 2. Refinado con IA
+*   **Script**: `/ruta/al/repo/scripts/v2m-llm.sh`
+*   **Acción**: Toma el texto seleccionado (o del portapapeles), lo envía a Gemini/LocalLLM para mejorarlo, y reemplaza el contenido del portapapeles.
+*   **Atajo Sugerido**: `Super + G`.
 
-    if command -v notify-send >/dev/null 2>&1; then
-        notify-send -u "$level" -i "$icon" -a "$APP_NAME" "$title" "$msg"
-    fi
-}
+---
 
-get_clipboard_content() {
-    # Detección automática de servidor de visualización
-    if [ "${XDG_SESSION_TYPE:-}" == "wayland" ] && command -v wl-paste >/dev/null 2>&1; then
-        wl-paste --no-newline
-    elif command -v xclip >/dev/null 2>&1; then
-        xclip -o -selection clipboard
-    else
-        notify "critical" "Error de Dependencia" "No se encontró xclip ni wl-paste." "$ICON_ERROR"
-        exit 1
-    fi
-}
+## 🐧 Ejemplos de Configuración
 
-# --- Validación de Entorno ---
+### GNOME / Ubuntu
+1.  Abre `Configuración` -> `Teclado` -> `Atajos de teclado` -> `Ver y personalizar`.
+2.  Ve a `Atajos personalizados`.
+3.  Añade uno nuevo:
+    *   Nombre: `V2M: Dictar`
+    *   Comando: `/home/tu_usuario/voice2machine/scripts/v2m-toggle.sh`
+    *   Atajo: `Super+V`
 
-if [ ! -x "$VENV_PYTHON" ]; then
-    notify "critical" "Error de Entorno" "No se encuentra el intérprete Python en:\n$VENV_PYTHON" "$ICON_ERROR"
-    exit 1
-fi
+### i3 / Sway
+Añade a tu `~/.config/i3/config`:
 
-if [ ! -f "$ENTRY_POINT" ]; then
-    notify "critical" "Error de Archivo" "No se encuentra el entry point:\n$ENTRY_POINT" "$ICON_ERROR"
-    exit 1
-fi
+```i3config
+bindsym Mod4+v exec --no-startup-id /home/tu_usuario/voice2machine/scripts/v2m-toggle.sh
+bindsym Mod4+g exec --no-startup-id /home/tu_usuario/voice2machine/scripts/v2m-llm.sh
+```
 
-# --- Ejecución Principal ---
+### KDE Plasma
+1.  `Preferencias del Sistema` -> `Accesos rápidos`.
+2.  `Añadir comando nuevo`.
 
-# 1. Obtener texto
-CONTENT=$(get_clipboard_content)
+---
 
-# 2. Validar contenido
-if [ -z "$CONTENT" ] || [[ "$CONTENT" =~ ^[[:space:]]*$ ]]; then
-    notify "low" "Portapapeles Vacío" "Copia texto antes de ejecutar." "$ICON_ERROR"
-    exit 0
-fi
+## ⚠️ Solución de Problemas Comunes
 
-# 3. Notificar inicio (Feedback UX inmediato)
-notify "low" "Procesando..." "Enviando al LLM Local/Remoto..." "$ICON_WORKING"
-
-# 4. Invocar Daemon/Backend
-# Nota: Pasamos el texto como argumento. Si el texto es GIGANTE (>128KB),
-# considerar pasar por archivo temporal o stdin en el futuro.
-if ! "$VENV_PYTHON" "$ENTRY_POINT" PROCESS_TEXT "$CONTENT"; then
-    notify "critical" "Fallo de Procesamiento" "El backend devolvió un error. Revisa los logs." "$ICON_ERROR"
-    exit 1
-fi
-
-# El backend (main.py) debería encargarse de poner el resultado en el clipboard
-# y enviar la notificación final de éxito.
+*   **Permisos de Ejecución**: Si el atajo no hace nada, asegúrate de que el script sea ejecutable:
+    ```bash
+    chmod +x scripts/v2m-toggle.sh scripts/v2m-llm.sh
+    ```
+*   **Rutas Absolutas**: Siempre usa la ruta completa (`/home/user/...`), no `~/...` ni rutas relativas en la config de atajos.
+*   **Wayland**: En algunos entornos Wayland, `xclip` puede fallar. V2M intenta usar `wl-copy` automáticamente, pero asegúrate de tenerlo instalado.

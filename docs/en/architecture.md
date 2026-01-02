@@ -12,6 +12,7 @@ The following diagram illustrates the data flow and separation of responsibiliti
 graph TD
     subgraph Client ["🖥️ Client / Input"]
         CLI("CLI / Scripts<br>(main.py)")
+        GUI("GUI App<br>(Tauri + React)")
         Shortcuts("Keyboard Shortcuts")
     end
 
@@ -33,6 +34,7 @@ graph TD
     end
 
     Shortcuts --> CLI
+    GUI -. "Socket IPC" .-> CLI
     CLI -- "Sends Commands" --> Bus
     Bus -- "Dispatches to" --> Handlers
     Handlers -- "Uses Interfaces" --> Interfaces
@@ -53,31 +55,36 @@ graph TD
 
 ## Main Components
 
-### 1. Input Layer (Client)
-The system entry point. Contains no business logic, only receives user intent and converts it to a **Command**.
-*   **`main.py`**: Acts as the main controller. Can run in *Daemon* mode (persistent server) or *Client* mode (ephemeral command dispatch).
-*   **Bash Scripts**: Lightweight scripts (`v2m-toggle.sh`, `v2m-process.sh`) that bridge OS shortcuts to the Python application.
+### 1. Input Layer (Client & GUI)
+System entry points. Contain no business logic, only user intent.
+
+*   **`main.py` (Daemon)**: The persistent brain. Runs as a server listening for commands.
+*   **Bash Scripts**: Lightweight shortcuts (`v2m-toggle.sh`) that signal the daemon.
+*   **Tauri GUI**: Desktop app (Rust + React) acting as a visual "remote control", communicating via Unix sockets.
 
 ### 2. Application Layer
-Coordinates system actions.
-*   **Command Bus**: Receives commands (e.g., `StartRecordingCommand`) and routes them to the appropriate handler.
-*   **Command Handlers**: Execute specific logic (e.g., `StartRecordingHandler` starts the audio service and notifies the user).
+Orchestrates operations.
+
+*   **Command Bus**: Receives DTOs (Data Transfer Objects) like `StartRecordingCommand` and routes them.
+*   **Handlers**: Execute pure use cases (e.g., "Start recording", "Process text").
 
 ### 3. Domain Layer
-Defines system rules and contracts. Technology-agnostic.
-*   **Interfaces**: Define *what* a service should do (e.g., `TranscriptionService`), but not *how*.
-*   **Errors**: Semantic business exceptions (e.g., `MicrophoneNotFoundError`).
+The agnostic core. Immutable rules live here.
+
+*   **Interfaces**: Strict contracts (e.g., `TranscriptionService`) forcing infrastructure compliance.
+*   **Entities**: Value objects and business state.
 
 ### 4. Infrastructure Layer
-Implements domain interfaces using concrete libraries and technologies.
-*   **WhisperService**: `TranscriptionService` implementation using `faster-whisper`.
-*   **GeminiLLMService**: `LLMService` implementation using Google's API.
-*   **LinuxAdapters**: Implementations for Linux system interaction (notifications, clipboard).
+Concrete implementation ("the real world").
+
+*   **WhisperService**: Optimized wrapper for `faster-whisper` with VRAM management.
+*   **GeminiLLMService**: Client for Google AI Studio API.
+*   **LinuxAdapters**: Native integration with `DBus` and `X11/Wayland` (clipboard).
 
 ---
 
-## Key Design Patterns
+## Key Design Patterns (2026 Standards)
 
-*   **Dependency Injection (DI)**: Used for system assembly. Allows swapping implementations (e.g., switching Gemini for GPT-4) without touching business logic.
-*   **Singleton**: The Whisper model loads once in memory (in the Daemon) to avoid loading latency on each request.
-*   **Lazy Loading**: Heavy models load only when needed or at Daemon startup, optimizing resource usage.
+*   **Dependency Injection (DI)**: All components receive dependencies, enabling easy unit testing (mocking) and tech swaps (e.g., switching Gemini for OpenAI without touching domain).
+*   **Model Singletons**: Heavy models (Whisper) are kept "hot" in VRAM within the Daemon process, eliminating *cold starts*.
+*   **Non-blocking Async**: Core uses `asyncio` to handle I/O (recording, network) without freezing the interface.

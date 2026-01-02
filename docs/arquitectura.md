@@ -12,6 +12,7 @@ El siguiente diagrama ilustra el flujo de datos y la separación de responsabili
 graph TD
     subgraph Client ["🖥️ Cliente / Entrada"]
         CLI("CLI / Scripts<br>(main.py)")
+        GUI("GUI App<br>(Tauri + React)")
         Shortcuts("Atajos de Teclado")
     end
 
@@ -33,6 +34,7 @@ graph TD
     end
 
     Shortcuts --> CLI
+    GUI -. "Socket IPC" .-> CLI
     CLI -- "Envía Comandos" --> Bus
     Bus -- "Despacha a" --> Handlers
     Handlers -- "Usa Interfaces" --> Interfaces
@@ -53,31 +55,36 @@ graph TD
 
 ## Componentes Principales
 
-### 1. Capa de Entrada (Client)
-Es el punto de entrada al sistema. No contiene lógica de negocio, solo se encarga de recibir la intención del usuario y convertirla en un **Comando**.
-*   **`main.py`**: Actúa como el controlador principal. Puede ejecutarse en modo *Daemon* (servidor persistente) o *Client* (envío de comandos efímeros).
-*   **Scripts Bash**: Scripts ligeros (`whisper-toggle.sh`, `process-clipboard.sh`) que sirven como puente entre los atajos del sistema operativo y la aplicación Python.
+### 1. Capa de Entrada (Client & GUI)
+Puntos de acceso al sistema. No contienen lógica de negocio, solo intención del usuario.
+
+*   **`main.py` (Daemon)**: El cerebro persistente. Corre como un servidor escuchando comandos.
+*   **Scripts Bash**: Atajos ligeros (`v2m-toggle.sh`) que envían señales al daemon.
+*   **Tauri GUI**: Aplicación de escritorio (Rust + React) que actúa como "control remoto" visual, comunicándose vía sockets Unix.
 
 ### 2. Capa de Aplicación (Application)
-Coordina las acciones del sistema.
-*   **Command Bus**: Recibe comandos (ej. `StartRecordingCommand`) y los enruta al manejador correspondiente.
-*   **Command Handlers**: Ejecutan la lógica específica (ej. `StartRecordingHandler` inicia el servicio de audio y notifica al usuario).
+Orquesta las operaciones.
+
+*   **Command Bus**: Recibe DTOs (Data Transfer Objects) como `StartRecordingCommand` y los enruta.
+*   **Handlers**: Ejecutan casos de uso puros (ej. "Iniciar grabación", "Procesar texto").
 
 ### 3. Capa de Dominio (Domain)
-Define las reglas y contratos del sistema. Es agnóstica a la tecnología.
-*   **Interfaces**: Definen *qué* debe hacer un servicio (ej. `TranscriptionService`), pero no *cómo*.
-*   **Errores**: Excepciones semánticas del negocio (ej. `MicrophoneNotFoundError`).
+El núcleo agnóstico. Aquí viven las reglas inmutables.
+
+*   **Interfaces**: Contratos estrictos (ej. `TranscriptionService`) que obligan a la infraestructura a comportarse de cierta manera.
+*   **Entidades**: Objetos de valor y estado del negocio.
 
 ### 4. Capa de Infraestructura (Infrastructure)
-Implementa las interfaces del dominio utilizando librerías y tecnologías concretas.
-*   **WhisperService**: Implementación de `TranscriptionService` usando `faster-whisper`.
-*   **GeminiLLMService**: Implementación de `LLMService` usando la API de Google.
-*   **LinuxAdapters**: Implementaciones para interactuar con el sistema Linux (notificaciones, portapapeles).
+Implementación concreta ("el mundo real").
+
+*   **WhisperService**: Wrapper optimizado para `faster-whisper` con gestión de VRAM.
+*   **GeminiLLMService**: Cliente para la API de Google AI Studio.
+*   **LinuxAdapters**: Integración nativa con `DBus` y `X11/Wayland` (portapapeles).
 
 ---
 
-## Patrones de Diseño Clave
+## Patrones de Diseño Clave (2026 Standards)
 
-*   **Inyección de Dependencias (DI)**: Utilizada para ensamblar el sistema. Permite cambiar implementaciones (ej. cambiar Gemini por GPT-4) sin tocar la lógica de negocio.
-*   **Singleton**: El modelo de Whisper se carga una sola vez en memoria (en el Daemon) para evitar la latencia de carga en cada petición.
-*   **Lazy Loading**: Los modelos pesados se cargan solo cuando son necesarios o al inicio del Daemon, optimizando el uso de recursos.
+*   **Inyección de Dependencias (DI)**: Todo componente recibe sus dependencias, facilitando tests unitarios (mocking) y cambios de tecnología (ej. cambiar Gemini por OpenAI sin tocar el dominio).
+*   **Singleton de Modelos**: Los modelos pesados (Whisper) se mantienen "calientes" en VRAM dentro del proceso Daemon, eliminando el *cold start*.
+*   **Asincronía Non-blocking**: El núcleo usa `asyncio` para manejar E/S (grabación, red) sin congelar la interfaz.

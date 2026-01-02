@@ -1,66 +1,77 @@
-# 🔧 Troubleshooting
+# 🔧 Troubleshooting Guide
 
-This guide compiles the most common problems and their solutions. If you find an error not listed here, please check the logs at `/tmp/v2m.log`.
+This guide collects common issues and their solutions. **Golden Rule**: Always check the logs first.
+
+```bash
+tail -f /tmp/v2m.log
+```
 
 ---
 
 ## 🛑 Audio Issues
 
-### "Microphone not detected" or Empty Recording
-*   **Symptom**: System says "Recording started" but when stopped, nothing transcribes or gives error.
+### "Recording started" but nothing transcribes
+*   **Symptom**: System beeps, you talk, system beeps again, but clipboard is empty or error notification appears.
+*   **Cause**: Input device is muted or not selected.
 *   **Solution**:
-    1.  Verify `ffmpeg` and `pactl` are installed.
-    2.  Ensure your default system microphone is active and has volume.
-    3.  Run `arecord -l` to list devices.
+    1.  Run `python scripts/diagnose_audio.py` to see a VU meter.
+    2.  Check system privacy settings (Microphone access).
+    3.  Verify `ffmpeg` is installed.
 
-### Transcription cuts off phrases or words
-*   **Cause**: VAD (Voice Activity Detection) may be too aggressive.
+### Cut-off phrases
+*   **Cause**: VAD (Voice Activity Detection) is too aggressive.
 *   **Solution**:
-    1.  Edit `config.toml`.
-    2.  In `[whisper.vad_parameters]`, reduce `threshold` (e.g., to `0.3`) or increase `min_speech_duration_ms`.
+    *   Edit `config.toml`.
+    *   Lower `[whisper.vad_parameters] threshold` (e.g., to `0.3`).
+    *   Increase `min_silence_duration_ms` to `800`.
 
 ---
 
 ## 🐢 Performance Issues
 
-### Transcription is very slow (>5 seconds for short phrases)
-*   **Cause**: Whisper is probably running on **CPU** instead of **GPU**.
-*   **Diagnosis**: Run `python scripts/test_whisper_gpu.py`.
+### Transcription is slow (>5s for short phrases)
+*   **Cause**: Whisper is likely running on **CPU**.
+*   **Diagnostic**: Run `python scripts/test_whisper_gpu.py`.
 *   **Solution**:
-    1.  Verify you have NVIDIA drivers and CUDA installed.
-    2.  Reinstall `torch` with explicit CUDA support.
-    3.  In `config.toml`, ensure `device = "cuda"`.
+    1.  Install NVIDIA drivers & CUDA Toolkit 12+.
+    2.  Ensure `device = "cuda"` in `config.toml`.
+    3.  If you *must* use CPU, switch to `model = "base"` and `compute_type = "int8"`.
 
-### `OutOfMemoryError` (OOM) on GPU
-*   **Cause**: The `large-v3` model is too large for your VRAM.
+### `OutOfMemoryError` (OOM)
+*   **Cause**: `large-v3-turbo` requires ~4GB VRAM.
 *   **Solution**:
-    1.  Change model in `config.toml` to `medium` or `small`.
-    2.  Change `compute_type` to `int8_float16` (hybrid) if your card supports it.
+    *   Switch to `medium` model.
+    *   Use `compute_type = "int8_float16"`.
 
 ---
 
-## 🤖 Gemini (LLM) Issues
+## 🤖 AI / LLM Issues
 
-### "Authentication error" or "Invalid API Key"
+### "Authentication Error"
 *   **Solution**:
-    1.  Verify `.env` file exists at root.
-    2.  Ensure variable is named `GEMINI_API_KEY`.
-    3.  Generate a new key at Google AI Studio.
+    1.  Check `.env` file exists.
+    2.  Verify variable is named `GEMINI_API_KEY`.
+    3.  Regenerate key at Google AI Studio.
 
-### Refined text is worse than original
+### Bad quality output from Refinement
 *   **Solution**:
-    1.  Adjust `system_prompt` in `src/v2m/infrastructure/gemini_llm_service.py` (or in `prompts/` if externalized).
-    2.  Lower `temperature` in `config.toml` to `0.1` to make it more deterministic.
+    *   Lower `temperature` to `0.1`.
+    *   Check if you are selecting the text correctly before triggering the shortcut.
 
 ---
 
-## 📜 Logs and Debugging
+## 🖥️ Daemon / Connectivity
 
-To see what's happening in real-time:
-
-```bash
-# View live log
-tail -f /tmp/v2m.log
-```
-
-If reporting a bug, please include the last lines from this file.
+### "Connection Refused" (Socket Error)
+*   **Symptom**: CLI or GUI complains about `/tmp/v2m.sock`.
+*   **Cause**: The daemon is not running.
+*   **Solution**:
+    ```bash
+    # Start it manually to see errors
+    python -m v2m.main --daemon
+    ```
+    If it crashes immediately, check for another instance:
+    ```bash
+    pkill -f v2m.main
+    rm /tmp/v2m.sock
+    ```
