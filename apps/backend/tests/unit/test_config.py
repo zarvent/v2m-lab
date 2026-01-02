@@ -90,15 +90,16 @@ def test_config_loading() -> None:
 
     # Validación del modelo de Whisper
     # large-v3-turbo: 6x más rápido que large-v3 con calidad comparable
-    assert config.whisper.model == "large-v3-turbo", (
-        f"Modelo inesperado: {config.whisper.model}. "
+    # NOTE: Access via transcription.whisper since whisper field is deprecated/default only
+    assert config.transcription.whisper.model == "large-v3-turbo", (
+        f"Modelo inesperado: {config.transcription.whisper.model}. "
         "¿Se modificó config.toml sin actualizar este test?"
     )
 
     # Validación del idioma
     # "auto" = detección automática mediante análisis espectral
-    assert config.whisper.language == "auto", (
-        f"Idioma inesperado: {config.whisper.language}. "
+    assert config.transcription.whisper.language == "auto", (
+        f"Idioma inesperado: {config.transcription.whisper.language}. "
         "El valor debe ser 'auto' para detección automática."
     )
 

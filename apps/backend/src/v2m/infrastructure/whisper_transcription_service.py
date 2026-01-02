@@ -171,7 +171,8 @@ class WhisperTranscriptionService(TranscriptionService):
             if lang is None:
                 logger.info(f"idioma detectado {info.language} prob {info.language_probability:.2f}")
 
-            text = " ".join([segment.text.strip() for segment in segments])
+            # BOLT OPTIMIZACIÓN: Usar generator expression en join() para reducir uso de memoria
+            text = " ".join(segment.text.strip() for segment in segments)
             logger.info("transcripción completada")
             return text
 
