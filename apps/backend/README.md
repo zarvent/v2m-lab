@@ -4,17 +4,34 @@ The "brain" of the system. Handles business logic, audio processing, and AI infe
 
 ## 🚀 Quick Start (Dev Mode)
 
-If you already ran `install.sh` at the root, everything is set up. For manual development:
+### Automated Installation (Recommended)
+
+Run the installer from **anywhere** in the project:
 
 ```bash
-# 1. Activate virtual environment
+# From project root OR from scripts/
+./scripts/install.sh
+
+# The installer will:
+# 1. Detect Python 3.12+ automatically
+# 2. Install uv (10-100x faster than pip)
+# 3. Create venv and install dependencies
+# 4. Verify GPU/CUDA availability
+```
+
+### Manual Development Setup
+
+```bash
+# 1. Navigate to backend
 cd apps/backend
+
+# 2. Activate virtual environment
 source venv/bin/activate
 
-# 2. Install dependencies in editable mode (useful for dev)
-pip install -e .
+# 3. Install in editable mode (useful for dev)
+uv pip install -e .  # or: pip install -e .
 
-# 3. Launch the Daemon (Server)
+# 4. Launch the Daemon (Server)
 # This will keep the process alive listening on /tmp/v2m.sock
 python -m v2m.main --daemon
 ```

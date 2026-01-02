@@ -13,6 +13,12 @@
 
 set -euo pipefail
 
+# --- navegación al directorio correcto ---
+# este script está en scripts/, navegamos a apps/backend
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+PROJECT_ROOT="$( dirname "${SCRIPT_DIR}" )"
+BACKEND_DIR="${PROJECT_ROOT}/apps/backend"
+
 # colores
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -42,7 +48,31 @@ check_os() {
 }
 
 # -----------------------------------------------------------------------------
-# 2 DEPENDENCIAS DEL SISTEMA
+# 2 DETECTAR PYTHON COMPATIBLE (3.12+)
+# -----------------------------------------------------------------------------
+detect_python() {
+    log_info "detectando versión de python compatible..."
+
+    for py in python3.13 python3.12 python3; do
+        if command -v "$py" &>/dev/null; then
+            local version
+            version=$($py -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
+            # verificar que sea 3.12 o superior
+            if [[ "${version}" =~ ^3\.(1[2-9]|[2-9][0-9])$ ]]; then
+                PYTHON_CMD="$py"
+                log_success "python ${version} detectado ($py)"
+                return 0
+            fi
+        fi
+    done
+
+    log_error "se requiere python 3.12 o superior"
+    log_warn "instala python 3.12+: sudo apt install python3.12 python3.12-venv"
+    exit 1
+}
+
+# -----------------------------------------------------------------------------
+# 3 DEPENDENCIAS DEL SISTEMA
 # -----------------------------------------------------------------------------
 install_system_deps() {
     log_info "instalando dependencias del sistema..."
@@ -69,15 +99,43 @@ install_system_deps() {
 }
 
 # -----------------------------------------------------------------------------
-# 3 ENTORNO VIRTUAL DE PYTHON
+# 4 INSTALAR UV (gestor de dependencias state-of-the-art 2026)
+# -----------------------------------------------------------------------------
+install_uv() {
+    if command -v uv &>/dev/null; then
+        log_success "uv ya está instalado ($(uv --version))"
+        return 0
+    fi
+
+    log_info "instalando uv (10-100x más rápido que pip)..."
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    export PATH="$HOME/.local/bin:$PATH"
+
+    if command -v uv &>/dev/null; then
+        log_success "uv instalado correctamente"
+    else
+        log_warn "no se pudo instalar uv, usando pip como fallback"
+        return 1
+    fi
+}
+
+# -----------------------------------------------------------------------------
+# 5 ENTORNO VIRTUAL DE PYTHON
 # -----------------------------------------------------------------------------
 setup_venv() {
     log_info "configurando el entorno virtual de python..."
 
+    cd "${BACKEND_DIR}"
+
     if [[ -d "venv" ]]; then
         log_warn "el entorno virtual ya existe así que no lo voy a crear de nuevo"
     else
-        python3 -m venv venv
+        # usar uv si está disponible, sino python3 -m venv
+        if command -v uv &>/dev/null; then
+            uv venv venv --python "${PYTHON_CMD}"
+        else
+            "${PYTHON_CMD}" -m venv venv
+        fi
         log_success "entorno virtual creado"
     fi
 
@@ -87,19 +145,25 @@ setup_venv() {
 }
 
 # -----------------------------------------------------------------------------
-# 4 DEPENDENCIAS DE PYTHON
+# 6 DEPENDENCIAS DE PYTHON
 # -----------------------------------------------------------------------------
 install_python_deps() {
     log_info "instalando dependencias de python..."
 
-    pip install --upgrade pip -q
-    pip install -r requirements.txt -q
+    # usar uv si está disponible (10-100x más rápido)
+    if command -v uv &>/dev/null; then
+        uv pip install --upgrade pip --quiet 2>/dev/null || pip install --upgrade pip -q
+        uv pip install -r requirements.txt --quiet
+    else
+        pip install --upgrade pip -q
+        pip install -r requirements.txt -q
+    fi
 
     log_success "dependencias de python instaladas correctamente"
 }
 
 # -----------------------------------------------------------------------------
-# 5 CONFIGURAR VARIABLES DE ENTORNO
+# 7 CONFIGURAR VARIABLES DE ENTORNO
 # -----------------------------------------------------------------------------
 configure_env() {
     log_info "configurando variables de entorno..."
@@ -128,17 +192,31 @@ configure_env() {
 }
 
 # -----------------------------------------------------------------------------
-# 6 VERIFICAR TARJETA GRÁFICA
+# 8 VERIFICAR TARJETA GRÁFICA (nvidia-smi nativo, sin dependencias Python)
 # -----------------------------------------------------------------------------
 verify_gpu() {
     log_info "verificando si hay aceleración por gpu..."
 
-    if python scripts/check_cuda.py 2>/dev/null; then
-        log_success "aceleración por gpu disponible"
-    else
-        log_warn "no detecté ninguna gpu así que whisper correrá en el procesador y será más lento"
-        log_warn "si tienes una tarjeta nvidia instala los controladores de cuda"
+    # verificación robusta con nvidia-smi (no depende de Python)
+    if command -v nvidia-smi &>/dev/null; then
+        if nvidia-smi &>/dev/null; then
+            log_success "GPU NVIDIA detectada:"
+            nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv,noheader 2>/dev/null || true
+
+            # verificar CUDA disponible en Python
+            if python -c "import torch; assert torch.cuda.is_available()" 2>/dev/null; then
+                log_success "CUDA disponible en PyTorch"
+            else
+                log_warn "GPU detectada pero CUDA no disponible en Python"
+                log_warn "ejecuta: pip install torch --index-url https://download.pytorch.org/whl/cu121"
+            fi
+            return 0
+        fi
     fi
+
+    log_warn "no detecté ninguna gpu así que whisper correrá en el procesador y será más lento"
+    log_warn "si tienes una tarjeta nvidia instala los controladores de cuda"
+    return 0
 }
 
 # -----------------------------------------------------------------------------
@@ -152,7 +230,9 @@ main() {
     echo ""
 
     check_os
+    detect_python
     install_system_deps
+    install_uv
     setup_venv
     install_python_deps
     configure_env
