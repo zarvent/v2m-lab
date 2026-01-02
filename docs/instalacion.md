@@ -1,57 +1,64 @@
 # 🛠️ Instalación y Configuración
 
-Esta guía detalla los pasos necesarios para desplegar **Voice2Machine** en un entorno Linux. El proceso abarca dependencias del sistema, configuración del entorno Python y credenciales de IA.
+> **Prerrequisito**: Este proyecto está optimizado para **Linux (Debian/Ubuntu)**.
+> **Estado del Arte 2026**: Utilizamos aceleración por hardware (CUDA) y un enfoque modular para garantizar privacidad y rendimiento.
+
+Esta guía te llevará desde cero hasta un sistema de dictado completamente funcional en tu máquina local.
 
 ---
 
-## 1. Requisitos del Sistema
+## 🚀 Método 1: Instalación Automática (Recomendado)
 
-Antes de comenzar, asegúrate de tener instaladas las siguientes herramientas a nivel de sistema operativo. Estas son esenciales para la captura de audio y la gestión del portapapeles.
+Hemos creado un script que maneja todo el "trabajo sucio" por ti: verifica tu sistema, instala dependencias (apt), crea el entorno virtual (venv) y configura las credenciales.
+
+```bash
+# Ejecutar desde la raíz del proyecto
+./scripts/install.sh
+```
+
+**Lo que hace este script:**
+1.  📦 Instala librerías del sistema (`ffmpeg`, `xclip`, `pulseaudio-utils`).
+2.  🐍 Crea un entorno Python aislado (`venv`).
+3.  ⚙️ Instala las dependencias del proyecto (`faster-whisper`, `torch`).
+4.  🔑 Te ayuda a configurar tu API Key de Gemini (opcional, para IA generativa).
+5.  🖥️ Verifica si tienes una GPU NVIDIA compatible.
+
+---
+
+## 🛠️ Método 2: Instalación Manual
+
+Si prefieres tener el control total o el script automático falla, sigue estos pasos.
+
+### 1. Dependencias del Sistema (System Level)
+
+Necesitamos herramientas para manipular audio y el portapapeles a nivel del SO.
 
 ```bash
 sudo apt update
-sudo apt install ffmpeg xclip pactl python3-venv build-essential python3-dev
+sudo apt install ffmpeg xclip pulseaudio-utils python3-venv build-essential python3-dev
 ```
 
-### Soporte para GPU (NVIDIA)
-Para un rendimiento óptimo con Whisper, es **crítico** utilizar aceleración por GPU.
-*   **Drivers NVIDIA**: Asegúrate de tener los últimos drivers instalados.
-*   **CUDA Toolkit**: Necesario para `faster-whisper` y `torch`.
+### 2. Entorno Python
 
-> **nota**: si no tienes GPU NVIDIA, funcionará en cpu pero será mucho más lento.
-
----
-
-## 2. entorno python
-
-Se recomienda encarecidamente utilizar un entorno virtual para aislar las dependencias del proyecto.
-
-### Creación y Activación
+Aislamos las librerías para evitar conflictos.
 
 ```bash
-# 1. Crear el entorno virtual en la raíz del proyecto
+# Crear entorno virtual
 python3 -m venv venv
 
-# 2. Activar el entorno
+# Activar entorno (¡Haz esto cada vez que trabajes en el proyecto!)
 source venv/bin/activate
-```
 
-### Instalación de Dependencias
-
-```bash
-# 3. Instalar paquetes requeridos
+# Instalar dependencias
 pip install -r requirements.txt
 ```
 
----
+### 3. Configuración de IA (Opcional)
 
-## 3. Credenciales de IA (Google Gemini)
+Para usar las funciones de "Refinado de Texto" (reescritura con LLM), necesitas una API Key de Google Gemini.
 
-Para la funcionalidad de refinado de texto (`process-clipboard`), se requiere una API Key de Google Gemini.
-
-1.  Obtén tu clave en [Google AI Studio](https://aistudio.google.com/).
-2.  Crea un archivo `.env` en la raíz del proyecto.
-3.  Añade tu clave siguiendo este formato:
+1.  Consigue tu clave en [Google AI Studio](https://aistudio.google.com/).
+2.  Crea un archivo `.env` en la raíz:
 
 ```bash
 echo 'GEMINI_API_KEY="tu_clave_api_aqui"' > .env
@@ -59,17 +66,27 @@ echo 'GEMINI_API_KEY="tu_clave_api_aqui"' > .env
 
 ---
 
-## 4. Verificación de la Instalación
+## ✅ Verificación
 
-Para confirmar que todos los componentes están correctamente configurados, ejecuta los scripts de diagnóstico incluidos.
+Asegúrate de que todo funciona antes de continuar.
 
-### Verificar Dependencias y Audio
-```bash
-./scripts/verify-setup.sh
-```
-
-### Verificar Aceleración GPU
-Este script cargará un modelo pequeño de Whisper para confirmar que `cuda` está disponible y funcional.
+**1. Verificar Aceleración GPU**
+Esto confirma que Whisper puede usar tu tarjeta gráfica (esencial para velocidad).
 ```bash
 python scripts/test_whisper_gpu.py
 ```
+
+**2. Diagnóstico del Sistema**
+Verifica que el demonio y los servicios de audio estén listos.
+```bash
+python scripts/verify_daemon.py
+```
+
+---
+
+## ⏭️ Siguientes Pasos
+
+Una vez instalado, es hora de configurar cómo interactúas con la herramienta.
+
+- [Configuración Detallada](configuracion.md) - Ajusta modelos y sensibilidad.
+- [Atajos de Teclado](atajos_teclado.md) - Configura tus teclas mágicas.

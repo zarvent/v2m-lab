@@ -1,27 +1,27 @@
-# scripts de utilidad
+# 🛠️ Scripts de Utilidad (Ops & Maint)
 
-colección de scripts para mantenimiento pruebas benchmarks y gestión del servicio v2m
+Colección curada de herramientas para el ciclo de vida de **Voice2Machine**.
+Desde la instalación hasta el diagnóstico profundo.
 
-contenido principal
+## 🚀 Core Scripts (Uso Diario)
 
-**gestión del servicio**
-- `install_service.py` instala v2m como un servicio systemd de usuario
-- `v2m-daemon.sh` wrapper para iniciar el daemon
-- `v2m-toggle.sh` script para alternar grabación (usado por atajos de teclado)
+| Script | Propósito |
+| :--- | :--- |
+| `v2m-daemon.sh` | **El Servicio**. Inicia/Detiene el backend en segundo plano. |
+| `v2m-toggle.sh` | **El Gatillo**. Conmuta (Start/Stop) la grabación. Mapear a atajo de teclado. |
+| `v2m-llm.sh` | **La IA**. Toma el portapapeles, lo refina con Gemini y lo pega de vuelta. |
 
-**diagnóstico y pruebas**
-- `check_cuda.py` verifica si la gpu nvidia es detectada correctamente
-- `diagnose_audio.py` herramienta interactiva para probar micrófonos y niveles de audio
-- `benchmark_latency.py` mide el rendimiento del sistema (cold start inferencia vad)
-- `test_whisper_gpu.py` descarga y prueba el modelo whisper en gpu
-- `verify_daemon.py` test de integración completo del sistema
+## 🩺 Diagnóstico y Benchmarks
 
-**mantenimiento**
-- `cleanup.py` herramienta para limpiar archivos temporales cache y logs antiguos
+Si algo falla, ejecuta esto antes de abrir un issue.
 
-uso
-la mayoría de estos scripts deben ejecutarse desde la raíz del repositorio
-ejemplo
-```bash
-python3 scripts/check_cuda.py
-```
+- **`check_cuda.py`**: ¿Tu GPU está visible para PyTorch?
+- **`diagnose_audio.py`**: Vúmetro en consola. Verifica si tu micro está captando sonido.
+- **`benchmark_latency.py`**: Mide milisegundos exactos de "Cold Start" vs "Warm Start".
+- **`test_whisper_gpu.py`**: Descarga un modelo "tiny" y transcribe un audio de prueba.
+- **`verify_daemon.py`**: Test de integración end-to-end. Simula un cliente conectándose al socket.
+
+## 🧹 Mantenimiento
+
+- **`cleanup.py`**: Borra logs, archivos temporales (`/tmp/v2m_*`) y caché de modelos corruptos.
+- **`install.sh`**: El script "mágico" de instalación idempotente.

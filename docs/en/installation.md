@@ -1,57 +1,64 @@
 # 🛠️ Installation and Setup
 
-This guide details the steps to deploy **Voice2Machine** on a Linux environment. The process covers system dependencies, Python environment setup, and AI credentials.
+> **Prerequisite**: This project is optimized for **Linux (Debian/Ubuntu)**.
+> **State of the Art 2026**: We use hardware acceleration (CUDA) and a modular approach to guarantee privacy and performance.
+
+This guide will take you from zero to a fully functional dictation system on your local machine.
 
 ---
 
-## 1. System Requirements
+## 🚀 Method 1: Automatic Installation (Recommended)
 
-Before starting, ensure you have the following system-level tools installed. These are essential for audio capture and clipboard management.
+We have created a script that handles all the "heavy lifting" for you: checks your system, installs dependencies (apt), creates the virtual environment (venv), and configures credentials.
+
+```bash
+# Run from the project root
+./scripts/install.sh
+```
+
+**What this script does:**
+1.  📦 Installs system libraries (`ffmpeg`, `xclip`, `pulseaudio-utils`).
+2.  🐍 Creates an isolated Python environment (`venv`).
+3.  ⚙️ Installs project dependencies (`faster-whisper`, `torch`).
+4.  🔑 Helps you configure your Gemini API Key (optional, for generative AI).
+5.  🖥️ Checks if you have a compatible NVIDIA GPU.
+
+---
+
+## 🛠️ Method 2: Manual Installation
+
+If you prefer total control or the automatic script fails, follow these steps.
+
+### 1. System Dependencies
+
+We need tools to manipulate audio and the clipboard at the OS level.
 
 ```bash
 sudo apt update
-sudo apt install ffmpeg xclip pactl python3-venv build-essential python3-dev
+sudo apt install ffmpeg xclip pulseaudio-utils python3-venv build-essential python3-dev
 ```
 
-### GPU Support (NVIDIA)
-For optimal Whisper performance, GPU acceleration is **critical**.
-*   **NVIDIA Drivers**: Ensure you have the latest drivers installed.
-*   **CUDA Toolkit**: Required for `faster-whisper` and `torch`.
+### 2. Python Environment
 
-> **note**: if you don't have an NVIDIA GPU, it will work on CPU but will be much slower.
-
----
-
-## 2. Python Environment
-
-It's strongly recommended to use a virtual environment to isolate project dependencies.
-
-### Creation and Activation
+We isolate libraries to avoid conflicts.
 
 ```bash
-# 1. Create virtual environment at project root
+# Create virtual environment
 python3 -m venv venv
 
-# 2. Activate the environment
+# Activate environment (Do this every time you work on the project!)
 source venv/bin/activate
-```
 
-### Installing Dependencies
-
-```bash
-# 3. Install required packages
+# Install dependencies
 pip install -r requirements.txt
 ```
 
----
+### 3. AI Configuration (Optional)
 
-## 3. AI Credentials (Google Gemini)
-
-For text refinement functionality (`process-clipboard`), a Google Gemini API Key is required.
+To use the "Text Refinement" features (LLM rewriting), you need a Google Gemini API Key.
 
 1.  Get your key at [Google AI Studio](https://aistudio.google.com/).
-2.  Create a `.env` file at the project root.
-3.  Add your key following this format:
+2.  Create a `.env` file at the root:
 
 ```bash
 echo 'GEMINI_API_KEY="your_api_key_here"' > .env
@@ -59,17 +66,27 @@ echo 'GEMINI_API_KEY="your_api_key_here"' > .env
 
 ---
 
-## 4. Verifying Installation
+## ✅ Verification
 
-To confirm all components are correctly configured, run the included diagnostic scripts.
+Ensure everything works before proceeding.
 
-### Verify Dependencies and Audio
+**1. Verify GPU Acceleration**
+This confirms that Whisper can use your graphics card (essential for speed).
+```bash
+python scripts/test_whisper_gpu.py
+```
+
+**2. System Diagnostic**
+Verifies that the daemon and audio services are ready.
 ```bash
 python scripts/verify_daemon.py
 ```
 
-### Verify GPU Acceleration
-This script loads a small Whisper model to confirm `cuda` is available and functional.
-```bash
-python scripts/test_whisper_gpu.py
-```
+---
+
+## ⏭️ Next Steps
+
+Once installed, it's time to configure how you interact with the tool.
+
+- [Detailed Configuration](configuration.md) - Adjust models and sensitivity.
+- [Keyboard Shortcuts](troubleshooting.md) - (Note: Check the Spanish docs for keybindings if missing here, or refer to `docs/atajos_teclado.md` translated).

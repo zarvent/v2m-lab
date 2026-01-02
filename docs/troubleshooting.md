@@ -1,66 +1,77 @@
 # 🔧 Resolución de Problemas (Troubleshooting)
 
-Esta guía recopila los problemas más comunes y sus soluciones. Si encuentras un error que no está aquí, por favor revisa los logs en `/tmp/v2m.log`.
+Esta guía recopila los problemas más comunes y sus soluciones. **Regla de Oro**: Siempre revisa los logs primero.
+
+```bash
+tail -f /tmp/v2m.log
+```
 
 ---
 
 ## 🛑 Problemas de Audio
 
-### "No se detecta el micrófono" o Grabación vacía
-*   **Síntoma**: El sistema dice "Grabación iniciada" pero al detenerse no transcribe nada o da error.
+### "Grabación iniciada" pero no transcribe nada
+*   **Síntoma**: Suena el beep, hablas, suena el beep de fin, pero el portapapeles está vacío o sale error.
+*   **Causa**: Dispositivo de entrada muteado o no seleccionado.
 *   **Solución**:
-    1.  Verifica que `ffmpeg` y `pactl` estén instalados.
-    2.  Asegúrate de que tu micrófono predeterminado en el sistema operativo esté activo y con volumen.
-    3.  Ejecuta `arecord -l` para listar dispositivos.
+    1.  Ejecuta `python scripts/diagnose_audio.py` para ver el vúmetro en consola.
+    2.  Revisa la privacidad del micrófono en tu SO.
+    3.  Verifica que `ffmpeg` y `pulseaudio-utils` estén instalados.
 
-### La transcripción corta frases o palabras
-*   **Causa**: El VAD (Voice Activity Detection) puede ser demasiado agresivo.
+### Frases cortadas
+*   **Causa**: El VAD (Voice Activity Detection) es muy agresivo.
 *   **Solución**:
-    1.  Edita `config.toml`.
-    2.  En `[whisper.vad_parameters]`, reduce `threshold` (ej. a `0.3`) o aumenta `min_speech_duration_ms`.
+    *   Edita `config.toml`.
+    *   Baja `[whisper.vad_parameters] threshold` (ej. a `0.3`).
+    *   Sube `min_silence_duration_ms` a `800`.
 
 ---
 
 ## 🐢 Problemas de Rendimiento
 
-### La transcripción es muy lenta (>5 segundos para frases cortas)
-*   **Causa**: Probablemente Whisper se está ejecutando en la **CPU** en lugar de la **GPU**.
+### La transcripción es lenta (>5s para frases cortas)
+*   **Causa**: Whisper probablemente está corriendo en **CPU**.
 *   **Diagnóstico**: Ejecuta `python scripts/test_whisper_gpu.py`.
 *   **Solución**:
-    1.  Verifica que tienes drivers NVIDIA y CUDA instalados.
-    2.  Reinstala `torch` con soporte CUDA explícito.
-    3.  En `config.toml`, asegura `device = "cuda"`.
+    1.  Instala drivers NVIDIA y CUDA Toolkit 12+.
+    2.  Asegura `device = "cuda"` en `config.toml`.
+    3.  Si *debes* usar CPU, cambia a `model = "base"` y `compute_type = "int8"`.
 
-### `OutOfMemoryError` (OOM) en GPU
-*   **Causa**: El modelo `large-v3` es demasiado grande para tu VRAM.
+### `OutOfMemoryError` (OOM)
+*   **Causa**: `large-v3-turbo` requiere ~4GB VRAM.
 *   **Solución**:
-    1.  Cambia el modelo en `config.toml` a `medium` o `small`.
-    2.  Cambia `compute_type` a `int8_float16` (híbrido) si tu tarjeta lo soporta.
+    *   Cambia a modelo `medium`.
+    *   Usa `compute_type = "int8_float16"`.
 
 ---
 
-## 🤖 Problemas con Gemini (LLM)
+## 🤖 Problemas con Gemini / LLM
 
-### "Error de autenticación" o "API Key inválida"
+### "Error de Autenticación"
 *   **Solución**:
-    1.  Verifica que el archivo `.env` existe en la raíz.
-    2.  Asegúrate de que la variable se llame `GEMINI_API_KEY`.
-    3.  Genera una nueva clave en Google AI Studio.
+    1.  Revisa que exista el archivo `.env`.
+    2.  Verifica que la variable sea `GEMINI_API_KEY`.
+    3.  Regenera la clave en Google AI Studio.
 
-### El texto refinado es peor que el original
+### Mala calidad en el refinado
 *   **Solución**:
-    1.  Ajusta el `system_prompt` en `src/v2m/infrastructure/gemini_llm_service.py` (o en `prompts/` si está externalizado).
-    2.  Baja la `temperature` en `config.toml` a `0.1` para hacerlo más determinista.
+    *   Baja la `temperature` a `0.1`.
+    *   Asegúrate de haber copiado texto antes de lanzar el atajo.
 
 ---
 
-## 📜 Logs y Depuración
+## 🖥️ Demonio / Conectividad
 
-Para ver qué está pasando en tiempo real:
-
-```bash
-# Ver el log en vivo
-tail -f /tmp/v2m.log
-```
-
-Si reportas un bug, por favor incluye las últimas líneas de este archivo.
+### "Connection Refused" (Error de Socket)
+*   **Síntoma**: CLI o GUI se quejan de `/tmp/v2m.sock`.
+*   **Causa**: El daemon no está corriendo.
+*   **Solución**:
+    ```bash
+    # Inícialo manualmente para ver errores
+    python -m v2m.main --daemon
+    ```
+    Si crashea o dice "address in use":
+    ```bash
+    pkill -f v2m.main
+    rm /tmp/v2m.sock
+    ```
