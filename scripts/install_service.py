@@ -206,7 +206,8 @@ def install_service() -> None:
     # 4. Contenido del servicio
     service_content = f"""[Unit]
 Description=Voice2Machine Daemon
-After=network.target sound.target
+After=network.target sound.target default.target
+PartOf=graphical-session.target
 
 [Service]
 Type=simple
@@ -214,6 +215,10 @@ WorkingDirectory={current_dir}
 {env_vars}ExecStart={venv_python} -m v2m.main --daemon
 Restart=on-failure
 RestartSec=5
+
+# Modern logging (Journald)
+StandardOutput=journal
+StandardError=journal
 
 # Cargar variables (API Key) desde .env
 EnvironmentFile={current_dir}/.env

@@ -75,17 +75,8 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 PROJECT_DIR="$( dirname "${SCRIPT_DIR}" )/apps/backend"
 NOTIFY_EXPIRE_TIME=3000
 
-# XDG_RUNTIME_DIR compliance (2026 best practice)
-get_runtime_dir() {
-    if [ -n "${XDG_RUNTIME_DIR:-}" ]; then
-        local dir="${XDG_RUNTIME_DIR}/v2m"
-    else
-        local dir="/tmp/v2m_$(id -u)"
-    fi
-    mkdir -p "$dir" 2>/dev/null && chmod 700 "$dir" 2>/dev/null
-    echo "$dir"
-}
-
+# --- LOAD COMMON UTILS ---
+source "${SCRIPT_DIR}/common.sh"
 RUNTIME_DIR=$(get_runtime_dir)
 
 # --- RUTAS DERIVADAS ---

@@ -68,12 +68,13 @@
 set -euo pipefail
 
 # --- Configuración ---
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-PROJECT_DIR="$( dirname "${SCRIPT_DIR}" )/apps/backend"
+# --- LOAD COMMON UTILS ---
+source "${SCRIPT_DIR}/common.sh"
+RUNTIME_DIR=$(get_runtime_dir)
+PROJECT_DIR="${PROJECT_ROOT}/apps/backend"
 NOTIFY_EXPIRE_TIME=3000
 
 # --- Rutas Derivadas ---
-VENV_PATH="${PROJECT_DIR}/venv"
 MAIN_SCRIPT="${PROJECT_DIR}/src/v2m/main.py"
 
 # --- Verificaciones Previas ---
@@ -137,11 +138,11 @@ send_to_daemon() {
     # Activar entorno y enviar comando PROCESS_TEXT al daemon
     # Usamos subshell para aislar variables de entorno
     (
-        source "${VENV_PATH}/bin/activate"
-        export PYTHONPATH="${PROJECT_DIR}/src"
+        activate_venv
+        export PYTHONPATH="${PROJECT_ROOT}/apps/backend/src"
 
         # Usar el cliente IPC para comunicarse con el daemon
-        if ! python3 "${MAIN_SCRIPT}" PROCESS_TEXT "${text_to_process}"; then
+        if ! python3 "${PROJECT_ROOT}/apps/backend/src/v2m/main.py" PROCESS_TEXT "${text_to_process}"; then
             echo "Error executing python script" >&2
             exit 1
         fi

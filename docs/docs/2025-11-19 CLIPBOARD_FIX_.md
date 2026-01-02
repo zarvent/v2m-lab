@@ -35,6 +35,7 @@ LinuxClipboardAdapter:
 **NUNCA usar `subprocess.run()` con timeout** para copiar al clipboard, porque el proceso nunca termina por sí solo.
 
 **CORRECTO**:
+
 ```python
 process = subprocess.Popen(
     ["xclip", "-selection", "clipboard"],
@@ -51,6 +52,7 @@ time.sleep(0.05)  # Dar tiempo a procesar
 ## TESTING
 
 Ejecutar:
+
 ```bash
 ./venv/bin/python scripts/test_clipboard.py
 ```
@@ -62,19 +64,20 @@ Resultado esperado: `✅ SUCCESS`
 ### Opción 1: Manual (para desarrollo)
 
 ```bash
-cd /home/zarvent/v2m
-export PYTHONPATH=/home/zarvent/v2m/src
+cd /path/to/v2m
+export PYTHONPATH=/path/to/v2m/src
 ./venv/bin/python -m v2m.main --daemon > /tmp/v2m_daemon.log 2>&1 &
 ```
 
 ### Opción 2: Systemd (para producción)
 
 ```bash
-cd /home/zarvent/v2m
+cd /path/to/v2m
 ./venv/bin/python scripts/install_service.py
 ```
 
 Esto instalará un servicio de usuario que:
+
 - Se inicia automáticamente al login
 - Captura variables de entorno del `.env`
 - Configura PYTHONPATH correctamente
@@ -90,7 +93,7 @@ ps aux | grep "v2m.main --daemon"
 tail -f /tmp/v2m_daemon.log
 
 # Ping test
-export PYTHONPATH=/home/zarvent/v2m/src
+export PYTHONPATH=/path/to/v2m/src
 ./venv/bin/python -c "import asyncio; from v2m.client import send_command; print(asyncio.run(send_command('PING')))"
 ```
 
@@ -103,6 +106,7 @@ export PYTHONPATH=/home/zarvent/v2m/src
 - **xclip** (para X11) o **wl-clipboard** (para Wayland)
 
 Instalar si no está disponible:
+
 ```bash
 sudo apt install xclip  # Para X11
 sudo apt install wl-clipboard  # Para Wayland
@@ -113,13 +117,16 @@ sudo apt install wl-clipboard  # Para Wayland
 ## AUDITORÍA TÉCNICA / TECHNICAL AUDIT
 
 ### DECISIÓN CRÍTICA
+
 Reemplazar PYPERCLIP con subprocess directo a xclip/wl-clipboard porque:
+
 1. **Control total del entorno**: Podemos pasar explícitamente `DISPLAY` capturado durante la inicialización
 2. **Manejo correcto del lifecycle**: PYPERCLIP ocultaba el hecho de que xclip se queda en background
 3. **Sin overhead**: Una dependencia menos, ejecución más rápida
 4. **Debugging más fácil**: Los logs muestran exactamente qué comando se ejecuta y con qué env vars
 
 ### DEUDA TÉCNICA POTENCIAL
+
 1. **Procesos zombie de xclip**: Si el sistema hace muchas copias sin limpiar, pueden acumularse procesos xclip en background. Mitigación: El OS los limpia cuando ya no son necesarios, pero podríamos implementar un reaper si se vuelve problema.
 2. **Race condition en lecturas inmediatas**: El `sleep(0.05)` es una solución pragmática pero no 100% garantizada. Si hay problemas, incrementar a 0.1s.
 3. **Wayland no testeado**: La lógica de wl-copy es similar pero no ha sido testeada en este PR. Requiere testing en sistema Wayland real.

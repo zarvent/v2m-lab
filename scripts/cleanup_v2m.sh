@@ -58,24 +58,30 @@ else
     fi
 fi
 
+# Load common utilities
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+source "${SCRIPT_DIR}/common.sh"
+
+RUNTIME_DIR=$(get_runtime_dir)
+
 # 2. Limpiar socket huérfano
 echo -e "\n${YELLOW}[2/4]${NC} Verificando socket Unix..."
-if [[ -S /tmp/v2m.sock ]]; then
-    echo -e "${YELLOW}Socket encontrado, eliminando...${NC}"
-    rm -f /tmp/v2m.sock
+if [[ -S "${RUNTIME_DIR}/v2m.sock" ]]; then
+    echo -e "${YELLOW}Socket encontrado en ${RUNTIME_DIR}/v2m.sock, eliminando...${NC}"
+    rm -f "${RUNTIME_DIR}/v2m.sock"
     echo -e "${GREEN}✅ Socket eliminado${NC}"
 else
-    echo -e "${GREEN}✅ No hay socket huérfano${NC}"
+    echo -e "${GREEN}✅ No hay socket huérfano en ${RUNTIME_DIR}${NC}"
 fi
 
 # 3. Limpiar PID file
 echo -e "\n${YELLOW}[3/4]${NC} Verificando PID file..."
-if [[ -f /tmp/v2m_daemon.pid ]]; then
-    echo -e "${YELLOW}PID file encontrado, eliminando...${NC}"
-    rm -f /tmp/v2m_daemon.pid
+if [[ -f "${RUNTIME_DIR}/v2m_daemon.pid" ]]; then
+    echo -e "${YELLOW}PID file encontrado en ${RUNTIME_DIR}/v2m_daemon.pid, eliminando...${NC}"
+    rm -f "${RUNTIME_DIR}/v2m_daemon.pid"
     echo -e "${GREEN}✅ PID file eliminado${NC}"
 else
-    echo -e "${GREEN}✅ No hay PID file huérfano${NC}"
+    echo -e "${GREEN}✅ No hay PID file huérfano en ${RUNTIME_DIR}${NC}"
 fi
 
 # 4. Verificar VRAM

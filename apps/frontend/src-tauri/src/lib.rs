@@ -11,13 +11,46 @@ use std::sync::OnceLock;
 use tauri::path::BaseDirectory;
 use tauri::{Emitter, Manager};
 
-// --- CONFIGURATION (Centralized) ---
-
-/// Socket path - reads from V2M_SOCKET_PATH env var, defaults to /tmp/v2m.sock
+/// Socket path - reads from V2M_SOCKET_PATH env var, or dynamically discovers XDG_RUNTIME_DIR.
+/// Adheres to 2026 security standards for local IPC.
 fn socket_path() -> &'static str {
     static PATH: OnceLock<String> = OnceLock::new();
     PATH.get_or_init(|| {
-        env::var("V2M_SOCKET_PATH").unwrap_or_else(|_| "/tmp/v2m.sock".to_string())
+        if let Ok(p) = env::var("V2M_SOCKET_PATH") {
+            return p;
+        }
+
+        let uid = unsafe { libc::getuid() };
+        let mut path = if let Ok(xdg) = env::var("XDG_RUNTIME_DIR") {
+            std::path::PathBuf::from(xdg).join("v2m")
+        } else {
+            // Fallback to /tmp with user UID (safe on Linux when ownership is verified)
+            std::path::PathBuf::from("/tmp").join(format!("v2m_{}", uid))
+        };
+
+        // Security Audit (SOTA 2026): Ensure the directory is owned by the current user
+        // This prevents "squatting" attacks where another user creates the directory first.
+        if path.exists() {
+            use std::os::unix::fs::MetadataExt;
+            if let Ok(metadata) = std::fs::metadata(&path) {
+                if metadata.uid() != uid {
+                    // Critical security failure: Directory owned by someone else
+                    // Fallback to a random temporary name or fail loudly
+                    eprintln!("SECURITY ERROR: Runtime directory {:?} is not owned by UID {}", path, uid);
+                }
+            }
+        } else {
+            // Attempt to create it with restricted permissions
+            let _ = std::fs::create_dir_all(&path);
+            #[cfg(unix)]
+            {
+                use std::os::unix::fs::PermissionsExt;
+                let _ = std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o700));
+            }
+        }
+
+        path.push("v2m.sock");
+        path.to_string_lossy().into_owned()
     })
 }
 

@@ -43,7 +43,7 @@ EJEMPLO
 
 NOTE
     el daemon debe ejecutarse con permisos para acceder al micrófono
-    y crear archivos en /tmp/
+    y crear archivos en el directorio de runtime (XDG_RUNTIME_DIR o /tmp/)
 """
 
 import asyncio

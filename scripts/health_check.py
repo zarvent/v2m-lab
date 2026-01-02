@@ -70,14 +70,35 @@ def get_gpu_memory() -> Tuple[int, int]:
         return 0, 0
 
 
+def get_runtime_dir() -> Path:
+    """Obtiene el directorio de runtime configurado."""
+    try:
+        from v2m.utils.paths import get_secure_runtime_dir
+        return get_secure_runtime_dir()
+    except ImportError:
+        # Fallback si no se puede importar el utils del backend
+        import os
+        xdg_runtime = os.environ.get("XDG_RUNTIME_DIR")
+        if xdg_runtime:
+            path = Path(xdg_runtime) / "v2m"
+        else:
+            path = Path(f"/tmp/v2m_{os.getuid()}")
+
+        if path.exists():
+            if path.stat().st_uid != os.getuid():
+                print(f"ERROR: Runtime directory {path} not owned by UID {os.getuid()}")
+                return path # Still return it, but at least we warned.
+        return path
+
+
 def check_daemon_socket() -> bool:
     """Verifica si el socket del daemon existe."""
-    return Path('/tmp/v2m.sock').exists()
+    return (get_runtime_dir() / 'v2m.sock').exists()
 
 
 def check_pid_file() -> int | None:
     """Lee el PID file si existe."""
-    pid_file = Path('/tmp/v2m_daemon.pid')
+    pid_file = get_runtime_dir() / 'v2m_daemon.pid'
     if pid_file.exists():
         try:
             return int(pid_file.read_text().strip())
@@ -92,7 +113,8 @@ def is_daemon_responsive() -> bool:
         import socket
         s = socket.socket(socket.AF_UNIX)
         s.settimeout(2)
-        s.connect('/tmp/v2m.sock')
+        socket_path = get_runtime_dir() / 'v2m.sock'
+        s.connect(str(socket_path))
         s.send(b'PING')
         response = s.recv(1024).decode()
         s.close()
@@ -147,9 +169,9 @@ def main():
     print(f"\n{Colors.YELLOW}[2/4] Verificando socket Unix...{Colors.NC}")
     socket_exists = check_daemon_socket()
     if socket_exists:
-        print(f"{Colors.GREEN}✅ Socket /tmp/v2m.sock existe{Colors.NC}")
+        print(f"{Colors.GREEN}✅ Socket {get_runtime_dir() / 'v2m.sock'} existe{Colors.NC}")
     else:
-        print(f"{Colors.YELLOW}⚠️  Socket no encontrado{Colors.NC}")
+        print(f"{Colors.YELLOW}⚠️  Socket no encontrado en {get_runtime_dir() / 'v2m.sock'}{Colors.NC}")
 
     # 3. Verificar PID file
     print(f"\n{Colors.YELLOW}[3/4] Verificando PID file...{Colors.NC}")
@@ -206,9 +228,9 @@ def main():
             print(f"{Colors.GREEN}✅ {killed} proceso(s) eliminado(s){Colors.NC}")
 
             # Limpiar archivos residuales
-            Path('/tmp/v2m.sock').unlink(missing_ok=True)
-            Path('/tmp/v2m_daemon.pid').unlink(missing_ok=True)
-            print(f"{Colors.GREEN}✅ Archivos residuales eliminados{Colors.NC}")
+            (get_runtime_dir() / 'v2m.sock').unlink(missing_ok=True)
+            (get_runtime_dir() / 'v2m_daemon.pid').unlink(missing_ok=True)
+            print(f"{Colors.GREEN}✅ Archivos residuales eliminados en {get_runtime_dir()}{Colors.NC}")
         else:
             print(f"{Colors.YELLOW}💡 Usa --kill-zombies para eliminar automáticamente{Colors.NC}")
 
