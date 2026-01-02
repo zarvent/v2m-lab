@@ -1,0 +1,36 @@
+# requirements-minimal.txt
+# Versión optimizada para producción - footprint reducido
+# Instalar con: pip install --no-deps -r requirements-minimal.txt
+
+# === CORE (obligatorios) ===
+faster-whisper==1.2.1
+google-genai>=0.3.0
+sounddevice
+numpy>=2.0.0
+
+# === Configuración ===
+pydantic-settings
+python-dotenv>=1.0.0
+toml
+
+# === Async & HTTP ===
+anyio>=4.0.0
+httpx>=0.28.0
+tenacity>=8.2.0
+
+# === CLI ===
+typer-slim>=0.20.0
+
+# === Logging ===
+coloredlogs>=15.0.0
+python-json-logger
+
+# === VAD (Silero) - usar ONNX para menor footprint ===
+silero-vad
+# onnxruntime descomentar si usas ONNX en vez de PyTorch para Silero
+# onnxruntime>=1.18.0
+
+# === Dev (no incluir en producción) ===
+# pytest
+# pytest-asyncio
+# pytest-mock

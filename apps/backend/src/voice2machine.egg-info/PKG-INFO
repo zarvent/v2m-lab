@@ -1,0 +1,15 @@
+Metadata-Version: 2.4
+Name: voice2machine
+Version: 0.1.0
+Summary: State-of-the-art Voice to Machine Interface
+Requires-Python: >=3.12
+Requires-Dist: faster-whisper
+Requires-Dist: sounddevice
+Requires-Dist: pydantic
+Requires-Dist: pydantic-settings
+Requires-Dist: numpy
+Requires-Dist: typer-slim
+Requires-Dist: google-genai
+Requires-Dist: pyyaml
+Requires-Dist: requests
+Requires-Dist: coloredlogs

@@ -1,0 +1,30 @@
+[package]
+name = "v2m_engine"
+version = "0.2.0"
+edition = "2024"
+rust-version = "1.85"
+
+[lib]
+name = "v2m_engine"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { version = "0.23", features = ["extension-module"] }
+cpal = "0.15"
+numpy = "0.23"
+ringbuf = "0.4"
+anyhow = "1.0"
+log = "0.4"
+pyo3-log = "0.12"
+sysinfo = "0.33"
+rubato = "0.16"
+
+# VAD: WebRTC Voice Activity Detection (2026 state-of-the-art)
+webrtc-vad = "0.4"
+
+# GPU Monitoring: NVIDIA Management Library (optional runtime)
+nvml-wrapper = { version = "0.10", optional = true }
+
+[features]
+default = []
+nvidia = ["nvml-wrapper"]

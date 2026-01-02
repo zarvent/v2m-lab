@@ -1,0 +1,2 @@
+# directorio para modelos GGUF locales
+# los archivos .gguf están en .gitignore (muy pesados para git)

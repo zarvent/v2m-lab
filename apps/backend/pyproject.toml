@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "voice2machine"
+version = "0.1.0"
+description = "State-of-the-art Voice to Machine Interface"
+requires-python = ">=3.12"
+dependencies = [
+    "faster-whisper",
+    "sounddevice",
+    "pydantic",
+    "pydantic-settings",
+    "numpy",
+    "typer-slim",
+    "google-genai",
+    "pyyaml",
+    "requests",
+    "coloredlogs",
+]
+
+[tool.ruff]
+# Enable modern python rules
+target-version = "py312"
+line-length = 120
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade (upgrade syntax to match python version)
+    "N",   # pep8-naming
+    "SIM", # flake8-simplify
+    "RUF", # ruff specific rules
+]
+ignore = []
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+pythonpath = ["src"]

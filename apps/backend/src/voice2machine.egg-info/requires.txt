@@ -1,0 +1,10 @@
+faster-whisper
+sounddevice
+pydantic
+pydantic-settings
+numpy
+typer-slim
+google-genai
+pyyaml
+requests
+coloredlogs

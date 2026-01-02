@@ -1,0 +1,13 @@
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# Environment variable files - do NOT commit
+.env
+.env.*
+logs/*.log
+daemon_startup.log
+
+# modelos GGUF locales (muy pesados para git)
+*.gguf
