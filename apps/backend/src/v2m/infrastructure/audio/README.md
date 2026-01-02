@@ -1,12 +1,14 @@
-# audio infrastructure
+# Audio Infrastructure
 
-este submódulo maneja todo lo relacionado con la captura y procesamiento de audio a bajo nivel
+This submodule handles everything related to low-level audio capture and processing.
 
-contenido
-- `recorder.py` clase `AudioRecorder` que gestiona la captura de audio usando `sounddevice` con buffers pre-allocados para alto rendimiento
-- `recording_worker.py` script para ejecutar la grabación en un proceso aislado si es necesario (para evitar problemas de gil o bloqueos)
+## Content
 
-características
-- soporte para grabación en hilo de fondo
-- acceso directo a buffers numpy para eficiencia (zero-copy)
-- manejo robusto de errores de dispositivos de audio
+- `recorder.py` - `AudioRecorder` class that manages audio capture using `sounddevice` with pre-allocated buffers for high performance
+- `recording_worker.py` - Script to run recording in an isolated process if needed (to avoid GIL issues or blocks)
+
+## Features
+
+- Background thread recording support
+- Direct numpy buffer access for efficiency (zero-copy)
+- Robust audio device error handling

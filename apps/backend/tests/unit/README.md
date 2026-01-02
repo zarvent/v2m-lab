@@ -1,36 +1,43 @@
 # UNIT TESTS
 
-### qué es esta carpeta
-esta carpeta contiene las **pruebas unitarias** del proyecto. las pruebas unitarias se centran en verificar el comportamiento de componentes individuales (funciones, métodos, clases) de forma aislada.
+### What is this folder?
 
-### para qué sirve
-el objetivo es asegurar que cada pieza pequeña de lógica funcione correctamente por sí misma, sin depender de sistemas externos, bases de datos o red. esto permite:
-*   ejecución rápida de pruebas (milisegundos).
-*   localización precisa de errores.
-*   documentación ejecutable del comportamiento esperado de cada componente.
+This folder contains the project's **unit tests**. Unit tests focus on verifying the behavior of individual components (functions, methods, classes) in isolation.
 
-### qué puedo encontrar aquí
-*   `test_audio_recorder.py`: pruebas para la clase `AudioRecorder`.
-*   `test_config.py`: pruebas para la carga y validación de configuración.
-*   `test_vad_service.py`: pruebas para el servicio de detección de voz (VAD).
-*   otros archivos `test_*.py` correspondientes a módulos específicos de `src/v2m`.
+### What is it for?
 
-### cómo ejecutar estas pruebas
-desde la raíz del proyecto:
+The goal is to ensure each small piece of logic works correctly on its own, without depending on external systems, databases, or network. This allows:
+
+- Fast test execution (milliseconds).
+- Precise error localization.
+- Executable documentation of each component's expected behavior.
+
+### What can I find here?
+
+- `test_audio_recorder.py`: Tests for the `AudioRecorder` class.
+- `test_config.py`: Tests for configuration loading and validation.
+- `test_vad_service.py`: Tests for the voice activity detection service (VAD).
+- Other `test_*.py` files corresponding to specific `src/v2m` modules.
+
+### How to run these tests
+
+From the project root:
 
 ```bash
-# ejecutar todas las pruebas unitarias
+# run all unit tests
 pytest tests/unit
 
-# ejecutar un archivo específico
+# run a specific file
 pytest tests/unit/test_vad_service.py
 ```
 
-### principios de diseño
-*   **aislamiento**: usamos `unittest.mock` o `pytest-mock` para simular dependencias externas (como `sounddevice` o APIs).
-*   **velocidad**: estas pruebas no deben realizar I/O real (disco, red).
-*   **cobertura**: buscamos cubrir tanto el "happy path" como los casos de error y bordes.
+### Design principles
 
-### referencias
-*   [documentación de pytest](https://docs.pytest.org/)
-*   `tests/README.md` para la guía general de testing del proyecto.
+- **Isolation**: We use `unittest.mock` or `pytest-mock` to simulate external dependencies (like `sounddevice` or APIs).
+- **Speed**: These tests should not perform real I/O (disk, network).
+- **Coverage**: We aim to cover both the "happy path" and error/edge cases.
+
+### References
+
+- [pytest documentation](https://docs.pytest.org/)
+- `tests/README.md` for the project's general testing guide.

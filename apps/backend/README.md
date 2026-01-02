@@ -1,68 +1,71 @@
 # Backend Voice2Machine (Python Core)
 
-El "cerebro" del sistema. Encargado de la lógica de negocio, procesamiento de audio e inferencia de IA.
+The "brain" of the system. Handles business logic, audio processing, and AI inference.
 
 ## 🚀 Quick Start (Dev Mode)
 
-Si ya ejecutaste `install.sh` en la raíz, todo esto está listo. Para desarrollo manual:
+If you already ran `install.sh` at the root, everything is set up. For manual development:
 
 ```bash
-# 1. Activar entorno virtual
+# 1. Activate virtual environment
 cd apps/backend
 source venv/bin/activate
 
-# 2. Instalar dependencias en modo editable (útil para dev)
+# 2. Install dependencies in editable mode (useful for dev)
 pip install -e .
 
-# 3. Lanzar el Daemon (Servidor)
-# Esto mantendrá el proceso vivo escuchando en /tmp/v2m.sock
+# 3. Launch the Daemon (Server)
+# This will keep the process alive listening on /tmp/v2m.sock
 python -m v2m.main --daemon
 ```
 
-## 🏗️ Comandos de Desarrollo
+## 🏗️ Development Commands
 
-Utilizamos herramientas modernas para garantizar calidad de código.
+We use modern tools to ensure code quality.
 
 ### Testing (Pytest)
+
 ```bash
-# Tests unitarios rápidos
+# Fast unit tests
 pytest tests/unit/
 
-# Tests de integración (requiere GPU/Audio)
+# Integration tests (requires GPU/Audio)
 pytest tests/integration/
 ```
 
 ### Linting & Formatting (Ruff)
-Usamos `ruff` (el linter más rápido del oeste) para reemplazar a flake8, isort y black.
+
+We use `ruff` (the fastest linter in the West) to replace flake8, isort, and black.
 
 ```bash
-# Check y autofix
+# Check and autofix
 ruff check src/ --fix
 
-# Formateo
+# Format
 ruff format src/
 ```
 
-## 📦 Estructura del Proyecto
+## 📦 Project Structure
 
 ```
 apps/backend/
 ├── src/v2m/
-│   ├── application/    # Casos de uso (Commands/Handlers)
-│   ├── core/           # Bus de comandos y configuración global
-│   ├── domain/         # Entidades puras y excepciones
-│   ├── infrastructure/ # Implementaciones reales (Whisper, Gemini, Audio)
+│   ├── application/    # Use cases (Commands/Handlers)
+│   ├── core/           # Command bus and global configuration
+│   ├── domain/         # Pure entities and exceptions
+│   ├── infrastructure/ # Real implementations (Whisper, Gemini, Audio)
 │   └── main.py         # Entrypoint
-├── config.toml         # Configuración por defecto
-└── pyproject.toml      # Configuración de build y herramientas
+├── config.toml         # Default configuration
+└── pyproject.toml      # Build and tooling configuration
 ```
 
-## 🔌 API de Sockets
+## 🔌 Socket API
 
-El backend expone un Socket Unix en `/tmp/v2m.sock`.
+The backend exposes a Unix Socket at `/tmp/v2m.sock`.
 
-**Protocolo:**
-1.  **Header**: 4 bytes (Big Endian) indicando la longitud del mensaje.
-2.  **Body**: JSON string codificado en UTF-8.
+**Protocol:**
 
-*Ejemplo de mensaje:* `{"type": "toggle_recording"}`
+1.  **Header**: 4 bytes (Big Endian) indicating message length.
+2.  **Body**: JSON string encoded in UTF-8.
+
+_Message example:_ `{"type": "toggle_recording"}`

@@ -1,34 +1,22 @@
-# documentación del proyecto
+# Project Documentation
 
-este directorio contiene la documentación detallada de voice2machine generada con mkdocs
+This directory contains detailed Voice2Machine documentation generated with MkDocs.
 
-## contenido principal
+## Main Content
 
-- `index.md` página principal
-- `instalacion.md` guía paso a paso de instalación
-- `configuracion.md` referencia de todos los parámetros de configuración
-- `arquitectura.md` explicación técnica del diseño del sistema
-- `guia_rapida.md` tutorial para empezar a usar v2m
-- `troubleshooting.md` solución a problemas comunes
+- `index.md` - Main page
+- `instalacion.md` - Step-by-step installation guide
+- `configuracion.md` - Reference for all configuration parameters
+- `arquitectura.md` - Technical explanation of system design
+- `guia_rapida.md` - Tutorial to get started with v2m
+- `troubleshooting.md` - Solutions for common problems
 
-## documentación de optimizaciones (pr #81)
+## Generation
 
-- `COMPLETE_SUMMARY.md` - 📋 **inicio aquí** - resumen completo de mejoras al pr #81
-- `PR_81_IMPROVEMENTS.md` - respuesta detallada a comentarios de copilot ai
-- `ZERO_COPY_OPTIMIZATION.md` - documentación técnica de la optimización zero-copy
-
-### acceso rápido
-
-**¿acabas de revisar el pr #81?** → lee `COMPLETE_SUMMARY.md` primero
-**¿quieres usar `copy_data=False`?** → ve a `ZERO_COPY_OPTIMIZATION.md`
-**¿verificando las mejoras?** → revisa `PR_81_IMPROVEMENTS.md`
-
-## generación
-
-la documentación se construye usando `mkdocs` para servirla localmente ejecuta
+The documentation is built using `mkdocs`. To serve it locally, run:
 
 ```bash
 mkdocs serve
 ```
 
-esto iniciará un servidor web en `http://127.0.0.1:8000` con la documentación navegable
+This will start a web server at `http://127.0.0.1:8000` with browsable documentation.

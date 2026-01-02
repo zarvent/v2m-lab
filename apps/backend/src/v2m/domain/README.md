@@ -1,9 +1,11 @@
 # domain
 
-la capa de dominio encapsula las reglas de negocio y las definiciones fundamentales del problema que resuelve la aplicación esta capa no debe depender de ninguna tecnología externa (base de datos frameworks web etc)
+The domain layer encapsulates business rules and fundamental definitions of the problem the application solves. This layer should not depend on any external technology (database, web frameworks, etc.).
 
-contenido
-- `errors.py` jerarquía de excepciones del dominio que representan errores de negocio semánticos (ej `MicrophoneNotFoundError` `TranscriptionError`)
+## Content
 
-filosofía
-el dominio es el corazón de la aplicación y debe permanecer puro y agnóstico a la infraestructura los cambios en librerías externas no deberían afectar este directorio
+- `errors.py` - Domain exception hierarchy representing semantic business errors (e.g., `MicrophoneNotFoundError`, `TranscriptionError`)
+
+## Philosophy
+
+The domain is the heart of the application and should remain pure and infrastructure-agnostic. Changes in external libraries should not affect this directory.

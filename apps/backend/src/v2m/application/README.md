@@ -1,12 +1,14 @@
 # application
 
-la capa de aplicación orquesta la lógica de negocio coordinando las entidades de dominio y las interfaces de infraestructura aquí residen los casos de uso del sistema
+The application layer orchestrates business logic by coordinating domain entities and infrastructure interfaces. This is where system use cases reside.
 
-contenido
-- `commands.py` definiciones de los comandos disponibles (ej `StartRecordingCommand`)
-- `command_handlers.py` implementaciones de la lógica para cada comando
-- `llm_service.py` interfaz abstracta para servicios de modelos de lenguaje
-- `transcription_service.py` interfaz abstracta para servicios de transcripción
+## Content
 
-responsabilidad
-esta capa traduce las intenciones del usuario (comandos) en acciones concretas coordinando los servicios necesarios pero sin conocer los detalles de implementación (ej sabe que debe "transcribir" pero no sabe que usa whisper)
+- `commands.py` - Definitions of available commands (e.g., `StartRecordingCommand`)
+- `command_handlers.py` - Logic implementations for each command
+- `llm_service.py` - Abstract interface for language model services
+- `transcription_service.py` - Abstract interface for transcription services
+
+## Responsibility
+
+This layer translates user intentions (commands) into concrete actions by coordinating necessary services, but without knowing implementation details (e.g., it knows it must "transcribe" but doesn't know it uses Whisper).

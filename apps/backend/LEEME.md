@@ -2,7 +2,7 @@
 
 El "cerebro" del sistema. Encargado de la lógica de negocio, procesamiento de audio e inferencia de IA.
 
-## 🚀 Quick Start (Dev Mode)
+## 🚀 Inicio Rápido (Modo Dev)
 
 Si ya ejecutaste `install.sh` en la raíz, todo esto está listo. Para desarrollo manual:
 
@@ -24,6 +24,7 @@ python -m v2m.main --daemon
 Utilizamos herramientas modernas para garantizar calidad de código.
 
 ### Testing (Pytest)
+
 ```bash
 # Tests unitarios rápidos
 pytest tests/unit/
@@ -33,6 +34,7 @@ pytest tests/integration/
 ```
 
 ### Linting & Formatting (Ruff)
+
 Usamos `ruff` (el linter más rápido del oeste) para reemplazar a flake8, isort y black.
 
 ```bash
@@ -62,7 +64,8 @@ apps/backend/
 El backend expone un Socket Unix en `/tmp/v2m.sock`.
 
 **Protocolo:**
+
 1.  **Header**: 4 bytes (Big Endian) indicando la longitud del mensaje.
 2.  **Body**: JSON string codificado en UTF-8.
 
-*Ejemplo de mensaje:* `{"type": "toggle_recording"}`
+_Ejemplo de mensaje:_ `{"type": "toggle_recording"}`

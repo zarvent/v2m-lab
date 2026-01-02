@@ -1,24 +1,27 @@
-# suite de pruebas
+# Test Suite
 
-este directorio contiene todas las pruebas automatizadas del proyecto organizadas por tipo
+This directory contains all automated project tests organized by type.
 
-estructura
-- `unit/` pruebas unitarias que verifican componentes aislados (mockeando dependencias)
-- `integration/` pruebas de integración que verifican la interacción entre componentes reales
+## Structure
 
-ejecución
-para correr todas las pruebas utiliza `pytest` desde la raíz del proyecto
+- `unit/` - Unit tests that verify isolated components (mocking dependencies)
+- `integration/` - Integration tests that verify interaction between real components
+
+## Execution
+
+To run all tests, use `pytest` from the project root:
 
 ```bash
-# ejecutar todas las pruebas
+# run all tests
 pytest
 
-# ejecutar solo pruebas unitarias
+# run only unit tests
 pytest tests/unit
 
-# ejecutar con cobertura
+# run with coverage
 pytest --cov=src/v2m
 ```
 
-tecnologías
-utilizamos `pytest` como framework principal `pytest-asyncio` para pruebas asíncronas y `pytest-mock` para crear dobles de prueba
+## Technologies
+
+We use `pytest` as the main framework, `pytest-asyncio` for async tests, and `pytest-mock` for creating test doubles.

@@ -1,17 +1,20 @@
-# dependency injection
+# Dependency Injection
 
-este módulo maneja la inyección de dependencias (di) de toda la aplicación utilizando un contenedor centralizado
+This module handles dependency injection (DI) for the entire application using a centralized container.
 
-componentes
-- `container.py` define la clase `Container` que instancia y almacena todos los servicios y handlers como singletons
+## Components
 
-responsabilidades
-- **composición root** es el único lugar donde se conocen las implementaciones concretas (ej `WhisperTranscriptionService`)
-- **cableado** inyecta las dependencias necesarias en los constructores de las clases (ej pasar `NotificationInterface` a `StartRecordingHandler`)
-- **ciclo de vida** asegura que los servicios pesados (como modelos de ml) se instancien una sola vez y se reutilicen
+- `container.py` - Defines the `Container` class that instantiates and stores all services and handlers as singletons
 
-uso
-para acceder a un servicio desde cualquier punto de la aplicación (aunque se recomienda hacerlo solo en puntos de entrada)
+## Responsibilities
+
+- **Composition Root**: The only place where concrete implementations are known (e.g., `WhisperTranscriptionService`)
+- **Wiring**: Injects necessary dependencies into class constructors (e.g., passing `NotificationInterface` to `StartRecordingHandler`)
+- **Lifecycle**: Ensures heavy services (like ML models) are instantiated only once and reused
+
+## Usage
+
+To access a service from any point in the application (though it's recommended to do so only at entry points):
 
 ```python
 from v2m.core.di.container import container

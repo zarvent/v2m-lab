@@ -1,55 +1,55 @@
 # infrastructure
 
-esta capa contiene las implementaciones concretas de las interfaces definidas en `core` y `application` aquí es donde la aplicación interactúa con el mundo exterior (hardware apis sistema operativo)
+This layer contains concrete implementations of interfaces defined in `core` and `application`. This is where the application interacts with the outside world (hardware, APIs, operating system).
 
-## contenido
+## Content
 
-| archivo | descripción |
-|---------|-------------|
-| `audio/` | manejo de grabación de audio y dispositivos |
-| `gemini_llm_service.py` | implementación del servicio llm usando google gemini |
-| `linux_adapters.py` | adaptadores para portapapeles (xclip/wl-clipboard) |
-| `notification_service.py` | **servicio de notificaciones production-ready** con auto-dismiss via dbus |
-| `vad_service.py` | servicio de detección de actividad de voz usando silero vad |
-| `whisper_transcription_service.py` | implementación de transcripción usando faster-whisper |
+| File                               | Description                                                          |
+| ---------------------------------- | -------------------------------------------------------------------- |
+| `audio/`                           | Audio recording and device management                                |
+| `gemini_llm_service.py`            | LLM service implementation using Google Gemini                       |
+| `linux_adapters.py`                | Clipboard adapters (xclip/wl-clipboard)                              |
+| `notification_service.py`          | **Production-ready notification service** with auto-dismiss via dbus |
+| `vad_service.py`                   | Voice activity detection service using Silero VAD                    |
+| `whisper_transcription_service.py` | Transcription implementation using faster-whisper                    |
 
 ## notification_service.py
 
-servicio de notificaciones robusto que resuelve la limitación de unity/gnome que ignora `--expire-time` de notify-send
+Robust notification service that solves the Unity/GNOME limitation that ignores notify-send's `--expire-time`.
 
-### arquitectura
+### Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                 LinuxNotificationService                     │
 ├─────────────────────────────────────────────────────────────┤
 │  - ThreadPoolExecutor singleton (max 4 workers)             │
-│  - DBUS via gdbus (sin dependencias python extra)           │
-│  - Fallback automático a notify-send                        │
-│  - Configuración inyectada desde config.toml                │
+│  - DBUS via gdbus (no extra python dependencies)            │
+│  - Automatic fallback to notify-send                        │
+│  - Configuration injected from config.toml                  │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### configuración
+### Configuration
 
-en `config.toml`:
+In `config.toml`:
 
 ```toml
 [notifications]
-expire_time_ms = 3000  # tiempo antes de auto-cerrar (3s default)
-auto_dismiss = true    # forzar cierre via DBUS
+expire_time_ms = 3000  # time before auto-close (3s default)
+auto_dismiss = true    # force close via DBUS
 ```
 
-### uso
+### Usage
 
 ```python
 from v2m.infrastructure.notification_service import LinuxNotificationService
 
 service = LinuxNotificationService()
-service.notify("✅ Success", "Operación completada")
-# -> se cierra automáticamente después de expire_time_ms
+service.notify("✅ Success", "Operation completed")
+# -> closes automatically after expire_time_ms
 ```
 
-## filosofía
+## Philosophy
 
-este es el único lugar donde se permite importar librerías de terceros pesadas o específicas de plataforma (ej `sounddevice` `google-generativeai` `faster_whisper`)
+This is the only place where heavy or platform-specific third-party libraries can be imported (e.g., `sounddevice`, `google-generativeai`, `faster_whisper`).

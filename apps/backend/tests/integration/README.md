@@ -1,23 +1,30 @@
 # INTEGRATION TESTS
 
-### qué es esta carpeta
-esta carpeta está destinada a las **pruebas de integración**. a diferencia de las pruebas unitarias, estas verifican cómo interactúan múltiples componentes entre sí o con sistemas externos simulados.
+### What is this folder?
 
-### para qué sirve
-su propósito es detectar errores en la "costura" entre módulos, como:
-*   problemas de comunicación entre capas (ej. aplicación -> infraestructura).
-*   errores en el flujo de datos entre servicios.
-*   validación de contratos con dependencias externas (usando fakes o contenedores).
+This folder is for **integration tests**. Unlike unit tests, these verify how multiple components interact with each other or with simulated external systems.
 
-### estado actual
-actualmente esta carpeta puede estar vacía o en desarrollo inicial, ya que el foco principal ha sido la cobertura unitaria y las pruebas manuales de sistema (ver `scripts/verify_daemon.py`).
+### What is it for?
 
-### cómo contribuir
-al agregar pruebas de integración:
-1.  **alcance**: prueba la interacción de 2 o más componentes reales.
-2.  **velocidad**: ten en cuenta que serán más lentas que las unitarias. usa markers de pytest (ej. `@pytest.mark.integration`) para poder filtrarlas.
-3.  **recursos**: si necesitas bases de datos o servicios externos, considera usar `testcontainers` o mocks de alto nivel.
+Its purpose is to detect errors in the "seams" between modules, such as:
 
-### referencias
-*   `tests/README.md` para la estrategia general de pruebas.
-*   `scripts/verify_daemon.py` para pruebas de sistema end-to-end.
+- Communication issues between layers (e.g., application -> infrastructure).
+- Data flow errors between services.
+- Contract validation with external dependencies (using fakes or containers).
+
+### Current state
+
+This folder may currently be empty or in early development, as the main focus has been on unit coverage and manual system testing (see `scripts/verify_daemon.py`).
+
+### How to contribute
+
+When adding integration tests:
+
+1.  **Scope**: Test the interaction of 2 or more real components.
+2.  **Speed**: Keep in mind they will be slower than unit tests. Use pytest markers (e.g., `@pytest.mark.integration`) to filter them.
+3.  **Resources**: If you need databases or external services, consider using `testcontainers` or high-level mocks.
+
+### References
+
+- `tests/README.md` for the general testing strategy.
+- `scripts/verify_daemon.py` for end-to-end system tests.

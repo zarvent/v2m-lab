@@ -1,44 +1,53 @@
 # PROMPTS
 
-### ¿qué es esta carpeta?
-esta carpeta centraliza todos los `prompts` o plantillas de texto que se utilizan para interactuar con modelos de lenguaje generativo (llm), como `google gemini`.
+### What is this folder?
 
-### ¿para qué sirve?
-su objetivo es desacoplar los prompts del código fuente de la aplicación. esto permite que los prompts puedan ser editados, mejorados y gestionados por personas no desarrolladoras sin necesidad de modificar la lógica del programa.
+This folder centralizes all `prompts` or text templates used to interact with generative language models (LLM), such as `Google Gemini`.
 
-### ¿qué puedo encontrar aquí?
-*   `archivos de texto (.txt)`: cada archivo contiene una plantilla de prompt para un caso de uso específico. los prompts pueden incluir placeholders (e.g., `{texto_a_corregir}`) que la aplicación reemplaza dinámicamente.
+### What is it for?
 
-### uso y ejemplos
-la aplicación carga estos archivos de texto y los utiliza como plantillas para generar el prompt final que se envía al llm.
+Its goal is to decouple prompts from the application's source code. This allows prompts to be edited, improved, and managed by non-developers without modifying the program's logic.
 
-*   **ejemplo de archivo (`correct_text.txt`):**
-    ```
-    por favor, corrige la gramática y el estilo del siguiente texto, que es una transcripción de voz. mantén el significado original pero mejora la claridad y fluidez. el texto es:
-    "{texto_a_corregir}"
-    ```
+### What can I find here?
 
-*   **uso en el código (conceptual):**
-    ```python
-    # la aplicación leería el contenido del archivo
-    prompt_template = read_file("prompts/correct_text.txt")
+- `text files (.txt)`: Each file contains a prompt template for a specific use case. Prompts can include placeholders (e.g., `{text_to_correct}`) that the application dynamically replaces.
 
-    # y luego reemplazaría el placeholder con el texto real
-    final_prompt = prompt_template.format(texto_a_corregir="hola, q tal... este es mi texto.")
+### Usage and examples
 
-    # este prompt final se envía al llm
-    ```
+The application loads these text files and uses them as templates to generate the final prompt sent to the LLM.
 
-### cómo contribuir
-1.  **crea un nuevo archivo**: añade un nuevo archivo `.txt` con un nombre descriptivo (e.g., `summarize_text.txt`).
-2.  **escribe el prompt**: redacta el prompt utilizando un lenguaje claro y placeholders si es necesario.
-3.  **integra en la aplicación**: asegúrate de que el nuevo prompt sea cargado y utilizado por el servicio correspondiente en la capa de `application`.
+- **File example (`correct_text.txt`):**
 
-### faqs o preguntas frecuentes
-*   **¿por qué no poner los prompts directamente en el código?**
-    *   separarlos facilita la experimentación y el ajuste fino de los prompts (`prompt engineering`) sin tener que volver a desplegar la aplicación.
-*   **¿qué formato deben tener los placeholders?**
-    *   utiliza llaves `{}` para definir placeholders, de modo que sean compatibles con el método `.format()` de las cadenas de `python`.
+  ```
+  Please correct the grammar and style of the following text, which is a voice transcription. Keep the original meaning but improve clarity and fluency. The text is:
+  "{text_to_correct}"
+  ```
 
-### referencias y recursos
-*   [guía de diseño de prompts (google ai)](https://ai.google.dev/docs/prompt_guides): buenas prácticas para escribir prompts efectivos.
+- **Code usage (conceptual):**
+
+  ```python
+  # the application would read the file content
+  prompt_template = read_file("prompts/correct_text.txt")
+
+  # and then replace the placeholder with actual text
+  final_prompt = prompt_template.format(text_to_correct="hello, howz it going... this is my text.")
+
+  # this final prompt is sent to the LLM
+  ```
+
+### How to contribute
+
+1.  **Create a new file**: Add a new `.txt` file with a descriptive name (e.g., `summarize_text.txt`).
+2.  **Write the prompt**: Draft the prompt using clear language and placeholders if needed.
+3.  **Integrate in the application**: Make sure the new prompt is loaded and used by the corresponding service in the `application` layer.
+
+### FAQs
+
+- **Why not put prompts directly in the code?**
+  - Separating them facilitates experimentation and fine-tuning of prompts (`prompt engineering`) without redeploying the application.
+- **What format should placeholders have?**
+  - Use curly braces `{}` to define placeholders, so they're compatible with Python's string `.format()` method.
+
+### References and resources
+
+- [Prompt design guide (Google AI)](https://ai.google.dev/docs/prompt_guides): Best practices for writing effective prompts.

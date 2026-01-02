@@ -1,29 +1,36 @@
 # ARCHIVES
 
-### ¿qué es esta carpeta?
-esta carpeta es el archivo histórico del proyecto. contiene versiones antiguas, componentes obsoletos y artefactos de desarrollo que ya no se encuentran en uso activo, pero que se conservan por su valor como referencia.
+### What is this folder?
 
-### ¿para qué sirve?
-su objetivo principal es mantener un registro histórico del desarrollo sin sobrecargar la base de código principal. permite consultar implementaciones pasadas o entender la evolución del proyecto a lo largo del tiempo.
+This folder is the project's historical archive. It contains old versions, obsolete components, and development artifacts that are no longer in active use but are preserved for reference value.
 
-### ¿qué puedo encontrar aquí?
-*   `código fuente obsoleto`: versiones antiguas de archivos o módulos que han sido reemplazados.
-*   `documentación anterior`: guías o documentos de versiones previas.
-*   `artefactos descartados`: cualquier otro elemento que fue parte del proyecto y ha sido retirado.
+### What is it for?
 
-### uso y ejemplos
-el contenido de esta carpeta es de **solo consulta**. no debe ser modificado ni importado por el código activo.
+Its main goal is to maintain a historical record of development without overloading the main codebase. It allows consulting past implementations or understanding the project's evolution over time.
 
-*   **ejemplo**: si necesitas verificar cómo funcionaba una api en la versión `1.0`, puedes buscar el código correspondiente en esta carpeta para entender su comportamiento original.
+### What can I find here?
 
-### cómo contribuir
-esta carpeta no acepta contribuciones directas. el contenido se añade únicamente cuando una parte significativa del proyecto se vuelve obsoleta y necesita ser archivada por un administrador del repositorio.
+- `obsolete source code`: Old versions of files or modules that have been replaced.
+- `previous documentation`: Guides or documents from earlier versions.
+- `discarded artifacts`: Any other element that was part of the project and has been retired.
 
-### faqs o preguntas frecuentes
-*   **¿puedo modificar o eliminar archivos de aquí?**
-    *   no. el contenido es un registro inmutable. si crees que algo debe ser eliminado, consulta con el líder del proyecto.
-*   **¿con qué frecuencia se actualiza esta carpeta?**
-    *   de manera esporádica, solo cuando se realizan cambios mayores en la arquitectura o se eliminan funcionalidades clave.
+### Usage and examples
 
-### referencias y recursos
-no aplica para esta carpeta, ya que su contenido es auto-referencial e histórico.
+The content in this folder is **read-only**. It should not be modified or imported by active code.
+
+- **Example**: If you need to verify how an API worked in version `1.0`, you can look for the corresponding code in this folder to understand its original behavior.
+
+### How to contribute
+
+This folder does not accept direct contributions. Content is only added when a significant part of the project becomes obsolete and needs to be archived by a repository administrator.
+
+### FAQs
+
+- **Can I modify or delete files here?**
+  - No. The content is an immutable record. If you believe something should be removed, consult with the project lead.
+- **How often is this folder updated?**
+  - Sporadically, only when major architectural changes are made or key features are removed.
+
+### References and resources
+
+Not applicable for this folder, as its content is self-referential and historical.

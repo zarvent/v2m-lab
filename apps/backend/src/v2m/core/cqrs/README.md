@@ -1,18 +1,21 @@
 # cqrs
 
-implementación del patrón command query responsibility segregation (cqrs) para la gestión de acciones en el sistema
+Command Query Responsibility Segregation (CQRS) pattern implementation for system action management.
 
-componentes
-- `command.py` clase base para todos los comandos (intenciones de cambio de estado)
-- `command_bus.py` mediador que recibe comandos y los enruta al handler correspondiente
-- `command_handler.py` interfaz base para la lógica que procesa un comando específico
+## Components
 
-flujo
-1 el cliente envía una solicitud (ej iniciar grabación)
-2 se crea un objeto `Command`
-3 el `CommandBus` recibe el comando
-4 el bus busca el `CommandHandler` registrado para ese comando
-5 el handler ejecuta la lógica de negocio
+- `command.py` - Base class for all commands (state change intentions)
+- `command_bus.py` - Mediator that receives commands and routes them to the corresponding handler
+- `command_handler.py` - Base interface for logic that processes a specific command
 
-beneficios
-desacopla quien invoca la acción de quien la ejecuta permitiendo una arquitectura más limpia y testear cada parte aisladamente
+## Flow
+
+1. Client sends a request (e.g., start recording)
+2. A `Command` object is created
+3. The `CommandBus` receives the command
+4. The bus finds the registered `CommandHandler` for that command
+5. The handler executes the business logic
+
+## Benefits
+
+Decouples who invokes the action from who executes it, allowing for a cleaner architecture and testing each part in isolation.

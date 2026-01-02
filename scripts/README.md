@@ -1,27 +1,27 @@
-# 🛠️ Scripts de Utilidad (Ops & Maint)
+# 🛠️ Utility Scripts (Ops & Maint)
 
-Colección curada de herramientas para el ciclo de vida de **Voice2Machine**.
-Desde la instalación hasta el diagnóstico profundo.
+Curated collection of tools for the **Voice2Machine** lifecycle.
+From installation to deep diagnostics.
 
-## 🚀 Core Scripts (Uso Diario)
+## 🚀 Core Scripts (Daily Use)
 
-| Script | Propósito |
-| :--- | :--- |
-| `v2m-daemon.sh` | **El Servicio**. Inicia/Detiene el backend en segundo plano. |
-| `v2m-toggle.sh` | **El Gatillo**. Conmuta (Start/Stop) la grabación. Mapear a atajo de teclado. |
-| `v2m-llm.sh` | **La IA**. Toma el portapapeles, lo refina con Gemini y lo pega de vuelta. |
+| Script          | Purpose                                                                      |
+| :-------------- | :--------------------------------------------------------------------------- |
+| `v2m-daemon.sh` | **The Service**. Starts/Stops the backend in the background.                 |
+| `v2m-toggle.sh` | **The Trigger**. Toggles (Start/Stop) recording. Map to keyboard shortcut.   |
+| `v2m-llm.sh`    | **The AI**. Takes the clipboard, refines it with Gemini, and pastes it back. |
 
-## 🩺 Diagnóstico y Benchmarks
+## 🩺 Diagnostics and Benchmarks
 
-Si algo falla, ejecuta esto antes de abrir un issue.
+If something fails, run this before opening an issue.
 
-- **`check_cuda.py`**: ¿Tu GPU está visible para PyTorch?
-- **`diagnose_audio.py`**: Vúmetro en consola. Verifica si tu micro está captando sonido.
-- **`benchmark_latency.py`**: Mide milisegundos exactos de "Cold Start" vs "Warm Start".
-- **`test_whisper_gpu.py`**: Descarga un modelo "tiny" y transcribe un audio de prueba.
-- **`verify_daemon.py`**: Test de integración end-to-end. Simula un cliente conectándose al socket.
+- **`check_cuda.py`**: Is your GPU visible to PyTorch?
+- **`diagnose_audio.py`**: Console VU meter. Verifies if your mic is picking up sound.
+- **`benchmark_latency.py`**: Measures exact milliseconds of "Cold Start" vs "Warm Start".
+- **`test_whisper_gpu.py`**: Downloads a "tiny" model and transcribes a test audio.
+- **`verify_daemon.py`**: End-to-end integration test. Simulates a client connecting to the socket.
 
-## 🧹 Mantenimiento
+## 🧹 Maintenance
 
-- **`cleanup.py`**: Borra logs, archivos temporales (`/tmp/v2m_*`) y caché de modelos corruptos.
-- **`install.sh`**: El script "mágico" de instalación idempotente.
+- **`cleanup.py`**: Deletes logs, temporary files (`/tmp/v2m_*`), and corrupt model cache.
+- **`install.sh`**: The "magic" idempotent installation script.

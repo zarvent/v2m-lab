@@ -1,18 +1,20 @@
 # voice2machine package
 
-este es el paquete principal de la aplicación voice2machine contiene toda la lógica de negocio infraestructura y configuración del sistema
+This is the main voice2machine application package. It contains all business logic, infrastructure, and system configuration.
 
-estructura
-el paquete sigue una arquitectura hexagonal (ports and adapters) modificada
+## Structure
 
-- `application/` casos de uso y lógica de aplicación
-- `core/` núcleo del sistema interfaces protocolos y utilidades compartidas
-- `domain/` entidades de negocio y errores del dominio
-- `infrastructure/` implementaciones concretas de interfaces (adaptadores)
-- `gui/` interfaz gráfica de usuario (si aplica)
+The package follows a modified hexagonal architecture (ports and adapters):
 
-archivos principales
-- `main.py` punto de entrada de la aplicación (cli y daemon)
-- `daemon.py` implementación del proceso en segundo plano
-- `client.py` cliente para comunicarse con el daemon vía ipc
-- `config.py` gestión centralizada de configuración
+- `application/` - Use cases and application logic
+- `core/` - System core, interfaces, protocols, and shared utilities
+- `domain/` - Business entities and domain errors
+- `infrastructure/` - Concrete interface implementations (adapters)
+- `gui/` - Graphical user interface (if applicable)
+
+## Main Files
+
+- `main.py` - Application entry point (CLI and daemon)
+- `daemon.py` - Background process implementation
+- `client.py` - Client to communicate with daemon via IPC
+- `config.py` - Centralized configuration management
