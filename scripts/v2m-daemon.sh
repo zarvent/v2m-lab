@@ -69,8 +69,22 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 PROJECT_DIR="$( dirname "${SCRIPT_DIR}" )/apps/backend"
 VENV_PYTHON="${PROJECT_DIR}/venv/bin/python"
-LOG_FILE="/tmp/v2m_daemon.log"
-PID_FILE="/tmp/v2m_daemon.pid"
+
+# XDG_RUNTIME_DIR compliance (2026 best practice)
+# Usa directorio seguro de usuario en lugar de /tmp global
+get_runtime_dir() {
+    if [ -n "${XDG_RUNTIME_DIR:-}" ]; then
+        local dir="${XDG_RUNTIME_DIR}/v2m"
+    else
+        local dir="/tmp/v2m_$(id -u)"
+    fi
+    mkdir -p "$dir" 2>/dev/null && chmod 700 "$dir" 2>/dev/null
+    echo "$dir"
+}
+
+RUNTIME_DIR=$(get_runtime_dir)
+LOG_FILE="${RUNTIME_DIR}/v2m_daemon.log"
+PID_FILE="${RUNTIME_DIR}/v2m_daemon.pid"
 
 start_daemon() {
     if [ -f "${PID_FILE}" ]; then

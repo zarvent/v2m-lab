@@ -109,7 +109,9 @@ class Daemon:
         """
         self.running = False
         self.socket_path = Path(SOCKET_PATH)
-        self.pid_file = Path("/tmp/v2m_daemon.pid")
+        # XDG_RUNTIME_DIR compliance (2026 best practice)
+        from v2m.utils.paths import get_secure_runtime_dir
+        self.pid_file = get_secure_runtime_dir() / "v2m_daemon.pid"
         self.command_bus = container.get_command_bus()
 
         # limpieza de procesos zombie crítico
@@ -410,7 +412,7 @@ class Daemon:
             residual_files = [
                 self.pid_file,
                 self.socket_path,
-                Path("/tmp/v2m_recording.pid"),
+                config.paths.recording_flag,  # ya usa XDG via get_secure_runtime_dir()
             ]
             for f in residual_files:
                 if f.exists():

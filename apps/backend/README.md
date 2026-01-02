@@ -78,7 +78,9 @@ apps/backend/
 
 ## 🔌 Socket API
 
-The backend exposes a Unix Socket at `/tmp/v2m.sock`.
+The backend exposes a Unix Socket at `$XDG_RUNTIME_DIR/v2m/v2m.sock` (typically `/run/user/<uid>/v2m/v2m.sock`).
+
+> **Note**: The socket location follows the XDG Base Directory Specification for secure, user-isolated runtime files.
 
 **Protocol:**
 

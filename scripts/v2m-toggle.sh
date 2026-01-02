@@ -75,10 +75,23 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 PROJECT_DIR="$( dirname "${SCRIPT_DIR}" )/apps/backend"
 NOTIFY_EXPIRE_TIME=3000
 
+# XDG_RUNTIME_DIR compliance (2026 best practice)
+get_runtime_dir() {
+    if [ -n "${XDG_RUNTIME_DIR:-}" ]; then
+        local dir="${XDG_RUNTIME_DIR}/v2m"
+    else
+        local dir="/tmp/v2m_$(id -u)"
+    fi
+    mkdir -p "$dir" 2>/dev/null && chmod 700 "$dir" 2>/dev/null
+    echo "$dir"
+}
+
+RUNTIME_DIR=$(get_runtime_dir)
+
 # --- RUTAS DERIVADAS ---
 VENV_PATH="${PROJECT_DIR}/venv"
 MAIN_SCRIPT="${PROJECT_DIR}/src/v2m/main.py"
-RECORDING_FLAG="/tmp/v2m_recording.pid"
+RECORDING_FLAG="${RUNTIME_DIR}/v2m_recording.pid"
 DAEMON_SCRIPT="${SCRIPT_DIR}/v2m-daemon.sh"
 
 # --- FUNCIÓN PRINCIPAL ---

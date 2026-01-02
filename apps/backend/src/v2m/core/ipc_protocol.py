@@ -208,5 +208,13 @@ class IPCResponse:
             error=obj.get("error")
         )
 
+# Socket path con XDG_RUNTIME_DIR compliance (state of the art 2026)
+# Importación diferida para evitar circular imports
+def get_socket_path() -> str:
+    """Retorna la ruta del socket usando XDG_RUNTIME_DIR si está disponible."""
+    from v2m.utils.paths import get_secure_runtime_dir
+    return str(get_secure_runtime_dir() / "v2m.sock")
 
-SOCKET_PATH = "/tmp/v2m.sock"
+# Para compatibilidad con código existente que importa SOCKET_PATH directamente
+# Nota: esto se evalúa al importar el módulo
+SOCKET_PATH = get_socket_path()
