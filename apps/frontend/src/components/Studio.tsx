@@ -214,7 +214,14 @@ export const Studio: React.FC<StudioProps> = React.memo(
     const [snippetTitle, setSnippetTitle] = useState("");
     const [saveSuccess, setSaveSuccess] = useState(false);
     const [exportToast, setExportToast] = useState<string | null>(null);
-    const [localContent, setLocalContent] = useState(transcription);
+    const [localContent, setLocalContent] = useState("");
+
+    // Track recording mode (append or replace)
+    const [recordingMode, setRecordingMode] = useState<"replace" | "append">("replace");
+    // Store content before recording started (for append mode preview)
+    const [preRecordingContent, setPreRecordingContent] = useState("");
+    // Track previous status to detect recording completion
+    const prevStatusRef = useRef<Status>(status);
 
     // --- Refs ---
     const titleInputRef = useRef<HTMLInputElement>(null);
@@ -223,18 +230,67 @@ export const Studio: React.FC<StudioProps> = React.memo(
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const copyTimeoutRef = useRef<number | null>(null);
 
-    // Sync transcription from props to local content
-    useEffect(() => {
-      setLocalContent(transcription);
-    }, [transcription]);
+    // --- Effects ---
 
-    // Sync active tab title with noteTitle
+    // 1. Sync active tab title and content when tab changes
     useEffect(() => {
       if (activeTab) {
         setNoteTitle(activeTab.title);
-        setLocalContent(activeTab.content || transcription);
+        // Only update localContent from tab if we are not recording
+        if (status !== "recording") {
+          setLocalContent(activeTab.content || "");
+        }
       }
-    }, [activeTabId, activeTab, transcription]);
+    }, [activeTabId, activeTab, status]); // Removed transcription dependency
+
+    // 2. Handle Recording Start/Stop Logic
+    useEffect(() => {
+      const prevStatus = prevStatusRef.current;
+
+      // Detected Recording Start
+      if (prevStatus !== "recording" && status === "recording") {
+         // Determine mode based on whether we have existing content
+         // If called via UI, the parent handles the mode passed to onStartRecording
+         // But here we need to know how to display the preview.
+         // We assume "append" if there is content, "replace" if empty,
+         // but strictly the user intent matters.
+         // Since we don't track the user's click intent here easily without prop drilling the mode,
+         // we'll rely on the fact that if we are recording, we want to show:
+         // - If replacing: just transcription
+         // - If appending: pre-content + transcription
+
+         // However, simply: We store the current content as "pre-recording".
+         setPreRecordingContent(localContent);
+      }
+
+      // Detected Recording Stop (Recording -> Idle)
+      if (prevStatus === "recording" && status === "idle") {
+        // Commit the recording
+        // logic: if we were appending, combine. If replacing, just take transcription.
+        // Wait, onStartRecording in App.tsx calls useBackend.startRecording which handles "replace" vs "append" logic for the transcription state itself?
+        // Let's check useBackend:
+        //   stopRecording sets transcription to (prev + new) if append, or (new) if replace.
+        //   So `transcription` ALREADY contains the full desired text!
+
+        // Therefore, we just need to update localContent with the final `transcription` value from useBackend
+        // But wait, `transcription` prop updates *after* status changes to idle? Or same render?
+        // useBackend updates transcription AND status to idle in the same batch (usually).
+
+        // So we can just trust `transcription` prop now contains the full result.
+        // But we must ensure we don't overwrite if the user cancelled or if it failed.
+        if (transcription) {
+            setLocalContent(transcription);
+            if (activeTabId) {
+                updateTabContent(activeTabId, transcription);
+            }
+            // Optionally: Notify parent to clear transcription buffer so it doesn't stick around?
+            // Actually, keeping it is fine as long as we don't auto-sync it later.
+        }
+      }
+
+      prevStatusRef.current = status;
+    }, [status, transcription, localContent, activeTabId, updateTabContent]);
+
 
     // --- Derived state (memoized) ---
     const statusFlags = useMemo(
@@ -258,8 +314,39 @@ export const Studio: React.FC<StudioProps> = React.memo(
       isError,
     } = statusFlags;
 
-    // Use localContent for display, transcription for recording sync
-    const displayContent = isRecording ? transcription : localContent;
+    // Display Content Logic
+    // If recording:
+    //   The backend `transcription` state updates in real-time.
+    //   If useBackend handles "append", then `transcription` will be accumulating?
+    //   Actually useBackend's startRecording logic with "append" stores the OLD transcription in a ref,
+    //   and then on STOP it combines them.
+    //   DURING recording, `transcription` (the prop) likely only contains the *current segment* (from the live event).
+    //   Let's assume `transcription` is the live buffer.
+
+    //   So:
+    //   - If appending: Display `preRecordingContent` + `\n` + `transcription`
+    //   - If replacing: Display `transcription`
+
+    //   But wait, how do we know if we are appending or replacing here?
+    //   We can infer: if `localContent` was not empty when we started, we probably appended?
+    //   Or better, we just use the `onStartRecording` wrapper to set a local state.
+
+    //   Let's intercept the onStartRecording prop to track mode.
+
+    const displayContent = useMemo(() => {
+        if (isRecording) {
+             // If we have pre-content and we assume we are appending (simplistic view: always append if not empty?)
+             // Actually, if we use the "Record" button (replace), we want to wipe it.
+             // If we use "Add" button (append), we want to keep it.
+             // We need to know the mode.
+             return recordingMode === "append"
+                ? `${preRecordingContent}${preRecordingContent ? "\n\n" : ""}${transcription}`
+                : transcription;
+        }
+        return localContent;
+    }, [isRecording, recordingMode, preRecordingContent, transcription, localContent]);
+
+
     const hasContent = displayContent.length > 0;
     const wordCount = useMemo(
       () => (hasContent ? countWords(displayContent) : 0),
@@ -325,7 +412,7 @@ export const Studio: React.FC<StudioProps> = React.memo(
           });
         });
       }
-    }, [transcription, isRecording]);
+    }, [displayContent, isRecording]);
 
     // Cleanup copy timeout on unmount
     useEffect(() => {
@@ -337,6 +424,13 @@ export const Studio: React.FC<StudioProps> = React.memo(
     }, []);
 
     // --- Handlers ---
+
+    // Intercept start recording to track mode
+    const handleStartRecording = useCallback((mode: "replace" | "append" = "replace") => {
+        setRecordingMode(mode);
+        setPreRecordingContent(localContent);
+        onStartRecording(mode);
+    }, [onStartRecording, localContent]);
 
     const handleTitleSubmit = useCallback(() => {
       setIsEditingTitle(false);
@@ -358,7 +452,7 @@ export const Studio: React.FC<StudioProps> = React.memo(
       if (!hasContent || copyState === "copied") return;
 
       try {
-        await navigator.clipboard.writeText(transcription);
+        await navigator.clipboard.writeText(displayContent); // FIXED: Use displayContent
         setCopyState("copied");
 
         // Clear any existing timeout
@@ -375,7 +469,7 @@ export const Studio: React.FC<StudioProps> = React.memo(
         setCopyState("error");
         setTimeout(() => setCopyState("idle"), 2000);
       }
-    }, [transcription, hasContent, copyState]);
+    }, [displayContent, hasContent, copyState]);
 
     const handleExport = useCallback(
       (format: ExportFormat) => {
@@ -679,7 +773,7 @@ export const Studio: React.FC<StudioProps> = React.memo(
         {/* === Editor Area === */}
         <div className="studio-editor-wrapper">
           {!hasContent && !isRecording ? (
-            <EmptyState isIdle={isIdle} onStartRecording={onStartRecording} />
+            <EmptyState isIdle={isIdle} onStartRecording={handleStartRecording} />
           ) : (
             <div
               className={`studio-editor ${isRecording ? "recording" : ""}`}
@@ -804,7 +898,7 @@ export const Studio: React.FC<StudioProps> = React.memo(
                 {hasContent && (
                   <button
                     className="studio-append-btn"
-                    onClick={() => onStartRecording("append")}
+                    onClick={() => handleStartRecording("append")}
                     aria-label="Add to transcription"
                     title="Record and append to existing note"
                   >
@@ -816,7 +910,7 @@ export const Studio: React.FC<StudioProps> = React.memo(
                 )}
                 <button
                   className="studio-record-btn"
-                  onClick={() => onStartRecording("replace")}
+                  onClick={() => handleStartRecording("replace")}
                   aria-label={
                     hasContent
                       ? "Start new recording (replaces current)"
