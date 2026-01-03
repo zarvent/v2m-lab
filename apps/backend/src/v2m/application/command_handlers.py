@@ -146,7 +146,7 @@ class StopRecordingHandler(CommandHandler):
         self.notification_service.notify("⚡ v2m procesando", "procesando...")
 
         # usar executor dedicado para ml - evita contención con otras tareas async
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
         transcription = await loop.run_in_executor(_ml_executor, self.transcription_service.stop_and_transcribe)
 
         # si la transcripción está vacía no tiene sentido copiarla

@@ -49,7 +49,7 @@ NOTE
 import logging as _logging
 import sys
 
-from pythonjsonlogger import jsonlogger
+from pythonjsonlogger import json
 
 
 def setup_logging() -> _logging.Logger:
@@ -88,7 +88,7 @@ def setup_logging() -> _logging.Logger:
     # se utiliza un streamhandler para enviar logs a stdout
     handler = _logging.StreamHandler(sys.stdout)
     # se usa jsonformatter para asegurar que todos los logs sean objetos json
-    formatter = jsonlogger.JsonFormatter("%(asctime)s %(name)s %(levelname)s %(message)s")
+    formatter = json.JsonFormatter("%(asctime)s %(name)s %(levelname)s %(message)s")
     handler.setFormatter(formatter)
     logger.addHandler(handler)
 
