@@ -54,10 +54,7 @@ class ProviderNotFoundError(Exception):
         self.provider_name = provider_name
         self.available = available
         available_str = ", ".join(available) if available else "(ninguno)"
-        super().__init__(
-            f"provider '{provider_name}' no encontrado. "
-            f"disponibles: {available_str}"
-        )
+        super().__init__(f"provider '{provider_name}' no encontrado. disponibles: {available_str}")
 
 
 class ProviderRegistry(Generic[T]):

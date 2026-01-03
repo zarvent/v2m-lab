@@ -79,6 +79,7 @@ class IPCCommand(str, Enum):
             for cmd in IPCCommand:
                 print(f"comando: {cmd.value}")
     """
+
     START_RECORDING = "START_RECORDING"
     STOP_RECORDING = "STOP_RECORDING"
     PROCESS_TEXT = "PROCESS_TEXT"
@@ -132,6 +133,7 @@ class IPCRequest:
             json_str = req.to_json()
             # '{"cmd": "PROCESS_TEXT", "data": {"text": "hola mundo"}}'
     """
+
     cmd: str
     data: dict[str, Any] | None = None
 
@@ -140,10 +142,7 @@ class IPCRequest:
         # OPTIMIZACIÓN BOLT: Construcción manual del dict
         # Evita la llamada costosa a asdict() que realiza copias profundas innecesarias.
         # Mejora el rendimiento de serialización en ~10-15%.
-        return json.dumps({
-            "cmd": self.cmd,
-            "data": self.data
-        }, ensure_ascii=False)
+        return json.dumps({"cmd": self.cmd, "data": self.data}, ensure_ascii=False)
 
     @classmethod
     def from_json(cls, json_str: str) -> "IPCRequest":
@@ -184,6 +183,7 @@ class IPCResponse:
             json_str = resp.to_json()
             # '{"status": "error", "data": null, "error": "no se detectó voz"}'
     """
+
     status: str  # "success" | "error"
     data: dict[str, Any] | None = None
     error: str | None = None
@@ -192,28 +192,23 @@ class IPCResponse:
         """serializa el response a JSON string"""
         # OPTIMIZACIÓN BOLT: Construcción manual del dict
         # Evita overhead de asdict() para respuestas frecuentes.
-        return json.dumps({
-            "status": self.status,
-            "data": self.data,
-            "error": self.error
-        }, ensure_ascii=False)
+        return json.dumps({"status": self.status, "data": self.data, "error": self.error}, ensure_ascii=False)
 
     @classmethod
     def from_json(cls, json_str: str) -> "IPCResponse":
         """deserializa un JSON string a IPCResponse"""
         obj = json.loads(json_str)
-        return cls(
-            status=obj["status"],
-            data=obj.get("data"),
-            error=obj.get("error")
-        )
+        return cls(status=obj["status"], data=obj.get("data"), error=obj.get("error"))
+
 
 # Socket path con XDG_RUNTIME_DIR compliance (state of the art 2026)
 # Importación diferida para evitar circular imports
 def get_socket_path() -> str:
     """Retorna la ruta del socket usando XDG_RUNTIME_DIR si está disponible."""
     from v2m.utils.paths import get_secure_runtime_dir
+
     return str(get_secure_runtime_dir() / "v2m.sock")
+
 
 # Para compatibilidad con código existente que importa SOCKET_PATH directamente
 # Nota: esto se evalúa al importar el módulo

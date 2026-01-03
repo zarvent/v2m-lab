@@ -32,6 +32,7 @@ import toml
 
 logger = logging.getLogger(__name__)
 
+
 class ConfigManager:
     """
     Gestor de configuración que permite leer y escribir `config.toml`.
@@ -74,9 +75,6 @@ class ConfigManager:
 
         try:
             current_config = self.load_config()
-
-            # Backup del config actual para rollback en caso de error
-            backup_config = current_config.copy()
 
             # Merge recursivo simple para no borrar secciones enteras si solo se manda una clave
             self._deep_update(current_config, new_config)

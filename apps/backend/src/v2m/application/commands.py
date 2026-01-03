@@ -31,7 +31,9 @@ class StartRecordingCommand(Command):
     este comando no requiere datos adicionales al ser despachado instruye
     al sistema para que comience a capturar audio del micrófono
     """
+
     pass
+
 
 class StopRecordingCommand(Command):
     """
@@ -40,7 +42,9 @@ class StopRecordingCommand(Command):
     este comando tampoco requiere datos su función es finalizar la grabación
     actual y disparar el proceso de transcripción del audio capturado
     """
+
     pass
+
 
 class ProcessTextCommand(Command):
     """
@@ -48,6 +52,7 @@ class ProcessTextCommand(Command):
 
     este comando encapsula el texto que necesita ser procesado
     """
+
     def __init__(self, text: str) -> None:
         """
         INICIALIZA EL COMANDO CON EL TEXTO A PROCESAR
@@ -57,21 +62,29 @@ class ProcessTextCommand(Command):
         """
         self.text = text
 
+
 class UpdateConfigCommand(Command):
     """
     COMANDO PARA ACTUALIZAR LA CONFIGURACIÓN DEL SISTEMA
     """
+
     def __init__(self, updates: dict) -> None:
         self.updates = updates
 
+
 class GetConfigCommand(Command):
     """COMANDO PARA OBTENER LA CONFIGURACIÓN ACTUAL"""
+
     pass
+
 
 class PauseDaemonCommand(Command):
     """COMANDO PARA PAUSAR EL DAEMON"""
+
     pass
+
 
 class ResumeDaemonCommand(Command):
     """COMANDO PARA REANUDAR EL DAEMON"""
+
     pass

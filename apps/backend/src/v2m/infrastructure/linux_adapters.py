@@ -14,6 +14,7 @@
 # along with voice2machine.  If not, see <https://www.gnu.org/licenses/>.
 
 import os
+import shutil
 import subprocess
 import time
 from pathlib import Path
@@ -24,15 +25,13 @@ from v2m.core.logging import logger
 
 class LinuxClipboardAdapter(ClipboardInterface):
     """
-    adaptador de portapapeles para linux que usa directamente xclip o wl-clipboard
-
-    no depende de pyperclip para evitar problemas con variables de entorno
-    en procesos daemon detecta automáticamente x11 vs wayland
+    Linux clipboard adapter using xclip or wl-clipboard.
+    Automatically detects X11 vs Wayland environments.
     """
 
     def __init__(self):
         """
-        inicializa el adaptador de portapapeles y detecta el entorno gráfico
+        Initializes the clipboard adapter and detects the environment.
         """
         self._backend: str | None = None
         self._env: dict = {}
@@ -40,22 +39,21 @@ class LinuxClipboardAdapter(ClipboardInterface):
 
     def _find_xauthority(self) -> str | None:
         """
-        busca el archivo .xauthority en ubicaciones estándar
+        Locates the .Xauthority file.
 
-        returns:
-            la ruta al archivo .xauthority si se encuentra o none
+        Returns:
+            The path to the .Xauthority file or None.
         """
-        # 1. Si ya está en el entorno, usarlo
         if os.environ.get("XAUTHORITY"):
             return os.environ["XAUTHORITY"]
 
-        # 2. Ubicación estándar en home
-        home = Path(os.environ.get("HOME", subprocess.getoutput("echo ~")))
+        # Standard home location
+        home = Path(os.environ.get("HOME", Path.home()))
         xauth = home / ".Xauthority"
         if xauth.exists():
             return str(xauth)
 
-        # 3. Ubicación en /run/user (común en GDM/systemd)
+        # /run/user/UID/gdm/Xauthority
         try:
             uid = os.getuid()
             run_user_auth = Path(f"/run/user/{uid}/gdm/Xauthority")
@@ -68,10 +66,10 @@ class LinuxClipboardAdapter(ClipboardInterface):
 
     def _detect_environment(self) -> None:
         """
-        detecta variables de entorno buscando sesiones gráficas
-        estrategia env vars > loginctl > sockets en /tmp/.x11-unix
+        Detects the graphical environment (Wayland vs X11).
+        Prioritizes environment variables, then falls back to loginctl.
         """
-        # 1. Heredar del entorno actual (Prioridad máxima)
+        # 1. Environment Variables (Highest Priority)
         if os.environ.get("WAYLAND_DISPLAY"):
             self._backend = "wayland"
             self._env = {"WAYLAND_DISPLAY": os.environ["WAYLAND_DISPLAY"]}
@@ -81,106 +79,72 @@ class LinuxClipboardAdapter(ClipboardInterface):
             self._env = {"DISPLAY": os.environ["DISPLAY"]}
             return
 
-        # 2. Scavenging vía loginctl
+        # 2. loginctl (Systemd/GDM)
+        if not shutil.which("loginctl"):
+            logger.warning("loginctl not found, cannot scavenge environment")
+            self._default_fallback()
+            return
+
         try:
             user = os.environ.get("USER") or subprocess.getoutput("whoami")
-            # Safe subprocess call without shell=True
-            output = subprocess.check_output(
-                ["loginctl", "list-sessions", "--no-legend"],
-                text=True
-            ).strip()
+            output = subprocess.check_output(["loginctl", "list-sessions", "--no-legend"], text=True).strip()
 
-            sessions = []
-            for line in output.split('\n'):
+            for line in output.split("\n"):
                 parts = line.split()
-                # loginctl list-sessions output format: SESSION UID USER SEAT TTY
-                # We want session ID (index 0) where USER (index 2) matches current user
                 if len(parts) >= 3 and parts[2] == user:
-                     sessions.append(parts[0])
+                    session_id = parts[0]
 
-            for session_id in sessions:
-                if not session_id: continue
+                    try:
+                        session_type = subprocess.check_output(
+                            ["loginctl", "show-session", session_id, "-p", "Type", "--value"], text=True
+                        ).strip()
 
-                # Inspeccionar tipo de sesión
-                type_cmd = ["loginctl", "show-session", session_id, "-p", "Type", "--value"]
-                session_type = subprocess.check_output(type_cmd, text=True).strip()
+                        display_val = subprocess.check_output(
+                            ["loginctl", "show-session", session_id, "-p", "Display", "--value"], text=True
+                        ).strip()
 
-                # Extraer Display si existe, independientemente del tipo
-                display_cmd = ["loginctl", "show-session", session_id, "-p", "Display", "--value"]
-                display_val = subprocess.check_output(display_cmd, text=True).strip()
+                        if display_val:
+                            self._backend = "wayland" if session_type == "wayland" else "x11"
+                            if self._backend == "wayland":
+                                self._env = {"WAYLAND_DISPLAY": display_val}
+                            else:
+                                self._env = {"DISPLAY": display_val}
+                                xauth = self._find_xauthority()
+                                if xauth:
+                                    self._env["XAUTHORITY"] = xauth
 
-                if display_val:
-                    self._backend = session_type if session_type in ["wayland"] else "x11"
-                    if session_type == "wayland":
-                         self._env = {"WAYLAND_DISPLAY": display_val}
-                    else:
-                         self._env = {"DISPLAY": display_val}
-                         # Scavenge XAUTHORITY for X11
-                         xauth_path = self._find_xauthority()
-                         if xauth_path:
-                             self._env["XAUTHORITY"] = xauth_path
-                             logger.info(f"XAUTHORITY scavenged: {xauth_path}")
-
-                    logger.info(f"Environment detected via loginctl: Session {session_id} ({session_type}) -> {display_val}")
-                    return
+                            logger.info(f"Environment detected via loginctl: {session_type} -> {display_val}")
+                            return
+                    except subprocess.SubprocessError:
+                        continue
 
         except Exception as e:
-            logger.warning(f"Environment scavenging failed: {e}")
+            logger.warning(f"Environment detection failed: {e}")
 
-        # 3. FALLBACK ULTIMATE: Escanear sockets activos en /tmp/.X11-unix
-        # Esto encuentra :0, :1, :2 lo que sea que esté vivo.
-        try:
-            x11_socket_dir = Path("/tmp/.X11-unix")
-            if x11_socket_dir.exists():
-                # Buscar sockets que empiecen por X (ej: X0, X1)
-                sockets = sorted([s.name for s in x11_socket_dir.iterdir() if s.name.startswith("X")])
-                if sockets:
-                    # Tomar el primero (o el último modificado si quisieras ser más fino)
-                    # X1 -> :1
-                    active_display = f":{sockets[0][1:]}"
-                    self._backend = "x11"
-                    self._env = {"DISPLAY": active_display}
-                    logger.info(f"Display detected via socket scan: {active_display}")
+        # 3. Fallback
+        self._default_fallback()
 
-                    # Intentar inyectar XAUTHORITY si falta
-                    xauth = self._find_xauthority()
-                    if xauth:
-                        self._env["XAUTHORITY"] = xauth
-                    return
-        except Exception as e:
-            logger.warning(f"Socket scan failed: {e}")
-
-        logger.error("CRITICAL: No graphical display found. Clipboard will not work.")
+    def _default_fallback(self):
+        """Sets default X11 fallback configuration."""
+        logger.warning("No graphical display detected. Defaulting to X11 :0")
         self._backend = "x11"
-        # No definimos DISPLAY, dejamos que xclip intente su default (que es :0)
-        self._env = {}
+        self._env = {"DISPLAY": ":0"}
 
     def _get_clipboard_commands(self) -> tuple[list, list]:
         """
-        retorna los comandos para copiar y pegar según el backend detectado
-
-        returns:
-            tupla con (comando_copy comando_paste)
+        Returns copy and paste commands based on the backend.
         """
         if self._backend == "wayland":
-            return (
-                ["wl-copy"],
-                ["wl-paste"]
-            )
+            return (["wl-copy"], ["wl-paste"])
         else:  # x11
-            return (
-                ["xclip", "-selection", "clipboard"],
-                ["xclip", "-selection", "clipboard", "-out"]
-            )
+            return (["xclip", "-selection", "clipboard"], ["xclip", "-selection", "clipboard", "-out"])
 
     def copy(self, text: str) -> None:
         """
-        copia el texto al portapapeles
-
-        args:
-            text: el texto a copiar
+        Copies text to the clipboard.
         """
-        if not text: return
+        if not text:
+            return
         copy_cmd, _ = self._get_clipboard_commands()
 
         try:
@@ -188,50 +152,38 @@ class LinuxClipboardAdapter(ClipboardInterface):
             env.update(self._env)
 
             process = subprocess.Popen(
-                copy_cmd,
-                stdin=subprocess.PIPE,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.PIPE, # Capturamos stderr
-                env=env
+                copy_cmd, stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, env=env
             )
 
             process.stdin.write(text.encode("utf-8"))
             process.stdin.close()
 
-            # Espera táctica y verificación de estado
-            time.sleep(0.1)
+            time.sleep(0.1)  # Short wait to ensure process starts
             exit_code = process.poll()
 
             if exit_code is not None and exit_code != 0:
-                # El proceso murió prematuramente
                 stderr_out = process.stderr.read().decode()
-                logger.error(f"Clipboard process died with code {exit_code}. STDERR: {stderr_out}")
+                logger.error(f"Clipboard process failed with code {exit_code}: {stderr_out}")
             else:
-                logger.debug(f"Copied {len(text)} chars to clipboard (PID: {process.pid})")
+                logger.debug("Text copied to clipboard")
 
         except Exception as e:
             logger.error(f"Failed to copy to clipboard: {e}")
 
     def paste(self) -> str:
         """
-        obtiene texto del portapapeles del sistema
+        Retrieves text from the clipboard.
 
-        returns:
-            contenido del portapapeles o cadena vacía si falla
+        Returns:
+            The clipboard content or an empty string if failed.
         """
         _, paste_cmd = self._get_clipboard_commands()
 
         try:
-            # Combinar env del sistema con las variables detectadas
             env = os.environ.copy()
             env.update(self._env)
 
-            result = subprocess.run(
-                paste_cmd,
-                capture_output=True,
-                env=env,
-                timeout=2
-            )
+            result = subprocess.run(paste_cmd, capture_output=True, env=env, timeout=2)
 
             if result.returncode != 0:
                 logger.error(f"Clipboard paste failed: {result.stderr.decode('utf-8', errors='ignore')}")
@@ -240,7 +192,7 @@ class LinuxClipboardAdapter(ClipboardInterface):
             return result.stdout.decode("utf-8", errors="ignore")
 
         except FileNotFoundError:
-            logger.error(f"Clipboard tool not found: {paste_cmd[0]}. Install xclip or wl-clipboard.")
+            logger.error(f"Clipboard tool not found: {paste_cmd[0]}. Please install xclip or wl-clipboard.")
             return ""
         except subprocess.TimeoutExpired:
             logger.error("Clipboard paste operation timed out")
@@ -249,37 +201,19 @@ class LinuxClipboardAdapter(ClipboardInterface):
             logger.error(f"Failed to paste from clipboard: {e}")
             return ""
 
+
 class LinuxNotificationAdapter(NotificationInterface):
     """
-    adaptador de notificaciones para linux
+    Linux notification adapter.
 
-    wrapper de compatibilidad que delega al servicio de notificaciones
-    production-ready mantener esta clase para backwards compatibility
-    con código existente que importa desde linux_adapters
-
-    note:
-        para nuevos usos preferir importar directamente::
-
-            from v2m.infrastructure.notification_service import LinuxNotificationService
-
-    deprecated:
-        esta clase será removida en v3.0 usar LinuxNotificationService
+    Deprecated wrapper for backward compatibility.
+    Use `v2m.infrastructure.notification_service.LinuxNotificationService` directly.
     """
 
     def __init__(self) -> None:
-        """
-        inicializa el adapter delegando al servicio de notificaciones
-        """
-        # lazy import para evitar circular imports
         from v2m.infrastructure.notification_service import LinuxNotificationService
+
         self._service = LinuxNotificationService()
 
     def notify(self, title: str, message: str) -> None:
-        """
-        envía una notificación al escritorio con auto-dismiss
-
-        args:
-            title: título de la notificación
-            message: mensaje de la notificación
-        """
         self._service.notify(title, message)

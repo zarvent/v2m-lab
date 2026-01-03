@@ -35,6 +35,7 @@ from v2m.infrastructure.audio.recorder import AudioRecorder
 # configurar el manejo de señales
 stop_requested = False
 
+
 def signal_handler(sig, frame):
     """
     manejador de señales para detener la grabación limpiamente
@@ -42,8 +43,10 @@ def signal_handler(sig, frame):
     global stop_requested
     stop_requested = True
 
+
 signal.signal(signal.SIGINT, signal_handler)
 signal.signal(signal.SIGTERM, signal_handler)
+
 
 def main():
     """
@@ -71,6 +74,7 @@ def main():
     # optimización: return_data=False evita copia innecesaria del buffer
     recorder.stop(save_path=Path(args.output), return_data=False)
     print(f"guardado en {args.output}", flush=True)
+
 
 if __name__ == "__main__":
     main()

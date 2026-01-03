@@ -40,6 +40,7 @@ class GeminiLLMService(LLMService):
     gestiona la configuración del cliente de la api la formulación de las
     peticiones y la lógica de reintentos para asegurar una comunicación robusta
     """
+
     def __init__(self) -> None:
         """
         INICIALIZA EL SERVICIO DE GOOGLE GEMINI
@@ -82,8 +83,8 @@ class GeminiLLMService(LLMService):
         stop=stop_after_attempt(config.gemini.retry_attempts),
         wait=wait_exponential(
             multiplier=0.5,  # reducido de 1
-            min=0.5,         # reducido de 2
-            max=2,           # reducido de 10
+            min=0.5,  # reducido de 2
+            max=2,  # reducido de 10
         ),
         retry=retry_if_exception_type((httpx.TimeoutException, httpx.NetworkError, ConnectionError)),
         reraise=True,  # re-lanzar si se agotan los intentos
@@ -113,17 +114,10 @@ class GeminiLLMService(LLMService):
             }
 
             # --- construcción del payload para la api ---
-            contents = [
-                genai.types.Content(
-                    role="user",
-                    parts=[genai.types.Part(text=text)]
-                )
-            ]
+            contents = [genai.types.Content(role="user", parts=[genai.types.Part(text=text)])]
 
             response = await self.client.aio.models.generate_content(
-                model=self.model,
-                contents=contents,
-                config=generation_config
+                model=self.model, contents=contents, config=generation_config
             )
             logger.info("procesamiento con gemini completado")
             if response.text:

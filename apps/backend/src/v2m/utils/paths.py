@@ -1,4 +1,4 @@
-
+import contextlib
 import os
 import tempfile
 from pathlib import Path
@@ -35,18 +35,16 @@ def get_secure_runtime_dir(app_name: str = "v2m") -> Path:
         # If it exists, verify permissions and ownership
         stat = runtime_dir.stat()
         if stat.st_uid != os.getuid():
-             # If owned by someone else, we can't use it safely.
-             # This is a critical error or we need a new fallback.
-             # For now, raising an error is safer than using an insecure directory.
-             raise PermissionError(f"Runtime directory {runtime_dir} is not owned by the current user.")
+            # If owned by someone else, we can't use it safely.
+            # This is a critical error or we need a new fallback.
+            # For now, raising an error is safer than using an insecure directory.
+            raise PermissionError(f"Runtime directory {runtime_dir} is not owned by the current user.")
 
         # Enforce 0700 if strictly required, but existing might be okay if user-owned.
         # However, to be safe:
         if (stat.st_mode & 0o777) != 0o700:
-             # Try to fix permissions
-             try:
-                 os.chmod(runtime_dir, 0o700)
-             except OSError:
-                 pass # Might fail if not owner, but we checked ownership.
+            # Try to fix permissions
+            with contextlib.suppress(OSError):
+                os.chmod(runtime_dir, 0o700)
 
     return runtime_dir
