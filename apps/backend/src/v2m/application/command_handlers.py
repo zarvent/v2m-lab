@@ -51,6 +51,7 @@ from v2m.core.interfaces import ClipboardInterface, NotificationInterface
 _ml_executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="ml-inference")
 atexit.register(_ml_executor.shutdown, wait=True)
 
+
 class StartRecordingHandler(CommandHandler):
     """
     MANEJADOR PARA EL COMANDO `STARTRECORDINGCOMMAND`
@@ -59,7 +60,10 @@ class StartRecordingHandler(CommandHandler):
     el proceso de grabación de audio también notifica al usuario que
     la grabación ha comenzado
     """
-    def __init__(self, transcription_service: TranscriptionService, notification_service: NotificationInterface) -> None:
+
+    def __init__(
+        self, transcription_service: TranscriptionService, notification_service: NotificationInterface
+    ) -> None:
         """
         INICIALIZA EL HANDLER CON SUS DEPENDENCIAS
 
@@ -95,6 +99,7 @@ class StartRecordingHandler(CommandHandler):
         """
         return StartRecordingCommand
 
+
 class StopRecordingHandler(CommandHandler):
     """
     MANEJADOR PARA EL COMANDO `STOPRECORDINGCOMMAND`
@@ -102,7 +107,13 @@ class StopRecordingHandler(CommandHandler):
     este handler detiene la grabación obtiene la transcripción del audio
     la copia al portapapeles y notifica al usuario del resultado
     """
-    def __init__(self, transcription_service: TranscriptionService, notification_service: NotificationInterface, clipboard_service: ClipboardInterface) -> None:
+
+    def __init__(
+        self,
+        transcription_service: TranscriptionService,
+        notification_service: NotificationInterface,
+        clipboard_service: ClipboardInterface,
+    ) -> None:
         """
         INICIALIZA EL HANDLER CON SUS DEPENDENCIAS
 
@@ -136,10 +147,7 @@ class StopRecordingHandler(CommandHandler):
 
         # usar executor dedicado para ml - evita contención con otras tareas async
         loop = asyncio.get_event_loop()
-        transcription = await loop.run_in_executor(
-            _ml_executor,
-            self.transcription_service.stop_and_transcribe
-        )
+        transcription = await loop.run_in_executor(_ml_executor, self.transcription_service.stop_and_transcribe)
 
         # si la transcripción está vacía no tiene sentido copiarla
         if not transcription.strip():
@@ -147,7 +155,7 @@ class StopRecordingHandler(CommandHandler):
             return None
 
         self.clipboard_service.copy(transcription)
-        preview = transcription[:80] # se muestra una vista previa para no saturar la notificación
+        preview = transcription[:80]  # se muestra una vista previa para no saturar la notificación
         self.notification_service.notify("✅ whisper - copiado", f"{preview}...")
         return transcription
 
@@ -160,6 +168,7 @@ class StopRecordingHandler(CommandHandler):
         """
         return StopRecordingCommand
 
+
 class ProcessTextHandler(CommandHandler):
     """
     MANEJADOR PARA EL COMANDO `PROCESSTEXTCOMMAND`
@@ -167,7 +176,13 @@ class ProcessTextHandler(CommandHandler):
     este handler utiliza un servicio de llm large language model para
     procesar y refinar un texto dado el resultado se copia al portapapeles
     """
-    def __init__(self, llm_service: LLMService, notification_service: NotificationInterface, clipboard_service: ClipboardInterface) -> None:
+
+    def __init__(
+        self,
+        llm_service: LLMService,
+        notification_service: NotificationInterface,
+        clipboard_service: ClipboardInterface,
+    ) -> None:
         """
         INICIALIZA EL HANDLER CON SUS DEPENDENCIAS
 
@@ -229,6 +244,7 @@ class UpdateConfigHandler(CommandHandler):
     Transforma el formato del frontend al formato TOML antes de guardar.
     Frontend: whisper.model -> Backend: transcription.whisper.model
     """
+
     def __init__(self, config_manager: ConfigManager, notification_service: NotificationInterface) -> None:
         self.config_manager = config_manager
         self.notification_service = notification_service
@@ -272,6 +288,7 @@ class GetConfigHandler(CommandHandler):
     Transforma la estructura de config.toml al formato esperado por el frontend.
     Backend: transcription.whisper.model -> Frontend: whisper.model
     """
+
     def __init__(self, config_manager: ConfigManager) -> None:
         self.config_manager = config_manager
 
@@ -295,6 +312,7 @@ class GetConfigHandler(CommandHandler):
 
 class PauseDaemonHandler(CommandHandler):
     """MANEJADOR PARA PAUSAR EL DAEMON"""
+
     def __init__(self, notification_service: NotificationInterface) -> None:
         self.notification_service = notification_service
 
@@ -309,6 +327,7 @@ class PauseDaemonHandler(CommandHandler):
 
 class ResumeDaemonHandler(CommandHandler):
     """MANEJADOR PARA REANUDAR EL DAEMON"""
+
     def __init__(self, notification_service: NotificationInterface) -> None:
         self.notification_service = notification_service
 

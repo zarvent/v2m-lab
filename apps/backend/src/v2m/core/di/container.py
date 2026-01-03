@@ -83,6 +83,7 @@ transcription_registry.register("whisper", WhisperTranscriptionService)
 llm_registry.register("local", LocalLLMService)
 llm_registry.register("gemini", GeminiLLMService)
 
+
 class Container:
     """
     contenedor de di que gestiona el ciclo de vida y dependencias de objetos
@@ -113,6 +114,7 @@ class Container:
             # acceso directo a servicios (menos común)
             transcription = container.transcription_service
     """
+
     def __init__(self) -> None:
         """
         inicializa y configura todas las dependencias de la aplicación
@@ -140,7 +142,6 @@ class Container:
         """
         # --- 1 instanciar servicios (como singletons) ---
         # resolución dinámica desde registries según config.toml
-
 
         # --- selección de backend de transcripción según configuración ---
         transcription_backend = config.transcription.backend
@@ -173,19 +174,12 @@ class Container:
 
         # --- 2 instanciar manejadores de comandos ---
         # se inyectan las dependencias en el constructor de cada handler
-        self.start_recording_handler = StartRecordingHandler(
-            self.transcription_service,
-            self.notification_service
-        )
+        self.start_recording_handler = StartRecordingHandler(self.transcription_service, self.notification_service)
         self.stop_recording_handler = StopRecordingHandler(
-            self.transcription_service,
-            self.notification_service,
-            self.clipboard_service
+            self.transcription_service, self.notification_service, self.clipboard_service
         )
         self.process_text_handler = ProcessTextHandler(
-            self.llm_service,
-            self.notification_service,
-            self.clipboard_service
+            self.llm_service, self.notification_service, self.clipboard_service
         )
 
         # --- 3 instanciar y configurar el bus de comandos ---
@@ -233,8 +227,6 @@ class Container:
         except Exception as e:
             logger.warning(f"⚠️ no se pudo precargar whisper: {e}")
 
-
-
     async def wait_for_warmup(self, timeout: float = 30.0) -> bool:
         """
         espera a que los modelos terminen de cargar (async-safe)
@@ -247,14 +239,12 @@ class Container:
         """
         loop = asyncio.get_event_loop()
         try:
-            await asyncio.wait_for(
-                loop.run_in_executor(None, self._warmup_future.result),
-                timeout=timeout
-            )
+            await asyncio.wait_for(loop.run_in_executor(None, self._warmup_future.result), timeout=timeout)
             return True
-        except asyncio.TimeoutError:
+        except TimeoutError:
             logger.warning(f"timeout de warmup después de {timeout}s")
             return False
+
 
 # --- instancia global del contenedor ---
 # se crea una única instancia del contenedor que será accesible desde toda la

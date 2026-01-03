@@ -88,13 +88,12 @@ def setup_logging() -> _logging.Logger:
     # se utiliza un streamhandler para enviar logs a stdout
     handler = _logging.StreamHandler(sys.stdout)
     # se usa jsonformatter para asegurar que todos los logs sean objetos json
-    formatter = jsonlogger.JsonFormatter(
-        "%(asctime)s %(name)s %(levelname)s %(message)s"
-    )
+    formatter = jsonlogger.JsonFormatter("%(asctime)s %(name)s %(levelname)s %(message)s")
     handler.setFormatter(formatter)
     logger.addHandler(handler)
 
     return logger
+
 
 # --- instancia global del logger ---
 # se crea una única instancia del logger que será accesible desde toda la

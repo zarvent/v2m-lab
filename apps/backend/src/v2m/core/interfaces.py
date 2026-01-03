@@ -67,6 +67,7 @@ class ClipboardInterface(ABC):
                 def paste(self) -> str:
                     return self._content
     """
+
     @abstractmethod
     def copy(self, text: str) -> None:
         """
@@ -106,6 +107,7 @@ class ClipboardInterface(ABC):
         """
         pass
 
+
 class NotificationInterface(ABC):
     """
     interfaz abstracta para el sistema de notificaciones del escritorio
@@ -128,6 +130,7 @@ class NotificationInterface(ABC):
                 def notify(self, title: str, message: str) -> None:
                     self.notifications.append((title, message))
     """
+
     @abstractmethod
     def notify(self, title: str, message: str) -> None:
         """

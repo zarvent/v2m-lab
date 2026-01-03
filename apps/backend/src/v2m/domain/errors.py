@@ -48,6 +48,7 @@ EXAMPLE
             notification.notify("❌ error", "no se pudo transcribir")
 """
 
+
 class ApplicationError(Exception):
     """
     CLASE BASE PARA TODAS LAS EXCEPCIONES PERSONALIZADAS DE LA APLICACIÓN
@@ -69,7 +70,9 @@ class ApplicationError(Exception):
                 logger.critical(f"error no manejado: {e}")
                 raise
     """
+
     pass
+
 
 class MicrophoneNotFoundError(ApplicationError):
     """
@@ -89,7 +92,9 @@ class MicrophoneNotFoundError(ApplicationError):
         verificar con ``pactl list sources`` o ``arecord -l`` que el
         micrófono esté visible para el sistema
     """
+
     pass
+
 
 class RecordingError(ApplicationError):
     """
@@ -108,7 +113,9 @@ class RecordingError(ApplicationError):
     ATRIBUTOS HEREDADOS
         args[0] mensaje descriptivo del error específico
     """
+
     pass
+
 
 class TranscriptionError(ApplicationError):
     """
@@ -129,7 +136,9 @@ class TranscriptionError(ApplicationError):
         verificar logs para el mensaje de error específico de faster-whisper
         o ctranslate2
     """
+
     pass
+
 
 class LLMError(ApplicationError):
     """
@@ -154,4 +163,5 @@ class LLMError(ApplicationError):
         verificar que ``gemini_api_key`` esté correctamente configurada en
         el archivo ``.env`` y que la cuenta tenga créditos disponibles
     """
+
     pass

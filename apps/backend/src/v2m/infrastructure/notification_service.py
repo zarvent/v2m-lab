@@ -73,6 +73,7 @@ class NotificationResult:
         notification_id: el id asignado por dbus o none si falló
         error: mensaje de error si success es false
     """
+
     success: bool
     notification_id: int | None = None
     error: str | None = None
@@ -128,6 +129,7 @@ class LinuxNotificationService(NotificationInterface):
         """
         if config is None:
             from v2m.config import config as app_config
+
             config = app_config.notifications
 
         self._expire_time_ms: int = config.expire_time_ms
@@ -153,8 +155,7 @@ class LinuxNotificationService(NotificationInterface):
             with cls._lock:
                 if cls._executor is None:
                     cls._executor = ThreadPoolExecutor(
-                        max_workers=cls.MAX_POOL_SIZE,
-                        thread_name_prefix="v2m-notify-dismiss"
+                        max_workers=cls.MAX_POOL_SIZE, thread_name_prefix="v2m-notify-dismiss"
                     )
                     # registrar limpieza al salir del proceso
                     atexit.register(cls._shutdown_executor)
@@ -214,40 +215,40 @@ class LinuxNotificationService(NotificationInterface):
         try:
             result = subprocess.run(
                 [
-                    "gdbus", "call",
+                    "gdbus",
+                    "call",
                     "--session",
-                    "--dest", self._DBUS_DEST,
-                    "--object-path", self._DBUS_PATH,
-                    "--method", f"{self._DBUS_IFACE}.Notify",
+                    "--dest",
+                    self._DBUS_DEST,
+                    "--object-path",
+                    self._DBUS_PATH,
+                    "--method",
+                    f"{self._DBUS_IFACE}.Notify",
                     "v2m",  # app_name
-                    "0",    # replaces_id (0 = nueva notificación)
-                    "",     # app_icon (empty = usar default)
+                    "0",  # replaces_id (0 = nueva notificación)
+                    "",  # app_icon (empty = usar default)
                     title,
                     message,
-                    "[]",   # actions
-                    "{}",   # hints
-                    str(self._expire_time_ms)
+                    "[]",  # actions
+                    "{}",  # hints
+                    str(self._expire_time_ms),
                 ],
                 capture_output=True,
                 text=True,
-                timeout=2
+                timeout=2,
             )
 
             if result.returncode != 0:
-                return NotificationResult(
-                    success=False,
-                    error=f"error de gdbus: {result.stderr.strip()}"
-                )
+                return NotificationResult(success=False, error=f"error de gdbus: {result.stderr.strip()}")
 
             # parsear id de respuesta: "(uint32 123,)"
-            match = re.search(r'uint32 (\d+)', result.stdout)
+            match = re.search(r"uint32 (\d+)", result.stdout)
             if match:
                 notification_id = int(match.group(1))
                 return NotificationResult(success=True, notification_id=notification_id)
             else:
                 return NotificationResult(
-                    success=False,
-                    error=f"falló al parsear id de notificación de: {result.stdout}"
+                    success=False, error=f"falló al parsear id de notificación de: {result.stdout}"
                 )
 
         except FileNotFoundError:
@@ -283,17 +284,21 @@ class LinuxNotificationService(NotificationInterface):
                 # cerrar la notificación via dbus
                 subprocess.run(
                     [
-                        "gdbus", "call",
+                        "gdbus",
+                        "call",
                         "--session",
-                        "--dest", self._DBUS_DEST,
-                        "--object-path", self._DBUS_PATH,
-                        "--method", f"{self._DBUS_IFACE}.CloseNotification",
-                        str(notification_id)
+                        "--dest",
+                        self._DBUS_DEST,
+                        "--object-path",
+                        self._DBUS_PATH,
+                        "--method",
+                        f"{self._DBUS_IFACE}.CloseNotification",
+                        str(notification_id),
                     ],
                     check=False,
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.DEVNULL,
-                    timeout=1
+                    timeout=1,
                 )
             except Exception:
                 pass  # fallo silencioso si la notificación ya fue cerrada
@@ -316,15 +321,10 @@ class LinuxNotificationService(NotificationInterface):
         """
         try:
             subprocess.run(
-                [
-                    "notify-send",
-                    f"--expire-time={self._expire_time_ms}",
-                    title,
-                    message
-                ],
+                ["notify-send", f"--expire-time={self._expire_time_ms}", title, message],
                 check=False,
                 stderr=subprocess.DEVNULL,
-                timeout=2
+                timeout=2,
             )
         except FileNotFoundError:
             logger.warning("notify-send no encontrado notificación omitida")

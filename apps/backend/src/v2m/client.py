@@ -52,7 +52,7 @@ import sys
 from v2m.core.ipc_protocol import SOCKET_PATH, IPCCommand, IPCRequest, IPCResponse
 
 
-async def send_command(cmd: str, data: dict = None) -> IPCResponse:
+async def send_command(cmd: str, data: dict | None = None) -> IPCResponse:
     """
     ENVÍA UN COMANDO AL DAEMON A TRAVÉS DE UN SOCKET UNIX (PROTOCOLO JSON V2.0)
 
