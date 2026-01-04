@@ -55,6 +55,8 @@ interface StudioProps {
   onSaveSnippet?: (snippet: Omit<SnippetItem, "id" | "timestamp">) => void;
   /** Callback to update transcription in parent state */
   onTranscriptionChange?: (text: string) => void;
+  /** Callback to translate text via backend */
+  onTranslate?: (targetLang: "es" | "en") => Promise<void>;
 }
 
 // ============================================
@@ -190,6 +192,7 @@ export const Studio: React.FC<StudioProps> = React.memo(
     onClearError,
     onSaveSnippet,
     onTranscriptionChange,
+    onTranslate,
   }) => {
     // --- Tabs State ---
     const {
@@ -217,7 +220,9 @@ export const Studio: React.FC<StudioProps> = React.memo(
     const [localContent, setLocalContent] = useState("");
 
     // Track recording mode (append or replace)
-    const [recordingMode, setRecordingMode] = useState<"replace" | "append">("replace");
+    const [recordingMode, setRecordingMode] = useState<"replace" | "append">(
+      "replace"
+    );
     // Store content before recording started (for append mode preview)
     const [preRecordingContent, setPreRecordingContent] = useState("");
     // Track previous status to detect recording completion
@@ -249,18 +254,18 @@ export const Studio: React.FC<StudioProps> = React.memo(
 
       // Detected Recording Start
       if (prevStatus !== "recording" && status === "recording") {
-         // Determine mode based on whether we have existing content
-         // If called via UI, the parent handles the mode passed to onStartRecording
-         // But here we need to know how to display the preview.
-         // We assume "append" if there is content, "replace" if empty,
-         // but strictly the user intent matters.
-         // Since we don't track the user's click intent here easily without prop drilling the mode,
-         // we'll rely on the fact that if we are recording, we want to show:
-         // - If replacing: just transcription
-         // - If appending: pre-content + transcription
+        // Determine mode based on whether we have existing content
+        // If called via UI, the parent handles the mode passed to onStartRecording
+        // But here we need to know how to display the preview.
+        // We assume "append" if there is content, "replace" if empty,
+        // but strictly the user intent matters.
+        // Since we don't track the user's click intent here easily without prop drilling the mode,
+        // we'll rely on the fact that if we are recording, we want to show:
+        // - If replacing: just transcription
+        // - If appending: pre-content + transcription
 
-         // However, simply: We store the current content as "pre-recording".
-         setPreRecordingContent(localContent);
+        // However, simply: We store the current content as "pre-recording".
+        setPreRecordingContent(localContent);
       }
 
       // Detected Recording Stop OR Processing Complete (Recording/Processing -> Idle)
@@ -279,7 +284,6 @@ export const Studio: React.FC<StudioProps> = React.memo(
 
       prevStatusRef.current = status;
     }, [status, transcription, localContent, activeTabId, updateTabContent]);
-
 
     // --- Derived state (memoized) ---
     const statusFlags = useMemo(
@@ -323,18 +327,25 @@ export const Studio: React.FC<StudioProps> = React.memo(
     //   Let's intercept the onStartRecording prop to track mode.
 
     const displayContent = useMemo(() => {
-        if (isRecording) {
-             // If we have pre-content and we assume we are appending (simplistic view: always append if not empty?)
-             // Actually, if we use the "Record" button (replace), we want to wipe it.
-             // If we use "Add" button (append), we want to keep it.
-             // We need to know the mode.
-             return recordingMode === "append"
-                ? `${preRecordingContent}${preRecordingContent ? "\n\n" : ""}${transcription}`
-                : transcription;
-        }
-        return localContent;
-    }, [isRecording, recordingMode, preRecordingContent, transcription, localContent]);
-
+      if (isRecording) {
+        // If we have pre-content and we assume we are appending (simplistic view: always append if not empty?)
+        // Actually, if we use the "Record" button (replace), we want to wipe it.
+        // If we use "Add" button (append), we want to keep it.
+        // We need to know the mode.
+        return recordingMode === "append"
+          ? `${preRecordingContent}${
+              preRecordingContent ? "\n\n" : ""
+            }${transcription}`
+          : transcription;
+      }
+      return localContent;
+    }, [
+      isRecording,
+      recordingMode,
+      preRecordingContent,
+      transcription,
+      localContent,
+    ]);
 
     const hasContent = displayContent.length > 0;
     const wordCount = useMemo(
@@ -415,11 +426,14 @@ export const Studio: React.FC<StudioProps> = React.memo(
     // --- Handlers ---
 
     // Intercept start recording to track mode
-    const handleStartRecording = useCallback((mode: "replace" | "append" = "replace") => {
+    const handleStartRecording = useCallback(
+      (mode: "replace" | "append" = "replace") => {
         setRecordingMode(mode);
         setPreRecordingContent(localContent);
         onStartRecording(mode);
-    }, [onStartRecording, localContent]);
+      },
+      [onStartRecording, localContent]
+    );
 
     const handleTitleSubmit = useCallback(() => {
       setIsEditingTitle(false);
@@ -543,23 +557,19 @@ export const Studio: React.FC<StudioProps> = React.memo(
       [activeTabId, updateTabTitle]
     );
 
-    // Handle translate button (conceptual - placeholder)
-    const handleTranslate = useCallback(() => {
+    // Handle translate button - calls backend translation API
+    const handleTranslate = useCallback(async () => {
       const targetLang = currentLanguage === "es" ? "en" : "es";
 
-      // Update language in tab
+      if (onTranslate) {
+        await onTranslate(targetLang);
+      }
+
+      // Update language indicator in tab after translation
       if (activeTabId) {
         updateTabLanguage(activeTabId, targetLang);
       }
-
-      // TODO: Integrate with LLM for actual translation
-      console.log(
-        `[Studio] Translation requested: ${currentLanguage} -> ${targetLang}`
-      );
-
-      // For now, just toggle the language indicator
-      // Future: Call backend translateText API
-    }, [currentLanguage, activeTabId, updateTabLanguage]);
+    }, [currentLanguage, activeTabId, updateTabLanguage, onTranslate]);
 
     const handleSaveToLibrary = useCallback(() => {
       if (!hasContent) return;
@@ -762,7 +772,10 @@ export const Studio: React.FC<StudioProps> = React.memo(
         {/* === Editor Area === */}
         <div className="studio-editor-wrapper">
           {!hasContent && !isRecording ? (
-            <EmptyState isIdle={isIdle} onStartRecording={handleStartRecording} />
+            <EmptyState
+              isIdle={isIdle}
+              onStartRecording={handleStartRecording}
+            />
           ) : (
             <div
               className={`studio-editor ${isRecording ? "recording" : ""}`}
@@ -899,15 +912,21 @@ export const Studio: React.FC<StudioProps> = React.memo(
                 )}
                 <button
                   className="studio-record-btn"
-                  onClick={() => handleStartRecording("replace")}
+                  onClick={() => {
+                    if (hasContent) {
+                      // Create new tab for "New" action when content exists
+                      addTab();
+                    }
+                    handleStartRecording("replace");
+                  }}
                   aria-label={
                     hasContent
-                      ? "Start new recording (replaces current)"
+                      ? "Create new note and start recording"
                       : "Start recording"
                   }
                   title={
                     hasContent
-                      ? "Start new recording (replaces current content)"
+                      ? "Create new note and start recording"
                       : "Start recording"
                   }
                 >

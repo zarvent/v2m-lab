@@ -50,6 +50,7 @@ from v2m.application.commands import (
     ResumeDaemonCommand,
     StartRecordingCommand,
     StopRecordingCommand,
+    TranslateTextCommand,
     UpdateConfigCommand,
 )
 from v2m.config import config
@@ -183,6 +184,18 @@ class Daemon:
                     else:
                         result = await self.command_bus.dispatch(ProcessTextCommand(text))
                         response = IPCResponse(status="success", data={"refined_text": result})
+
+            elif cmd_name == IPCCommand.TRANSLATE_TEXT:
+                if self.paused:
+                    response = IPCResponse(status="error", error="daemon is paused")
+                else:
+                    text = data.get("text")
+                    target_lang = data.get("target_lang", "en")
+                    if not text:
+                        response = IPCResponse(status="error", error="missing data.text in payload")
+                    else:
+                        result = await self.command_bus.dispatch(TranslateTextCommand(text, target_lang))
+                        response = IPCResponse(status="success", data={"refined_text": result, "state": "idle"})
 
             elif cmd_name == IPCCommand.UPDATE_CONFIG:
                 updates = data.get("updates")

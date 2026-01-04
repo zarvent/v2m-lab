@@ -91,6 +91,8 @@ export interface BackendActions {
   stopRecording: () => Promise<void>;
   /** Envía el texto actual al LLM para refinamiento */
   processText: () => Promise<void>;
+  /** Traduce el texto actual a otro idioma */
+  translateText: (targetLang: "es" | "en") => Promise<void>;
   /** Alterna entre pausar/reanudar el daemon */
   togglePause: () => Promise<void>;
   /** Actualiza manualmente el texto en UI */

@@ -133,6 +133,7 @@ function App() {
             onStopRecording={handleStopRecording}
             onClearError={actions.clearError}
             onSaveSnippet={handleSaveSnippet}
+            onTranslate={actions.translateText}
           />
         );
 

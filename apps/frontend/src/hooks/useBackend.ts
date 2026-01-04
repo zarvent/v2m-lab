@@ -308,6 +308,31 @@ export function useBackend(): [BackendState, BackendActions] {
     }
   }, [transcription, addToHistory]);
 
+  const translateText = useCallback(
+    async (targetLang: "es" | "en") => {
+      if (!transcription) return;
+      setStatus("processing"); // Optimistic UI
+      try {
+        const data = await invoke<DaemonState>("translate_text", {
+          text: transcription,
+          targetLang,
+        });
+        if (data.refined_text) {
+          setTranscription(data.refined_text);
+          addToHistory(data.refined_text, "refinement");
+          setStatus("idle");
+        } else {
+          setErrorMessage("Translation failed");
+          setStatus("error");
+        }
+      } catch (e) {
+        setErrorMessage(extractError(e));
+        setStatus("error");
+      }
+    },
+    [transcription, addToHistory]
+  );
+
   const togglePause = useCallback(async () => {
     try {
       if (statusRef.current === "paused") {
@@ -382,6 +407,7 @@ export function useBackend(): [BackendState, BackendActions] {
       startRecording,
       stopRecording,
       processText,
+      translateText,
       togglePause,
       setTranscription,
       clearError,
@@ -393,6 +419,7 @@ export function useBackend(): [BackendState, BackendActions] {
       startRecording,
       stopRecording,
       processText,
+      translateText,
       togglePause,
       clearError,
       retryConnection,

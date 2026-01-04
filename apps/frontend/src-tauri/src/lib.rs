@@ -275,6 +275,18 @@ fn process_text(app: tauri::AppHandle, text: String) -> Result<DaemonState, IpcE
     Ok(state)
 }
 
+/// Translate text with LLM
+#[tauri::command]
+fn translate_text(app: tauri::AppHandle, text: String, target_lang: String) -> Result<DaemonState, IpcError> {
+    let data = json!({ "text": text, "target_lang": target_lang });
+    let result = send_json_request("TRANSLATE_TEXT", Some(data))?;
+    let state: DaemonState = serde_json::from_value(result)
+        .map_err(|e| IpcError::from(format!("Parse error: {}", e)))?;
+    // Emit translated text result
+    let _ = app.emit("v2m://state-update", &state);
+    Ok(state)
+}
+
 /// Pause daemon operations
 #[tauri::command]
 fn pause_daemon(app: tauri::AppHandle) -> Result<DaemonState, IpcError> {
@@ -411,6 +423,7 @@ pub fn run() {
             stop_recording,
             ping,
             process_text,
+            translate_text,
             pause_daemon,
             resume_daemon,
             update_config,
