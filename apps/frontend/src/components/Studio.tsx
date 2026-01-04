@@ -19,7 +19,6 @@ import {
   FileCodeIcon,
   FileJsonIcon,
   PlusIcon,
-  TranslateIcon,
 } from "../assets/Icons";
 import { TabBar } from "./TabBar";
 import { useNoteTabs } from "../hooks/useNoteTabs";
@@ -557,20 +556,6 @@ export const Studio: React.FC<StudioProps> = React.memo(
       [activeTabId, updateTabTitle]
     );
 
-    // Handle translate button - calls backend translation API
-    const handleTranslate = useCallback(async () => {
-      const targetLang = currentLanguage === "es" ? "en" : "es";
-
-      if (onTranslate) {
-        await onTranslate(targetLang);
-      }
-
-      // Update language indicator in tab after translation
-      if (activeTabId) {
-        updateTabLanguage(activeTabId, targetLang);
-      }
-    }, [currentLanguage, activeTabId, updateTabLanguage, onTranslate]);
-
     const handleSaveToLibrary = useCallback(() => {
       if (!hasContent) return;
       setSnippetTitle(noteTitle);
@@ -664,6 +649,7 @@ export const Studio: React.FC<StudioProps> = React.memo(
             </span>
           </div>
 
+          {/* --- ACTION HUB (Spatial Design) --- */}
           <div className="studio-header-actions">
             {/* Copy Button */}
             <button
@@ -677,31 +663,73 @@ export const Studio: React.FC<StudioProps> = React.memo(
               {copyState === "copied" ? <CheckIcon /> : <CopyIcon />}
               <span>{copyState === "copied" ? "Copied!" : "Copy"}</span>
             </button>
-
-            {/* Export Dropdown */}
-            <div className="studio-dropdown" ref={exportMenuRef}>
+            {/* Magnetic Translation Switch */}
+            <div
+              className="semantic-toggle-group"
+              role="group"
+              aria-label="Translation Language"
+            >
               <button
-                className={`studio-btn studio-btn-export ${
-                  showExportMenu ? "active" : ""
+                className={`semantic-toggle-option ${
+                  currentLanguage === "en" ? "active" : ""
                 }`}
-                onClick={() => setShowExportMenu(!showExportMenu)}
+                onClick={() => {
+                  onTranslate && onTranslate("en");
+                  if (activeTabId) updateTabLanguage(activeTabId, "en");
+                }}
+                disabled={isBusy}
+                title="Translate to English"
+              >
+                <span className="toggle-label">EN</span>
+              </button>
+              <button
+                className={`semantic-toggle-option ${
+                  currentLanguage === "es" ? "active" : ""
+                }`}
+                onClick={() => {
+                  onTranslate && onTranslate("es");
+                  if (activeTabId) updateTabLanguage(activeTabId, "es");
+                }}
+                disabled={isBusy}
+                title="Traducir a Español"
+              >
+                <span className="toggle-label">ES</span>
+              </button>
+              {/* Active Pill Indicator (Visual only) */}
+              <div
+                className={`toggle-indicator ${currentLanguage}`}
+                aria-hidden="true"
+              />
+            </div>
+
+            <div className="studio-action-divider" />
+
+            {/* Primary Action Button: Export */}
+            <div className="studio-export-wrapper">
+              <button
+                className="studio-btn-primary-ghost"
+                onClick={() => handleExport("txt")}
                 disabled={!hasContent || isBusy}
-                aria-expanded={showExportMenu}
-                aria-haspopup="menu"
-                aria-label="Export transcription"
+                title="Export to Text File"
               >
                 <ExportIcon />
                 <span>Export</span>
-                <span
-                  className={`dropdown-chevron ${showExportMenu ? "open" : ""}`}
-                >
-                  ▾
-                </span>
+              </button>
+
+              {/* Dropdown Trigger */}
+              <button
+                className="studio-btn-icon-ghost"
+                onClick={() => setShowExportMenu(!showExportMenu)}
+                disabled={!hasContent || isBusy}
+                aria-label="More export options"
+                aria-expanded={showExportMenu}
+              >
+                <span className="chevron-down">▼</span>
               </button>
 
               {showExportMenu && (
-                <div className="studio-dropdown-menu" role="menu">
-                  <div className="dropdown-menu-header">Export as</div>
+                <div className="spatial-dropdown-menu" role="menu">
+                  <div className="dropdown-menu-header">Select Format</div>
                   {(
                     Object.entries(EXPORT_FORMATS) as [
                       ExportFormat,
@@ -710,51 +738,31 @@ export const Studio: React.FC<StudioProps> = React.memo(
                   ).map(([format, { label, Icon, description }]) => (
                     <button
                       key={format}
-                      className="studio-dropdown-item"
+                      className="spatial-dropdown-item"
                       onClick={() => handleExport(format)}
                       role="menuitem"
                     >
-                      <span className="dropdown-item-icon">
+                      <span className="item-icon-wrapper">
                         <Icon />
                       </span>
-                      <span className="dropdown-item-content">
-                        <span className="dropdown-item-label">{label}</span>
-                        <span className="dropdown-item-desc">
-                          {description}
-                        </span>
-                      </span>
-                      <span className="dropdown-item-ext">.{format}</span>
+                      <div className="item-content">
+                        <span className="item-label">{label}</span>
+                        <span className="item-desc">{description}</span>
+                      </div>
                     </button>
                   ))}
                 </div>
               )}
             </div>
 
-            {/* Translate Button */}
+            {/* Save to Library (Secondary) */}
             <button
-              className="studio-btn studio-btn-translate"
-              onClick={handleTranslate}
-              disabled={!hasContent || isBusy}
-              aria-label={`Translate to ${
-                currentLanguage === "es" ? "English" : "Spanish"
-              }`}
-              title={`Translate to ${
-                currentLanguage === "es" ? "English" : "Spanish"
-              }`}
-            >
-              <TranslateIcon />
-              <span>{currentLanguage === "es" ? "EN" : "ES"}</span>
-            </button>
-
-            {/* Save to Library */}
-            <button
-              className="studio-btn studio-btn-save"
+              className="studio-btn-icon-ghost"
               onClick={handleSaveToLibrary}
               disabled={!hasContent || isBusy}
-              aria-label="Save to Snippets Library"
+              title="Save to Library"
             >
               <SaveIcon />
-              <span>Save</span>
             </button>
           </div>
         </header>
