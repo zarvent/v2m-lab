@@ -44,6 +44,7 @@ export const Overview: React.FC<OverviewProps> = React.memo(
     const isOperating = status === "restarting" || status === "shutting_down";
     const isDisconnected = status === "disconnected";
     const isPaused = status === "paused";
+    const isRunning = status === "idle" || status === "recording" || status === "transcribing" || status === "processing";
 
     // Format last ping time
     const lastPingFormatted = lastPingTime
@@ -124,18 +125,36 @@ export const Overview: React.FC<OverviewProps> = React.memo(
         <div className="overview-card">
           <h2 className="overview-card-title">Daemon Controls</h2>
           <div className="daemon-controls-grid">
-            {/* Start/Resume Button */}
+            {/* Start/Resume/Pause Button */}
             <button
               onClick={handleResumeClick}
-              disabled={isOperating || (isConnected && !isPaused)}
+              disabled={isOperating}
               className={`btn-daemon btn-start ${
-                isConnected && !isPaused ? "btn-disabled" : ""
+                isConnected && !isPaused ? "btn-pause" : ""
               }`}
-              title={isPaused ? "Resume daemon" : "Start daemon"}
-              aria-label={isPaused ? "Resume daemon" : "Start daemon"}
+              title={isPaused ? "Resume daemon" : isRunning ? "Pause daemon" : "Start daemon"}
+              aria-label={isPaused ? "Resume daemon" : isRunning ? "Pause daemon" : "Start daemon"}
             >
-              <PlayIcon />
-              <span>{isPaused ? "Resume" : "Start"}</span>
+              {isConnected && !isPaused ? (
+                // Pause Icon
+                <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                >
+                    <rect x="6" y="4" width="4" height="16" />
+                    <rect x="14" y="4" width="4" height="16" />
+                </svg>
+              ) : (
+                <PlayIcon />
+              )}
+              <span>{isPaused ? "Resume" : isRunning ? "Pause" : "Start"}</span>
             </button>
 
             {/* Restart Button */}
