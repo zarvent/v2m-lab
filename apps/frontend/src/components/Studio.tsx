@@ -263,28 +263,17 @@ export const Studio: React.FC<StudioProps> = React.memo(
          setPreRecordingContent(localContent);
       }
 
-      // Detected Recording Stop (Recording -> Idle)
-      if (prevStatus === "recording" && status === "idle") {
-        // Commit the recording
-        // logic: if we were appending, combine. If replacing, just take transcription.
-        // Wait, onStartRecording in App.tsx calls useBackend.startRecording which handles "replace" vs "append" logic for the transcription state itself?
-        // Let's check useBackend:
-        //   stopRecording sets transcription to (prev + new) if append, or (new) if replace.
-        //   So `transcription` ALREADY contains the full desired text!
-
-        // Therefore, we just need to update localContent with the final `transcription` value from useBackend
-        // But wait, `transcription` prop updates *after* status changes to idle? Or same render?
-        // useBackend updates transcription AND status to idle in the same batch (usually).
-
-        // So we can just trust `transcription` prop now contains the full result.
-        // But we must ensure we don't overwrite if the user cancelled or if it failed.
+      // Detected Recording Stop OR Processing Complete (Recording/Processing -> Idle)
+      // This handles both microphone recording completion and LLM processing (refinement/translation) completion.
+      if (
+        (prevStatus === "recording" || prevStatus === "processing") &&
+        status === "idle"
+      ) {
         if (transcription) {
-            setLocalContent(transcription);
-            if (activeTabId) {
-                updateTabContent(activeTabId, transcription);
-            }
-            // Optionally: Notify parent to clear transcription buffer so it doesn't stick around?
-            // Actually, keeping it is fine as long as we don't auto-sync it later.
+          setLocalContent(transcription);
+          if (activeTabId) {
+            updateTabContent(activeTabId, transcription);
+          }
         }
       }
 

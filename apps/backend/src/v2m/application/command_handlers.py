@@ -27,6 +27,7 @@ y la lógica de negocio real
 
 import asyncio
 import atexit
+import re
 from concurrent.futures import ThreadPoolExecutor
 
 from v2m.application.commands import (
@@ -36,6 +37,7 @@ from v2m.application.commands import (
     ResumeDaemonCommand,
     StartRecordingCommand,
     StopRecordingCommand,
+    TranslateTextCommand,
     UpdateConfigCommand,
 )
 from v2m.application.config_manager import ConfigManager
@@ -45,6 +47,7 @@ from v2m.config import config
 from v2m.core.cqrs.command import Command
 from v2m.core.cqrs.command_handler import CommandHandler
 from v2m.core.interfaces import ClipboardInterface, NotificationInterface
+from v2m.core.logging import logger
 
 # executor dedicado para operaciones de ml single worker para evitar contención gpu
 # esto es más eficiente que el default threadpoolexecutor de asyncio.to_thread
@@ -235,6 +238,73 @@ class ProcessTextHandler(CommandHandler):
             el tipo de comando que este handler puede manejar
         """
         return ProcessTextCommand
+
+
+class TranslateTextHandler(CommandHandler):
+    """
+    MANEJADOR PARA EL COMANDO `TRANSLATETEXTCOMMAND`
+
+    este handler utiliza un servicio de llm para traducir texto
+    """
+
+    def __init__(
+        self,
+        llm_service: LLMService,
+        notification_service: NotificationInterface,
+    ) -> None:
+        """
+        INICIALIZA EL HANDLER CON SUS DEPENDENCIAS
+
+        ARGS:
+            llm_service: el servicio que interactúa con el llm
+            notification_service: el servicio para enviar notificaciones al usuario
+        """
+        self.llm_service = llm_service
+        self.notification_service = notification_service
+
+    async def handle(self, command: TranslateTextCommand) -> str | None:
+        """
+        EJECUTA LA LÓGICA PARA TRADUCIR EL TEXTO
+
+        ARGS:
+            command: el comando que contiene el texto y el idioma objetivo
+
+        RETURNS:
+            el texto traducido o None si hubo error
+        """
+        # Validate target_lang to prevent prompt injection or garbage
+        if not re.match(r"^[a-zA-Z\s\-]{2,20}$", command.target_lang):
+            logger.warning(f"Intento de traducción con idioma inválido: {command.target_lang}")
+            self.notification_service.notify("❌ Error", "Idioma de destino inválido")
+            return None
+
+        try:
+            # Check for async implementation or fallback to thread
+            if asyncio.iscoroutinefunction(self.llm_service.translate_text):
+                translated_text = await self.llm_service.translate_text(command.text, command.target_lang)
+            else:
+                translated_text = await asyncio.to_thread(
+                    self.llm_service.translate_text, command.text, command.target_lang
+                )
+
+            self.notification_service.notify(
+                f"✅ Traducción ({command.target_lang})", f"{translated_text[:80]}..."
+            )
+            return translated_text
+
+        except Exception as e:
+            logger.error(f"Error en traducción: {e}")
+            self.notification_service.notify("❌ Error traducción", "Fallo al traducir texto")
+            return None
+
+    def listen_to(self) -> type[Command]:
+        """
+        SE SUSCRIBE AL TIPO DE COMANDO `TRANSLATETEXTCOMMAND`
+
+        RETURNS:
+            el tipo de comando que este handler puede manejar
+        """
+        return TranslateTextCommand
 
 
 class UpdateConfigHandler(CommandHandler):
