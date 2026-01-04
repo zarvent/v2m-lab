@@ -136,3 +136,54 @@ class GeminiLLMService(LLMService):
 
             logger.error(f"error procesando texto con gemini {e}")
             raise LLMError("falló el procesamiento de texto con gemini") from e
+
+    @retry(
+        stop=stop_after_attempt(config.gemini.retry_attempts),
+        wait=wait_exponential(multiplier=0.5, min=0.5, max=2),
+        retry=retry_if_exception_type((httpx.TimeoutException, httpx.NetworkError, ConnectionError)),
+        reraise=True,
+    )
+    async def translate_text(self, text: str, target_lang: str) -> str:
+        """
+        TRADUCE UN TEXTO UTILIZANDO EL MODELO DE GOOGLE GEMINI
+
+        ARGS:
+            text: el texto a traducir
+            target_lang: idioma objetivo
+
+        RETURNS:
+            el texto traducido
+        """
+        try:
+            logger.info(f"traduciendo texto a {target_lang} con gemini...")
+
+            # Prompt de sistema específico para traducción
+            system_instruction = (
+                f"Eres un traductor experto. Traduce el siguiente texto al idioma '{target_lang}'. "
+                "Devuelve SOLO el texto traducido, sin explicaciones ni notas adicionales."
+            )
+
+            generation_config = {
+                "temperature": config.gemini.translation_temperature,
+                "max_output_tokens": self.max_tokens,
+                "system_instruction": system_instruction,
+            }
+
+            contents = [genai.types.Content(role="user", parts=[genai.types.Part(text=text)])]
+
+            response = await self.client.aio.models.generate_content(
+                model=self.model, contents=contents, config=generation_config
+            )
+            logger.info("traducción con gemini completada")
+            if response.text:
+                return response.text.strip()
+            else:
+                raise LLMError("respuesta vacía de gemini en traducción")
+        except Exception as e:
+            error_msg = str(e)
+            if "API key not valid" in error_msg:
+                logger.critical("GEMINI_API_KEY inválida o expirada")
+                raise LLMError("api key de gemini inválida") from e
+
+            logger.error(f"error traduciendo texto con gemini {e}")
+            raise LLMError("falló la traducción con gemini") from e

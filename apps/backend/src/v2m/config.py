@@ -171,6 +171,7 @@ class GeminiConfig(BaseModel):
     retry_attempts: int = 3
     retry_min_wait: int = 2
     retry_max_wait: int = 10
+    translation_temperature: float = 0.3
     api_key: str | None = Field(default=None)
 
 
@@ -203,6 +204,7 @@ class LocalLLMConfig(BaseModel):
     n_gpu_layers: int = Field(default=-1)
     n_ctx: int = Field(default=2048, ge=512, le=32768)
     temperature: float = Field(default=0.3, ge=0.0, le=2.0)
+    translation_temperature: float = Field(default=0.3, ge=0.0, le=2.0)
     max_tokens: int = Field(default=512, ge=1, le=4096)
 
 

@@ -63,6 +63,23 @@ class ProcessTextCommand(Command):
         self.text = text
 
 
+class TranslateTextCommand(Command):
+    """
+    COMANDO PARA TRADUCIR UN BLOQUE DE TEXTO USANDO UN LLM
+    """
+
+    def __init__(self, text: str, target_lang: str) -> None:
+        """
+        INICIALIZA EL COMANDO
+
+        ARGS:
+            text: el texto a traducir
+            target_lang: el idioma objetivo (ej: "en", "es")
+        """
+        self.text = text
+        self.target_lang = target_lang
+
+
 class UpdateConfigCommand(Command):
     """
     COMANDO PARA ACTUALIZAR LA CONFIGURACIÓN DEL SISTEMA

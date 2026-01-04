@@ -230,7 +230,7 @@ class LocalLLMService(LLMService):
                 self._model.create_chat_completion,  # type: ignore
                 messages=messages,
                 max_tokens=self._config.max_tokens,
-                temperature=self._config.temperature,
+                temperature=self._config.translation_temperature,
             )
 
             result = response["choices"][0]["message"]["content"].strip()
