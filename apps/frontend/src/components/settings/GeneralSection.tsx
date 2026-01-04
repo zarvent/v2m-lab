@@ -64,6 +64,7 @@ export const GeneralSection: React.FC = () => {
         >
           <option value="local">local (privado - llama/qwen)</option>
           <option value="gemini">google gemini (nube - mayor calidad)</option>
+          <option value="ollama">ollama (local - estructurado)</option>
         </select>
       </div>
 
@@ -83,6 +84,53 @@ export const GeneralSection: React.FC = () => {
             configure <code>GOOGLE_API_KEY</code> en su archivo{" "}
             <code>.env</code>
           </small>
+        </div>
+      )}
+
+      {llmBackend === "ollama" && (
+        <div className="form-group bg-surface-alt p-4 rounded-md mt-2">
+          <label className="label" htmlFor="ollama-model">
+            modelo ollama
+          </label>
+          <p className="form-hint">
+            seleccione según su disponibilidad de VRAM
+          </p>
+          <select
+            id="ollama-model"
+            className="select"
+            {...register("llm.ollama.model")}
+          >
+            <option value="gemma2:2b">gemma2:2b (grammar, 2GB)</option>
+            <option value="phi3.5-mini">phi3.5-mini (versátil, 3GB)</option>
+            <option value="qwen2.5-coder:7b">
+              qwen2.5-coder:7b (código, 5GB)
+            </option>
+          </select>
+
+          <label className="label mt-3" htmlFor="ollama-keep-alive">
+            modo VRAM
+          </label>
+          <p className="form-hint">cuánto tiempo mantener el modelo cargado</p>
+          <select
+            id="ollama-keep-alive"
+            className="select"
+            {...register("llm.ollama.keep_alive")}
+          >
+            <option value="0m">liberar inmediatamente (bajo consumo)</option>
+            <option value="5m">5 minutos (balance)</option>
+            <option value="30m">30 minutos (mínima latencia)</option>
+          </select>
+
+          <label className="label mt-3" htmlFor="ollama-host">
+            host ollama
+          </label>
+          <input
+            id="ollama-host"
+            className="input"
+            type="text"
+            placeholder="http://localhost:11434"
+            {...register("llm.ollama.host")}
+          />
         </div>
       )}
     </div>

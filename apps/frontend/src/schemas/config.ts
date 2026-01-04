@@ -55,12 +55,22 @@ const LocalLLMConfigSchema = z.object({
 });
 
 /**
+ * Zod Schema for Ollama LLM Configuration
+ */
+const OllamaConfigSchema = z.object({
+  host: z.string().default("http://localhost:11434"),
+  model: z.string().default("gemma2:2b"),
+  keep_alive: z.enum(["0m", "5m", "30m"]).default("5m"),
+});
+
+/**
  * Zod Schema for LLM Configuration
  */
 const LLMConfigSchema = z.object({
-  backend: z.enum(["local", "gemini"]).default("local"),
+  backend: z.enum(["local", "gemini", "ollama"]).default("local"),
   gemini: GeminiConfigSchema.optional(),
   local: LocalLLMConfigSchema.optional(),
+  ollama: OllamaConfigSchema.optional(),
 });
 
 /**

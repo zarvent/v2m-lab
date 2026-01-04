@@ -72,6 +72,7 @@ from v2m.infrastructure.gemini_llm_service import GeminiLLMService
 from v2m.infrastructure.linux_adapters import LinuxClipboardAdapter
 from v2m.infrastructure.local_llm_service import LocalLLMService
 from v2m.infrastructure.notification_service import LinuxNotificationService
+from v2m.infrastructure.ollama_llm_service import OllamaLLMService
 
 # --- AUTO-REGISTRO DE PROVIDERS ---
 # los imports fuerzan el registro en los registries globales
@@ -82,6 +83,7 @@ from v2m.infrastructure.whisper_transcription_service import WhisperTranscriptio
 transcription_registry.register("whisper", WhisperTranscriptionService)
 llm_registry.register("local", LocalLLMService)
 llm_registry.register("gemini", GeminiLLMService)
+llm_registry.register("ollama", OllamaLLMService)
 
 
 class Container:

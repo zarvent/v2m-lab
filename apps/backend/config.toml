@@ -79,3 +79,12 @@ n_gpu_layers = -1   # -1 = full GPU offload (all layers to GPU for fastest infer
 n_ctx = 2048        # Context window in tokens
 temperature = 0.3   # 0.0 (deterministic) to 2.0 (creative)
 max_tokens = 512    # Maximum tokens to generate
+
+# ============================================================================
+# OLLAMA LLM (Alternative local backend with structured outputs)
+# ============================================================================
+[llm.ollama]
+host = "http://localhost:11434"
+model = "gemma2:2b"      # ALT: "phi3.5-mini", "qwen2.5-coder:7b"
+keep_alive = "5m"        # "0m" = free VRAM | "5m" = keep loaded | "30m" = min latency
+temperature = 0.0        # 0.0 for deterministic structured outputs

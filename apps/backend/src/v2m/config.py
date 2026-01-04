@@ -214,15 +214,17 @@ class OllamaConfig(BaseModel):
 
     Attributes:
         host: Ollama server URL. Default: http://localhost:11434
-        model: Model name (phi3.5-mini, gemma2:2b, qwen2.5-coder:7b).
+        model: Model name (gemma2:2b, phi3.5-mini, qwen2.5-coder:7b).
         keep_alive: Time to keep model loaded. "0m" frees VRAM immediately.
         temperature: Generation temperature. 0.0 for deterministic structured outputs.
+        translation_temperature: Temperature for translation tasks.
     """
 
     host: str = Field(default="http://localhost:11434")
-    model: str = Field(default="phi3.5-mini")
-    keep_alive: str = Field(default="0m")
+    model: str = Field(default="gemma2:2b")
+    keep_alive: str = Field(default="5m")
     temperature: float = Field(default=0.0, ge=0.0, le=2.0)
+    translation_temperature: float = Field(default=0.3, ge=0.0, le=2.0)
 
 
 class LLMConfig(BaseModel):

@@ -109,3 +109,36 @@ def test_config_loading() -> None:
         f"Reintentos inesperados: {config.gemini.retry_attempts}. "
         "El valor recomendado es 3 para balancear resiliencia y latencia."
     )
+
+
+def test_ollama_config_defaults() -> None:
+    """Verifica defaults de OllamaConfig para structured outputs.
+
+    Valores verificados
+    -------------------
+    ollama.model = "gemma2:2b"
+        Modelo optimizado para grammar correction, cabe en 4GB VRAM.
+
+    ollama.keep_alive = "5m"
+        Balance entre consumo de VRAM y latencia. Mantiene modelo
+        cargado 5 minutos después del último uso.
+
+    ollama.temperature = 0.0
+        Determinístico para structured outputs con JSON schema.
+    """
+    config = Settings()
+
+    assert config.llm.ollama.model == "gemma2:2b", (
+        f"Modelo Ollama inesperado: {config.llm.ollama.model}. "
+        "El default debe ser 'gemma2:2b' para grammar correction."
+    )
+
+    assert config.llm.ollama.keep_alive == "5m", (
+        f"keep_alive inesperado: {config.llm.ollama.keep_alive}. "
+        "El default debe ser '5m' para balance VRAM/latencia."
+    )
+
+    assert config.llm.ollama.temperature == 0.0, (
+        f"Temperatura inesperada: {config.llm.ollama.temperature}. "
+        "Debe ser 0.0 para structured outputs determinísticos."
+    )
