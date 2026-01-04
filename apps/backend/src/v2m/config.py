@@ -206,17 +206,36 @@ class LocalLLMConfig(BaseModel):
     max_tokens: int = Field(default=512, ge=1, le=4096)
 
 
+class OllamaConfig(BaseModel):
+    """
+    Configuration for Ollama LLM backend (SOTA 2026).
+
+    Attributes:
+        host: Ollama server URL. Default: http://localhost:11434
+        model: Model name (phi3.5-mini, gemma2:2b, qwen2.5-coder:7b).
+        keep_alive: Time to keep model loaded. "0m" frees VRAM immediately.
+        temperature: Generation temperature. 0.0 for deterministic structured outputs.
+    """
+
+    host: str = Field(default="http://localhost:11434")
+    model: str = Field(default="phi3.5-mini")
+    keep_alive: str = Field(default="0m")
+    temperature: float = Field(default=0.0, ge=0.0, le=2.0)
+
+
 class LLMConfig(BaseModel):
     """
     LLM Service Configuration.
 
     Attributes:
-        backend: Backend selector ("local" or "gemini"). Default: "local"
-        local: Configuration for the local backend.
+        backend: Backend selector ("local", "gemini", or "ollama"). Default: "local"
+        local: Configuration for the local llama.cpp backend.
+        ollama: Configuration for the Ollama backend.
     """
 
-    backend: Literal["local", "gemini"] = Field(default="local")
+    backend: Literal["local", "gemini", "ollama"] = Field(default="local")
     local: LocalLLMConfig = Field(default_factory=LocalLLMConfig)
+    ollama: OllamaConfig = Field(default_factory=OllamaConfig)
 
 
 class TranscriptionConfig(BaseModel):
