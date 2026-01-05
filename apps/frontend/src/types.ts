@@ -5,7 +5,7 @@
  * @module Types
  */
 
-// Import and re-export IPC types
+// Importar y re-exportar tipos IPC
 import type {
   TelemetryData as TelemetryDataType,
   CpuInfo,
