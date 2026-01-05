@@ -1,116 +1,140 @@
-# This file is part of voice2machine.
+# Este archivo es parte de voice2machine.
 #
-# voice2machine is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# voice2machine es software libre: puedes redistribuirlo y/o modificarlo
+# bajo los términos de la Licencia Pública General GNU publicada por
+# la Free Software Foundation, ya sea la versión 3 de la Licencia, o
+# (a tu elección) cualquier versión posterior.
 #
-# voice2machine is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# voice2machine se distribuye con la esperanza de que sea útil,
+# pero SIN NINGUNA GARANTÍA; ni siquiera la garantía implícita de
+# COMERCIABILIDAD o IDONEIDAD PARA UN PROPÓSITO PARTICULAR. Consulta la
+# Licencia Pública General GNU para más detalles.
 #
-# You should have received a copy of the GNU General Public License
-# along with voice2machine.  If not, see <https://www.gnu.org/licenses/>.
+# Deberías haber recibido una copia de la Licencia Pública General GNU
+# junto con voice2machine. Si no, consulta <https://www.gnu.org/licenses/>.
+
+"""
+Módulo de Grabación de Audio.
+
+Esta clase actúa como un fachada (Facade/Strangler Fig) para abstraer la complejidad
+de la captura de audio en tiempo real. Implementa una estrategia de fallback robusta:
+intenta usar el motor optimizado en Rust y retrocede a Python (sounddevice) si es necesario.
+
+Características (SOTA 2026):
+    - Motor Rust (cpal + ringbuf) para captura Lock-Free y GIL-Free.
+    - Buffer pre-allocado en Python para evitar realocaciones O(n).
+    - Gestión automática de hilos y limpieza de recursos.
+    - Manejo resiliente de `PortAudio` faltante.
+"""
 
 import threading
 import wave
 from pathlib import Path
 
 import numpy as np
-import sounddevice as sd
 
 from v2m.core.logging import logger
 from v2m.domain.errors import RecordingError
 
-# Intenta importar el motor de audio Rust
+# --- IMPORTACIÓN CONDICIONAL DE MOTORES DE AUDIO ---
+
+# 1. Motor Rust (Prioridad Alta)
 try:
     from v2m_engine import AudioRecorder as RustAudioRecorder
 
     HAS_RUST_ENGINE = True
-    logger.info("🚀 motor de audio rust v2m_engine cargado correctamente")
+    logger.info("🚀 Motor de audio Rust (v2m_engine) cargado correctamente")
 except ImportError:
     HAS_RUST_ENGINE = False
-    logger.warning("⚠️ motor de audio rust no disponible usando fallback python")
+    # No logueamos advertencia aquí para no spammear en tests si no es necesario
+
+# 2. Motor Python (Fallback)
+try:
+    import sounddevice as sd
+
+    HAS_SOUNDDEVICE = True
+except (ImportError, OSError) as e:
+    # Capturamos OSError porque sounddevice lanza esto si libportaudio no existe
+    HAS_SOUNDDEVICE = False
+    sd = None  # type: ignore
+    logger.warning(
+        f"⚠️ SoundDevice no disponible (PortAudio faltante?): {e}. "
+        "La grabación fallará si no se usa el motor Rust."
+    )
 
 
 class AudioRecorder:
     """
-    CLASE RESPONSABLE DE LA GRABACIÓN DE AUDIO
+    Grabador de audio de alto rendimiento con estrategia dual (Rust/Python).
 
-    esta clase actúa como fachada ("Strangler Fig Pattern") para modernizar el stack de audio.
-    elige automáticamente entre dos motores:
-
-    1. **MOTOR RUST (V2M_ENGINE)** - [PREDETERMINADO]
-       - **State of the Art (2026)**: Utiliza `cpal` + `ringbuf` (SPSC).
-       - **Lock-Free**: El hilo de audio es 'Wait-Free', garantizando cero bloqueos (glitch-free).
-       - **GIL-Free**: La captura ocurre fuera del Global Interpreter Lock de Python.
-       - **Zero-Copy**: Intercambio de datos eficiente con NumPy.
-
-    2. **MOTOR PYTHON (SOUNDDEVICE)** - [FALLBACK]
-       - Se activa automáticamente si falla Rust (ej. hardware no soportado o error de driver).
-       - Utiliza `sounddevice` (PortAudio wrapper) con buffers pre-allocados.
-
-    OPTIMIZACIONES
-    - buffer pre-allocado en modo fallback para evitar reallocaciones O(n) -> O(1).
-    - arquitectura resiliente: si Rust falla, el usuario no nota interrupción.
+    Motores:
+    1. **Rust (Preferido)**: Bajo nivel, sin GIL, sin locks en el hot-path de audio.
+    2. **Python (Fallback)**: Basado en PortAudio, robusto y ampliamente compatible.
     """
 
-    # tamaño del chunk en samples coincide con sounddevice default ~1024
+    # Tamaño del chunk de audio (coincide con defecto de sounddevice/ALSA)
     CHUNK_SIZE = 1024
 
     def __init__(
-        self, sample_rate: int = 16000, channels: int = 1, max_duration_sec: int = 600, device_index: int | None = None
+        self,
+        sample_rate: int = 16000,
+        channels: int = 1,
+        max_duration_sec: int = 600,
+        device_index: int | None = None,
     ):
         """
-        INICIALIZA EL GRABADOR DE AUDIO
+        Inicializa el grabador de audio.
 
-        ARGS:
-            sample_rate: frecuencia de muestreo en hz
-            channels: número de canales de audio
-            max_duration_sec: duración máxima de grabación en segundos default 10 min
-            device_index: índice del dispositivo de audio a usar (solo soportado en modo Python)
+        Args:
+            sample_rate: Frecuencia de muestreo (Hz). Whisper requiere 16000.
+            channels: Número de canales (mono=1, estéreo=2).
+            max_duration_sec: Límite de seguridad para el buffer (evita OOM).
+            device_index: Índice del dispositivo de audio (solo modo Python).
         """
         self.sample_rate = sample_rate
         self.channels = channels
         self.device_index = device_index
         self._recording = False
 
-        # Estado para el motor Rust
+        # Estado del motor Rust
         self._rust_recorder: RustAudioRecorder | None = None
 
-        # Estado para el motor Python (fallback)
+        # Estado del motor Python
         self._stream: sd.InputStream | None = None
         self._lock = threading.Lock()
         self._buffer: np.ndarray | None = None
         self._write_pos = 0
         self.max_samples = max_duration_sec * sample_rate
 
+        # Intento de inicialización del motor Rust
         if HAS_RUST_ENGINE and device_index is None:
             try:
                 self._rust_recorder = RustAudioRecorder(sample_rate, channels)
-                logger.debug("usando motor de grabación rust")
+                logger.debug("Usando motor de grabación Rust")
                 return
             except Exception as e:
-                logger.error(f"error inicializando motor rust: {e} - cayendo a python")
+                logger.error(f"Error inicializando motor Rust: {e} - Cayendo a Python")
 
-        # Inicialización del fallback Python (buffer pre-allocado)
-        self._buffer = self._allocate_buffer()
+        # Inicialización del buffer para modo Python (Pre-allocation)
+        # Solo si sounddevice está disponible, para evitar crash en entornos sin audio
+        if HAS_SOUNDDEVICE:
+            self._buffer = self._allocate_buffer()
 
     def _allocate_buffer(self) -> np.ndarray:
-        """Allocate pre-allocated buffer based on channel configuration."""
+        """Reserva memoria contigua para el buffer de audio."""
         if self.channels > 1:
             return np.zeros((self.max_samples, self.channels), dtype=np.float32)
         return np.zeros(self.max_samples, dtype=np.float32)
 
     def _empty_audio_array(self) -> np.ndarray:
-        """Return empty audio array with correct shape for channel configuration."""
+        """Retorna un array vacío con la forma correcta."""
         if self.channels > 1:
             return np.array([], dtype=np.float32).reshape(0, self.channels)
         return np.array([], dtype=np.float32)
 
     def _save_wav(self, audio_data: np.ndarray, save_path: Path):
-        """Save audio data to WAV file."""
+        """Exporta los datos de audio a formato WAV estándar."""
+        # Conversión float32 (-1.0 a 1.0) -> int16
         audio_int16 = (audio_data * 32767).astype(np.int16)
         with wave.open(str(save_path), "wb") as wf:
             wf.setnchannels(self.channels)
@@ -119,62 +143,70 @@ class AudioRecorder:
             wf.writeframes(audio_int16.tobytes())
 
     def _get_audio_slice(self, num_samples: int) -> np.ndarray:
-        """Extract audio slice from buffer based on channel configuration."""
+        """Obtiene la porción válida del buffer grabado."""
+        if self._buffer is None:
+            return self._empty_audio_array()
         if self.channels > 1:
             return self._buffer[:num_samples, :]
         return self._buffer[:num_samples]
 
     def start(self):
         """
-        INICIA LA GRABACIÓN DE AUDIO
+        Inicia la captura de audio.
 
-        RAISES:
-            RecordingError: si la grabación ya está en progreso o falla al iniciar el stream
+        Raises:
+            RecordingError: Si la grabación ya está activa o el dispositivo falla.
         """
         if self._recording:
-            raise RecordingError("grabación ya en progreso")
+            raise RecordingError("Grabación ya en progreso")
 
         self._recording = True
 
-        # --- CAMINO DE EJECUCIÓN RUST ---
+        # --- MOTOR RUST ---
         if self._rust_recorder:
             try:
                 self._rust_recorder.start()
-                logger.info("grabación iniciada (rust engine)")
+                logger.info("Grabación iniciada (Motor Rust)")
                 return
             except Exception as e:
-                logger.error(f"fallo en motor rust, intentando fallback a python: {e}")
-                # No lanzamos error aquí, permitimos que continúe al fallback Python
-                # pero primero debemos resetear el estado de grabación si rust lo dejó sucio
-                self._rust_recorder = None  # Deshabilitamos rust para esta instancia
+                logger.error(f"Fallo en motor Rust, activando fallback Python: {e}")
+                self._rust_recorder = None  # Deshabilitar permanentemente
 
-        # --- CAMINO DE EJECUCIÓN PYTHON (FALLBACK) ---
-        # Aseguramos que _buffer está inicializado si falló rust
+        # --- MOTOR PYTHON ---
+        if not HAS_SOUNDDEVICE:
+            self._recording = False
+            raise RecordingError(
+                "No se puede iniciar grabación: Motor Rust falló y PortAudio no está disponible."
+            )
+
         if self._buffer is None:
             self._buffer = self._allocate_buffer()
 
-        self._write_pos = 0  # reiniciar posición del buffer
+        self._write_pos = 0  # Resetear puntero de escritura
 
         def callback(indata: np.ndarray, frames: int, time, status):
+            """Callback de audio en tiempo real (invocado por hilo C de PortAudio)."""
             if status:
-                logger.warning(f"estado de la grabación de audio {status}")
+                logger.warning(f"Estado de audio: {status}")
 
             with self._lock:
-                if not self._recording:
+                if not self._recording or self._buffer is None:
                     return
 
-                # calcular cuántos samples podemos escribir
+                # Calcular espacio disponible para evitar Buffer Overflow
                 samples_to_write = min(frames, self.max_samples - self._write_pos)
 
                 if samples_to_write > 0:
-                    # escritura zero-copy al buffer pre-allocado flatten inline
                     end_pos = self._write_pos + samples_to_write
-
+                    # Copia eficiente (slice assignment)
                     if self.channels > 1:
-                        self._buffer[self._write_pos : end_pos, :] = indata[:samples_to_write, :]
+                        self._buffer[self._write_pos : end_pos, :] = indata[
+                            :samples_to_write, :
+                        ]
                     else:
-                        self._buffer[self._write_pos : end_pos] = indata[:samples_to_write, 0]
-
+                        self._buffer[self._write_pos : end_pos] = indata[
+                            :samples_to_write, 0
+                        ]
                     self._write_pos = end_pos
 
         try:
@@ -187,57 +219,64 @@ class AudioRecorder:
                 blocksize=self.CHUNK_SIZE,
             )
             self._stream.start()
-            logger.info("grabación de audio iniciada (python fallback)")
+            logger.info("Grabación iniciada (Motor Python)")
         except Exception as e:
             self._recording = False
             if self._stream:
                 self._stream.close()
                 self._stream = None
-            raise RecordingError(f"falló al iniciar la grabación {e}") from e
+            raise RecordingError(f"Fallo al iniciar grabación: {e}") from e
 
-    def stop(self, save_path: Path | None = None, return_data: bool = True, copy_data: bool = True) -> np.ndarray:
+    def stop(
+        self,
+        save_path: Path | None = None,
+        return_data: bool = True,
+        copy_data: bool = True,
+    ) -> np.ndarray:
         """
-        DETIENE LA GRABACIÓN Y DEVUELVE EL AUDIO CAPTURADO
+        Detiene la grabación y retorna los datos capturados.
 
-        ARGS:
-            save_path: ruta opcional para guardar el audio como archivo wav
-            return_data: si es True retorna el audio grabado
-            copy_data: si es True retorna una copia del buffer (seguro)
+        Args:
+            save_path: Si se proporciona, guarda el audio en disco (WAV).
+            return_data: Si es False, retorna un array vacío (ahorra memoria si solo se guarda).
+            copy_data: Si es True, retorna una copia segura de los datos.
 
-        RETURNS:
-            el audio grabado como un array de numpy float32
+        Returns:
+            np.ndarray: Audio en formato float32.
         """
         if not self._recording:
-            raise RecordingError("no hay grabación en curso")
+            raise RecordingError("No hay grabación en curso")
 
         self._recording = False
 
-        # --- CAMINO DE EJECUCIÓN RUST ---
+        # --- MOTOR RUST ---
         if self._rust_recorder:
             try:
-                # El método stop de Rust devuelve directamente el numpy array
                 audio_view = self._rust_recorder.stop()
                 recorded_samples = len(audio_view)
-                logger.info(f"grabación detenida (rust engine): {recorded_samples} samples")
+                logger.info(
+                    f"Grabación detenida (Rust): {recorded_samples} muestras capturadas"
+                )
 
-                # Manejo de guardado a disco
                 if save_path:
                     self._save_wav(audio_view, save_path)
 
                 if not return_data:
                     return self._empty_audio_array()
 
-                # Rust devuelve un nuevo array (ya es una copia/nueva ref),
-                # pero si el usuario pidió copy_data=True explícitamente y queremos ser paranoicos
                 if copy_data:
                     return audio_view.copy()
 
                 return audio_view
             except Exception as e:
-                logger.error(f"error deteniendo grabación rust: {e}")
-                raise RecordingError(f"error deteniendo rust: {e}") from e
+                logger.error(f"Error deteniendo motor Rust: {e}")
+                raise RecordingError(f"Fallo crítico en motor de audio: {e}") from e
 
-        # --- CAMINO DE EJECUCIÓN PYTHON ---
+        # --- MOTOR PYTHON ---
+        if not HAS_SOUNDDEVICE:
+            # Caso raro: se inició (supuestamente) pero ahora no está disponible?
+            return self._empty_audio_array()
+
         with self._lock:
             recorded_samples = self._write_pos
 
@@ -246,7 +285,9 @@ class AudioRecorder:
             self._stream.close()
             self._stream = None
 
-        logger.info(f"grabación detenida (python): {recorded_samples} samples")
+        logger.info(
+            f"Grabación detenida (Python): {recorded_samples} muestras capturadas"
+        )
 
         if recorded_samples == 0:
             return self._empty_audio_array()
