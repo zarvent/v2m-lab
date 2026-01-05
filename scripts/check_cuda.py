@@ -1,101 +1,89 @@
 #!/usr/bin/env python3
 
-# This file is part of voice2machine.
+# Este archivo es parte de voice2machine.
 #
-# voice2machine is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# voice2machine es software libre: puedes redistribuirlo y/o modificarlo
+# bajo los términos de la Licencia Pública General GNU publicada por
+# la Free Software Foundation, ya sea la versión 3 de la Licencia, o
+# (a tu elección) cualquier versión posterior.
 #
-# voice2machine is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# voice2machine se distribuye con la esperanza de que sea útil,
+# pero SIN NINGUNA GARANTÍA; ni siquiera la garantía implícita de
+# COMERCIABILIDAD o IDONEIDAD PARA UN PROPÓSITO PARTICULAR. Consulta la
+# Licencia Pública General GNU para más detalles.
 #
-# You should have received a copy of the GNU General Public License
-# along with voice2machine.  If not, see <https://www.gnu.org/licenses/>.
+# Deberías haber recibido una copia de la Licencia Pública General GNU
+# junto con voice2machine. Si no, consulta <https://www.gnu.org/licenses/>.
+
 """
-verificación de cuda - ¿mi gpu funciona con v2m?
+Verificación de Entorno CUDA - ¿Está mi GPU lista para V2M?
 
-¿para qué sirve este script?
-    v2m usa la gpu de tu computadora para transcribir audio rápidamente
-    este script verifica que tu tarjeta gráfica nvidia esté configurada
-    correctamente y lista para usar
+Propósito:
+    Voice2Machine utiliza aceleración por hardware (GPU) para transcripción de baja latencia.
+    Este script de diagnóstico valida que el stack completo de NVIDIA (Drivers -> CUDA -> cuDNN -> PyTorch)
+    esté configurado correctamente.
 
-¿cómo lo uso?
-    simplemente ejecuta
-
+Uso:
     $ python scripts/check_cuda.py
 
-¿qué debería ver si todo está bien?
-    Python: /home/tu-usuario/v2m/venv/bin/python
-    CUDA Available: True
-    CUDA Device: NVIDIA GeForce RTX 3060
-    ✅ Operación cuDNN básica exitosa
+Salida esperada (Éxito):
+    Python: .../venv/bin/python
+    CUDA Disponible: True
+    Dispositivo: NVIDIA GeForce RTX 4060
+    ✅ Operación Tensor Core (cuDNN) exitosa
 
-¿qué pasa si cuda no está disponible?
-    el script mostrará "CUDA Available: False" en ese caso
-
-    1 verifica que tengas drivers nvidia instalados
-       $ nvidia-smi
-
-    2 si eso falla instala los drivers
-       $ sudo apt install nvidia-driver-535
-
-    3 si tienes drivers pero cuda sigue sin funcionar prueba
-       $ ./scripts/repair_libs.sh
-
-nota para desarrolladores
-    este script usa pytorch para detectar cuda y ejecuta una operación
-    de convolución simple para verificar que cudnn funcione si la
-    operación tiene éxito significa que todo el stack de gpu está
-    funcionando correctamente
+Resolución de problemas:
+    Si "CUDA Disponible: False":
+    1. Verifica drivers: `nvidia-smi`
+    2. Reinstala dependencias: `./scripts/install.sh`
+    3. Repara enlaces dinámicos: `./scripts/repair_libs.sh`
 """
 
-import torch
 import os
 import sys
+
+import torch
 
 
 def check_cuda_availability() -> bool:
     """
-    verifica si cuda y cudnn están funcionando
+    Realiza un diagnóstico completo del subsistema de GPU.
 
-    ¿qué hace exactamente?
-        1 muestra qué python estás usando
-        2 muestra las rutas de librerías cuda
-        3 prueba si cuda está disponible
-        4 si lo está hace una prueba rápida con cudnn
+    Pasos de verificación:
+        1. Entorno de ejecución (Ruta Python, LD_LIBRARY_PATH).
+        2. Detección de dispositivo CUDA vía PyTorch.
+        3. Prueba de estrés mínima (Convolución 2D) para validar cuDNN.
 
-    returns:
-        true si todo funciona false si hay algún problema
-
-    example
-        >>> if check_cuda_availability():
-        ...     print("Listo para usar GPU")
-        ... else:
-        ...     print("Usando CPU (más lento)")
+    Returns:
+        bool: True si la GPU es completamente funcional para inferencia.
     """
-    print(f"Python: {sys.executable}")
-    print(f"LD_LIBRARY_PATH: {os.environ.get('LD_LIBRARY_PATH', 'Not Set')}")
-    print(f"CUDA Available: {torch.cuda.is_available()}")
+    print(f"Intérprete Python: {sys.executable}")
+    print(f"LD_LIBRARY_PATH: {os.environ.get('LD_LIBRARY_PATH', 'No definido')}")
 
-    if torch.cuda.is_available():
-        print(f"CUDA Device: {torch.cuda.get_device_name(0)}")
+    cuda_available = torch.cuda.is_available()
+    print(f"CUDA Disponible: {cuda_available}")
+
+    if cuda_available:
+        device_name = torch.cuda.get_device_name(0)
+        print(f"Dispositivo Activo: {device_name}")
+
         try:
-            # Intentar cargar algo que use cuDNN
+            # Prueba de humo para cuDNN (operación de convolución)
+            # Esto falla si las librerías .so no están enlazadas correctamente
             x = torch.randn(1, 1, 10, 10).cuda()
             conv = torch.nn.Conv2d(1, 1, 3).cuda()
-            y = conv(x)
-            print("✅ Operación cuDNN básica exitosa")
+            _ = conv(x)
+            print("✅ Operación Tensor Core (cuDNN) exitosa")
             return True
         except Exception as e:
-            print(f"❌ Error en operación cuDNN: {e}")
+            print(f"❌ Error crítico en operación GPU: {e}")
+            print("Sugerencia: Ejecuta ./scripts/repair_libs.sh")
             return False
     else:
-        print("❌ CUDA no disponible")
+        print("❌ Aceleración GPU no disponible (Se usará CPU)")
         return False
 
 
 if __name__ == "__main__":
-    check_cuda_availability()
+    success = check_cuda_availability()
+    sys.exit(0 if success else 1)

@@ -1,27 +1,27 @@
-# 🛠️ Utility Scripts (Ops & Maint)
+# 🛠️ Scripts de Utilidad (Ops & Mantenimiento)
 
-Curated collection of tools for the **Voice2Machine** lifecycle.
-From installation to deep diagnostics.
+Colección curada de herramientas para el ciclo de vida de **Voice2Machine**.
+Desde la instalación hasta el diagnóstico profundo.
 
-## 🚀 Core Scripts (Daily Use)
+## 🚀 Scripts Principales (Uso Diario)
 
-| Script          | Purpose                                                                      |
-| :-------------- | :--------------------------------------------------------------------------- |
-| `v2m-daemon.sh` | **The Service**. Starts/Stops the backend in the background.                 |
-| `v2m-toggle.sh` | **The Trigger**. Toggles (Start/Stop) recording. Map to keyboard shortcut.   |
-| `v2m-llm.sh`    | **The AI**. Takes the clipboard, refines it with Gemini, and pastes it back. |
+| Script          | Propósito                                                                      |
+| :-------------- | :----------------------------------------------------------------------------- |
+| `v2m-daemon.sh` | **El Servicio**. Inicia/Detiene el backend en segundo plano.                   |
+| `v2m-toggle.sh` | **El Gatillo**. Alterna (Inicio/Fin) grabación. Ideal para atajos de teclado.  |
+| `v2m-llm.sh`    | **La IA**. Toma el portapapeles, lo refina con Gemini/Local y lo pega de vuelta.|
 
-## 🩺 Diagnostics and Benchmarks
+## 🩺 Diagnóstico y Benchmarks
 
-If something fails, run this before opening an issue.
+Si algo falla, ejecuta esto antes de abrir un issue.
 
-- **`check_cuda.py`**: Is your GPU visible to PyTorch?
-- **`diagnose_audio.py`**: Console VU meter. Verifies if your mic is picking up sound.
-- **`benchmark_latency.py`**: Measures exact milliseconds of "Cold Start" vs "Warm Start".
-- **`test_whisper_gpu.py`**: Downloads a "tiny" model and transcribes a test audio.
-- **`verify_daemon.py`**: End-to-end integration test. Simulates a client connecting to the socket.
+- **`check_cuda.py`**: ¿Es tu GPU visible para PyTorch/CUDA?
+- **`diagnose_audio.py`**: Vúmetro de consola. Verifica si tu micrófono capta sonido.
+- **`benchmark_latency.py`**: Mide milisegundos exactos de "Cold Start" vs "Warm Start".
+- **`test_whisper_gpu.py`**: Descarga un modelo "tiny" y transcribe un audio de prueba.
+- **`verify_daemon.py`**: Test de integración E2E. Simula un cliente conectando al socket.
 
-## 🧹 Maintenance
+## 🧹 Mantenimiento
 
-- **`cleanup.py`**: Deletes logs, temporary files (`/tmp/v2m_*`), and corrupt model cache.
-- **`install.sh`**: The "magic" idempotent installation script.
+- **`cleanup.py`**: Elimina logs, archivos temporales (`/tmp/v2m_*`) y caché corrupta.
+- **`install.sh`**: El script de instalación "mágico" idempotente.

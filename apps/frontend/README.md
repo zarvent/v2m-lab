@@ -1,57 +1,57 @@
 # Frontend Voice2Machine (Tauri + React)
 
-State-of-the-art desktop GUI built with **Tauri 2.0** (Rust) and **React 19**.
+GUI de escritorio "State-of-the-art" construida con **Tauri 2.0** (Rust) y **React 19**.
 
-## ⚡ Philosophy
+## ⚡ Filosofía
 
-- **Ultralight**: < 15MB binary. < 50MB RAM.
-- **Secure**: We don't run Node.js at runtime. Everything goes through Rust's secure bridge.
-- **Decoupled**: The GUI is just a "view". Heavy logic lives in the Python Daemon.
+- **Ultraligero**: Binario < 15MB. < 50MB RAM.
+- **Seguro**: No ejecutamos Node.js en tiempo de ejecución. Todo pasa a través del puente seguro de Rust.
+- **Desacoplado**: La GUI es solo una "vista". La lógica pesada vive en el Demonio de Python.
 
-## 🛠️ Development Requirements
+## 🛠️ Requisitos de Desarrollo
 
-- **Node.js** 20+ (Recommended: use `fnm` or `nvm`).
-- **Rust** (stable toolchain) to compile the Tauri backend.
-- **System dependencies**: `libwebkit2gtk-4.1-dev` (on Ubuntu).
+- **Node.js** 20+ (Recomendado: usar `fnm` o `nvm`).
+- **Rust** (toolchain estable) para compilar el backend de Tauri.
+- **Dependencias del sistema**: `libwebkit2gtk-4.1-dev` (en Ubuntu).
 
-## 🧑‍💻 Commands
+## 🧑‍💻 Comandos
 
 ```bash
-# 1. Install deps
+# 1. Instalar dependencias
 npm install
 
-# 2. Development Mode (Hot Reload)
-# NOTE: Make sure the Python daemon is running to see real data.
+# 2. Modo Desarrollo (Hot Reload)
+# NOTA: Asegúrate de que el demonio Python esté corriendo para ver datos reales.
 npm run tauri dev
 
-# 3. Production Build
+# 3. Build de Producción
 npm run tauri build
 ```
 
-The optimized binary will appear at `src-tauri/target/release/voice2machine`.
+El binario optimizado aparecerá en `src-tauri/target/release/voice2machine`.
 
-## 🧩 Frontend Architecture
+## 🧩 Arquitectura Frontend
 
 ```
 apps/frontend/
 ├── src/
-│   ├── components/    # Atomic React components
-│   ├── hooks/         # Custom hooks (useSocket, useRecording)
-│   ├── App.tsx        # Main layout (Glassmorphism)
-│   └── main.tsx       # Entry point
+│   ├── components/    # Componentes React atómicos
+│   ├── hooks/         # Hooks personalizados (useSocket, useRecording)
+│   ├── App.tsx        # Layout principal (Glassmorphism)
+│   └── main.tsx       # Punto de entrada
 ├── src-tauri/
-│   ├── src/lib.rs     # IPC Client (Rust -> Unix Socket -> Python)
-│   └── tauri.conf.json # Permissions and window configuration
+│   ├── src/lib.rs     # Cliente IPC (Rust -> Socket Unix -> Python)
+│   └── tauri.conf.json # Permisos y configuración de ventana
 ```
 
-### IPC Communication
+### Comunicación IPC
 
-The GUI doesn't talk directly to Python.
+La GUI no habla directamente con Python.
 
-1.  **React** invokes a Tauri command: `invoke('send_command', { cmd: 'start' })`.
-2.  **Rust** intercepts the call.
-3.  **Rust** writes to the Unix socket `/tmp/v2m.sock`.
-4.  **Python** receives, processes, and responds.
-5.  **Rust** returns the response to React.
+1.  **React** invoca un comando Tauri: `invoke('send_command', { cmd: 'start' })`.
+2.  **Rust** intercepta la llamada.
+3.  **Rust** escribe en el socket Unix `/tmp/v2m.sock`.
+4.  **Python** recibe, procesa y responde.
+5.  **Rust** retorna la respuesta a React.
 
-This "dance" guarantees the UI never freezes, even if Python is busy transcribing 1 hour of audio.
+Esta "danza" garantiza que la UI nunca se congele, incluso si Python está ocupado transcribiendo 1 hora de audio.

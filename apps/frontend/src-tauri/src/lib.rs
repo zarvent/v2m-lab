@@ -1,5 +1,5 @@
-// Voice2Machine - Tauri IPC Bridge
-// Optimized for microsecond-level performance
+// Voice2Machine - Puente IPC de Tauri
+// Optimizado para rendimiento a nivel de microsegundos
 
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
@@ -11,8 +11,8 @@ use std::sync::OnceLock;
 use tauri::path::BaseDirectory;
 use tauri::{Emitter, Manager};
 
-/// Socket path - reads from V2M_SOCKET_PATH env var, or dynamically discovers XDG_RUNTIME_DIR.
-/// Adheres to 2026 security standards for local IPC.
+/// Ruta del socket: lee de V2M_SOCKET_PATH o descubre dinámicamente XDG_RUNTIME_DIR.
+/// Cumple con los estándares de seguridad 2026 para IPC local.
 fn socket_path() -> &'static str {
     static PATH: OnceLock<String> = OnceLock::new();
     PATH.get_or_init(|| {
@@ -24,23 +24,23 @@ fn socket_path() -> &'static str {
         let mut path = if let Ok(xdg) = env::var("XDG_RUNTIME_DIR") {
             std::path::PathBuf::from(xdg).join("v2m")
         } else {
-            // Fallback to /tmp with user UID (safe on Linux when ownership is verified)
+            // Fallback a /tmp con UID del usuario (seguro en Linux si se verifica la propiedad)
             std::path::PathBuf::from("/tmp").join(format!("v2m_{}", uid))
         };
 
-        // Security Audit (SOTA 2026): Ensure the directory is owned by the current user
-        // This prevents "squatting" attacks where another user creates the directory first.
+        // Auditoría de Seguridad (SOTA 2026): Asegurar que el directorio pertenece al usuario actual
+        // Esto previene ataques de "okupación" donde otro usuario crea el directorio primero.
         if path.exists() {
             use std::os::unix::fs::MetadataExt;
             if let Ok(metadata) = std::fs::metadata(&path) {
                 if metadata.uid() != uid {
-                    // Critical security failure: Directory owned by someone else
-                    // Fallback to a random temporary name or fail loudly
-                    eprintln!("SECURITY ERROR: Runtime directory {:?} is not owned by UID {}", path, uid);
+                    // Fallo de seguridad crítico: Directorio propiedad de otro usuario
+                    // Fallback a un nombre temporal aleatorio o fallar ruidosamente
+                    eprintln!("ERROR DE SEGURIDAD: El directorio de ejecución {:?} no pertenece al UID {}", path, uid);
                 }
             }
         } else {
-            // Attempt to create it with restricted permissions
+            // Intentar crearlo con permisos restringidos
             let _ = std::fs::create_dir_all(&path);
             #[cfg(unix)]
             {
@@ -54,22 +54,22 @@ fn socket_path() -> &'static str {
     })
 }
 
-/// Max response size (1MB) - DoS protection
+/// Tamaño máximo de respuesta (1MB) - Protección contra DoS
 const MAX_RESPONSE_SIZE: usize = 1 << 20;
 
-/// Read timeout (5 seconds)
+/// Tiempo de espera de lectura (5 segundos)
 const READ_TIMEOUT_SECS: u64 = 5;
 
-// --- TYPED STRUCTURES (Eliminates double serialization) ---
+// --- ESTRUCTURAS TIPADAS (Elimina doble serialización) ---
 
-/// IPC request to daemon
+/// Petición IPC al demonio
 #[derive(Serialize)]
 struct IpcCommand {
     cmd: String,
     data: Option<Value>,
 }
 
-/// Raw daemon response (internal)
+/// Respuesta cruda del demonio (interno)
 #[derive(Deserialize)]
 struct RawDaemonResponse {
     status: String,
@@ -77,7 +77,7 @@ struct RawDaemonResponse {
     error: Option<String>,
 }
 
-/// Telemetry data from system monitor
+/// Datos de telemetría del monitor del sistema
 #[derive(Clone, Serialize, Deserialize, Default)]
 pub struct TelemetryData {
     pub cpu: CpuInfo,
@@ -110,7 +110,7 @@ pub struct GpuInfo {
     pub temp_c: u32,
 }
 
-/// Typed daemon state (pushed to frontend)
+/// Estado tipado del demonio (enviado al frontend)
 #[derive(Clone, Serialize, Deserialize)]
 pub struct DaemonState {
     pub state: String,
@@ -124,7 +124,7 @@ pub struct DaemonState {
     pub telemetry: Option<TelemetryData>,
 }
 
-/// IPC error with structured codes
+/// Error IPC con códigos estructurados
 #[derive(Clone, Serialize, Deserialize)]
 pub struct IpcError {
     pub code: String,
@@ -140,96 +140,96 @@ impl From<String> for IpcError {
     }
 }
 
-// --- CORE IPC FUNCTION ---
+// --- FUNCIÓN IPC NÚCLEO ---
 
-/// Send JSON request to Python daemon via Unix socket.
-/// Returns typed Value on success, IpcError on failure.
+/// Envía petición JSON al demonio Python vía socket Unix.
+/// Retorna Value tipado en caso de éxito, IpcError en caso de fallo.
 fn send_json_request(command: &str, data: Option<Value>) -> Result<Value, IpcError> {
-    // 1. Connect to socket
+    // 1. Conectar al socket
     let mut stream = UnixStream::connect(socket_path())
-        .map_err(|e| IpcError::from(format!("Daemon not running: {}", e)))?;
+        .map_err(|e| IpcError::from(format!("El demonio no está corriendo: {}", e)))?;
 
     stream
         .set_read_timeout(Some(std::time::Duration::from_secs(READ_TIMEOUT_SECS)))
-        .map_err(|e| IpcError::from(format!("Timeout config failed: {}", e)))?;
+        .map_err(|e| IpcError::from(format!("Fallo en config de timeout: {}", e)))?;
 
-    // 2. Serialize request
+    // 2. Serializar petición
     let request = IpcCommand {
         cmd: command.to_string(),
         data,
     };
     let json_payload = serde_json::to_vec(&request)
-        .map_err(|e| IpcError::from(format!("JSON serialize error: {}", e)))?;
+        .map_err(|e| IpcError::from(format!("Error serialización JSON: {}", e)))?;
 
-    // SOTA 2026: Payload size validation and debug logging
+    // SOTA 2026: Validación de tamaño de payload y logging de depuración
     let payload_size = json_payload.len();
-    eprintln!("[IPC DEBUG] Command: {}, Payload size: {} bytes", command, payload_size);
+    eprintln!("[IPC DEBUG] Comando: {}, Tamaño payload: {} bytes", command, payload_size);
 
-    // Critical security check: prevent accidentally sending massive payloads
-    const MAX_REQUEST_SIZE: usize = 10 * 1024 * 1024; // 10MB limit for requests
+    // Chequeo de seguridad crítico: prevenir envío accidental de payloads masivos
+    const MAX_REQUEST_SIZE: usize = 10 * 1024 * 1024; // Límite de 10MB para peticiones
     if payload_size > MAX_REQUEST_SIZE {
-        eprintln!("[IPC ERROR] Payload too large for command '{}': {} bytes > {} limit",
+        eprintln!("[IPC ERROR] Payload demasiado grande para comando '{}': {} bytes > límite {}",
                   command, payload_size, MAX_REQUEST_SIZE);
         return Err(IpcError {
             code: "REQUEST_TOO_LARGE".to_string(),
-            message: format!("Request payload ({} MB) exceeds {} MB limit",
+            message: format!("Payload de petición ({} MB) excede el límite de {} MB",
                            payload_size >> 20, MAX_REQUEST_SIZE >> 20),
         });
     }
 
-    // 3. Send with length-prefix framing (4 bytes big-endian + payload)
+    // 3. Enviar con framing de prefijo de longitud (4 bytes big-endian + payload)
     let len = json_payload.len() as u32;
     stream
         .write_all(&len.to_be_bytes())
-        .map_err(|e| IpcError::from(format!("Write header error: {}", e)))?;
+        .map_err(|e| IpcError::from(format!("Error escritura cabecera: {}", e)))?;
     stream
         .write_all(&json_payload)
-        .map_err(|e| IpcError::from(format!("Write payload error: {}", e)))?;
+        .map_err(|e| IpcError::from(format!("Error escritura payload: {}", e)))?;
 
-    // 4. Read response length
+    // 4. Leer longitud de respuesta
     let mut len_buf = [0u8; 4];
     stream
         .read_exact(&mut len_buf)
-        .map_err(|e| IpcError::from(format!("Read header error: {}", e)))?;
+        .map_err(|e| IpcError::from(format!("Error lectura cabecera: {}", e)))?;
 
     let response_len = u32::from_be_bytes(len_buf) as usize;
     if response_len > MAX_RESPONSE_SIZE {
         return Err(IpcError {
             code: "PAYLOAD_TOO_LARGE".to_string(),
-            message: format!("Response exceeds {} MB limit", MAX_RESPONSE_SIZE >> 20),
+            message: format!("Respuesta excede el límite de {} MB", MAX_RESPONSE_SIZE >> 20),
         });
     }
 
-    // 5. Read response body
+    // 5. Leer cuerpo de respuesta
     let mut response_buf = vec![0u8; response_len];
     stream
         .read_exact(&mut response_buf)
-        .map_err(|e| IpcError::from(format!("Read body error: {}", e)))?;
+        .map_err(|e| IpcError::from(format!("Error lectura cuerpo: {}", e)))?;
 
-    // 6. Deserialize and handle status
+    // 6. Deserializar y manejar estado
     let response: RawDaemonResponse = serde_json::from_slice(&response_buf)
-        .map_err(|e| IpcError::from(format!("Invalid JSON response: {}", e)))?;
+        .map_err(|e| IpcError::from(format!("Respuesta JSON inválida: {}", e)))?;
 
     if response.status == "success" {
         Ok(response.data.unwrap_or(Value::Null))
     } else {
         Err(IpcError {
             code: "DAEMON_ERROR".to_string(),
-            message: response.error.unwrap_or_else(|| "Unknown daemon error".to_string()),
+            message: response.error.unwrap_or_else(|| "Error desconocido del demonio".to_string()),
         })
     }
 }
 
-// --- TAURI COMMANDS (Typed responses, no double serialization) ---
+// --- COMANDOS TAURI (Respuestas tipadas, sin doble serialización) ---
 
-/// Get current daemon state with telemetry
+/// Obtener estado actual del demonio con telemetría
 #[tauri::command]
 fn get_status() -> Result<DaemonState, IpcError> {
     let data = send_json_request("GET_STATUS", None)?;
-    serde_json::from_value(data).map_err(|e| IpcError::from(format!("Parse error: {}", e)))
+    serde_json::from_value(data).map_err(|e| IpcError::from(format!("Error de parseo: {}", e)))
 }
 
-/// Start recording audio
+/// Iniciar grabación de audio
 #[tauri::command]
 fn start_recording(app: tauri::AppHandle) -> Result<DaemonState, IpcError> {
     let data = send_json_request("START_RECORDING", None)?;
@@ -238,56 +238,56 @@ fn start_recording(app: tauri::AppHandle) -> Result<DaemonState, IpcError> {
             state: "recording".to_string(),
             transcription: None,
             refined_text: None,
-            message: Some("Recording started".to_string()),
+            message: Some("Grabación iniciada".to_string()),
             telemetry: None,
         });
-    // Emit state change event to all listeners
+    // Emitir evento de cambio de estado a todos los oyentes
     let _ = app.emit("v2m://state-update", &state);
     Ok(state)
 }
 
-/// Stop recording and transcribe
+/// Detener grabación y transcribir
 #[tauri::command]
 fn stop_recording(app: tauri::AppHandle) -> Result<DaemonState, IpcError> {
     let data = send_json_request("STOP_RECORDING", None)?;
     let state: DaemonState = serde_json::from_value(data)
-        .map_err(|e| IpcError::from(format!("Parse error: {}", e)))?;
-    // Emit transcription result
+        .map_err(|e| IpcError::from(format!("Error de parseo: {}", e)))?;
+    // Emitir resultado de transcripción
     let _ = app.emit("v2m://state-update", &state);
     Ok(state)
 }
 
-/// Ping daemon (health check)
+/// Ping al demonio (verificación de salud)
 #[tauri::command]
 fn ping() -> Result<Value, IpcError> {
     send_json_request("PING", None)
 }
 
-/// Process text with LLM
+/// Procesar texto con LLM
 #[tauri::command]
 fn process_text(app: tauri::AppHandle, text: String) -> Result<DaemonState, IpcError> {
     let data = json!({ "text": text });
     let result = send_json_request("PROCESS_TEXT", Some(data))?;
     let state: DaemonState = serde_json::from_value(result)
-        .map_err(|e| IpcError::from(format!("Parse error: {}", e)))?;
-    // Emit refined text result
+        .map_err(|e| IpcError::from(format!("Error de parseo: {}", e)))?;
+    // Emitir resultado de texto refinado
     let _ = app.emit("v2m://state-update", &state);
     Ok(state)
 }
 
-/// Translate text with LLM
+/// Traducir texto con LLM
 #[tauri::command]
 fn translate_text(app: tauri::AppHandle, text: String, target_lang: String) -> Result<DaemonState, IpcError> {
     let data = json!({ "text": text, "target_lang": target_lang });
     let result = send_json_request("TRANSLATE_TEXT", Some(data))?;
     let state: DaemonState = serde_json::from_value(result)
-        .map_err(|e| IpcError::from(format!("Parse error: {}", e)))?;
-    // Emit translated text result
+        .map_err(|e| IpcError::from(format!("Error de parseo: {}", e)))?;
+    // Emitir resultado de texto traducido
     let _ = app.emit("v2m://state-update", &state);
     Ok(state)
 }
 
-/// Pause daemon operations
+/// Pausar operaciones del demonio
 #[tauri::command]
 fn pause_daemon(app: tauri::AppHandle) -> Result<DaemonState, IpcError> {
     let data = send_json_request("PAUSE_DAEMON", None)?;
@@ -303,7 +303,7 @@ fn pause_daemon(app: tauri::AppHandle) -> Result<DaemonState, IpcError> {
     Ok(state)
 }
 
-/// Resume daemon operations
+/// Reanudar operaciones del demonio
 #[tauri::command]
 fn resume_daemon(app: tauri::AppHandle) -> Result<DaemonState, IpcError> {
     let data = send_json_request("RESUME_DAEMON", None)?;
@@ -319,21 +319,21 @@ fn resume_daemon(app: tauri::AppHandle) -> Result<DaemonState, IpcError> {
     Ok(state)
 }
 
-/// Update runtime config
+/// Actualizar configuración en tiempo de ejecución
 #[tauri::command]
 fn update_config(updates: Value) -> Result<Value, IpcError> {
     send_json_request("UPDATE_CONFIG", Some(updates))
 }
 
-/// Get current config
+/// Obtener configuración actual
 #[tauri::command]
 fn get_config() -> Result<Value, IpcError> {
     send_json_request("GET_CONFIG", None)
 }
 
-/// Helper: Resolve path to daemon script.
+/// Ayudante: Resolver ruta al script del demonio.
 fn resolve_daemon_script(app: &tauri::AppHandle) -> Result<std::path::PathBuf, IpcError> {
-    // Try dev path first (relative to project)
+    // Intentar ruta dev primero (relativa al proyecto)
     let dev_path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .parent()
         .and_then(|p| p.parent())
@@ -343,14 +343,14 @@ fn resolve_daemon_script(app: &tauri::AppHandle) -> Result<std::path::PathBuf, I
     if let Some(path) = dev_path.filter(|p| p.exists()) {
         Ok(path)
     } else {
-        // Fallback to bundled resources (production)
+        // Fallback a recursos empaquetados (producción)
         app.path()
             .resolve("scripts/v2m-daemon.sh", BaseDirectory::Resource)
-            .map_err(|e| IpcError::from(format!("Script path resolve error: {}", e)))
+            .map_err(|e| IpcError::from(format!("Error resolviendo ruta del script: {}", e)))
     }
 }
 
-/// Restart daemon process
+/// Reiniciar proceso del demonio
 #[tauri::command]
 async fn restart_daemon(app: tauri::AppHandle) -> Result<DaemonState, IpcError> {
     let script_path = resolve_daemon_script(&app)?;
@@ -359,14 +359,14 @@ async fn restart_daemon(app: tauri::AppHandle) -> Result<DaemonState, IpcError> 
         .arg(&script_path)
         .arg("restart")
         .output()
-        .map_err(|e| IpcError::from(format!("Restart script error: {}", e)))?;
+        .map_err(|e| IpcError::from(format!("Error en script de reinicio: {}", e)))?;
 
     if output.status.success() {
         let state = DaemonState {
             state: "restarting".to_string(),
             transcription: None,
             refined_text: None,
-            message: Some("Daemon restarted".to_string()),
+            message: Some("Demonio reiniciado".to_string()),
             telemetry: None,
         };
         let _ = app.emit("v2m://state-update", &state);
@@ -380,7 +380,7 @@ async fn restart_daemon(app: tauri::AppHandle) -> Result<DaemonState, IpcError> 
     }
 }
 
-/// Shutdown daemon process
+/// Apagar proceso del demonio
 #[tauri::command]
 async fn shutdown_daemon(app: tauri::AppHandle) -> Result<DaemonState, IpcError> {
     let script_path = resolve_daemon_script(&app)?;
@@ -389,14 +389,14 @@ async fn shutdown_daemon(app: tauri::AppHandle) -> Result<DaemonState, IpcError>
         .arg(&script_path)
         .arg("stop")
         .output()
-        .map_err(|e| IpcError::from(format!("Shutdown script error: {}", e)))?;
+        .map_err(|e| IpcError::from(format!("Error en script de apagado: {}", e)))?;
 
     if output.status.success() {
         let state = DaemonState {
             state: "disconnected".to_string(),
             transcription: None,
             refined_text: None,
-            message: Some("Daemon stopped".to_string()),
+            message: Some("Demonio detenido".to_string()),
             telemetry: None,
         };
         let _ = app.emit("v2m://state-update", &state);
@@ -410,7 +410,7 @@ async fn shutdown_daemon(app: tauri::AppHandle) -> Result<DaemonState, IpcError>
     }
 }
 
-// --- ENTRY POINT ---
+// --- PUNTO DE ENTRADA ---
 
 /// Configuración inicial de la aplicación Tauri.
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -432,6 +432,5 @@ pub fn run() {
             shutdown_daemon
         ])
         .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+        .expect("error mientras se ejecutaba la aplicación tauri");
 }
-

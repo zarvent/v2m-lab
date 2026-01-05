@@ -1,31 +1,34 @@
 #!/usr/bin/env python3
 
-# This file is part of voice2machine.
+# Este archivo es parte de voice2machine.
 #
-# voice2machine is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# voice2machine es software libre: puedes redistribuirlo y/o modificarlo
+# bajo los términos de la Licencia Pública General GNU publicada por
+# la Free Software Foundation, ya sea la versión 3 de la Licencia, o
+# (a tu elección) cualquier versión posterior.
 #
-# voice2machine is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# voice2machine se distribuye con la esperanza de que sea útil,
+# pero SIN NINGUNA GARANTÍA; ni siquiera la garantía implícita de
+# COMERCIABILIDAD o IDONEIDAD PARA UN PROPÓSITO PARTICULAR. Consulta la
+# Licencia Pública General GNU para más detalles.
 #
-# You should have received a copy of the GNU General Public License
-# along with voice2machine.  If not, see <https://www.gnu.org/licenses/>.
-"""
-Benchmark de latencia End-to-End para voice2machine.
+# Deberías haber recibido una copia de la Licencia Pública General GNU
+# junto con voice2machine. Si no, consulta <https://www.gnu.org/licenses/>.
 
-Mide:
-1. Cold Start: Tiempo de carga del daemon y modelos
-2. Inferencia Whisper: Tiempo de transcripción (GPU/CPU)
-3. VAD: Tiempo de procesamiento de silencios (ONNX vs PyTorch)
-4. Gemini: Latencia de red al LLM
-5. E2E: Latencia total desde STOP_RECORDING hasta clipboard
+"""
+Benchmark de Latencia End-to-End para Voice2Machine.
+
+Herramienta de análisis de rendimiento que desglosa la latencia del sistema
+en componentes individuales para identificar cuellos de botella.
+
+Métricas clave:
+    1. Cold Start: Tiempo de carga inicial del contenedor DI y modelos.
+    2. Whisper: Tiempo de inferencia de transcripción (CPU/GPU).
+    3. Audio Buffer: Overhead de manipulación de arrays numpy.
+    4. E2E: Latencia total estimada percibida por el usuario.
 
 Uso:
-    python scripts/benchmark_latency.py [--iterations N] [--audio-file PATH]
+    python scripts/benchmark_latency.py [--iterations N] [--skip-whisper]
 """
 
 import sys
@@ -33,10 +36,10 @@ import time
 import argparse
 import statistics
 from pathlib import Path
-from typing import List, Dict, Optional
+from typing import List
 from dataclasses import dataclass, field
 
-# Agregar src al path
+# Inyectar src al path para importar módulos internos
 sys.path.insert(0, str(Path(__file__).parent.parent / "apps" / "backend" / "src"))
 
 import numpy as np
@@ -44,7 +47,7 @@ import numpy as np
 
 @dataclass
 class BenchmarkResult:
-    """Resultado de un benchmark individual."""
+    """DTO para almacenar estadísticas de rendimiento."""
     name: str
     times_ms: List[float] = field(default_factory=list)
 
@@ -66,6 +69,7 @@ class BenchmarkResult:
 
     @property
     def p95(self) -> float:
+        """Percentil 95 (latencia de cola)."""
         if not self.times_ms:
             return 0
         sorted_times = sorted(self.times_ms)
@@ -74,77 +78,37 @@ class BenchmarkResult:
 
 
 def generate_test_audio(duration_sec: float = 3.0, sample_rate: int = 16000) -> np.ndarray:
-    """Genera audio de prueba sintético (ruido blanco + silencios)."""
+    """
+    Genera audio sintético para pruebas de estrés.
+    Crea un patrón de Silencio-Ruido-Silencio para simular habla real.
+    """
     total_samples = int(duration_sec * sample_rate)
-
-    # Crear audio con patrón: silencio - ruido - silencio - ruido - silencio
     audio = np.zeros(total_samples, dtype=np.float32)
 
-    # Segmento de "voz" (ruido con envolvente)
+    # Simular ráfaga de voz
     voice_start = int(0.3 * sample_rate)
     voice_end = int(1.5 * sample_rate)
     voice_samples = voice_end - voice_start
 
-    # Ruido con envolvente para simular habla
+    # Ruido modulado por envolvente sinusoidal
     noise = np.random.randn(voice_samples).astype(np.float32) * 0.3
     envelope = np.sin(np.linspace(0, np.pi, voice_samples)) ** 2
     audio[voice_start:voice_end] = noise * envelope
 
-    # Segundo segmento
-    voice_start2 = int(2.0 * sample_rate)
-    voice_end2 = int(2.8 * sample_rate)
-    voice_samples2 = voice_end2 - voice_start2
-    noise2 = np.random.randn(voice_samples2).astype(np.float32) * 0.25
-    envelope2 = np.sin(np.linspace(0, np.pi, voice_samples2)) ** 2
-    audio[voice_start2:voice_end2] = noise2 * envelope2
-
     return audio
 
 
-def benchmark_vad(iterations: int = 10) -> BenchmarkResult:
-    """Benchmark del servicio VAD."""
-    from v2m.infrastructure.vad_service import VADService
-
-    result = BenchmarkResult(name="VAD Processing")
-    audio = generate_test_audio(duration_sec=5.0)
-
-    # Warmup
-    vad = VADService(prefer_onnx=True)
-    try:
-        vad.load_model()
-    except Exception as e:
-        print(f"  ⚠️  VAD no disponible: {e}")
-        return result
-
-    print(f"  Backend VAD: {vad._backend}")
-
-    # Benchmark
-    for i in range(iterations):
-        # Reset estados para medición limpia
-        if vad._backend == 'onnx':
-            vad._reset_onnx_states()
-
-        start = time.perf_counter()
-        _ = vad.process(audio.copy())
-        elapsed_ms = (time.perf_counter() - start) * 1000
-        result.times_ms.append(elapsed_ms)
-
-    return result
-
-
 def benchmark_whisper(iterations: int = 5) -> BenchmarkResult:
-    """Benchmark de transcripción Whisper."""
+    """Mide el rendimiento puro del motor de transcripción."""
     from v2m.infrastructure.whisper_transcription_service import WhisperTranscriptionService
-    from v2m.infrastructure.vad_service import VADService
 
-    result = BenchmarkResult(name="Whisper Transcription")
+    result = BenchmarkResult(name="Inferencia Whisper")
     audio = generate_test_audio(duration_sec=3.0)
 
-    # Crear servicio
-    vad = VADService(prefer_onnx=True)
-    service = WhisperTranscriptionService(vad_service=vad)
+    # Instanciar servicio (aislado)
+    service = WhisperTranscriptionService()
 
-    # Warmup (carga modelo)
+    # Warmup: Carga de modelo en GPU/CPU
     print("  Cargando modelo Whisper...")
     start_load = time.perf_counter()
     try:
@@ -155,20 +119,20 @@ def benchmark_whisper(iterations: int = 5) -> BenchmarkResult:
     load_time = (time.perf_counter() - start_load) * 1000
     print(f"  Modelo cargado en {load_time:.0f}ms")
 
-    # Benchmark (solo inferencia, sin grabación)
+    # Bucle de inferencia
     for i in range(iterations):
         start = time.perf_counter()
 
-        # Simular transcripción directa del audio
+        # Transcripción directa (bypass de grabación)
         segments, _ = service.model.transcribe(
             audio,
             language="es",
             beam_size=2,
             best_of=2,
-            vad_filter=False
+            vad_filter=False # Desactivar VAD para medir solo Whisper
         )
-        # Consumir generador
-        text = " ".join([s.text for s in segments])
+        # Consumir generador para forzar cómputo
+        _ = " ".join([s.text for s in segments])
 
         elapsed_ms = (time.perf_counter() - start) * 1000
         result.times_ms.append(elapsed_ms)
@@ -177,12 +141,11 @@ def benchmark_whisper(iterations: int = 5) -> BenchmarkResult:
 
 
 def benchmark_audio_buffer(iterations: int = 20) -> BenchmarkResult:
-    """Benchmark del buffer de audio (concatenación)."""
+    """Mide la latencia de manipulación de buffers de audio."""
     from v2m.infrastructure.audio.recorder import AudioRecorder
 
-    result = BenchmarkResult(name="Audio Buffer (stop)")
+    result = BenchmarkResult(name="Gestión Buffer Audio")
 
-    # Simular grabación de 5 segundos
     sample_rate = 16000
     duration = 5.0
     chunk_size = 1024
@@ -191,22 +154,26 @@ def benchmark_audio_buffer(iterations: int = 20) -> BenchmarkResult:
     for i in range(iterations):
         recorder = AudioRecorder(sample_rate=sample_rate)
 
-        # Simular escritura al buffer (sin stream real)
+        # Simular estado interno sucio
         recorder._recording = True
         test_audio = np.random.randn(total_samples).astype(np.float32) * 0.1
 
-        # Escribir en chunks como haría el callback
+        # Simular llenado de buffer por chunks (comportamiento de PortAudio)
         for j in range(0, len(test_audio), chunk_size):
             chunk = test_audio[j:j+chunk_size]
             end_pos = recorder._write_pos + len(chunk)
             if end_pos <= recorder.max_samples:
-                recorder._buffer[recorder._write_pos:end_pos] = chunk
+                # Escritura directa en numpy array pre-allocado
+                if recorder._buffer is not None:
+                    recorder._buffer[recorder._write_pos:end_pos] = chunk
                 recorder._write_pos = end_pos
 
-        # Medir tiempo de stop (extracción del buffer)
+        # Medir operación crítica: Corte y copia del buffer al detener
         start = time.perf_counter()
         recorder._recording = False
-        audio_out = recorder._buffer[:recorder._write_pos]
+        if recorder._buffer is not None:
+            _ = recorder._buffer[:recorder._write_pos].copy()
+
         elapsed_ms = (time.perf_counter() - start) * 1000
         result.times_ms.append(elapsed_ms)
 
@@ -214,13 +181,12 @@ def benchmark_audio_buffer(iterations: int = 20) -> BenchmarkResult:
 
 
 def benchmark_cold_start() -> BenchmarkResult:
-    """Mide el tiempo de cold start (importación del container)."""
-    result = BenchmarkResult(name="Cold Start (container)")
+    """Mide el tiempo de arranque en frío (importación de dependencias pesadas)."""
+    result = BenchmarkResult(name="Cold Start (DI Container)")
 
-    # Solo una medición porque es destructiva
     start = time.perf_counter()
 
-    # Forzar reimportación
+    # Forzar recarga limpia del contenedor de inyección de dependencias
     import importlib
     if 'v2m.core.di.container' in sys.modules:
         del sys.modules['v2m.core.di.container']
@@ -235,11 +201,11 @@ def benchmark_cold_start() -> BenchmarkResult:
 
 
 def print_results(results: List[BenchmarkResult]):
-    """Imprime resultados en formato tabla."""
+    """Renderiza tabla de resultados en consola."""
     print("\n" + "=" * 70)
-    print("📊 RESULTADOS DEL BENCHMARK")
+    print("📊 INFORME DE LATENCIA")
     print("=" * 70)
-    print(f"{'Componente':<30} {'Mean':>10} {'Std':>10} {'Min':>10} {'P95':>10}")
+    print(f"{'Métrica':<30} {'Media':>10} {'Std':>10} {'Min':>10} {'P95':>10}")
     print("-" * 70)
 
     total_mean = 0
@@ -251,50 +217,46 @@ def print_results(results: List[BenchmarkResult]):
             print(f"{r.name:<30} {'N/A':>10} {'N/A':>10} {'N/A':>10} {'N/A':>10}")
 
     print("-" * 70)
-    print(f"{'TOTAL ESTIMADO':<30} {total_mean:>9.1f}ms")
+    print(f"{'TOTAL ACUMULADO':<30} {total_mean:>9.1f}ms")
     print("=" * 70)
 
-    # Evaluación
-    if total_mean < 100:
-        print("✅ Objetivo de <100ms ALCANZADO")
-    elif total_mean < 200:
-        print("⚠️  Latencia aceptable pero mejorable")
+    # Heurística de calidad
+    if total_mean < 200:
+        print("✅ Latencia EXCELENTE (<200ms)")
+    elif total_mean < 500:
+        print("⚠️  Latencia ACEPTABLE (200-500ms)")
     else:
-        print("🚨 Latencia excesiva - revisar optimizaciones")
+        print("🚨 Latencia CRÍTICA (>500ms) - Optimización requerida")
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Benchmark de latencia v2m")
+    parser = argparse.ArgumentParser(description="Suite de benchmarking para V2M")
     parser.add_argument("--iterations", "-n", type=int, default=10,
-                        help="Número de iteraciones por benchmark")
+                        help="Repeticiones por prueba (para validez estadística)")
     parser.add_argument("--skip-whisper", action="store_true",
-                        help="Omitir benchmark de Whisper (lento)")
+                        help="Saltar prueba de Whisper (ahorra tiempo si no hay GPU)")
     args = parser.parse_args()
 
-    print("🚀 Iniciando benchmark de latencia voice2machine")
-    print(f"   Iteraciones: {args.iterations}")
+    print("🚀 Iniciando Benchmark Voice2Machine")
+    print(f"   Configuración: {args.iterations} iters/prueba")
     print()
 
     results = []
 
     # 1. Cold Start
-    print("1️⃣  Benchmark: Cold Start...")
+    print("1️⃣  Midiendo Cold Start...")
     results.append(benchmark_cold_start())
 
     # 2. Audio Buffer
-    print("2️⃣  Benchmark: Audio Buffer...")
+    print("2️⃣  Midiendo Manipulación de Audio...")
     results.append(benchmark_audio_buffer(iterations=args.iterations))
 
-    # 3. VAD
-    print("3️⃣  Benchmark: VAD...")
-    results.append(benchmark_vad(iterations=args.iterations))
-
-    # 4. Whisper
+    # 3. Whisper
     if not args.skip_whisper:
-        print("4️⃣  Benchmark: Whisper Transcription...")
+        print("3️⃣  Midiendo Inferencia Whisper...")
         results.append(benchmark_whisper(iterations=min(args.iterations, 5)))
 
-    # Resultados
+    # Reporte final
     print_results(results)
 
 
