@@ -28,6 +28,12 @@ interface SettingsLayoutProps {
   onSave: () => void;
 }
 
+/**
+ * Layout Principal de Ajustes.
+ *
+ * Provee la estructura de dos columnas (barra lateral + contenido) y gestiona
+ * el "Focus Trap" para accesibilidad en el modal.
+ */
 export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
   activeTab,
   onTabChange,
@@ -38,7 +44,7 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
 
-  // Focus Trap Logic
+  // Lógica de captura de foco (Focus Trap)
   useEffect(() => {
     const modal = modalRef.current;
     if (!modal) return;
@@ -71,7 +77,7 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
     };
 
     modal.addEventListener("keydown", handleTabKey);
-    // Initial focus on the active tab or close button if sidebar is hidden
+    // Foco inicial en el primer elemento
     if (firstElement) firstElement.focus();
 
     return () => modal.removeEventListener("keydown", handleTabKey);
@@ -85,10 +91,10 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
       aria-modal="true"
     >
       <div className="modal-content settings-modal" ref={modalRef}>
-        {/* SIDEBAR */}
+        {/* BARRA LATERAL */}
         <div className="settings-sidebar">
           <div className="settings-sidebar-header">
-            <h2 className="settings-title">configuración</h2>
+            <h2 className="settings-title">Configuración</h2>
           </div>
           <div role="tablist" aria-orientation="vertical" className="settings-nav">
             <button
@@ -103,7 +109,7 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
               tabIndex={activeTab === "general" ? 0 : -1}
             >
               <Settings size={18} />
-              <span>general</span>
+              <span>General</span>
             </button>
             <button
               role="tab"
@@ -117,20 +123,20 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
               tabIndex={activeTab === "advanced" ? 0 : -1}
             >
               <Sliders size={18} />
-              <span>avanzado</span>
+              <span>Avanzado</span>
             </button>
           </div>
         </div>
 
-        {/* MAIN CONTENT AREA */}
+        {/* ÁREA DE CONTENIDO PRINCIPAL */}
         <div className="settings-main">
           <div className="settings-header">
             <h3>
               {activeTab === "general"
-                ? "preferencias generales"
-                : "opciones avanzadas"}
+                ? "Preferencias Generales"
+                : "Opciones Avanzadas"}
             </h3>
-            <button onClick={onClose} className="btn-icon" aria-label="cerrar">
+            <button onClick={onClose} className="btn-icon" aria-label="Cerrar">
               ✕
             </button>
           </div>
@@ -150,14 +156,14 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
               onClick={onClose}
               disabled={isSaving}
             >
-              cancelar
+              Cancelar
             </button>
             <button
               className="btn-primary"
               onClick={onSave}
               disabled={isSaving}
             >
-              {isSaving ? "guardando..." : "guardar cambios"}
+              {isSaving ? "Guardando..." : "Guardar Cambios"}
             </button>
           </div>
         </div>

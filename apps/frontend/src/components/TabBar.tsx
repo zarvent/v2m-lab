@@ -1,12 +1,12 @@
 /**
- * TabBar - Chrome-style tab bar with drag & drop
+ * TabBar - Barra de pestañas estilo Chrome con drag & drop.
  *
- * Features:
- * - Drag to reorder tabs
- * - Close button per tab
- * - New tab button
- * - Dirty indicator (unsaved changes)
- * - Truncated titles with tooltip
+ * Características:
+ * - Arrastrar para reordenar pestañas.
+ * - Botón de cerrar por pestaña.
+ * - Botón de nueva pestaña.
+ * - Indicador de "sucio" (cambios sin guardar).
+ * - Títulos truncados con tooltip.
  */
 
 import React, { useCallback } from "react";
@@ -30,7 +30,7 @@ import { PlusIcon } from "../assets/Icons";
 import type { NoteTab } from "../hooks/useNoteTabs";
 
 // ============================================
-// TYPES
+// TIPOS
 // ============================================
 
 interface TabBarProps {
@@ -50,7 +50,7 @@ interface SortableTabProps {
 }
 
 // ============================================
-// SORTABLE TAB COMPONENT
+// COMPONENTE PESTAÑA ORDENA
 // ============================================
 
 const SortableTab: React.FC<SortableTabProps> = React.memo(
@@ -85,24 +85,24 @@ const SortableTab: React.FC<SortableTabProps> = React.memo(
         aria-selected={isActive}
         tabIndex={isActive ? 0 : -1}
       >
-        {/* Dirty indicator */}
+        {/* Indicador de cambios sin guardar */}
         {tab.isDirty && (
-          <span className="tab-dirty-dot" aria-label="Unsaved changes" />
+          <span className="tab-dirty-dot" aria-label="Cambios sin guardar" />
         )}
 
-        {/* Title */}
+        {/* Título */}
         <span className="tab-title" title={tab.title}>
-          {tab.title || "Untitled"}
+          {tab.title || "Sin título"}
         </span>
 
-        {/* Language badge */}
+        {/* Insignia de idioma */}
         <span className="tab-language">{tab.language.toUpperCase()}</span>
 
-        {/* Close button */}
+        {/* Botón de cerrar */}
         <button
           className="tab-close"
           onClick={onClose}
-          aria-label={`Close ${tab.title}`}
+          aria-label={`Cerrar ${tab.title}`}
           tabIndex={-1}
         >
           ×
@@ -114,12 +114,12 @@ const SortableTab: React.FC<SortableTabProps> = React.memo(
 SortableTab.displayName = "SortableTab";
 
 // ============================================
-// MAIN COMPONENT
+// COMPONENTE PRINCIPAL
 // ============================================
 
 export const TabBar: React.FC<TabBarProps> = React.memo(
   ({ tabs, activeTabId, onTabSelect, onTabClose, onTabAdd, onTabReorder }) => {
-    // DnD sensors
+    // Sensores DnD
     const sensors = useSensors(
       useSensor(PointerSensor, {
         activationConstraint: {
@@ -131,7 +131,7 @@ export const TabBar: React.FC<TabBarProps> = React.memo(
       })
     );
 
-    // Handle drag end
+    // Manejar fin de arrastre
     const handleDragEnd = useCallback(
       (event: DragEndEvent) => {
         const { active, over } = event;
@@ -145,7 +145,7 @@ export const TabBar: React.FC<TabBarProps> = React.memo(
       [tabs, onTabReorder]
     );
 
-    // Handle close with stop propagation
+    // Manejar cierre con detención de propagación
     const handleClose = useCallback(
       (id: string) => (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -155,7 +155,7 @@ export const TabBar: React.FC<TabBarProps> = React.memo(
     );
 
     return (
-      <div className="studio-tabbar" role="tablist" aria-label="Note tabs">
+      <div className="studio-tabbar" role="tablist" aria-label="Pestañas de notas">
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
@@ -179,20 +179,20 @@ export const TabBar: React.FC<TabBarProps> = React.memo(
           </SortableContext>
         </DndContext>
 
-        {/* Add new tab button */}
+        {/* Botón de nueva pestaña */}
         <button
           className="studio-tab-add"
           onClick={onTabAdd}
-          aria-label="New note (Ctrl+T)"
-          title="New note (Ctrl+T)"
+          aria-label="Nueva nota (Ctrl+T)"
+          title="Nueva nota (Ctrl+T)"
         >
           <PlusIcon />
         </button>
 
-        {/* Keyboard hints */}
+        {/* Pistas de teclado */}
         <div className="tabbar-hints">
-          <kbd>Ctrl+T</kbd> new
-          <kbd>Ctrl+W</kbd> close
+          <kbd>Ctrl+T</kbd> nueva
+          <kbd>Ctrl+W</kbd> cerrar
         </div>
       </div>
     );

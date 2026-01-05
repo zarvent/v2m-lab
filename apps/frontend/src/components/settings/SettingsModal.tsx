@@ -56,6 +56,13 @@ const SettingsSkeleton = () => (
   </div>
 );
 
+/**
+ * Modal de Configuración (SettingsModal).
+ *
+ * Gestiona el estado global del formulario de configuración, la carga inicial
+ * desde el backend y el guardado de cambios. Utiliza `react-hook-form` con
+ * validación Zod para asegurar la integridad de los datos.
+ */
 export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
   const [activeTab, setActiveTab] = useState<"general" | "advanced">("general");
   const [isLoading, setIsLoading] = useState(true);
@@ -67,13 +74,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
     mode: "onBlur",
   });
 
-  // Load config on mount
+  // Cargar configuración al montar
   useEffect(() => {
     const loadConfig = async () => {
       try {
-        // Artificial delay for smooth skeleton demonstration (optional, removed for prod speed usually, but kept small here)
-        // await new Promise(r => setTimeout(r, 300));
-        const res = await invoke<string>("get_config");
+        const res = await invoke<string | { config: AppConfigSchemaInputType }>("get_config");
 
         let loadedConfig = {};
         if (typeof res === "string") {
@@ -85,7 +90,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
 
         methods.reset(loadedConfig);
       } catch (e) {
-        console.error("Error loading config:", e);
+        console.error("Error cargando configuración:", e);
         setToast({ message: "Error cargando configuración", type: "error" });
       } finally {
         setIsLoading(false);
@@ -94,7 +99,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
     loadConfig();
   }, []);
 
-  // Handle ESC key
+  // Manejar tecla ESC para cerrar
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -107,15 +112,15 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
     setIsSaving(true);
     try {
       await invoke("update_config", { updates: data });
-      setToast({ message: "configuración guardada", type: "success" });
+      setToast({ message: "Configuración guardada", type: "success" });
       setTimeout(() => {
         setIsSaving(false);
         onClose();
       }, SETTINGS_CLOSE_DELAY_MS);
     } catch (error) {
-      console.error("Failed to update config:", error);
+      console.error("Fallo al actualizar configuración:", error);
       setIsSaving(false);
-      setToast({ message: `error al guardar: ${error}`, type: "error" });
+      setToast({ message: `Error al guardar: ${error}`, type: "error" });
     }
   };
 
