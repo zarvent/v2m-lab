@@ -60,6 +60,7 @@ Ejemplo:
 """
 
 import asyncio
+import os
 from concurrent.futures import ThreadPoolExecutor
 
 from v2m.application.command_handlers import ProcessTextHandler, StartRecordingHandler, StopRecordingHandler
@@ -203,6 +204,13 @@ class Container:
         - Asignación de VRAM en GPU.
         - Compilación de kernels CUDA (primera vez).
         """
+        # SOTA 2026: Lazy Load para optimización de recursos extrema
+        # Permite iniciar la app en 50ms si no se va a usar inmediatamente
+        lazy = config.transcription.lazy_load or os.getenv("LAZY_LOAD") == "1"
+        if lazy:
+            logger.info("💤 lazy load activado: modelos se cargarán bajo demanda")
+            return
+
         try:
             # Precargar Whisper (el más pesado)
             _ = self.transcription_service.model

@@ -54,7 +54,7 @@ Notas:
 from pathlib import Path
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, SecretStr, field_validator
 from pydantic_settings import (
     BaseSettings,
     PydanticBaseSettingsSource,
@@ -172,7 +172,7 @@ class GeminiConfig(BaseModel):
     retry_min_wait: int = 2
     retry_max_wait: int = 10
     translation_temperature: float = 0.3
-    api_key: str | None = Field(default=None)
+    api_key: SecretStr | None = Field(default=None)
 
 
 class NotificationsConfig(BaseModel):
@@ -226,6 +226,15 @@ class OllamaConfig(BaseModel):
     temperature: float = Field(default=0.0, ge=0.0, le=2.0)
     translation_temperature: float = Field(default=0.3, ge=0.0, le=2.0)
 
+    @field_validator("keep_alive")
+    @classmethod
+    def validate_keep_alive(cls, v: str) -> str:
+        """Valida el formato de duración de Ollama (ej. 5m, 1h, -1)."""
+        import re
+        if v == "-1" or re.match(r"^\d+[msdh]$", v):
+            return v
+        raise ValueError("keep_alive debe ser formato duración (ej: 5m, 1h) o -1")
+
 
 class LLMConfig(BaseModel):
     """
@@ -249,10 +258,12 @@ class TranscriptionConfig(BaseModel):
     Atributos:
         backend: Selector de backend ("whisper"). Defecto: "whisper"
         whisper: Configuración para el backend Whisper.
+        lazy_load: Si True, no carga el modelo hasta la primera petición.
     """
 
     backend: str = Field(default="whisper")
     whisper: WhisperConfig = Field(default_factory=WhisperConfig)
+    lazy_load: bool = Field(default=False)
 
 
 class Settings(BaseSettings):

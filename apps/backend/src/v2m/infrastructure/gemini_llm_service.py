@@ -56,10 +56,13 @@ class GeminiLLMService(LLMService):
         """
         # --- Carga de configuración y secretos ---
         gemini_config = config.gemini
-        api_key = gemini_config.api_key
 
-        if not api_key:
+        # SOTA 2026: Extraer valor seguro de SecretStr
+        api_key_secret = gemini_config.api_key
+        if not api_key_secret:
             raise LLMError("La variable de entorno GEMINI_API_KEY no fue encontrada")
+
+        api_key = api_key_secret.get_secret_value()
 
         # --- Inicialización del cliente de la API ---
         # La librería de Google utiliza `GOOGLE_API_KEY` por defecto

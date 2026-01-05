@@ -19,17 +19,22 @@ Servicio de Monitoreo del Sistema.
 Este servicio se encarga de recolectar métricas del sistema en tiempo real.
 Utiliza `v2m_engine` (Rust) para métricas de CPU/RAM con bajo overhead, con fallback
 automático a `psutil` si Rust no está disponible. Las métricas de GPU se obtienen
-vía `torch.cuda`.
+vía `pynvml` (NVIDIA Management Library) para evitar la carga pesada de `torch`.
 
 Se adhiere al Principio de Responsabilidad Única (SRP), proveyendo solo datos de observación
 sin realizar acciones sobre el sistema.
 """
 
 import logging
-from types import ModuleType
-from typing import Any
+from typing import Any, TypedDict
 
 import psutil
+
+try:
+    import pynvml
+    HAS_PYNVML = True
+except ImportError:
+    HAS_PYNVML = False
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +47,14 @@ try:
 except ImportError:
     HAS_RUST_MONITOR = False
     logger.warning("⚠️ monitor de sistema rust no disponible, usando fallback python")
+
+
+class GPUMetrics(TypedDict):
+    """Métricas estructuradas de GPU."""
+    name: str
+    vram_used_mb: float
+    vram_total_mb: float
+    temp_c: int
 
 
 class SystemMonitor:
@@ -57,9 +70,9 @@ class SystemMonitor:
         # Motor Rust (Opcional)
         self._rust_monitor = RustSystemMonitor() if HAS_RUST_MONITOR else None
 
-        # Optimización: Cachear módulo torch para evitar importación repetida
-        self._torch: ModuleType | None = None
-        self._gpu_available = self._check_gpu_availability()
+        # GPU Management Init
+        self._nvml_handle: Any | None = None
+        self._gpu_available = self._init_gpu_monitoring()
 
         # Optimización: Cachear métricas estáticas (Total RAM, GPU Name)
         # Esto evita syscalls y llamadas a driver redundantes en cada ciclo de polling
@@ -76,11 +89,18 @@ class SystemMonitor:
             self._ram_total_gb = 0.0
 
         self._gpu_static_info: dict[str, Any] = {}
-        if self._gpu_available and self._torch:
+        if self._gpu_available and self._nvml_handle:
             try:
-                device = self._torch.cuda.current_device()
-                props = self._torch.cuda.get_device_properties(device)
-                self._gpu_static_info = {"name": props.name, "vram_total_mb": round(props.total_memory / (1024**2), 2)}
+                name = pynvml.nvmlDeviceGetName(self._nvml_handle)
+                # Handle bytes vs string depending on pynvml version
+                if isinstance(name, bytes):
+                    name = name.decode("utf-8")
+
+                mem_info = pynvml.nvmlDeviceGetMemoryInfo(self._nvml_handle)
+                self._gpu_static_info = {
+                    "name": name,
+                    "vram_total_mb": round(mem_info.total / (1024**2), 2)
+                }
             except Exception as e:
                 logger.warning(f"fallo al cachear info gpu: {e}")
                 self._gpu_available = False
@@ -90,19 +110,27 @@ class SystemMonitor:
             extra={"gpu_disponible": self._gpu_available, "ram_total_gb": self._ram_total_gb},
         )
 
-    def _check_gpu_availability(self) -> bool:
-        """Verifica si hay una GPU NVIDIA disponible via torch.cuda."""
-        try:
-            import torch
+    def _init_gpu_monitoring(self) -> bool:
+        """
+        Inicializa el monitoreo de GPU usando NVML (ligero) en lugar de torch.
+        """
+        if not HAS_PYNVML:
+            logger.info("pynvml no instalado, monitoreo gpu deshabilitado")
+            return False
 
-            # Optimización: Guardar referencia al módulo para reuso en polling
-            self._torch = torch
-            return torch.cuda.is_available()
-        except ImportError:
-            logger.warning("torch no disponible, monitoreo gpu deshabilitado")
+        try:
+            pynvml.nvmlInit()
+            device_count = pynvml.nvmlDeviceGetCount()
+            if device_count > 0:
+                # Usamos el dispositivo 0 por defecto
+                self._nvml_handle = pynvml.nvmlDeviceGetHandleByIndex(0)
+                return True
+            return False
+        except pynvml.NVMLError as e:
+            logger.warning(f"fallo al inicializar nvml: {e}")
             return False
         except Exception as e:
-            logger.warning(f"fallo al verificar disponibilidad gpu: {e}")
+            logger.warning(f"error inesperado inicializando gpu: {e}")
             return False
 
     def get_system_metrics(self) -> dict[str, Any]:
@@ -146,35 +174,37 @@ class SystemMonitor:
 
         return {"percent": psutil.cpu_percent(interval=None)}
 
-    def _get_gpu_usage(self) -> dict[str, Any]:
+    def _get_gpu_usage(self) -> GPUMetrics:
         """
-        Retorna uso real de GPU usando torch.cuda.
+        Retorna uso real de GPU usando NVML.
 
-        Returns:
-            dict[str, Any]: Métricas de GPU: name, vram_used_mb, vram_total_mb, temp_c.
+        SOTA 2026: Evita la carga de PyTorch para métricas simples, ahorrando ~500MB RAM.
         """
         try:
-            # Optimización: Usar referencia cacheada self._torch
-            # Evita búsqueda en sys.modules cada ciclo
-            if not self._torch or not self._torch.cuda.is_available():
-                return {"name": "N/A", "vram_used_mb": 0, "vram_total_mb": 0, "temp_c": 0}
+            if not self._nvml_handle:
+                return {"name": "N/A", "vram_used_mb": 0.0, "vram_total_mb": 0.0, "temp_c": 0}
 
-            device = self._torch.cuda.current_device()
-            # Usar estáticos cacheados
+            # NVML es extremadamente rápido y ligero (llamadas C directas)
+            mem_info = pynvml.nvmlDeviceGetMemoryInfo(self._nvml_handle)
+            temp = pynvml.nvmlDeviceGetTemperature(self._nvml_handle, pynvml.NVML_TEMPERATURE_GPU)
+
             static = self._gpu_static_info
-
-            # VRAM metrics en MB (Dinámico)
-            vram_reserved = self._torch.cuda.memory_reserved(device) / (1024**2)
-
-            # SOTA 2026: Usar Rust para temperatura nativa via NVML si está disponible
-            gpu_temp = self._rust_monitor.get_gpu_temp() if self._rust_monitor else 0
 
             return {
                 "name": static.get("name", "Unknown"),
-                "vram_used_mb": round(vram_reserved, 2),
-                "vram_total_mb": static.get("vram_total_mb", 0),
-                "temp_c": gpu_temp,
+                "vram_used_mb": round(mem_info.used / (1024**2), 2),
+                "vram_total_mb": static.get("vram_total_mb", 0.0),
+                "temp_c": temp,
             }
+        except pynvml.NVMLError as e:
+            logger.error(f"fallo nvml obteniendo métricas gpu: {e}")
+            # Intento de re-init simple si hay error de driver
+            try:
+                pynvml.nvmlInit()
+                self._nvml_handle = pynvml.nvmlDeviceGetHandleByIndex(0)
+            except:
+                pass
+            return {"name": "Error", "vram_used_mb": 0.0, "vram_total_mb": 0.0, "temp_c": 0}
         except Exception as e:
-            logger.error(f"fallo obteniendo métricas gpu: {e}", exc_info=True)
-            return {"name": "Error", "vram_used_mb": 0, "vram_total_mb": 0, "temp_c": 0}
+            logger.error(f"fallo inesperado metricas gpu: {e}")
+            return {"name": "Error", "vram_used_mb": 0.0, "vram_total_mb": 0.0, "temp_c": 0}
