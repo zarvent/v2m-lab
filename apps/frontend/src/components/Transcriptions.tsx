@@ -11,13 +11,13 @@ interface TranscriptionsProps {
 }
 
 /**
- * Transcriptions - History view of past transcriptions.
+ * Transcriptions - Vista de historial de transcripciones pasadas.
  *
- * Displays all transcriptions stored in localStorage with:
- * - Timestamp (relative time)
- * - Word count
- * - Source badge (recording vs refinement)
- * - Copy and delete actions
+ * Muestra todas las transcripciones almacenadas en localStorage con:
+ * - Marca de tiempo (relativa)
+ * - Conteo de palabras
+ * - Etiqueta de fuente (grabación vs refinamiento)
+ * - Acciones de copiar y eliminar
  */
 export const Transcriptions: React.FC<TranscriptionsProps> = React.memo(
   ({ history, onDeleteItem, onSelectItem }) => {
@@ -25,7 +25,7 @@ export const Transcriptions: React.FC<TranscriptionsProps> = React.memo(
     const [expandedId, setExpandedId] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState("");
 
-    // Filter history based on search query
+    // Filtrar historial basado en la búsqueda
     const filteredHistory = useMemo(() => {
       if (!searchQuery.trim()) return history;
       const query = searchQuery.toLowerCase();
@@ -62,10 +62,10 @@ export const Transcriptions: React.FC<TranscriptionsProps> = React.memo(
           <div className="empty-icon">
             <DescriptionIcon />
           </div>
-          <h3>No transcriptions yet</h3>
+          <h3>Aún no hay transcripciones</h3>
           <p>
-            Your transcription history will appear here. Start recording in the
-            Studio to create your first transcription.
+            Tu historial de transcripciones aparecerá aquí. Empieza a grabar en el
+            Studio para crear tu primera transcripción.
           </p>
         </div>
       );
@@ -73,22 +73,22 @@ export const Transcriptions: React.FC<TranscriptionsProps> = React.memo(
 
     return (
       <div className="transcriptions-container">
-        {/* Search Bar */}
+        {/* Barra de Búsqueda */}
         <div className="transcriptions-search">
           <input
             type="text"
-            placeholder="Search transcriptions..."
+            placeholder="Buscar transcripciones..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="search-input"
-            aria-label="Search transcriptions"
+            aria-label="Buscar transcripciones"
           />
           <span className="search-count">
-            {filteredHistory.length} of {history.length}
+            {filteredHistory.length} de {history.length}
           </span>
         </div>
 
-        {/* Transcription List */}
+        {/* Lista de Transcripciones */}
         <div className="transcriptions-list">
           {filteredHistory.map((item) => {
             const wordCount = countWords(item.text);
@@ -100,7 +100,7 @@ export const Transcriptions: React.FC<TranscriptionsProps> = React.memo(
                 key={item.id}
                 className={`transcription-item ${isExpanded ? "expanded" : ""}`}
               >
-                {/* Header */}
+                {/* Cabecera */}
                 <div
                   className="transcription-header"
                   onClick={() => handleToggleExpand(item.id)}
@@ -119,10 +119,10 @@ export const Transcriptions: React.FC<TranscriptionsProps> = React.memo(
                       {formatRelativeTime(item.timestamp)}
                     </span>
                     <span className={`transcription-source ${item.source}`}>
-                      {item.source === "recording" ? "Recording" : "Refined"}
+                      {item.source === "recording" ? "Grabación" : "Refinado"}
                     </span>
                     <span className="transcription-words mono">
-                      {wordCount} words
+                      {wordCount} palabras
                     </span>
                   </div>
                   <div className="transcription-preview">
@@ -131,7 +131,7 @@ export const Transcriptions: React.FC<TranscriptionsProps> = React.memo(
                   </div>
                 </div>
 
-                {/* Expanded Content */}
+                {/* Contenido Expandido */}
                 {isExpanded && (
                   <div className="transcription-content">
                     <pre className="transcription-text">{item.text}</pre>
@@ -139,27 +139,27 @@ export const Transcriptions: React.FC<TranscriptionsProps> = React.memo(
                       <button
                         className="btn-transcription-action"
                         onClick={() => handleCopy(item)}
-                        aria-label="Copy transcription"
+                        aria-label="Copiar transcripción"
                       >
                         <CopyIcon />
-                        <span>{isCopied ? "Copied!" : "Copy"}</span>
+                        <span>{isCopied ? "¡Copiado!" : "Copiar"}</span>
                       </button>
                       <button
                         className="btn-transcription-action"
                         onClick={() => handleSelect(item)}
-                        aria-label="Open in Studio"
+                        aria-label="Abrir en Studio"
                       >
                         <DescriptionIcon />
-                        <span>Open in Studio</span>
+                        <span>Abrir en Studio</span>
                       </button>
                       {onDeleteItem && (
                         <button
                           className="btn-transcription-action btn-delete"
                           onClick={() => handleDelete(item.id)}
-                          aria-label="Delete transcription"
+                          aria-label="Eliminar transcripción"
                         >
                           <TrashIcon />
-                          <span>Delete</span>
+                          <span>Eliminar</span>
                         </button>
                       )}
                     </div>
@@ -172,7 +172,7 @@ export const Transcriptions: React.FC<TranscriptionsProps> = React.memo(
 
         {filteredHistory.length === 0 && searchQuery && (
           <div className="transcriptions-no-results">
-            <p>No transcriptions match "{searchQuery}"</p>
+            <p>No hay transcripciones que coincidan con "{searchQuery}"</p>
           </div>
         )}
       </div>

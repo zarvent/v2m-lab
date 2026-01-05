@@ -1,17 +1,17 @@
 /**
- * useNoteTabs - Hook for managing multiple note tabs
+ * useNoteTabs - Hook para gestionar múltiples pestañas de notas.
  *
- * Features:
- * - CRUD operations for tabs
- * - Drag & drop reordering
- * - Keyboard shortcuts (Ctrl+T, Ctrl+W)
- * - Persistence in localStorage
+ * Características:
+ * - Operaciones CRUD para pestañas.
+ * - Reordenamiento mediante arrastrar y soltar.
+ * - Atajos de teclado (Ctrl+T, Ctrl+W, Ctrl+Tab).
+ * - Persistencia en localStorage.
  */
 
 import { useState, useCallback, useEffect, useRef } from "react";
 
 // ============================================
-// TYPES
+// TIPOS
 // ============================================
 
 export interface NoteTab {
@@ -29,7 +29,7 @@ export interface UseNoteTabsReturn {
   activeTabId: string | null;
   activeTab: NoteTab | null;
 
-  // Tab operations
+  // Operaciones de pestaña
   addTab: (initialContent?: string) => string;
   removeTab: (id: string) => void;
   setActiveTab: (id: string) => void;
@@ -39,13 +39,13 @@ export interface UseNoteTabsReturn {
   reorderTabs: (oldIndex: number, newIndex: number) => void;
   markTabClean: (id: string) => void;
 
-  // Bulk operations
+  // Operaciones en masa
   closeAllTabs: () => void;
   closeOtherTabs: (keepId: string) => void;
 }
 
 // ============================================
-// CONSTANTS
+// CONSTANTES
 // ============================================
 
 const STORAGE_KEY = "v2m_note_tabs_v1";
@@ -55,13 +55,13 @@ const MAX_TABS = 20;
 // HELPERS
 // ============================================
 
-/** Generate unique ID */
+/** Generar ID único */
 const generateId = (): string => crypto.randomUUID();
 
-/** Generate default title based on date/time */
+/** Generar título predeterminado basado en fecha/hora */
 const generateDefaultTitle = (): string => {
   const now = new Date();
-  return now.toLocaleDateString("en-US", {
+  return now.toLocaleDateString("es-ES", {
     month: "short",
     day: "numeric",
     hour: "2-digit",
@@ -70,7 +70,7 @@ const generateDefaultTitle = (): string => {
   });
 };
 
-/** Create a new empty tab */
+/** Crear una nueva pestaña vacía */
 const createTab = (content = ""): NoteTab => ({
   id: generateId(),
   title: generateDefaultTitle(),
@@ -81,7 +81,7 @@ const createTab = (content = ""): NoteTab => ({
   isDirty: content.length > 0,
 });
 
-/** Load tabs from localStorage */
+/** Cargar pestañas desde localStorage */
 const loadTabs = (): { tabs: NoteTab[]; activeId: string | null } => {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -95,20 +95,20 @@ const loadTabs = (): { tabs: NoteTab[]; activeId: string | null } => {
       }
     }
   } catch (e) {
-    console.error("[useNoteTabs] Failed to load from localStorage:", e);
+    console.error("[useNoteTabs] Fallo al cargar desde localStorage:", e);
   }
 
-  // Create default tab if nothing saved
+  // Crear pestaña predeterminada si no hay nada guardado
   const defaultTab = createTab();
   return { tabs: [defaultTab], activeId: defaultTab.id };
 };
 
-/** Save tabs to localStorage */
+/** Guardar pestañas en localStorage */
 const saveTabs = (tabs: NoteTab[], activeId: string | null): void => {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ tabs, activeId }));
   } catch (e) {
-    console.error("[useNoteTabs] Failed to save to localStorage:", e);
+    console.error("[useNoteTabs] Fallo al guardar en localStorage:", e);
   }
 };
 
@@ -117,12 +117,12 @@ const saveTabs = (tabs: NoteTab[], activeId: string | null): void => {
 // ============================================
 
 export function useNoteTabs(): UseNoteTabsReturn {
-  // Initialize from localStorage (single parse)
+  // Inicializar desde localStorage (single parse)
   const [state] = useState(loadTabs);
   const [tabs, setTabs] = useState<NoteTab[]>(state.tabs);
   const [activeTabId, setActiveTabId] = useState<string | null>(state.activeId);
 
-  // Ref to avoid stale closure in keyboard handler
+  // Ref para evitar closures obsoletos en manejador de teclado
   const tabsRef = useRef(tabs);
   const activeTabIdRef = useRef(activeTabId);
 
@@ -131,23 +131,23 @@ export function useNoteTabs(): UseNoteTabsReturn {
     activeTabIdRef.current = activeTabId;
   }, [tabs, activeTabId]);
 
-  // Persist on change
+  // Persistir al cambiar
   useEffect(() => {
     saveTabs(tabs, activeTabId);
   }, [tabs, activeTabId]);
 
-  // --- COMPUTED ---
+  // --- COMPUTADO ---
 
   const activeTab = tabs.find((t) => t.id === activeTabId) ?? null;
 
-  // --- OPERATIONS ---
+  // --- OPERACIONES ---
 
   const addTab = useCallback((initialContent = ""): string => {
     const newTab = createTab(initialContent);
 
     setTabs((prev) => {
       if (prev.length >= MAX_TABS) {
-        console.warn(`[useNoteTabs] Max tabs (${MAX_TABS}) reached`);
+        console.warn(`[useNoteTabs] Máximo de pestañas (${MAX_TABS}) alcanzado`);
         return prev;
       }
       return [...prev, newTab];
@@ -164,14 +164,14 @@ export function useNoteTabs(): UseNoteTabsReturn {
 
       const next = prev.filter((t) => t.id !== id);
 
-      // Ensure at least one tab exists
+      // Asegurar que exista al menos una pestaña
       if (next.length === 0) {
         const newTab = createTab();
         setActiveTabId(newTab.id);
         return [newTab];
       }
 
-      // If closing active tab, switch to adjacent
+      // Si se cierra la pestaña activa, cambiar a la adyacente
       if (id === activeTabIdRef.current) {
         const newActiveIdx = Math.min(idx, next.length - 1);
         const newActiveTab = next[newActiveIdx];
@@ -249,13 +249,13 @@ export function useNoteTabs(): UseNoteTabsReturn {
     setActiveTabId(keepId);
   }, []);
 
-  // --- KEYBOARD SHORTCUTS ---
+  // --- ATAJOS DE TECLADO ---
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const isMod = e.ctrlKey || e.metaKey;
 
-      // Ctrl+T: New tab
+      // Ctrl+T: Nueva pestaña
       if (isMod && e.key === "t") {
         e.preventDefault();
         const newTab = createTab();
@@ -263,7 +263,7 @@ export function useNoteTabs(): UseNoteTabsReturn {
         setActiveTabId(newTab.id);
       }
 
-      // Ctrl+W: Close current tab
+      // Ctrl+W: Cerrar pestaña actual
       if (isMod && e.key === "w") {
         e.preventDefault();
         const currentId = activeTabIdRef.current;
@@ -272,7 +272,7 @@ export function useNoteTabs(): UseNoteTabsReturn {
         }
       }
 
-      // Ctrl+Tab: Next tab
+      // Ctrl+Tab: Siguiente pestaña
       if (isMod && e.key === "Tab" && !e.shiftKey) {
         e.preventDefault();
         const current = tabsRef.current;
@@ -286,7 +286,7 @@ export function useNoteTabs(): UseNoteTabsReturn {
         }
       }
 
-      // Ctrl+Shift+Tab: Previous tab
+      // Ctrl+Shift+Tab: Pestaña anterior
       if (isMod && e.key === "Tab" && e.shiftKey) {
         e.preventDefault();
         const current = tabsRef.current;

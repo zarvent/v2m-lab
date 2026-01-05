@@ -12,13 +12,13 @@ const SNIPPETS_STORAGE_KEY = "v2m_snippets_v1";
 const MAX_SNIPPETS = 100;
 
 /**
- * Hook to manage snippets library persistence and operations.
- * Centralizes localStorage logic for snippets.
+ * Hook para gestionar la persistencia y operaciones de la librería de fragmentos.
+ * Centraliza la lógica de localStorage para los snippets.
  */
 export function useSnippets() {
   const [snippets, setSnippets] = useState<SnippetItem[]>([]);
 
-  // Load on mount
+  // Cargar al montar
   useEffect(() => {
     try {
       const saved = localStorage.getItem(SNIPPETS_STORAGE_KEY);
@@ -26,11 +26,11 @@ export function useSnippets() {
         setSnippets(JSON.parse(saved));
       }
     } catch (e) {
-      console.error("Failed to load snippets:", e);
+      console.error("Fallo al cargar fragmentos:", e);
     }
   }, []);
 
-  // Save helper
+  // Helper de guardado
   const persistSnippets = useCallback((newSnippets: SnippetItem[]) => {
     setSnippets(newSnippets);
     localStorage.setItem(SNIPPETS_STORAGE_KEY, JSON.stringify(newSnippets));

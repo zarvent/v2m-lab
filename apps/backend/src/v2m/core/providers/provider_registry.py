@@ -14,32 +14,19 @@
 # along with voice2machine.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-registro genérico de providers para servicios de la aplicación
+Registro Genérico de Proveedores (Provider Registry).
 
-implementa el patrón **PROVIDER REGISTRY** que permite registrar y resolver
-implementaciones concretas de servicios (LLM, transcripción) de forma dinámica.
-esto elimina vendor lock-in y permite extensibilidad futura sin modificar código core.
+Implementa el patrón **PROVIDER REGISTRY** que permite registrar y resolver
+implementaciones concretas de servicios (LLM, Transcripción) de forma dinámica
+en tiempo de ejecución.
 
-patrones utilizados
-    - **SERVICE LOCATOR** simplificado via registry estático
-    - **FACTORY** implícito al resolver providers por nombre
-    - **GENERIC TYPING** (python 3.12+) para type-safety
+Esto elimina el acoplamiento fuerte ("Vendor Lock-in") y permite la extensibilidad
+futura (Open-Closed Principle) sin modificar el código del núcleo.
 
-example
-    registrar un provider personalizado::
-
-        from v2m.core.providers import transcription_registry, TranscriptionService
-
-        class MiTranscripcion(TranscriptionService):
-            def start_recording(self) -> None: ...
-            def stop_and_transcribe(self) -> str: ...
-
-        transcription_registry.register("mi_modelo", MiTranscripcion)
-
-    resolver desde el DI container::
-
-        provider_class = transcription_registry.get(config.transcription.backend)
-        service = provider_class()
+Patrones utilizados:
+    - **Service Locator**: Simplificado vía registro estático.
+    - **Factory**: Implícito al resolver proveedores por nombre.
+    - **Generic Typing**: Uso de `TypeVar` y `Generic` para seguridad de tipos estricta.
 """
 
 from typing import Generic, TypeVar
@@ -48,71 +35,75 @@ T = TypeVar("T")
 
 
 class ProviderNotFoundError(Exception):
-    """error lanzado cuando se intenta resolver un provider no registrado"""
+    """
+    Error lanzado cuando se intenta resolver un proveedor no registrado.
+    """
 
     def __init__(self, provider_name: str, available: list[str]) -> None:
         self.provider_name = provider_name
         self.available = available
         available_str = ", ".join(available) if available else "(ninguno)"
-        super().__init__(f"provider '{provider_name}' no encontrado. disponibles: {available_str}")
+        super().__init__(f"Proveedor '{provider_name}' no encontrado. Disponibles: {available_str}")
 
 
 class ProviderRegistry(Generic[T]):
     """
-    registry genérico tipado para providers de servicios
+    Registro Genérico Tipado para Proveedores de Servicios.
 
-    permite registrar implementaciones concretas de una interfaz base (T)
-    y resolverlas por nombre en runtime. diseñado para ser instanciado
-    una vez por tipo de servicio (LLM, transcripción, etc.)
+    Permite registrar implementaciones concretas de una interfaz base (T)
+    y resolverlas por nombre en tiempo de ejecución. Diseñado para ser instanciado
+    una vez por tipo de servicio.
 
-    attributes
-        _providers: diccionario interno que mapea nombres a clases
+    Atributos:
+        _providers: Diccionario interno que mapea nombres (str) a clases (Type[T]).
 
-    example
-        crear un registry para servicios LLM::
+    Ejemplo:
+        Crear un registro para servicios LLM:
 
-            from v2m.application.llm_service import LLMService
+        ```python
+        from v2m.application.llm_service import LLMService
 
-            llm_registry = ProviderRegistry[LLMService]()
-            llm_registry.register("local", LocalLLMService)
-            llm_registry.register("gemini", GeminiLLMService)
+        llm_registry = ProviderRegistry[LLMService]()
+        llm_registry.register("local", LocalLLMService)
+        llm_registry.register("gemini", GeminiLLMService)
 
-            # resolver por nombre de config
-            Provider = llm_registry.get("local")
-            service = Provider()
+        # Resolver por nombre desde la configuración
+        ProviderClass = llm_registry.get("local")
+        service = ProviderClass()
+        ```
     """
 
     def __init__(self) -> None:
-        """inicializa el registry vacío"""
+        """Inicializa el registro vacío."""
         self._providers: dict[str, type[T]] = {}
 
     def register(self, name: str, provider_class: type[T]) -> None:
         """
-        registra un provider bajo un nombre único
+        Registra un proveedor bajo un nombre único.
 
-        args
-            name: identificador único del provider (ej: "whisper", "local")
-                  debe coincidir con el valor usado en config.toml
-            provider_class: clase que implementa la interfaz T
+        Args:
+            name: Identificador único del proveedor (ej: "whisper", "local").
+                  Debe coincidir con el valor usado en `config.toml`.
+            provider_class: La clase que implementa la interfaz T.
 
-        note
-            si el nombre ya existe, se sobrescribe silenciosamente.
-            esto permite override en tests o configuraciones custom.
+        Nota:
+            Si el nombre ya existe, se sobrescribe. Esto es útil para
+            pruebas (mocks) o configuraciones personalizadas.
         """
         self._providers[name] = provider_class
 
     def get(self, name: str) -> type[T]:
         """
-        resuelve un provider por nombre
+        Resuelve un proveedor por su nombre.
 
-        args
-            name: identificador del provider a resolver
+        Args:
+            name: Identificador del proveedor a resolver.
 
-        returns
-            la clase del provider (no una instancia)
+        Returns:
+            Type[T]: La clase del proveedor (no una instancia).
 
-        raises
-            ProviderNotFoundError: si el nombre no está registrado
+        Raises:
+            ProviderNotFoundError: Si el nombre no está registrado.
         """
         if name not in self._providers:
             raise ProviderNotFoundError(name, self.available())
@@ -120,21 +111,17 @@ class ProviderRegistry(Generic[T]):
 
     def available(self) -> list[str]:
         """
-        lista los nombres de todos los providers registrados
+        Lista los nombres de todos los proveedores registrados.
 
-        returns
-            lista de identificadores disponibles
-
-        example
-            >>> registry.available()
-            ["whisper", "vosk", "custom"]
+        Returns:
+            list[str]: Lista de identificadores disponibles.
         """
         return list(self._providers.keys())
 
     def __contains__(self, name: str) -> bool:
-        """permite usar 'in' operator: if "whisper" in registry"""
+        """Permite usar el operador `in`: `if "whisper" in registry`."""
         return name in self._providers
 
     def __len__(self) -> int:
-        """cantidad de providers registrados"""
+        """Cantidad de proveedores registrados."""
         return len(self._providers)

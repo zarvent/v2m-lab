@@ -8,16 +8,16 @@ export interface TimerState {
   reset: () => void;
 }
 
-// Pre-computed lookup table: avoids padStart() and toString() at runtime
+// Tabla de búsqueda pre-calculada: evita padStart() y toString() en tiempo de ejecución
 const PAD = Object.freeze(
   Array.from({ length: 60 }, (_, i) => (i < 10 ? `0${i}` : `${i}`))
 ) as readonly string[];
 
 /**
- * Optimized hook for session duration tracking.
- * - Single useEffect for all state transitions
- * - Bitwise division for formatting (faster than Math.floor)
- * - Lookup table eliminates string operations
+ * Hook optimizado para el seguimiento de la duración de la sesión.
+ * - Único useEffect para todas las transiciones de estado.
+ * - División bitwise para formateo (más rápido que Math.floor).
+ * - Tabla de búsqueda elimina operaciones de cadena costosas.
  */
 export function useTimer(status: Status): TimerState {
   const [seconds, setSeconds] = useState(0);
@@ -26,24 +26,24 @@ export function useTimer(status: Status): TimerState {
 
   const isRunning = status === "recording";
 
-  // Single consolidated effect for all timer logic
+  // Efecto consolidado para toda la lógica del temporizador
   useEffect(() => {
     const prevStatus = prevStatusRef.current;
     prevStatusRef.current = status;
 
-    // Reset on fresh recording start (idle → recording)
+    // Reiniciar al iniciar una nueva grabación (idle → recording)
     if (status === "recording" && prevStatus === "idle") {
       setSeconds(0);
     }
 
-    // Start interval if recording
+    // Iniciar intervalo si se está grabando
     if (status === "recording" && !intervalRef.current) {
       intervalRef.current = setInterval(() => {
         setSeconds((s) => s + 1);
       }, 1000);
     }
 
-    // Stop interval when not recording
+    // Detener intervalo cuando no se graba
     if (status !== "recording" && intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
@@ -59,7 +59,7 @@ export function useTimer(status: Status): TimerState {
 
   const reset = useCallback(() => setSeconds(0), []);
 
-  // Memoized formatted output with bitwise division
+  // Salida formateada memoizada con división bitwise
   const formatted = useMemo(() => {
     const m = (seconds / 60) | 0; // Bitwise floor
     const s = seconds % 60;

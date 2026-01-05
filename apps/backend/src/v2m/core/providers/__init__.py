@@ -14,43 +14,44 @@
 # along with voice2machine.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-módulo de registros de providers para servicios model-agnostic
+Módulo de Registros de Proveedores (Service Providers).
 
-expone los registries globales para LLM y transcripción que son utilizados
-por el DI container para resolver implementaciones concretas basándose
-en la configuración del usuario
+Expone los Registros Globales para LLM y Transcripción, que son utilizados
+por el Contenedor de Inyección de Dependencias (DI Container) para resolver
+implementaciones concretas basándose en la configuración del usuario.
 
-registries disponibles
-    - ``llm_registry`` para servicios de modelos de lenguaje
-    - ``transcription_registry`` para servicios de transcripción de audio
+Registros Disponibles:
+    - ``llm_registry``: Para servicios de Modelos de Lenguaje (Local, Gemini, etc.).
+    - ``transcription_registry``: Para servicios de transcripción de audio (Whisper, etc.).
 
-example
-    importar y usar los registries::
+Ejemplo:
+    Importar y usar los registros:
 
-        from v2m.core.providers import llm_registry, transcription_registry
+    ```python
+    from v2m.core.providers import llm_registry, transcription_registry
 
-        # verificar providers disponibles
-        print(llm_registry.available())  # ["local", "gemini"]
-        print(transcription_registry.available())  # ["whisper"]
+    # Verificar proveedores disponibles
+    print(llm_registry.available())  # ["local", "gemini"]
+    print(transcription_registry.available())  # ["whisper"]
 
-        # resolver por configuración
-        LLMClass = llm_registry.get(config.llm.backend)
-        TranscriptionClass = transcription_registry.get(config.transcription.backend)
+    # Resolver clase concreta por configuración
+    LLMClass = llm_registry.get(config.llm.backend)
+    ```
 """
 
 from v2m.application.llm_service import LLMService
 from v2m.application.transcription_service import TranscriptionService
 from v2m.core.providers.provider_registry import ProviderNotFoundError, ProviderRegistry
 
-# --- registries globales ---
-# se crean una única vez al importar el módulo
-# los providers se auto-registran al ser importados en container.py
+# --- Registros Globales ---
+# Se instancian una única vez al importar el módulo.
+# Los proveedores concretos se registran al ser importados (generalmente en container.py).
 
 llm_registry: ProviderRegistry[LLMService] = ProviderRegistry()
-"""registry para servicios LLM (local, gemini, futuro: openai, anthropic, custom)"""
+"""Registro para servicios LLM (local, gemini, ollama)."""
 
 transcription_registry: ProviderRegistry[TranscriptionService] = ProviderRegistry()
-"""registry para servicios de transcripción (whisper, futuro: vosk, speechbrain, custom)"""
+"""Registro para servicios de transcripción (whisper)."""
 
 __all__ = [
     "ProviderNotFoundError",
