@@ -40,11 +40,24 @@ const WhisperConfigSchema = z.object({
 });
 
 /**
+ * Esquema Zod para Configuración de Transcripción (SOTA 2026).
+ * Incluye la configuración de Whisper y opciones de lazy loading.
+ */
+const TranscriptionConfigSchema = z.object({
+  backend: z.string().default("whisper"),
+  whisper: WhisperConfigSchema.optional(),
+  lazy_load: z.boolean().default(false),
+});
+
+/**
  * Esquema Zod para Configuración de Gemini.
  */
 const GeminiConfigSchema = z.object({
   api_key: z.string().optional(), // Generalmente cargada desde env, opcional en updates
   model: z.string().default("gemini-3-flash-preview"), // Coincide con backend config.toml
+  temperature: z.number().min(0).max(2).default(0.3),
+  max_tokens: z.number().min(1).max(8192).default(2048),
+  translation_temperature: z.number().min(0).max(2).default(0.3),
 });
 
 /**
@@ -53,6 +66,8 @@ const GeminiConfigSchema = z.object({
 const LocalLLMConfigSchema = z.object({
   model_path: z.string().optional(),
   max_tokens: z.number().min(64).max(4096).default(512),
+  temperature: z.number().min(0).max(2).default(0.3),
+  translation_temperature: z.number().min(0).max(2).default(0.3),
 });
 
 /**
@@ -61,7 +76,9 @@ const LocalLLMConfigSchema = z.object({
 const OllamaConfigSchema = z.object({
   host: z.string().default("http://localhost:11434"),
   model: z.string().default("gemma2:2b"),
-  keep_alive: z.enum(["0m", "5m", "30m"]).default("5m"),
+  keep_alive: z.string().regex(/^(\d+[msdh]|-1)$/, "Formato inválido (ej: 5m, 1h, -1)").default("5m"),
+  temperature: z.number().min(0).max(2).default(0.0),
+  translation_temperature: z.number().min(0).max(2).default(0.3),
 });
 
 /**
@@ -81,7 +98,10 @@ const LLMConfigSchema = z.object({
  * Se utiliza para validar formularios en el frontend antes de enviar actualizaciones.
  */
 export const AppConfigSchema = z.object({
-  whisper: WhisperConfigSchema.optional(),
+  // Mantenemos 'whisper' legacy para compatibilidad si el frontend lo enviaba así,
+  // pero añadimos 'transcription' para la nueva estructura anidada.
+  transcription: TranscriptionConfigSchema.optional(),
+  gemini: GeminiConfigSchema.optional(), // Legacy top-level gemini
   llm: LLMConfigSchema.optional(),
   paths: z
     .object({
