@@ -268,21 +268,13 @@ export function useBackend(): [BackendState, BackendActions] {
     try {
       const data = await invoke<DaemonState>("stop_recording");
       if (data.transcription) {
-        // Manejo modo append: combinar previa + nueva transcripción
-        if (
-          recordingModeRef.current === "append" &&
-          transcriptionBeforeAppendRef.current
-        ) {
-          const combined = `${transcriptionBeforeAppendRef.current}\n\n${data.transcription}`;
-          setTranscription(combined);
-          addToHistory(combined, "recording");
-        } else {
-          setTranscription(data.transcription);
-          addToHistory(data.transcription, "recording");
-        }
-        // Resetear modo
-        recordingModeRef.current = "replace";
-        transcriptionBeforeAppendRef.current = "";
+        // CORRECCION CRITICA: El backend devuelve solo el NUEVO segmento transcrito.
+        // No intentamos combinarlo aquí porque useBackend no tiene el estado
+        // actualizado de las ediciones manuales del usuario.
+        // Delegamos la lógica de append/replace al componente Studio.
+        setTranscription(data.transcription);
+        addToHistory(data.transcription, "recording");
+
         setStatus("idle");
       } else {
         setErrorMessage("No se detectó voz en el audio");

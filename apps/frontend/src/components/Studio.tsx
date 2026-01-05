@@ -193,7 +193,7 @@ export const Studio: React.FC<StudioProps> = React.memo(
     onTranscriptionChange,
     onTranslate,
   }) => {
-    // --- Estado de Pestañas ---
+    // --- ESTADO GLOBAL (Tabs) ---
     const {
       tabs,
       activeTabId,
@@ -207,8 +207,12 @@ export const Studio: React.FC<StudioProps> = React.memo(
       reorderTabs,
     } = useNoteTabs();
 
-    // --- Estado Local ---
+    // --- ESTADO LOCAL (Single Source of Truth) ---
+    // Inicializamos con el contenido de la pestaña activa si existe, o vacío.
+    const [localContent, setLocalContent] = useState("");
     const [noteTitle, setNoteTitle] = useState(generateDefaultTitle);
+
+    // UI State
     const [isEditingTitle, setIsEditingTitle] = useState(false);
     const [copyState, setCopyState] = useState<CopyState>("idle");
     const [showExportMenu, setShowExportMenu] = useState(false);
@@ -216,63 +220,101 @@ export const Studio: React.FC<StudioProps> = React.memo(
     const [snippetTitle, setSnippetTitle] = useState("");
     const [saveSuccess, setSaveSuccess] = useState(false);
     const [exportToast, setExportToast] = useState<string | null>(null);
-    const [localContent, setLocalContent] = useState("");
 
-    // Rastrear modo de grabación (agregar o reemplazar)
+    // Recording State
     const [recordingMode, setRecordingMode] = useState<"replace" | "append">(
       "replace"
     );
-    // Almacenar contenido antes de iniciar grabación (para vista previa en modo append)
     const [preRecordingContent, setPreRecordingContent] = useState("");
-    // Rastrear estado previo para detectar finalización de grabación
     const prevStatusRef = useRef<Status>(status);
 
-    // --- Refs ---
+    // --- REFS ---
+    const activeTabIdRef = useRef<string | null>(null);
+    const saveTimeoutRef = useRef<number | null>(null);
     const titleInputRef = useRef<HTMLInputElement>(null);
     const exportMenuRef = useRef<HTMLDivElement>(null);
-    const editorRef = useRef<HTMLDivElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const copyTimeoutRef = useRef<number | null>(null);
 
-    // --- Efectos ---
+    // --- EFECTOS: SINCRONIZACIÓN OPTIMIZADA ---
 
-    // 1. Sincronizar título y contenido de pestaña activa
+    // 1. CARGA (Load): Tabs -> Local. Solo al cambiar de pestaña activa.
     useEffect(() => {
-      if (activeTab) {
-        setNoteTitle(activeTab.title);
-        // Solo actualizar localContent desde la pestaña si no estamos grabando
-        if (status !== "recording") {
-          setLocalContent(activeTab.content || "");
+      // Detectar cambio real de pestaña
+      if (activeTabId && activeTabId !== activeTabIdRef.current) {
+        const currentTab = tabs.find((t) => t.id === activeTabId);
+        if (currentTab) {
+          // Carga destructiva: reemplazamos estado local con el de la nueva pestaña
+          setLocalContent(currentTab.content || "");
+          setNoteTitle(currentTab.title);
+          activeTabIdRef.current = activeTabId;
         }
       }
-    }, [activeTabId, activeTab, status]);
+      // Caso Edge: Inicialización (si el ref es null o mismatch en primer render)
+      else if (activeTabId && !activeTabIdRef.current) {
+        const currentTab = tabs.find((t) => t.id === activeTabId);
+        if (currentTab) {
+          setLocalContent(currentTab.content || "");
+          setNoteTitle(currentTab.title);
+          activeTabIdRef.current = activeTabId;
+        }
+      }
+    }, [activeTabId, tabs]);
 
-    // 2. Manejar Lógica de Inicio/Fin de Grabación
+    // 2. GUARDADO (Save): Local -> Tabs. Debounced (500ms).
+    useEffect(() => {
+      if (!activeTabId) return;
+
+      // Limpiar timeout pendiente
+      if (saveTimeoutRef.current) window.clearTimeout(saveTimeoutRef.current);
+
+      // Configurar nuevo guardado
+      saveTimeoutRef.current = window.setTimeout(() => {
+        updateTabContent(activeTabId, localContent);
+      }, 500);
+
+      return () => {
+        if (saveTimeoutRef.current) window.clearTimeout(saveTimeoutRef.current);
+      };
+    }, [localContent, activeTabId, updateTabContent]);
+
+    // 3. PERSISTENCIA GRABACIÓN: Backend -> Local + Tabs (Inmediato).
     useEffect(() => {
       const prevStatus = prevStatusRef.current;
 
-      // Detectar Inicio de Grabación
+      // Inicio Grabación: Snapshot
       if (prevStatus !== "recording" && status === "recording") {
         setPreRecordingContent(localContent);
       }
 
-      // Detectar Fin de Grabación O Procesamiento Completado
+      // Fin Grabación/Procesamiento
       if (
-        (prevStatus === "recording" || prevStatus === "processing") &&
+        (prevStatus === "recording" ||
+          prevStatus === "processing" ||
+          prevStatus === "transcribing") &&
         status === "idle"
       ) {
         if (transcription) {
-          setLocalContent(transcription);
+          const finalContent =
+            recordingMode === "append"
+              ? `${preRecordingContent}\n\n${transcription}`.trim()
+              : transcription;
+
+          // Actualizar Local (Feedback UI)
+          setLocalContent(finalContent);
+
+          // Actualizar Tabs INMEDIATAMENTE (Bypass debounce para seguridad)
           if (activeTabId) {
-            updateTabContent(activeTabId, transcription);
+            if (saveTimeoutRef.current)
+              window.clearTimeout(saveTimeoutRef.current);
+            updateTabContent(activeTabId, finalContent);
           }
         }
       }
-
       prevStatusRef.current = status;
-    }, [status, transcription, localContent, activeTabId, updateTabContent]);
+    }, [status, transcription, activeTabId, updateTabContent]);
 
-    // --- Estado Derivado (Memoizado) ---
+    // --- MEMOIZED HELPERS ---
     const statusFlags = useMemo(
       () => ({
         isRecording: status === "recording",
@@ -294,7 +336,6 @@ export const Studio: React.FC<StudioProps> = React.memo(
       isError,
     } = statusFlags;
 
-    // Lógica de Visualización de Contenido
     const displayContent = useMemo(() => {
       if (isRecording) {
         return recordingMode === "append"
@@ -321,11 +362,9 @@ export const Studio: React.FC<StudioProps> = React.memo(
       () => (displayContent ? displayContent.split("\n") : [""]),
       [displayContent]
     );
-
-    // Idioma actual de la pestaña activa
     const currentLanguage = activeTab?.language ?? "es";
 
-    // --- Efectos ---
+    // --- UI EFFECTS ---
 
     // Enfocar input de título al editar
     useEffect(() => {
@@ -335,10 +374,9 @@ export const Studio: React.FC<StudioProps> = React.memo(
       }
     }, [isEditingTitle]);
 
-    // Cerrar menú de exportación al hacer clic fuera
+    // Cerrar menú export
     useEffect(() => {
       if (!showExportMenu) return;
-
       const handleClickOutside = (e: MouseEvent) => {
         if (
           exportMenuRef.current &&
@@ -347,13 +385,12 @@ export const Studio: React.FC<StudioProps> = React.memo(
           setShowExportMenu(false);
         }
       };
-
       document.addEventListener("mousedown", handleClickOutside);
       return () =>
         document.removeEventListener("mousedown", handleClickOutside);
     }, [showExportMenu]);
 
-    // Manejar tecla escape para todos los diálogos
+    // Escape Handler
     useEffect(() => {
       const handleKeyDown = (e: KeyboardEvent) => {
         if (e.key === "Escape") {
@@ -362,12 +399,11 @@ export const Studio: React.FC<StudioProps> = React.memo(
           if (isEditingTitle) setIsEditingTitle(false);
         }
       };
-
       window.addEventListener("keydown", handleKeyDown);
       return () => window.removeEventListener("keydown", handleKeyDown);
     }, [showSaveDialog, showExportMenu, isEditingTitle]);
 
-    // Auto-scroll del editor durante la grabación
+    // Auto-scroll
     useEffect(() => {
       if (isRecording && editorRef.current) {
         requestAnimationFrame(() => {
@@ -379,18 +415,15 @@ export const Studio: React.FC<StudioProps> = React.memo(
       }
     }, [displayContent, isRecording]);
 
-    // Limpiar timeout de copia al desmontar
+    // Cleanup Copy Timeout
     useEffect(() => {
       return () => {
-        if (copyTimeoutRef.current) {
-          clearTimeout(copyTimeoutRef.current);
-        }
+        if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
       };
     }, []);
 
-    // --- Handlers ---
+    // --- HANDLERS ---
 
-    // Interceptar inicio de grabación para rastrear modo
     const handleStartRecording = useCallback(
       (mode: "replace" | "append" = "replace") => {
         setRecordingMode(mode);
@@ -399,6 +432,21 @@ export const Studio: React.FC<StudioProps> = React.memo(
       },
       [onStartRecording, localContent]
     );
+
+    // NEW HANDLER: Síncrono y Determinista
+    const handleNewNoteAndRecord = useCallback(() => {
+      const newTabId = addTab();
+
+      // Reset Local State
+      setLocalContent("");
+      setNoteTitle(generateDefaultTitle());
+      activeTabIdRef.current = newTabId;
+
+      // Start Recording
+      setPreRecordingContent("");
+      setRecordingMode("replace");
+      onStartRecording("replace");
+    }, [addTab, onStartRecording]);
 
     const handleTitleSubmit = useCallback(() => {
       setIsEditingTitle(false);
@@ -752,12 +800,7 @@ export const Studio: React.FC<StudioProps> = React.memo(
             >
               {/* Barra superior del editor */}
               <div className="studio-editor-topbar">
-                <div className="studio-traffic-lights" aria-hidden="true">
-                  <span className="light red" />
-                  <span className="light yellow" />
-                  <span className="light green" />
-                </div>
-
+                {/* Traffic lights eliminados por ser ruido visual innecesario */}
                 <div className="studio-editor-status">
                   {isRecording && (
                     <div className="studio-live-badge">
@@ -788,8 +831,8 @@ export const Studio: React.FC<StudioProps> = React.memo(
               </div>
 
               {/* Contenido - Textarea editable cuando no graba */}
-              {isRecording || isBusy ? (
-                /* Vista de solo lectura durante grabación/procesamiento */
+              {isRecording ? (
+                /* Vista de solo lectura EXCLUSIVAMENTE durante grabación activa de audio */
                 <div className="studio-editor-content">
                   {lines.map((line, i) => (
                     <div key={i} className="studio-line">
@@ -799,19 +842,17 @@ export const Studio: React.FC<StudioProps> = React.memo(
                       </span>
                     </div>
                   ))}
-                  {isRecording && (
-                    <div className="studio-line studio-cursor-line">
-                      <span className="studio-line-number">
-                        {lines.length + 1}
-                      </span>
-                      <span className="studio-line-content">
-                        <span className="studio-cursor-blink" />
-                      </span>
-                    </div>
-                  )}
+                  <div className="studio-line studio-cursor-line">
+                    <span className="studio-line-number">
+                      {lines.length + 1}
+                    </span>
+                    <span className="studio-line-content">
+                      <span className="studio-cursor-blink" />
+                    </span>
+                  </div>
                 </div>
               ) : (
-                /* Textarea editable cuando está inactivo */
+                /* Textarea editable (o readonly si procesa) */
                 <div className="studio-editor-with-lines">
                   <div className="studio-line-numbers" aria-hidden="true">
                     {lines.map((_, i) => (
@@ -825,9 +866,15 @@ export const Studio: React.FC<StudioProps> = React.memo(
                     className="studio-editable-area"
                     value={localContent}
                     onChange={handleContentChange}
-                    placeholder="Empieza a escribir o graba para transcribir..."
+                    readOnly={isBusy}
+                    placeholder="Escribe aquí o empieza a grabar..."
                     aria-label="Contenido de la nota"
                     spellCheck="true"
+                    style={{
+                      pointerEvents: isBusy ? "none" : "auto",
+                      opacity: isBusy ? 0.7 : 1,
+                      cursor: isBusy ? "wait" : "text",
+                    }}
                   />
                 </div>
               )}
@@ -865,37 +912,33 @@ export const Studio: React.FC<StudioProps> = React.memo(
           <div className="studio-primary-action">
             {(isIdle || isError) && (
               <>
-                {/* Mostrar botón "Añadir" cuando hay contenido existente */}
+                {/* Botón secundario para NUEVA nota cuando ya hay contenido */}
                 {hasContent && (
                   <button
-                    className="studio-append-btn"
-                    onClick={() => handleStartRecording("append")}
-                    aria-label="Añadir a transcripción"
-                    title="Grabar y añadir a la nota existente"
+                    className="studio-btn studio-btn-secondary-action"
+                    onClick={handleNewNoteAndRecord}
+                    aria-label="Nueva nota y grabar"
+                    title="Crear nueva nota y empezar a grabar"
                   >
-                    <span className="append-btn-icon">
-                      <PlusIcon />
-                    </span>
-                    <span className="append-btn-text">Añadir</span>
+                    <PlusIcon />
+                    <span>Nueva</span>
                   </button>
                 )}
+
+                {/* Botón PRINCIPAL: Grabar o Continuar (Append) */}
                 <button
                   className="studio-record-btn"
-                  onClick={() => {
-                    if (hasContent) {
-                      // Crear nueva pestaña para acción "Nuevo" cuando hay contenido
-                      addTab();
-                    }
-                    handleStartRecording("replace");
-                  }}
+                  onClick={() =>
+                    handleStartRecording(hasContent ? "append" : "replace")
+                  }
                   aria-label={
                     hasContent
-                      ? "Crear nueva nota e iniciar grabación"
+                      ? "Continuar actual (Append)"
                       : "Iniciar grabación"
                   }
                   title={
                     hasContent
-                      ? "Crear nueva nota e iniciar grabación"
+                      ? "Continuar grabando en esta nota"
                       : "Iniciar grabación"
                   }
                 >
@@ -904,7 +947,7 @@ export const Studio: React.FC<StudioProps> = React.memo(
                     <MicIcon />
                   </span>
                   <span className="record-btn-text">
-                    {hasContent ? "Nuevo" : "Grabar"}
+                    {hasContent ? "Continuar" : "Grabar"}
                   </span>
                 </button>
               </>
