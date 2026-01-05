@@ -22,6 +22,7 @@ Maneja:
 - Gestión de la grabación de audio vía `AudioRecorder`.
 - Carga diferida (lazy loading) del modelo Whisper para optimizar el inicio.
 - Transcripción de audio en memoria (sin archivos intermedios si es posible).
+- SOTA 2026: Pre-filtrado de voz con WebRTC VAD en Rust para aceleración.
 """
 
 from faster_whisper import WhisperModel
@@ -31,6 +32,14 @@ from v2m.config import config
 from v2m.core.logging import logger
 from v2m.domain.errors import RecordingError
 from v2m.infrastructure.audio.recorder import AudioRecorder
+
+# Importar motor Rust si está disponible
+try:
+    from v2m_engine import VoiceActivityDetector
+    HAS_RUST_VAD = True
+except ImportError:
+    HAS_RUST_VAD = False
+    logger.warning("VAD Rust no disponible, usando fallback Silero (más lento)")
 
 
 class WhisperTranscriptionService(TranscriptionService):
@@ -44,8 +53,10 @@ class WhisperTranscriptionService(TranscriptionService):
         Nota: El modelo no se carga en este punto para mejorar el tiempo de arranque (lazy).
         """
         self._model: WhisperModel | None = None
-        # Acceder a la configuración a través de la nueva estructura anidada
         self.recorder = AudioRecorder(device_index=config.transcription.whisper.audio_device_index)
+
+        # Inicializar VAD Rust si aplica (Agresividad 2, 16kHz)
+        self._vad = VoiceActivityDetector(2, 16000) if HAS_RUST_VAD else None
 
     @property
     def model(self) -> WhisperModel:
@@ -126,6 +137,31 @@ class WhisperTranscriptionService(TranscriptionService):
         logger.info("transcribiendo audio...")
         whisper_config = config.transcription.whisper
 
+        # SOTA 2026: Pre-filtrado con Rust VAD
+        # Si tenemos VAD Rust, lo usamos para filtrar silencio ANTES de Whisper.
+        # Esto reduce drásticamente el tiempo si hay pausas.
+        use_internal_vad = whisper_config.vad_filter
+
+        if self._vad and whisper_config.vad_filter:
+            try:
+                original_len = len(audio_data)
+                # Filtra audio manteniendo solo voz (frame 30ms)
+                audio_data = self._vad.filter_speech(audio_data, 30)
+                new_len = len(audio_data)
+
+                reduction = 100.0 * (1.0 - (new_len / original_len)) if original_len > 0 else 0
+                logger.info(f"VAD Rust: reducción de audio del {reduction:.1f}%")
+
+                if new_len == 0:
+                    logger.info("VAD Rust: no se detectó voz, retornando vacío")
+                    return ""
+
+                # Desactivar VAD interno de Whisper porque ya filtramos
+                use_internal_vad = False
+            except Exception as e:
+                logger.warning(f"fallo VAD Rust, usando fallback interno: {e}")
+                use_internal_vad = True
+
         try:
             # 1. Lógica de auto-detección
             lang = whisper_config.language
@@ -143,8 +179,8 @@ class WhisperTranscriptionService(TranscriptionService):
                 beam_size=whisper_config.beam_size,
                 best_of=whisper_config.best_of,
                 temperature=whisper_config.temperature,
-                vad_filter=whisper_config.vad_filter,
-                vad_parameters=whisper_config.vad_parameters.model_dump() if whisper_config.vad_filter else None,
+                vad_filter=use_internal_vad, # Usar Silero solo si Rust falló o no está
+                vad_parameters=whisper_config.vad_parameters.model_dump() if use_internal_vad else None,
             )
 
             if lang is None:

@@ -54,11 +54,17 @@ class VadParametersConfig(BaseModel):
 
 
 class WhisperConfig(BaseModel):
-    """Configuración del modelo de transcripción Whisper."""
-    model: str = "large-v2"
+    """
+    Configuración del modelo de transcripción Whisper.
+
+    Defaults optimizados para 2026:
+    - Model: distil-large-v3 (6x más rápido que large-v2, precisión similar).
+    - Compute: float16 (GPU) o int8 (CPU).
+    """
+    model: str = "distil-large-v3"
     language: str = "es"
     device: str = "cuda"
-    compute_type: str = "int8_float16"
+    compute_type: str = "float16"
     device_index: int = 0
     num_workers: int = 4
     beam_size: int = 2
