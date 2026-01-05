@@ -14,24 +14,26 @@
 # along with voice2machine.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Domain ports (interfaces) and models for structured LLM outputs.
+Puertos del Dominio (Modelos de Datos).
 
-This module defines Pydantic models used for structured outputs with
-LLM providers that support JSON schema constraints (e.g., Ollama).
+Este módulo define modelos Pydantic utilizados para estructurar las salidas
+de los proveedores de LLM que soportan restricciones de esquema JSON (ej. Ollama).
+Asegura que la interacción con el dominio sea tipada y predecible.
 """
 
 from pydantic import BaseModel, Field
 
 
 class CorrectionResult(BaseModel):
-    """Structured output for text refinement.
+    """
+    Modelo de salida estructurada para refinamiento de texto.
 
-    This model forces LLM responses into a predictable JSON format
-    when using providers that support format constraints via JSON schema.
+    Este modelo fuerza a los LLMs a responder en un formato JSON predecible,
+    facilitando el parsing y reduciendo alucinaciones de formato.
 
-    Attributes:
-        corrected_text: The refined/corrected version of the input text.
-        explanation: Optional description of changes made (useful for debugging).
+    Atributos:
+        corrected_text: Versión refinada y corregida del texto.
+        explanation: Explicación opcional de los cambios (útil para depuración).
     """
 
     corrected_text: str = Field(description="Texto corregido con gramática y coherencia mejoradas")

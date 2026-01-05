@@ -14,14 +14,15 @@
 # along with voice2machine.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-CONFIG MANAGER SERVICE
+Servicio Gestor de Configuración (Config Manager).
 
-Este servicio gestiona la lectura y escritura del archivo de configuración global `config.toml`.
-Permite actualizaciones en tiempo real desde el frontend.
+Gestiona la lectura y escritura del archivo de configuración global `config.toml`.
+Permite actualizaciones en tiempo real desde el frontend, asegurando la integridad
+del formato TOML.
 
-ADVERTENCIA:
-    Modificar el archivo de configuración en caliente es una operación delicada.
-    Este servicio asegura que se mantenga la estructura básica TOML.
+Advertencia:
+    Modificar la configuración en caliente requiere precaución. Este servicio
+    valida que el resultado sea un TOML válido antes de guardar.
 """
 
 import logging
@@ -35,26 +36,37 @@ logger = logging.getLogger(__name__)
 
 class ConfigManager:
     """
-    Gestor de configuración que permite leer y escribir `config.toml`.
-    Actúa como una fachada para las operaciones de IO de configuración.
+    Gestor de configuración para `config.toml`.
+    Actúa como una fachada para las operaciones de E/S de configuración.
     """
 
     def __init__(self, config_path: str = "config.toml") -> None:
+        """
+        Inicializa el gestor de configuración.
+
+        Args:
+            config_path: Ruta relativa o absoluta al archivo de configuración.
+        """
         self.config_path = Path(config_path)
         if not self.config_path.is_absolute():
-            # Resolve path relative to apps/backend directory (4 levels up from this file)
-            # This ensures the daemon works regardless of the current working directory
+            # Resolver ruta relativa al directorio raíz del backend
+            # (4 niveles arriba desde este archivo: src/v2m/application/config_manager.py -> apps/backend)
             module_dir = Path(__file__).parent.parent.parent.parent
             self.config_path = module_dir / config_path
 
-        logger.info("config manager initialized", extra={"path": str(self.config_path)})
+        logger.info("gestor de configuración inicializado", extra={"ruta": str(self.config_path)})
 
     def load_config(self) -> dict[str, Any]:
-        """Lee la configuración actual del disco."""
+        """
+        Lee la configuración actual del disco.
+
+        Returns:
+            dict: Diccionario con la configuración cargada.
+        """
         try:
             return toml.load(self.config_path)
         except Exception:
-            logger.error(f"failed to load config from {self.config_path}", exc_info=True)
+            logger.error(f"fallo al cargar configuración desde {self.config_path}", exc_info=True)
             raise
 
     def update_config(self, new_config: dict[str, Any]) -> None:
@@ -67,36 +79,36 @@ class ConfigManager:
 
         Raises:
             ValueError: Si new_config no es un diccionario válido.
-            Exception: Si falla la serialización TOML o escritura del archivo.
+            Exception: Si falla la serialización TOML o escritura.
         """
         # Validar estructura básica antes de procesar
         if not isinstance(new_config, dict):
-            raise ValueError("Config updates must be a dictionary")
+            raise ValueError("Las actualizaciones deben ser un diccionario")
 
         try:
             current_config = self.load_config()
 
-            # Merge recursivo simple para no borrar secciones enteras si solo se manda una clave
+            # Merge recursivo simple
             self._deep_update(current_config, new_config)
 
-            # Validar que el resultado sea TOML serializable antes de escribir
+            # Validar integridad TOML antes de escribir (Rollback implícito si falla dump)
             try:
                 toml.dumps(current_config)
             except Exception as e:
-                logger.error("updated config is not valid TOML, rolling back", exc_info=True)
-                raise ValueError(f"Invalid TOML structure after merge: {e}")
+                logger.error("configuración actualizada no es toml válido, revirtiendo", exc_info=True)
+                raise ValueError(f"Estructura TOML inválida tras el merge: {e}")
 
             with open(self.config_path, "w") as f:
                 toml.dump(current_config, f)
 
-            logger.info("configuration updated successfully")
+            logger.info("configuración actualizada exitosamente")
 
         except Exception:
-            logger.error("failed to update config", exc_info=True)
+            logger.error("fallo al actualizar configuración", exc_info=True)
             raise
 
     def _deep_update(self, target: dict[str, Any], updates: dict[str, Any]) -> dict[str, Any]:
-        """Actualiza recursivamente un diccionario."""
+        """Actualiza recursivamente un diccionario anidado."""
         for key, value in updates.items():
             if isinstance(value, dict) and key in target and isinstance(target[key], dict):
                 self._deep_update(target[key], value)
