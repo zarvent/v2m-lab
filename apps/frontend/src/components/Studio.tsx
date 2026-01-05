@@ -210,7 +210,7 @@ export const Studio: React.FC<StudioProps> = React.memo(
     // --- ESTADO LOCAL (Single Source of Truth) ---
     // Inicializamos con el contenido de la pestaña activa si existe, o vacío.
     const [localContent, setLocalContent] = useState("");
-    const [noteTitle, setNoteTitle] = useState(generateDefaultTitle);
+    const [noteTitle  , setNoteTitle] = useState(generateDefaultTitle);
 
     // UI State
     const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -233,6 +233,7 @@ export const Studio: React.FC<StudioProps> = React.memo(
     const saveTimeoutRef = useRef<number | null>(null);
     const titleInputRef = useRef<HTMLInputElement>(null);
     const exportMenuRef = useRef<HTMLDivElement>(null);
+    const editorRef = useRef<HTMLDivElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const copyTimeoutRef = useRef<number | null>(null);
 
