@@ -17,13 +17,6 @@ import {
   SPARKLINE_HISTORY_LENGTH,
 } from "../constants";
 
-// --- HELPERS OPTIMIZADOS ---
-
-/**
- * Comparación difusa (Fuzzy) de telemetría O(1).
- * Ignora cambios insignificantes (epsilon) para prevenir renderizados excesivos
- * que consuman CPU innecesariamente en el frontend.
- */
 function isTelemetryEqual(
   a: TelemetryData | null,
   b: TelemetryData | null
@@ -31,18 +24,15 @@ function isTelemetryEqual(
   if (a === b) return true;
   if (!a || !b) return false;
 
-  const EPSILON_PERCENT = 0.5; // Umbral de cambio: 0.5%
-  const EPSILON_RAM_GB = 0.1; // Umbral de cambio: 100MB
-  const EPSILON_VRAM_MB = 50; // Umbral de cambio: 50MB
+  const EPSILON_PERCENT = 0.5;
+  const EPSILON_RAM_GB = 0.1;
+  const EPSILON_VRAM_MB = 50;
 
-  // CPU
   if (Math.abs(a.cpu.percent - b.cpu.percent) > EPSILON_PERCENT) return false;
 
-  // RAM
   if (Math.abs(a.ram.percent - b.ram.percent) > EPSILON_PERCENT) return false;
   if (Math.abs(a.ram.used_gb - b.ram.used_gb) > EPSILON_RAM_GB) return false;
 
-  // GPU
   if (!!a.gpu !== !!b.gpu) return false;
   if (
     a.gpu &&
@@ -55,10 +45,6 @@ function isTelemetryEqual(
   return true;
 }
 
-/**
- * Mapea el estado del demonio (string) al tipo Status del frontend.
- * Maneja la normalización de estados transitorios.
- */
 function mapDaemonState(state: string): Status {
   switch (state) {
     case "recording":
@@ -73,13 +59,11 @@ function mapDaemonState(state: string): Status {
     case "running":
       return "idle";
     default:
-      // Loguear estados inesperados para depuración
       console.warn(`[useBackend] Estado del demonio inesperado: ${state}`);
       return "idle";
   }
 }
 
-/** Extrae el mensaje de error de un objeto IpcError o string */
 function extractError(e: unknown): string {
   if (typeof e === "object" && e !== null && "message" in e) {
     return (e as IpcError).message;
@@ -87,17 +71,7 @@ function extractError(e: unknown): string {
   return String(e);
 }
 
-/**
- * HOOK DE BACKEND OPTIMIZADO - Basado en Eventos con IPC Tipado.
- *
- * Arquitectura:
- * - GET_STATUS inicial al montar para hidratación rápida.
- * - Listener de eventos Tauri para actualizaciones push (v2m://state-update).
- * - Polling de respaldo (fallback) solo si no se reciben eventos (recuperación de desconexión).
- * - Llamadas invoke() tipadas - evita el overhead de JSON.parse manual.
- */
 export function useBackend(): [BackendState, BackendActions] {
-  // --- ESTADO (STATE) ---
   const [status, setStatus] = useState<Status>("disconnected");
   const [transcription, setTranscription] = useState("");
   const [telemetry, setTelemetry] = useState<TelemetryData | null>(null);
@@ -108,7 +82,6 @@ export function useBackend(): [BackendState, BackendActions] {
   const [lastPingTime, setLastPingTime] = useState<number | null>(null);
   const [history, setHistory] = useState<HistoryItem[]>([]);
 
-  // --- REFS (evitar clausuras obsoletas / stale closures) ---
   const statusRef = useRef<Status>(status);
   const prevTelemetryRef = useRef<TelemetryData | null>(null);
   const lastPingTimeRef = useRef<number>(0);
@@ -120,7 +93,6 @@ export function useBackend(): [BackendState, BackendActions] {
     statusRef.current = status;
   }, [status]);
 
-  // --- PERSISTENCIA DE HISTORIAL ---
   useEffect(() => {
     try {
       const saved = localStorage.getItem(HISTORY_STORAGE_KEY);
@@ -148,19 +120,16 @@ export function useBackend(): [BackendState, BackendActions] {
     []
   );
 
-  // --- MANEJADOR DE ACTUALIZACIÓN DE ESTADO (compartido por poll y eventos) ---
   const handleStateUpdate = useCallback((data: DaemonState) => {
     lastEventTimeRef.current = Date.now();
     setIsConnected(true);
 
-    // Limitar actualizaciones de tiempo de ping (throttle 5s)
     const now = Date.now();
     if (now - lastPingTimeRef.current > PING_UPDATE_INTERVAL_MS) {
       setLastPingTime(now);
       lastPingTimeRef.current = now;
     }
 
-    // Actualizar telemetría solo si hay cambios significativos
     if (
       data.telemetry &&
       !isTelemetryEqual(prevTelemetryRef.current, data.telemetry)
@@ -175,7 +144,6 @@ export function useBackend(): [BackendState, BackendActions] {
       );
     }
 
-    // Actualizar transcripción si está presente en el payload
     if (data.transcription !== undefined) {
       setTranscription(data.transcription);
     }
@@ -183,25 +151,21 @@ export function useBackend(): [BackendState, BackendActions] {
       setTranscription(data.refined_text);
     }
 
-    // Mapear estado - preservar estados transitorios del UI
     const newStatus = mapDaemonState(data.state);
     setStatus((prev) => {
       if (
         (prev === "transcribing" || prev === "processing") &&
         newStatus === "idle"
       ) {
-        return prev; // No interrumpir estado transitorio hasta confirmación explícita
+        return prev;
       }
       return newStatus;
     });
   }, []);
 
-  // --- FUNCIÓN DE POLLING (carga inicial y fallback) ---
   const pollStatus = useCallback(async () => {
     try {
-      console.debug("[useBackend] Polling estado del demonio...");
       const data = await invoke<DaemonState>("get_status");
-      console.debug("[useBackend] Estado recibido:", data);
       handleStateUpdate(data);
       if (statusRef.current === "disconnected") setErrorMessage("");
     } catch (e) {
@@ -214,21 +178,17 @@ export function useBackend(): [BackendState, BackendActions] {
     }
   }, [handleStateUpdate]);
 
-  // --- LISTENER DE EVENTOS (mecanismo principal de actualización) ---
   useEffect(() => {
     let unlisten: UnlistenFn | null = null;
 
-    // Fetch inicial
     pollStatus();
 
-    // Suscribirse a eventos push del backend
     listen<DaemonState>("v2m://state-update", (event) => {
       handleStateUpdate(event.payload);
     }).then((fn) => {
       unlisten = fn;
     });
 
-    // Polling de respaldo - solo si no se reciben eventos en 2 segundos
     const fallbackInterval = setInterval(() => {
       const timeSinceLastEvent = Date.now() - lastEventTimeRef.current;
       if (timeSinceLastEvent > STATUS_POLL_INTERVAL_MS * 4) {
@@ -242,13 +202,10 @@ export function useBackend(): [BackendState, BackendActions] {
     };
   }, [pollStatus, handleStateUpdate]);
 
-  // --- ACCIONES (invoke tipado) ---
-
   const startRecording = useCallback(
     async (mode: "replace" | "append" = "replace") => {
       if (statusRef.current === "paused") return;
       try {
-        // Almacenar modo y transcripción actual para 'append'
         recordingModeRef.current = mode;
         if (mode === "append") {
           transcriptionBeforeAppendRef.current = transcription;
@@ -264,14 +221,10 @@ export function useBackend(): [BackendState, BackendActions] {
   );
 
   const stopRecording = useCallback(async () => {
-    setStatus("transcribing"); // UI Optimista
+    setStatus("transcribing");
     try {
       const data = await invoke<DaemonState>("stop_recording");
       if (data.transcription) {
-        // CORRECCION CRITICA: El backend devuelve solo el NUEVO segmento transcrito.
-        // No intentamos combinarlo aquí porque useBackend no tiene el estado
-        // actualizado de las ediciones manuales del usuario.
-        // Delegamos la lógica de append/replace al componente Studio.
         setTranscription(data.transcription);
         addToHistory(data.transcription, "recording");
 
@@ -288,7 +241,7 @@ export function useBackend(): [BackendState, BackendActions] {
 
   const processText = useCallback(async () => {
     if (!transcription) return;
-    setStatus("processing"); // UI Optimista
+    setStatus("processing");
     try {
       const data = await invoke<DaemonState>("process_text", {
         text: transcription,
@@ -310,7 +263,7 @@ export function useBackend(): [BackendState, BackendActions] {
   const translateText = useCallback(
     async (targetLang: "es" | "en") => {
       if (!transcription) return;
-      setStatus("processing"); // UI Optimista
+      setStatus("processing");
       try {
         const data = await invoke<DaemonState>("translate_text", {
           text: transcription,
@@ -356,7 +309,6 @@ export function useBackend(): [BackendState, BackendActions] {
     setStatus("restarting");
     try {
       await invoke<DaemonState>("restart_daemon");
-      // El listener de eventos detectará cuando el demonio vuelva a estar online
     } catch (e) {
       setErrorMessage(extractError(e));
       setStatus("error");
@@ -374,8 +326,6 @@ export function useBackend(): [BackendState, BackendActions] {
       setStatus("error");
     }
   }, []);
-
-  // --- VALORES DE RETORNO MEMOIZADOS ---
 
   const state: BackendState = useMemo(
     () => ({

@@ -20,9 +20,6 @@ Este servicio se encarga de recolectar métricas del sistema en tiempo real.
 Utiliza `v2m_engine` (Rust) para métricas de CPU/RAM con bajo overhead, con fallback
 automático a `psutil` si Rust no está disponible. Las métricas de GPU se obtienen
 vía `pynvml` (NVIDIA Management Library) para evitar la carga pesada de `torch`.
-
-Se adhiere al Principio de Responsabilidad Única (SRP), proveyendo solo datos de observación
-sin realizar acciones sobre el sistema.
 """
 
 import atexit
@@ -61,25 +58,18 @@ class GPUMetrics(TypedDict):
 class SystemMonitor:
     """
     Monitor de recursos del sistema para observabilidad en tiempo real.
-
-    Provee métricas de RAM, CPU y GPU (si está disponible).
-    Optimizado para minimizar overhead mediante el uso de Rust y caché de metadatos estáticos.
     """
 
     def __init__(self) -> None:
         """Inicializa el monitor y cachea información estática para optimizar polling."""
-        # Motor Rust (Opcional)
         self._rust_monitor = RustSystemMonitor() if HAS_RUST_MONITOR else None
-
-        # GPU Management Init
         self._nvml_handle: Any | None = None
         self._gpu_available = self._init_gpu_monitoring()
 
-        # Registrar limpieza (SOTA: Skilled Human Cleanup)
+        # Registrar limpieza para liberar handle de NVML
         atexit.register(self._shutdown)
 
-        # Optimización: Cachear métricas estáticas (Total RAM, GPU Name)
-        # Esto evita syscalls y llamadas a driver redundantes en cada ciclo de polling
+        # Cachear métricas estáticas (Total RAM, GPU Name) para evitar syscalls redundantes
         try:
             if self._rust_monitor:
                 self._rust_monitor.update()
@@ -123,18 +113,14 @@ class SystemMonitor:
                 pass  # Best effort cleanup
 
     def _init_gpu_monitoring(self) -> bool:
-        """
-        Inicializa el monitoreo de GPU usando NVML (ligero) en lugar de torch.
-        """
+        """Inicializa monitoreo GPU vía NVML."""
         if not HAS_PYNVML:
-            logger.info("pynvml no instalado, monitoreo gpu deshabilitado")
             return False
 
         try:
             pynvml.nvmlInit()
             device_count = pynvml.nvmlDeviceGetCount()
             if device_count > 0:
-                # Usamos el dispositivo 0 por defecto
                 self._nvml_handle = pynvml.nvmlDeviceGetHandleByIndex(0)
                 return True
             return False
@@ -146,14 +132,8 @@ class SystemMonitor:
             return False
 
     def get_system_metrics(self) -> dict[str, Any]:
-        """
-        Obtiene una instantánea de las métricas actuales del sistema.
-
-        Returns:
-            dict[str, Any]: Diccionario con claves 'ram', 'cpu', 'gpu' (opcional).
-        """
+        """Obtiene una instantánea de las métricas actuales del sistema."""
         if self._rust_monitor:
-            # Actualizar snapshot en Rust
             self._rust_monitor.update()
 
         metrics = {
@@ -167,36 +147,29 @@ class SystemMonitor:
         return metrics
 
     def _get_ram_usage(self) -> dict[str, float]:
-        """Retorna uso de memoria RAM en GB y porcentaje."""
         if self._rust_monitor:
             _, used, percent = self._rust_monitor.get_ram_usage()
             return {"total_gb": self._ram_total_gb, "used_gb": round(used / (1024**3), 2), "percent": round(percent, 1)}
 
         mem = psutil.virtual_memory()
         return {
-            "total_gb": self._ram_total_gb,  # Usar valor cacheado
+            "total_gb": self._ram_total_gb,
             "used_gb": round(mem.used / (1024**3), 2),
             "percent": mem.percent,
         }
 
     def _get_cpu_usage(self) -> dict[str, Any]:
-        """Retorna uso de CPU global."""
         if self._rust_monitor:
             return {"percent": round(self._rust_monitor.get_cpu_usage(), 1)}
 
         return {"percent": psutil.cpu_percent(interval=None)}
 
     def _get_gpu_usage(self) -> GPUMetrics:
-        """
-        Retorna uso real de GPU usando NVML.
-
-        SOTA 2026: Evita la carga de PyTorch para métricas simples, ahorrando ~500MB RAM.
-        """
+        """Retorna uso real de GPU usando NVML."""
         try:
             if not self._nvml_handle:
                 return {"name": "N/A", "vram_used_mb": 0.0, "vram_total_mb": 0.0, "temp_c": 0}
 
-            # NVML es extremadamente rápido y ligero (llamadas C directas)
             mem_info = pynvml.nvmlDeviceGetMemoryInfo(self._nvml_handle)
             temp = pynvml.nvmlDeviceGetTemperature(self._nvml_handle, pynvml.NVML_TEMPERATURE_GPU)
 
@@ -210,7 +183,7 @@ class SystemMonitor:
             }
         except pynvml.NVMLError as e:
             logger.error(f"fallo nvml obteniendo métricas gpu: {e}")
-            # Intento de re-init simple si hay error de driver
+            # Re-init simple si hay error de driver
             try:
                 pynvml.nvmlInit()
                 self._nvml_handle = pynvml.nvmlDeviceGetHandleByIndex(0)
