@@ -25,6 +25,7 @@ Se adhiere al Principio de Responsabilidad Única (SRP), proveyendo solo datos d
 sin realizar acciones sobre el sistema.
 """
 
+import atexit
 import logging
 from typing import Any, TypedDict
 
@@ -74,6 +75,9 @@ class SystemMonitor:
         self._nvml_handle: Any | None = None
         self._gpu_available = self._init_gpu_monitoring()
 
+        # Registrar limpieza (SOTA: Skilled Human Cleanup)
+        atexit.register(self._shutdown)
+
         # Optimización: Cachear métricas estáticas (Total RAM, GPU Name)
         # Esto evita syscalls y llamadas a driver redundantes en cada ciclo de polling
         try:
@@ -109,6 +113,14 @@ class SystemMonitor:
             "monitor de sistema inicializado",
             extra={"gpu_disponible": self._gpu_available, "ram_total_gb": self._ram_total_gb},
         )
+
+    def _shutdown(self) -> None:
+        """Libera recursos del monitor."""
+        if HAS_PYNVML and self._gpu_available:
+            try:
+                pynvml.nvmlShutdown()
+            except Exception:
+                pass  # Best effort cleanup
 
     def _init_gpu_monitoring(self) -> bool:
         """
