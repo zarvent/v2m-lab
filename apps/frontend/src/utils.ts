@@ -1,13 +1,13 @@
 /**
- * O(n) single-pass word counter - no intermediate arrays
- * Handles spaces, tabs, newlines, and carriage returns.
+ * Contador de palabras O(n) de una sola pasada - sin arrays intermedios.
+ * Maneja espacios, tabulaciones, saltos de línea y retornos de carro.
  */
 export function countWords(text: string): number {
   let count = 0;
   let inWord = false;
   for (let i = 0; i < text.length; i++) {
     const c = text.charCodeAt(i);
-    // Space, tab, newline, carriage return
+    // Espacio, tabulación, salto de línea, retorno de carro
     const isSpace = c === 32 || c === 9 || c === 10 || c === 13;
     if (isSpace) {
       inWord = false;
@@ -20,7 +20,7 @@ export function countWords(text: string): number {
 }
 
 /**
- * Format timestamp to relative time string (e.g. "2h ago", "Just now")
+ * Formatea un timestamp a una cadena de tiempo relativa (ej. "hace 2h", "justo ahora").
  */
 export function formatRelativeTime(timestamp: number): string {
   const now = Date.now();
@@ -31,8 +31,8 @@ export function formatRelativeTime(timestamp: number): string {
   const hours = Math.floor(minutes / 60);
   const days = Math.floor(hours / 24);
 
-  if (days > 0) return `${days}d ago`;
-  if (hours > 0) return `${hours}h ago`;
-  if (minutes > 0) return `${minutes}m ago`;
-  return "Just now";
+  if (days > 0) return `hace ${days}d`;
+  if (hours > 0) return `hace ${hours}h`;
+  if (minutes > 0) return `hace ${minutes}m`;
+  return "justo ahora";
 }

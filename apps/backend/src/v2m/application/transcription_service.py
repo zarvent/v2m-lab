@@ -14,37 +14,37 @@
 # along with voice2machine.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-MÓDULO QUE DEFINE LA INTERFAZ PARA LOS SERVICIOS DE TRANSCRIPCIÓN DE AUDIO
+Protocolo de Servicio de Transcripción.
 
-esta clase abstracta establece el contrato que cualquier servicio de transcripción
-debe seguir la capa de aplicación interactúa con esta interfaz permitiendo
-que la implementación subyacente ej `whispertranscriptionservice` pueda ser
-intercambiada sin afectar la lógica de negocio
+Define la interfaz (Protocol) que deben implementar los servicios de transcripción
+(como Whisper). Utiliza `typing.Protocol` para tipado estructural, desacoplando
+completamente la implementación de la abstracción.
 """
 
-from abc import ABC, abstractmethod
+from typing import Protocol, runtime_checkable
 
 
-class TranscriptionService(ABC):
+@runtime_checkable
+class TranscriptionService(Protocol):
     """
-    CLASE BASE ABSTRACTA PARA LOS SERVICIOS DE TRANSCRIPCIÓN
-
-    define las operaciones esenciales para la grabación y transcripción de audio
+    Protocolo que define las operaciones de grabación y transcripción.
     """
 
-    @abstractmethod
     def start_recording(self) -> None:
         """
-        INICIA EL PROCESO DE GRABACIÓN DE AUDIO DESDE EL DISPOSITIVO DE ENTRADA
+        Inicia el proceso de grabación de audio de forma asíncrona (non-blocking)
+        o en un hilo separado.
         """
-        raise NotImplementedError
+        ...
 
-    @abstractmethod
     def stop_and_transcribe(self) -> str:
         """
-        DETIENE LA GRABACIÓN ACTUAL Y PROCESA EL AUDIO PARA OBTENER UNA TRANSCRIPCIÓN
+        Detiene la grabación activa y procesa el audio para generar texto.
 
-        RETURNS:
-            el texto transcrito del audio grabado
+        Returns:
+            str: El texto transcrito.
+
+        Raises:
+            RecordingError: Si ocurre un error durante la captura o procesamiento.
         """
-        raise NotImplementedError
+        ...

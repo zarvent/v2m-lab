@@ -48,40 +48,40 @@ interface SidebarProps {
   onOpenSettings?: () => void;
 }
 
-// Nav item definition
+// Definición de ítem de navegación
 interface NavItemDef {
   id: NavItem;
   label: string;
   Icon: React.FC;
 }
 
-// Static nav items - Settings is fixed at bottom, not draggable
+// Ítems de navegación estáticos - Ajustes es fijo al final, no arrastrable
 const SORTABLE_NAV_ITEMS: NavItemDef[] = [
   { id: "studio", label: "Studio", Icon: StudioIcon },
-  { id: "overview", label: "Overview", Icon: DashboardIcon },
-  { id: "transcriptions", label: "Transcriptions", Icon: DescriptionIcon },
-  { id: "snippets", label: "Snippets Library", Icon: CodeIcon },
+  { id: "overview", label: "Vista General", Icon: DashboardIcon },
+  { id: "transcriptions", label: "Transcripciones", Icon: DescriptionIcon },
+  { id: "snippets", label: "Biblioteca", Icon: CodeIcon },
 ];
 
 const FIXED_NAV_ITEM: NavItemDef = {
   id: "settings",
-  label: "Settings",
+  label: "Ajustes",
   Icon: SettingsIcon,
 };
 
 const NAV_ORDER_STORAGE_KEY = "v2m_nav_order_v1";
 
-// Get default order as IDs
+// Obtener orden predeterminado como IDs
 const getDefaultOrder = (): NavItem[] =>
   SORTABLE_NAV_ITEMS.map((item) => item.id);
 
-// Load order from localStorage
+// Cargar orden de localStorage
 const loadNavOrder = (): NavItem[] => {
   try {
     const saved = localStorage.getItem(NAV_ORDER_STORAGE_KEY);
     if (saved) {
       const parsed = JSON.parse(saved) as NavItem[];
-      // Validate that all items exist
+      // Validar que todos los ítems existen
       const validIds = new Set(SORTABLE_NAV_ITEMS.map((i) => i.id));
       if (
         parsed.every((id) => validIds.has(id)) &&
@@ -91,17 +91,17 @@ const loadNavOrder = (): NavItem[] => {
       }
     }
   } catch {
-    // Ignore parse errors
+    // Ignorar errores de análisis
   }
   return getDefaultOrder();
 };
 
-// Save order to localStorage
+// Guardar orden en localStorage
 const saveNavOrder = (order: NavItem[]) => {
   localStorage.setItem(NAV_ORDER_STORAGE_KEY, JSON.stringify(order));
 };
 
-// --- SORTABLE NAV ITEM COMPONENT ---
+// --- COMPONENTE NAV ITEM ORDENABLE ---
 
 interface SortableNavItemProps {
   item: NavItemDef;
@@ -148,7 +148,7 @@ const SortableNavItem: React.FC<SortableNavItemProps> = ({
         className="nav-drag-handle"
         {...attributes}
         {...listeners}
-        aria-label={`Drag to reorder ${item.label}`}
+        aria-label={`Arrastrar para reordenar ${item.label}`}
       >
         <DragHandleIcon />
       </span>
@@ -158,22 +158,22 @@ const SortableNavItem: React.FC<SortableNavItemProps> = ({
   );
 };
 
-// --- MAIN SIDEBAR COMPONENT ---
+// --- COMPONENTE BARRA LATERAL PRINCIPAL ---
 
 export const Sidebar: React.FC<SidebarProps> = React.memo(
   ({ sessionStats, activeNav = "studio", onNavChange, onOpenSettings }) => {
     const [navOrder, setNavOrder] = useState<NavItem[]>(loadNavOrder);
 
-    // Persist order changes
+    // Persistir cambios de orden
     useEffect(() => {
       saveNavOrder(navOrder);
     }, [navOrder]);
 
-    // DnD sensors
+    // Sensores DnD
     const sensors = useSensors(
       useSensor(PointerSensor, {
         activationConstraint: {
-          distance: 8, // 8px movement before drag starts
+          distance: 8, // 8px de movimiento antes de iniciar arrastre
         },
       }),
       useSensor(KeyboardSensor, {
@@ -181,7 +181,7 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(
       })
     );
 
-    // Handle drag end
+    // Manejar fin de arrastre
     const handleDragEnd = useCallback((event: DragEndEvent) => {
       const { active, over } = event;
 
@@ -194,7 +194,7 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(
       }
     }, []);
 
-    // Single event handler using data attribute
+    // Manejador de evento único usando atributo data
     const handleNavClick = useCallback(
       (e: React.MouseEvent<HTMLAnchorElement>) => {
         e.preventDefault();
@@ -208,14 +208,14 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(
       [onNavChange, onOpenSettings]
     );
 
-    // Get ordered nav items
+    // Obtener ítems de navegación ordenados
     const orderedNavItems = navOrder
       .map((id) => SORTABLE_NAV_ITEMS.find((item) => item.id === id)!)
       .filter(Boolean);
 
     return (
       <aside className="app-sidebar">
-        {/* Logo / Brand */}
+        {/* Logo / Marca */}
         <div className="sidebar-brand">
           <div className="brand-logo">
             <MicIcon />
@@ -223,7 +223,7 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(
           <span className="brand-text">Voice2Machine</span>
         </div>
 
-        {/* Navigation - Sortable Items */}
+        {/* Navegación - Ítems Ordenables */}
         <nav className="sidebar-nav">
           <DndContext
             sensors={sensors}
@@ -245,7 +245,7 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(
             </SortableContext>
           </DndContext>
 
-          {/* Fixed Settings Item (not draggable) */}
+          {/* Ítem de Ajustes Fijo (no arrastrable) */}
           <div className="nav-separator" />
           <a
             href="#"
@@ -261,22 +261,22 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(
           </a>
         </nav>
 
-        {/* Session Stats */}
+        {/* Estadísticas de Sesión */}
         <div className="session-stats">
-          <h3 className="stats-title">Current Session</h3>
+          <h3 className="stats-title">Sesión Actual</h3>
 
           <div className="stat-row">
-            <span className="stat-label">Duration</span>
+            <span className="stat-label">Duración</span>
             <span className="stat-value mono">{sessionStats.duration}</span>
           </div>
 
           <div className="stat-row">
-            <span className="stat-label">Words</span>
+            <span className="stat-label">Palabras</span>
             <span className="stat-value mono">{sessionStats.words}</span>
           </div>
 
           <div className="stat-row">
-            <span className="stat-label">Confidence</span>
+            <span className="stat-label">Confianza</span>
             <div className="confidence-meter">
               <div className="meter-track">
                 <div
@@ -291,14 +291,14 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(
           </div>
         </div>
 
-        {/* GitHub Footer */}
+        {/* Pie de página GitHub */}
         <div className="sidebar-footer">
           <a
             href="https://github.com/zarvent/voice2machine"
             target="_blank"
             rel="noopener noreferrer"
             className="github-link"
-            aria-label="View source on GitHub"
+            aria-label="Ver código fuente en GitHub"
           >
             <GithubIcon />
             <span>GitHub</span>

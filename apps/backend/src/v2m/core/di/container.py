@@ -14,27 +14,27 @@
 # along with voice2machine.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-contenedor de inyección de dependencias (di) para voice2machine
+Contenedor de Inyección de Dependencias (DI) para Voice2Machine.
 
-este módulo implementa el patrón de inyección de dependencias que cablea
-toda la aplicación es el único lugar donde las implementaciones concretas
-son conocidas y donde se decide qué implementación usar para cada interfaz
+Este módulo implementa el patrón de Inyección de Dependencias que conecta
+toda la aplicación. Es el único lugar donde las implementaciones concretas
+son conocidas y donde se decide qué implementación usar para cada interfaz.
 
-responsabilidades del contenedor
-    1 **instanciar servicios de infraestructura** crea las implementaciones
-       concretas como singletons (whisperservice geminiservice etc)
-    2 **instanciar handlers de aplicación** crea los command handlers
-       inyectándoles las dependencias que necesitan
-    3 **configurar el commandbus** registra todos los handlers para que
-       el bus sepa a quién despachar cada tipo de comando
+Responsabilidades del Contenedor:
+    1. **Instanciar Servicios de Infraestructura**: Crea las implementaciones
+       concretas como singletons (WhisperService, GeminiService, etc.).
+    2. **Instanciar Handlers de Aplicación**: Crea los Command Handlers
+       inyectándoles las dependencias que necesitan.
+    3. **Configurar el CommandBus**: Registra todos los handlers para que
+       el bus sepa a quién despachar cada tipo de comando.
 
-beneficios
-    - **desacoplamiento** los handlers dependen de interfaces no implementaciones
-    - **testabilidad** fácil sustituir servicios reales por mocks
-    - **configurabilidad** cambiar implementaciones (ej gemini -> openai)
-      solo requiere modificar este archivo
+Beneficios:
+    - **Desacoplamiento**: Los handlers dependen de interfaces, no de implementaciones.
+    - **Testabilidad**: Es fácil sustituir servicios reales por mocks en los tests.
+    - **Configurabilidad**: Cambiar implementaciones (ej. Gemini -> OpenAI)
+      solo requiere modificar este archivo o la configuración.
 
-diagrama de dependencias
+Diagrama de Dependencias:
     ::
 
         Container
@@ -48,13 +48,15 @@ diagrama de dependencias
         ├── ProcessTextHandler (usa LLM, Notification, Clipboard)
         └── CommandBus (registra todos los handlers)
 
-example
-    acceso al contenedor desde otros módulos::
+Ejemplo:
+    Acceso al contenedor desde otros módulos:
 
-        from v2m.core.di.container import container
+    ```python
+    from v2m.core.di.container import container
 
-        bus = container.get_command_bus()
-        await bus.dispatch(MiComando())
+    bus = container.get_command_bus()
+    await bus.dispatch(MiComando())
+    ```
 """
 
 import asyncio
@@ -74,12 +76,12 @@ from v2m.infrastructure.local_llm_service import LocalLLMService
 from v2m.infrastructure.notification_service import LinuxNotificationService
 from v2m.infrastructure.ollama_llm_service import OllamaLLMService
 
-# --- AUTO-REGISTRO DE PROVIDERS ---
-# los imports fuerzan el registro en los registries globales
-# esto permite que el container resuelva providers dinámicamente desde config
+# --- AUTO-REGISTRO DE PROVEEDORES ---
+# Los imports fuerzan el registro en los registries globales.
+# Esto permite que el container resuelva providers dinámicamente desde config.
 from v2m.infrastructure.whisper_transcription_service import WhisperTranscriptionService
 
-# registrar providers explícitamente (más claro que auto-registro vía decorador)
+# Registrar providers explícitamente (más claro que auto-registro vía decorador)
 transcription_registry.register("whisper", WhisperTranscriptionService)
 llm_registry.register("local", LocalLLMService)
 llm_registry.register("gemini", GeminiLLMService)
@@ -88,94 +90,80 @@ llm_registry.register("ollama", OllamaLLMService)
 
 class Container:
     """
-    contenedor de di que gestiona el ciclo de vida y dependencias de objetos
+    Contenedor de DI que gestiona el ciclo de vida y las dependencias de los objetos.
 
-    el contenedor es instanciado una única vez al inicio de la aplicación
+    El contenedor es instanciado una única vez al inicio de la aplicación
     y proporciona acceso a los servicios configurados durante toda la
-    ejecución del programa
+    ejecución del programa.
 
-    attributes:
-
-        transcription_service: servicio de transcripción (faster-whisper)
-        llm_service: servicio de llm para refinamiento de texto (gemini)
-        notification_service: adaptador de notificaciones del sistema
-        clipboard_service: adaptador del portapapeles del sistema
-        start_recording_handler: handler para el comando startrecording
-        stop_recording_handler: handler para el comando stoprecording
-        process_text_handler: handler para el comando processtext
-        command_bus: bus de comandos configurado con todos los handlers
-
-    example
-        uso típico (ya pre-instanciado como singleton global)::
-
-            from v2m.core.di.container import container
-
-            # obtener el bus de comandos
-            bus = container.get_command_bus()
-
-            # acceso directo a servicios (menos común)
-            transcription = container.transcription_service
+    Atributos:
+        transcription_service: Servicio de transcripción (faster-whisper).
+        llm_service: Servicio de LLM para refinamiento de texto (Gemini, Local, Ollama).
+        notification_service: Adaptador de notificaciones del sistema.
+        clipboard_service: Adaptador del portapapeles del sistema.
+        start_recording_handler: Handler para el comando StartRecording.
+        stop_recording_handler: Handler para el comando StopRecording.
+        process_text_handler: Handler para el comando ProcessText.
+        command_bus: Bus de comandos configurado con todos los handlers.
     """
 
     def __init__(self) -> None:
         """
-        inicializa y configura todas las dependencias de la aplicación
+        Inicializa y configura todas las dependencias de la aplicación.
 
-        el proceso de configuración sigue estos pasos
+        El proceso de configuración sigue estos pasos:
 
-        1 **servicios de infraestructura** (como singletons)
-           se crean las implementaciones concretas de los servicios
-           aquí se decide qué implementación usar para cada interfaz
-           por ejemplo para cambiar de gemini a openai solo se modificaría
-           esta línea
+        1. **Servicios de Infraestructura** (como Singletons):
+           Se crean las implementaciones concretas de los servicios.
+           Aquí se decide qué implementación usar para cada interfaz.
 
-        2 **handlers de aplicación**
-           se crean los manejadores de comandos inyectándoles las
-           dependencias que necesitan para funcionar
+        2. **Handlers de Aplicación**:
+           Se crean los manejadores de comandos inyectándoles las
+           dependencias que necesitan para funcionar.
 
-        3 **commandbus**
-           se configura el bus registrando todos los handlers para que
-           sepa a cuál despachar cada tipo de comando
+        3. **CommandBus**:
+           Se configura el bus registrando todos los handlers para que
+           sepa a cuál despachar cada tipo de comando.
 
-        note
-            el modelo whisper se precarga en un hilo de fondo para evitar
-            latencia en la primera transcripción si falla la precarga
-            se cargará de forma lazy en el primer uso
+        Nota:
+            El modelo Whisper se precarga en un hilo de fondo para evitar
+            latencia en la primera transcripción. Si falla la precarga,
+            se cargará bajo demanda en el primer uso.
         """
-        # --- 1 instanciar servicios (como singletons) ---
-        # resolución dinámica desde registries según config.toml
+        # --- 1. Instanciar Servicios (como Singletons) ---
+        # Resolución dinámica desde registries según config.toml
 
-        # --- selección de backend de transcripción según configuración ---
+        # --- Selección de backend de transcripción según configuración ---
         transcription_backend = config.transcription.backend
         try:
             TranscriptionClass = transcription_registry.get(transcription_backend)
             self.transcription_service: TranscriptionService = TranscriptionClass()
-            logger.info(f"transcription backend: {transcription_backend}")
+            logger.info(f"backend de transcripción seleccionado: {transcription_backend}")
         except ProviderNotFoundError as e:
             logger.critical(f"backend de transcripción inválido: {e}")
             raise
 
-        # threadpoolexecutor para warmup - libera el gil mejor que threading.thread
+        # ThreadPoolExecutor para warmup - libera el GIL mejor que threading.Thread
         # porque permite que el event loop siga procesando durante la carga
         self._warmup_executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="warmup")
         self._warmup_future = self._warmup_executor.submit(self._preload_models)
 
-        # --- selección de backend LLM según configuración ---
+        # --- Selección de backend LLM según configuración ---
         llm_backend = config.llm.backend
         try:
             LLMClass = llm_registry.get(llm_backend)
             self.llm_service: LLMService = LLMClass()
-            logger.info(f"llm backend: {llm_backend}")
+            logger.info(f"backend llm seleccionado: {llm_backend}")
         except ProviderNotFoundError as e:
             logger.critical(f"backend llm inválido: {e}")
             raise
 
-        # adaptadores de sistema
+        # Adaptadores de Sistema
         self.notification_service: NotificationInterface = LinuxNotificationService()
         self.clipboard_service: ClipboardInterface = LinuxClipboardAdapter()
 
-        # --- 2 instanciar manejadores de comandos ---
-        # se inyectan las dependencias en el constructor de cada handler
+        # --- 2. Instanciar Manejadores de Comandos ---
+        # Se inyectan las dependencias en el constructor de cada handler
         self.start_recording_handler = StartRecordingHandler(self.transcription_service, self.notification_service)
         self.stop_recording_handler = StopRecordingHandler(
             self.transcription_service, self.notification_service, self.clipboard_service
@@ -184,8 +172,8 @@ class Container:
             self.llm_service, self.notification_service, self.clipboard_service
         )
 
-        # --- 3 instanciar y configurar el bus de comandos ---
-        # el bus de comandos se convierte en el punto de acceso central para
+        # --- 3. Instanciar y Configurar el Bus de Comandos ---
+        # El bus de comandos se convierte en el punto de acceso central para
         # ejecutar la lógica de negocio
         self.command_bus = CommandBus()
         self.command_bus.register(self.start_recording_handler)
@@ -194,36 +182,29 @@ class Container:
 
     def get_command_bus(self) -> CommandBus:
         """
-        proporciona acceso al commandbus configurado
+        Proporciona acceso al CommandBus configurado.
 
-        este es el punto de acceso principal para despachar comandos
-        el bus ya tiene todos los handlers registrados y está listo para usar
+        Este es el punto de acceso principal para despachar comandos.
+        El bus ya tiene todos los handlers registrados y está listo para usar.
 
-        returns:
-            la instancia única del commandbus con todos los handlers
-            registrados usar esta instancia para despachar comandos
-            desde cualquier parte de la aplicación
-
-        example
-            despachar un comando::
-
-                bus = container.get_command_bus()
-                await bus.dispatch(StartRecordingCommand())
+        Returns:
+            CommandBus: La instancia única del bus con todos los handlers
+            registrados.
         """
         return self.command_bus
 
     def _preload_models(self) -> None:
         """
-        precarga modelos de ml en background para reducir latencia del primer uso
+        Precarga modelos de ML en segundo plano para reducir latencia del primer uso.
 
-        ejecuta en threadpoolexecutor para no bloquear el event loop
-        la carga de whisper involucra
-        - descarga/verificación del modelo (~1-2gb)
-        - allocación de vram en gpu
-        - compilación de kernels cuda (primera vez)
+        Se ejecuta en ThreadPoolExecutor para no bloquear el event loop.
+        La carga de Whisper involucra:
+        - Descarga/verificación del modelo (~1-2GB).
+        - Asignación de VRAM en GPU.
+        - Compilación de kernels CUDA (primera vez).
         """
         try:
-            # precargar whisper (el más pesado)
+            # Precargar Whisper (el más pesado)
             _ = self.transcription_service.model
             logger.info("✅ whisper precargado correctamente")
         except Exception as e:
@@ -231,13 +212,13 @@ class Container:
 
     async def wait_for_warmup(self, timeout: float = 30.0) -> bool:
         """
-        espera a que los modelos terminen de cargar (async-safe)
+        Espera a que los modelos terminen de cargar (async-safe).
 
-        args:
-            timeout: tiempo máximo de espera en segundos
+        Args:
+            timeout: Tiempo máximo de espera en segundos.
 
-        returns:
-            true si la carga fue exitosa false si hubo timeout
+        Returns:
+            bool: True si la carga fue exitosa, False si hubo timeout.
         """
         loop = asyncio.get_event_loop()
         try:
@@ -248,7 +229,7 @@ class Container:
             return False
 
 
-# --- instancia global del contenedor ---
-# se crea una única instancia del contenedor que será accesible desde toda la
-# aplicación (principalmente desde `main.py`)
+# --- Instancia Global del Contenedor ---
+# Se crea una única instancia del contenedor que será accesible desde toda la
+# aplicación (principalmente desde `main.py`).
 container = Container()

@@ -14,18 +14,18 @@
 # along with voice2machine.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Main Entry Point for Voice2Machine.
+Punto de Entrada Principal para Voice2Machine.
 
-This module acts as a unified launcher that can operate in two modes:
+Este módulo actúa como un lanzador unificado que puede operar en dos modos:
 
-1. **Daemon Mode** (`--daemon`): Starts the persistent background process.
-2. **Client Mode** (`<COMMAND>`): Sends IPC commands to the running daemon.
+1. **Modo Demonio** (`--daemon`): Inicia el proceso persistente en segundo plano.
+2. **Modo Cliente** (`<COMANDO>`): Envía comandos IPC al demonio en ejecución.
 
-Examples:
-    Start the daemon:
+Ejemplos:
+    Iniciar el demonio:
         python -m v2m.main --daemon
 
-    Send commands:
+    Enviar comandos:
         python -m v2m.main START_RECORDING
         python -m v2m.main STOP_RECORDING
 """
@@ -41,26 +41,27 @@ from v2m.core.logging import logger
 
 def _setup_uvloop() -> None:
     """
-    Configures uvloop as the event loop if available.
+    Configura uvloop como el bucle de eventos si está disponible.
+    Optimiza el rendimiento de I/O asíncrono en sistemas *nix.
     """
     try:
         import uvloop
 
         uvloop.install()
-        logger.debug("uvloop enabled")
+        logger.debug("uvloop habilitado")
     except ImportError:
         pass
 
 
 def main() -> None:
     """
-    Main function processing arguments and executing the appropriate mode.
+    Función principal que procesa argumentos y ejecuta el modo apropiado.
     """
-    parser = argparse.ArgumentParser(description="Voice2Machine Main Entry Point")
+    parser = argparse.ArgumentParser(description="Punto de Entrada Principal de Voice2Machine")
 
-    parser.add_argument("--daemon", action="store_true", help="Start the daemon process in foreground")
-    parser.add_argument("command", nargs="?", choices=[e.value for e in IPCCommand], help="IPC command to send")
-    parser.add_argument("payload", nargs="*", help="Optional payload for the command")
+    parser.add_argument("--daemon", action="store_true", help="Iniciar el proceso demonio en primer plano")
+    parser.add_argument("command", nargs="?", choices=[e.value for e in IPCCommand], help="Comando IPC a enviar")
+    parser.add_argument("payload", nargs="*", help="Carga útil opcional para el comando")
 
     args = parser.parse_args()
 
@@ -69,11 +70,11 @@ def main() -> None:
 
         from v2m.daemon import Daemon
 
-        logger.info("starting voice2machine daemon...")
+        logger.info("iniciando demonio voice2machine...")
         daemon = Daemon()
         daemon.run()
     elif args.command:
-        # Client mode
+        # Modo Cliente
         try:
             full_command = args.command
             if args.payload:
@@ -82,7 +83,7 @@ def main() -> None:
             response = asyncio.run(send_command(full_command))
             print(response)
         except Exception as e:
-            print(f"error sending command: {e}", file=sys.stderr)
+            print(f"error enviando comando: {e}", file=sys.stderr)
             sys.exit(1)
     else:
         parser.print_help()

@@ -1,10 +1,10 @@
-//! V2M Engine - High-Performance Rust Extensions for Voice2Machine
+//! V2M Engine - Extensiones de Rust de Alto Rendimiento para Voice2Machine
 //!
-//! # Architecture (SOTA 2026)
-//! - Audio: Lock-Free SPSC Ring Buffer (ringbuf 0.4)
-//! - Resampling: Band-limited Sinc Interpolation (rubato 0.16)
-//! - VAD: WebRTC Voice Activity Detection
-//! - Monitoring: Native Syscalls (sysinfo 0.33)
+//! # Arquitectura (State of the Art 2026)
+//! - Audio: Búfer Circular Lock-Free SPSC (ringbuf 0.4).
+//! - Re-muestreo: Interpolación Sinc de banda limitada (rubato 0.16).
+//! - VAD: Detección de Actividad de Voz WebRTC.
+//! - Monitoreo: Llamadas al sistema nativas (sysinfo 0.33).
 
 use log::{error, info, warn};
 use numpy::{PyArray1, PyArrayMethods};
@@ -21,16 +21,16 @@ use sysinfo::System;
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 
 // ============================================================================
-// AUDIO RECORDER - Lock-Free Ring Buffer + High Quality Resampling
+// GRABADOR DE AUDIO (AUDIO RECORDER) - Lock-Free Ring Buffer + Re-muestreo
 // ============================================================================
 
 type RingProducer = ringbuf::HeapProd<f32>;
 type RingConsumer = ringbuf::HeapCons<f32>;
 
-/// AudioRecorder implementation in Rust using Lock-Free Ring Buffer.
+/// Implementación de AudioRecorder en Rust usando Búfer Circular Lock-Free.
 ///
-/// Uses CPAL for cross-platform audio capture and Rubato for high-quality
-/// sinc interpolation resampling to target sample rate (typically 16kHz for Whisper).
+/// Utiliza CPAL para captura de audio multiplataforma y Rubato para re-muestreo
+/// de alta calidad mediante interpolación sinc a la frecuencia objetivo (típicamente 16kHz para Whisper).
 #[pyclass(unsendable)]
 struct AudioRecorder {
     stream: Option<cpal::Stream>,
@@ -62,7 +62,7 @@ impl AudioRecorder {
     fn start(&mut self) -> PyResult<()> {
         if self.is_recording {
             return Err(pyo3::exceptions::PyRuntimeError::new_err(
-                "Recording already in progress",
+                "Grabación ya en curso",
             ));
         }
 
@@ -71,23 +71,23 @@ impl AudioRecorder {
             Some(d) => d,
             None => {
                 return Err(pyo3::exceptions::PyOSError::new_err(
-                    "No input device available",
+                    "No hay dispositivo de entrada disponible",
                 ))
             }
         };
 
-        // Get supported configs
+        // Obtener configuraciones soportadas
         let supported_configs = match device.supported_input_configs() {
             Ok(c) => c,
             Err(e) => {
                 return Err(pyo3::exceptions::PyOSError::new_err(format!(
-                    "Failed to query device configs: {}",
+                    "Fallo al consultar configuraciones del dispositivo: {}",
                     e
                 )))
             }
         };
 
-        // Select best config: prioritize channel match, resample if rate doesn't match
+        // Seleccionar mejor configuración: priorizar coincidencia de canales, re-muestrear si la tasa no coincide
         let best_config_range = supported_configs
             .into_iter()
             .filter(|c| c.channels() == self.channels)
@@ -108,18 +108,18 @@ impl AudioRecorder {
             }
             None => {
                 return Err(pyo3::exceptions::PyValueError::new_err(format!(
-                    "No supported config found for {} channels",
+                    "No se encontró configuración soportada para {} canales",
                     self.channels
                 )));
             }
         };
 
         info!(
-            "Starting recording: Requested={}Hz, Device={}Hz",
+            "Iniciando grabación: Solicitado={}Hz, Dispositivo={}Hz",
             self.requested_sample_rate, self.device_sample_rate
         );
 
-        // Allocate buffer (approx 10 mins at device rate)
+        // Asignar búfer (aprox. 10 minutos a la tasa del dispositivo)
         let buffer_size = (self.device_sample_rate * 60 * 10) as usize;
         let rb = HeapRb::<f32>::new(buffer_size);
         let (mut producer, consumer) = rb.split();
@@ -127,14 +127,14 @@ impl AudioRecorder {
         self.consumer = Some(consumer);
 
         let err_fn = move |err| {
-            error!("Audio stream error: {}", err);
+            error!("Error en flujo de audio: {}", err);
         };
 
         let stream = device
             .build_input_stream(
                 &config,
                 move |data: &[f32], _: &cpal::InputCallbackInfo| {
-                    // ringbuf 0.4 API: push_slice returns count, we ignore it (drop samples if full)
+                    // API ringbuf 0.4: push_slice devuelve conteo, lo ignoramos (descarta muestras si está lleno)
                     let _ = producer.push_slice(data);
                 },
                 err_fn,
@@ -142,13 +142,13 @@ impl AudioRecorder {
             )
             .map_err(|e| {
                 pyo3::exceptions::PyRuntimeError::new_err(format!(
-                    "Failed to build input stream: {}",
+                    "Fallo al construir flujo de entrada: {}",
                     e
                 ))
             })?;
 
         stream.play().map_err(|e| {
-            pyo3::exceptions::PyRuntimeError::new_err(format!("Failed to start stream: {}", e))
+            pyo3::exceptions::PyRuntimeError::new_err(format!("Fallo al iniciar flujo: {}", e))
         })?;
 
         self.stream = Some(stream);
@@ -159,7 +159,7 @@ impl AudioRecorder {
 
     fn stop<'py>(&mut self, py: Python<'py>) -> PyResult<Bound<'py, PyArray1<f32>>> {
         if !self.is_recording {
-            return Err(pyo3::exceptions::PyRuntimeError::new_err("Not recording"));
+            return Err(pyo3::exceptions::PyRuntimeError::new_err("No se está grabando"));
         }
 
         self.stream = None;
@@ -167,18 +167,18 @@ impl AudioRecorder {
 
         let mut raw_data = Vec::new();
         if let Some(mut consumer) = self.consumer.take() {
-            // ringbuf 0.4: use pop_iter()
+            // ringbuf 0.4: usar pop_iter() o try_pop()
             while let Some(sample) = consumer.try_pop() {
                 raw_data.push(sample);
             }
         }
 
-        // Resample if necessary
+        // Re-muestrear si es necesario
         let final_data = if self.device_sample_rate != self.requested_sample_rate
             && !raw_data.is_empty()
         {
             info!(
-                "Resampling from {}Hz to {}Hz",
+                "Re-muestrando de {}Hz a {}Hz",
                 self.device_sample_rate, self.requested_sample_rate
             );
 
@@ -196,15 +196,15 @@ impl AudioRecorder {
                 256.0,
                 params,
                 raw_data.len(),
-                1, // channels
+                1, // canales
             )
             .map_err(|e| {
-                pyo3::exceptions::PyRuntimeError::new_err(format!("Resampler init failed: {}", e))
+                pyo3::exceptions::PyRuntimeError::new_err(format!("Fallo init re-muestreador: {}", e))
             })?;
 
             let waves = vec![raw_data];
             let resampled_waves = resampler.process(&waves, None).map_err(|e| {
-                pyo3::exceptions::PyRuntimeError::new_err(format!("Resampling failed: {}", e))
+                pyo3::exceptions::PyRuntimeError::new_err(format!("Fallo al re-muestrear: {}", e))
             })?;
 
             resampled_waves[0].clone()
@@ -212,25 +212,25 @@ impl AudioRecorder {
             raw_data
         };
 
-        // PyO3 0.23: use PyArray1::from_vec_bound
+        // PyO3 0.23: usar PyArray1::from_vec_bound
         Ok(PyArray1::from_vec(py, final_data))
     }
 }
 
 // ============================================================================
-// VOICE ACTIVITY DETECTOR - WebRTC VAD (SOTA 2026)
+// DETECTOR DE ACTIVIDAD DE VOZ (VAD) - WebRTC VAD (SOTA 2026)
 // ============================================================================
 
-/// Voice Activity Detector using WebRTC algorithm.
+/// Detector de Actividad de Voz usando algoritmo WebRTC.
 ///
-/// WebRTC VAD is battle-tested (used in Chrome, Firefox) and provides
-/// low-latency speech detection without GPU/ONNX overhead.
+/// WebRTC VAD es robusto (usado en Chrome, Firefox) y provee
+/// detección de voz de baja latencia sin overhead de GPU/ONNX.
 ///
-/// Aggressiveness levels:
-/// - 0: Least aggressive (more false positives, fewer missed detections)
-/// - 1: Low aggressiveness
-/// - 2: Medium aggressiveness
-/// - 3: Most aggressive (fewer false positives, may miss quiet speech)
+/// Niveles de agresividad:
+/// - 0: Menos agresivo (más falsos positivos, menos detecciones perdidas)
+/// - 1: Agresividad baja
+/// - 2: Agresividad media
+/// - 3: Más agresivo (menos falsos positivos, puede perder voz baja)
 #[pyclass(unsendable)]
 struct VoiceActivityDetector {
     vad: webrtc_vad::Vad,
@@ -251,7 +251,7 @@ impl VoiceActivityDetector {
             48000 => webrtc_vad::SampleRate::Rate48kHz,
             _ => {
                 return Err(pyo3::exceptions::PyValueError::new_err(
-                    "Sample rate must be 8000, 16000, 32000, or 48000",
+                    "Tasa de muestreo debe ser 8000, 16000, 32000, o 48000",
                 ))
             }
         };
@@ -264,51 +264,51 @@ impl VoiceActivityDetector {
             3 => webrtc_vad::VadMode::VeryAggressive,
             _ => {
                 return Err(pyo3::exceptions::PyValueError::new_err(
-                    "Aggressiveness must be 0-3",
+                    "Agresividad debe ser 0-3",
                 ))
             }
         });
 
-        info!("VAD initialized: aggressiveness={}, rate={}Hz", aggressiveness, sample_rate);
+        info!("VAD inicializado: agresividad={}, tasa={}Hz", aggressiveness, sample_rate);
 
         Ok(VoiceActivityDetector { vad, sample_rate: sr })
     }
 
-    /// Check if a single frame contains speech.
+    /// Verifica si un solo frame contiene voz.
     ///
-    /// Frame must be exactly 10ms, 20ms, or 30ms of audio at the configured sample rate.
-    /// For 16kHz: 160, 320, or 480 samples.
+    /// El frame debe ser exactamente 10ms, 20ms, o 30ms de audio a la tasa configurada.
+    /// Para 16kHz: 160, 320, o 480 muestras.
     ///
     /// Args:
-    ///     frame: Audio frame as i16 samples (PCM 16-bit)
+    ///     frame: Frame de audio como muestras i16 (PCM 16-bit)
     ///
     /// Returns:
-    ///     True if speech detected, False otherwise
+    ///     True si se detecta voz, False en caso contrario
     fn is_speech(&mut self, frame: &Bound<'_, PyArray1<i16>>) -> PyResult<bool> {
         let slice = unsafe { frame.as_slice()? };
 
         match self.vad.is_voice_segment(slice) {
             Ok(result) => Ok(result),
             Err(e) => Err(pyo3::exceptions::PyValueError::new_err(format!(
-                "VAD error: {:?}. Frame must be 10/20/30ms (160/320/480 samples at 16kHz)",
+                "Error VAD: {:?}. Frame debe ser 10/20/30ms (160/320/480 muestras a 16kHz)",
                 e
             ))),
         }
     }
 
-    /// Process entire audio buffer and detect speech segments.
+    /// Procesa el búfer de audio completo y detecta segmentos de voz.
     ///
-    /// Scans through audio in 30ms frames and returns (start, end) indices
-    /// of continuous speech regions.
+    /// Escanea el audio en frames de 30ms y devuelve tuplas (inicio, fin)
+    /// de regiones de voz continua.
     ///
     /// Args:
-    ///     audio: Float32 audio samples normalized to [-1.0, 1.0]
-    ///     frame_ms: Frame duration in milliseconds (10, 20, or 30)
-    ///     min_speech_frames: Minimum consecutive speech frames to count as speech segment
-    ///     min_silence_frames: Minimum consecutive silence frames to end segment
+    ///     audio: Muestras de audio Float32 normalizadas a [-1.0, 1.0]
+    ///     frame_ms: Duración del frame en milisegundos (10, 20, o 30)
+    ///     min_speech_frames: Mínimo de frames de voz consecutivos para contar como segmento
+    ///     min_silence_frames: Mínimo de frames de silencio consecutivos para terminar segmento
     ///
     /// Returns:
-    ///     List of (start_sample, end_sample) tuples for speech regions
+    ///     Lista de tuplas (muestra_inicio, muestra_fin) para regiones de voz
     #[pyo3(signature = (audio, frame_ms=30, min_speech_frames=3, min_silence_frames=10))]
     fn detect_segments(
         &mut self,
@@ -326,16 +326,16 @@ impl VoiceActivityDetector {
 
         let frame_samples = (samples_per_sec * frame_ms / 1000) as usize;
 
-        // Validate frame size
+        // Validar tamaño de frame
         if frame_ms != 10 && frame_ms != 20 && frame_ms != 30 {
             return Err(pyo3::exceptions::PyValueError::new_err(
-                "frame_ms must be 10, 20, or 30",
+                "frame_ms debe ser 10, 20, o 30",
             ));
         }
 
         let audio_slice = unsafe { audio.as_slice()? };
 
-        // Convert f32 to i16
+        // Convertir f32 a i16
         let audio_i16: Vec<i16> = audio_slice
             .iter()
             .map(|&s| (s.clamp(-1.0, 1.0) * 32767.0) as i16)
@@ -361,7 +361,7 @@ impl VoiceActivityDetector {
                 speech_frame_count += 1;
 
                 if !in_speech && speech_frame_count >= min_speech_frames {
-                    // Speech segment started
+                    // Inicio de segmento de voz
                     in_speech = true;
                     speech_start = (frame_idx - min_speech_frames + 1) * frame_samples;
                 }
@@ -370,7 +370,7 @@ impl VoiceActivityDetector {
                     silence_frame_count += 1;
 
                     if silence_frame_count >= min_silence_frames {
-                        // Speech segment ended
+                        // Fin de segmento de voz
                         let speech_end = (frame_idx - min_silence_frames) * frame_samples;
                         if speech_end > speech_start {
                             segments.push((speech_start, speech_end));
@@ -384,18 +384,18 @@ impl VoiceActivityDetector {
             }
         }
 
-        // Handle case where audio ends during speech
+        // Manejar caso donde el audio termina durante voz
         if in_speech {
             segments.push((speech_start, audio_i16.len()));
         }
 
-        info!("VAD detected {} speech segments", segments.len());
+        info!("VAD detectó {} segmentos de voz", segments.len());
         Ok(segments)
     }
 
-    /// Filter audio to keep only speech segments.
+    /// Filtrar audio para mantener solo segmentos de voz.
     ///
-    /// Returns a new array containing only the speech portions of the input.
+    /// Retorna un nuevo array conteniendo solo las porciones de voz de la entrada.
     #[pyo3(signature = (audio, frame_ms=30))]
     fn filter_speech<'py>(
         &mut self,
@@ -413,9 +413,9 @@ impl VoiceActivityDetector {
         }
 
         if filtered.is_empty() {
-            warn!("VAD: No speech detected in audio");
+            warn!("VAD: No se detectó voz en el audio");
         } else {
-            info!("VAD: Kept {:.1}% of audio ({} -> {} samples)",
+            info!("VAD: Se mantuvo {:.1}% del audio ({} -> {} muestras)",
                   100.0 * filtered.len() as f32 / audio_slice.len() as f32,
                   audio_slice.len(), filtered.len());
         }
@@ -425,13 +425,13 @@ impl VoiceActivityDetector {
 }
 
 // ============================================================================
-// SYSTEM MONITOR - CPU/RAM/GPU Metrics
+// MONITOR DE SISTEMA - Métricas CPU/RAM/GPU
 // ============================================================================
 
-/// SystemMonitor implementation in Rust using sysinfo.
+/// Implementación de SystemMonitor en Rust usando sysinfo.
 ///
-/// Provides low-overhead system metrics collection via native syscalls,
-/// avoiding Python's GIL during metric gathering.
+/// Provee recolección de métricas de sistema con bajo overhead vía syscalls nativas,
+/// evitando el bloqueo por GIL de Python durante la recolección.
 #[pyclass]
 struct SystemMonitor {
     sys: System,
@@ -448,11 +448,11 @@ impl SystemMonitor {
         #[cfg(feature = "nvidia")]
         let nvml = match nvml_wrapper::Nvml::init() {
             Ok(n) => {
-                info!("NVML initialized for GPU monitoring");
+                info!("NVML inicializado para monitoreo de GPU");
                 Some(n)
             }
             Err(e) => {
-                warn!("NVML init failed (GPU temp unavailable): {:?}", e);
+                warn!("Fallo init NVML (temp GPU no disponible): {:?}", e);
                 None
             }
         };
@@ -484,8 +484,8 @@ impl SystemMonitor {
         self.sys.global_cpu_usage()
     }
 
-    /// Get GPU temperature in Celsius (requires nvidia feature).
-    /// Returns 0 if NVML is not available or fails.
+    /// Obtener temperatura de GPU en Celsius (requiere feature nvidia).
+    /// Retorna 0 si NVML no está disponible o falla.
     fn get_gpu_temp(&self) -> u32 {
         #[cfg(feature = "nvidia")]
         if let Some(ref nvml) = self.nvml {
@@ -500,7 +500,7 @@ impl SystemMonitor {
 }
 
 // ============================================================================
-// MODULE REGISTRATION
+// REGISTRO DE MÓDULO
 // ============================================================================
 
 #[pymodule]

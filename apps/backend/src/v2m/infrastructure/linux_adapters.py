@@ -13,6 +13,14 @@
 # You should have received a copy of the GNU General Public License
 # along with voice2machine.  If not, see <https://www.gnu.org/licenses/>.
 
+"""
+Adaptadores de Sistema para Linux.
+
+Implementaciones concretas de interfaces de sistema para entornos Linux,
+incluyendo detección automática de servidor de pantalla (X11 vs Wayland)
+y gestión del portapapeles.
+"""
+
 import os
 import shutil
 import subprocess
@@ -25,35 +33,38 @@ from v2m.core.logging import logger
 
 class LinuxClipboardAdapter(ClipboardInterface):
     """
-    Linux clipboard adapter using xclip or wl-clipboard.
-    Automatically detects X11 vs Wayland environments.
+    Adaptador de portapapeles para Linux usando xclip o wl-clipboard.
+
+    Detecta automáticamente el entorno gráfico (X11 vs Wayland) y selecciona
+    la herramienta de línea de comandos apropiada. Prioriza variables de
+    entorno, luego introspección de sesión vía loginctl.
     """
 
     def __init__(self):
-        """
-        Initializes the clipboard adapter and detects the environment.
-        """
+        """Inicializa el adaptador y detecta el entorno."""
         self._backend: str | None = None
         self._env: dict = {}
         self._detect_environment()
 
     def _find_xauthority(self) -> str | None:
         """
-        Locates the .Xauthority file.
+        Localiza el archivo .Xauthority necesario para X11.
+
+        Busca en ubicaciones estándar ($XAUTHORITY, home, /run/user).
 
         Returns:
-            The path to the .Xauthority file or None.
+            str | None: Ruta al archivo o None si no se encuentra.
         """
         if os.environ.get("XAUTHORITY"):
             return os.environ["XAUTHORITY"]
 
-        # Standard home location
+        # Ubicación estándar en home
         home = Path(os.environ.get("HOME", Path.home()))
         xauth = home / ".Xauthority"
         if xauth.exists():
             return str(xauth)
 
-        # /run/user/UID/gdm/Xauthority
+        # Ubicación en /run/user (común en GDM/systemd modernos)
         try:
             uid = os.getuid()
             run_user_auth = Path(f"/run/user/{uid}/gdm/Xauthority")
@@ -66,10 +77,14 @@ class LinuxClipboardAdapter(ClipboardInterface):
 
     def _detect_environment(self) -> None:
         """
-        Detects the graphical environment (Wayland vs X11).
-        Prioritizes environment variables, then falls back to loginctl.
+        Detecta el entorno gráfico (Wayland vs X11).
+
+        Estrategia:
+        1. Variables de Entorno (Prioridad más alta).
+        2. Introspección `loginctl` (Systemd/GDM).
+        3. Fallback a X11 predeterminado.
         """
-        # 1. Environment Variables (Highest Priority)
+        # 1. Variables de Entorno (Máxima Prioridad)
         if os.environ.get("WAYLAND_DISPLAY"):
             self._backend = "wayland"
             self._env = {"WAYLAND_DISPLAY": os.environ["WAYLAND_DISPLAY"]}
@@ -81,7 +96,7 @@ class LinuxClipboardAdapter(ClipboardInterface):
 
         # 2. loginctl (Systemd/GDM)
         if not shutil.which("loginctl"):
-            logger.warning("loginctl not found, cannot scavenge environment")
+            logger.warning("loginctl no encontrado, no se puede escanear entorno")
             self._default_fallback()
             return
 
@@ -113,36 +128,32 @@ class LinuxClipboardAdapter(ClipboardInterface):
                                 if xauth:
                                     self._env["XAUTHORITY"] = xauth
 
-                            logger.info(f"Environment detected via loginctl: {session_type} -> {display_val}")
+                            logger.info(f"entorno detectado vía loginctl: {session_type} -> {display_val}")
                             return
                     except subprocess.SubprocessError:
                         continue
 
         except Exception as e:
-            logger.warning(f"Environment detection failed: {e}")
+            logger.warning(f"falló la detección de entorno: {e}")
 
         # 3. Fallback
         self._default_fallback()
 
     def _default_fallback(self):
-        """Sets default X11 fallback configuration."""
-        logger.warning("No graphical display detected. Defaulting to X11 :0")
+        """Establece configuración predeterminada de fallback a X11."""
+        logger.warning("no se detectó pantalla gráfica, usando fallback x11 :0")
         self._backend = "x11"
         self._env = {"DISPLAY": ":0"}
 
     def _get_clipboard_commands(self) -> tuple[list, list]:
-        """
-        Returns copy and paste commands based on the backend.
-        """
+        """Devuelve los comandos de copiar y pegar según el backend."""
         if self._backend == "wayland":
             return (["wl-copy"], ["wl-paste"])
         else:  # x11
             return (["xclip", "-selection", "clipboard"], ["xclip", "-selection", "clipboard", "-out"])
 
     def copy(self, text: str) -> None:
-        """
-        Copies text to the clipboard.
-        """
+        """Copia texto al portapapeles."""
         if not text:
             return
         copy_cmd, _ = self._get_clipboard_commands()
@@ -158,24 +169,24 @@ class LinuxClipboardAdapter(ClipboardInterface):
             process.stdin.write(text.encode("utf-8"))
             process.stdin.close()
 
-            time.sleep(0.1)  # Short wait to ensure process starts
+            time.sleep(0.1)  # Pequeña espera para asegurar inicio
             exit_code = process.poll()
 
             if exit_code is not None and exit_code != 0:
                 stderr_out = process.stderr.read().decode()
-                logger.error(f"Clipboard process failed with code {exit_code}: {stderr_out}")
+                logger.error(f"proceso de portapapeles falló con código {exit_code}: {stderr_out}")
             else:
-                logger.debug("Text copied to clipboard")
+                logger.debug("texto copiado al portapapeles")
 
         except Exception as e:
-            logger.error(f"Failed to copy to clipboard: {e}")
+            logger.error(f"fallo al copiar al portapapeles: {e}")
 
     def paste(self) -> str:
         """
-        Retrieves text from the clipboard.
+        Recupera texto del portapapeles.
 
         Returns:
-            The clipboard content or an empty string if failed.
+            str: Contenido del portapapeles o cadena vacía si falla.
         """
         _, paste_cmd = self._get_clipboard_commands()
 
@@ -186,28 +197,30 @@ class LinuxClipboardAdapter(ClipboardInterface):
             result = subprocess.run(paste_cmd, capture_output=True, env=env, timeout=2)
 
             if result.returncode != 0:
-                logger.error(f"Clipboard paste failed: {result.stderr.decode('utf-8', errors='ignore')}")
+                logger.error(f"falló el pegado del portapapeles: {result.stderr.decode('utf-8', errors='ignore')}")
                 return ""
 
             return result.stdout.decode("utf-8", errors="ignore")
 
         except FileNotFoundError:
-            logger.error(f"Clipboard tool not found: {paste_cmd[0]}. Please install xclip or wl-clipboard.")
+            logger.error(
+                f"herramienta de portapapeles no encontrada: {paste_cmd[0]}. instale xclip o wl-clipboard."
+            )
             return ""
         except subprocess.TimeoutExpired:
-            logger.error("Clipboard paste operation timed out")
+            logger.error("operación de pegado agotó el tiempo de espera")
             return ""
         except Exception as e:
-            logger.error(f"Failed to paste from clipboard: {e}")
+            logger.error(f"fallo al pegar del portapapeles: {e}")
             return ""
 
 
 class LinuxNotificationAdapter(NotificationInterface):
     """
-    Linux notification adapter.
+    Adaptador de notificaciones para Linux.
 
-    Deprecated wrapper for backward compatibility.
-    Use `v2m.infrastructure.notification_service.LinuxNotificationService` directly.
+    Wrapper obsoleto para compatibilidad hacia atrás.
+    Use `v2m.infrastructure.notification_service.LinuxNotificationService` directamente.
     """
 
     def __init__(self) -> None:

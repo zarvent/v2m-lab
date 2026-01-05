@@ -14,61 +14,37 @@
 # along with voice2machine.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-EXCEPCIONES PERSONALIZADAS DEL DOMINIO DE VOICE2MACHINE
+Excepciones Personalizadas del Dominio de Voice2Machine.
 
-este módulo define la jerarquía de excepciones específicas de la aplicación
-estas excepciones representan errores de negocio semánticos que permiten un
-manejo de errores más granular y claro que las excepciones genéricas
+Este módulo define la jerarquía de excepciones específicas de la aplicación.
+Estas excepciones representan errores de negocio semánticos que permiten un
+manejo de errores más granular y claro, desacoplado de las excepciones
+técnicas de la infraestructura.
 
-JERARQUÍA DE EXCEPCIONES
-    ::
+Jerarquía de Excepciones:
+    ```
+    Exception
+    └── ApplicationError (Base)
+        ├── MicrophoneNotFoundError
+        ├── RecordingError
+        ├── TranscriptionError
+        └── LLMError
+    ```
 
-        Exception
-        └── ApplicationError base para todas las excepciones de v2m
-            ├── MicrophoneNotFoundError
-            ├── RecordingError
-            ├── TranscriptionError
-            └── LLMError
-
-BENEFICIOS DE EXCEPCIONES PERSONALIZADAS
-    - **granularidad** manejo diferenciado por tipo de error
-    - **semántica** los nombres describen el problema de negocio
-    - **encapsulamiento** no filtran detalles de infraestructura
-    - **captura grupal** ``except ApplicationError`` captura todos
-
-EXAMPLE
-    manejo de errores en un handler::
-
-        from v2m.domain.errors import TranscriptionError, LLMError
-
-        try:
-            transcription = service.transcribe(audio)
-        except TranscriptionError as e:
-            logger.error(f"fallo en transcripción: {e}")
-            notification.notify("❌ error", "no se pudo transcribir")
+Beneficios:
+    - **Granularidad**: Manejo diferenciado por tipo de error de negocio.
+    - **Semántica**: Los nombres describen el problema funcional, no técnico.
+    - **Encapsulamiento**: Evita filtrar detalles de implementación (como `OSError` de PortAudio) a capas superiores.
 """
 
 
 class ApplicationError(Exception):
     """
-    CLASE BASE PARA TODAS LAS EXCEPCIONES PERSONALIZADAS DE LA APLICACIÓN
+    Clase base para todas las excepciones de dominio de la aplicación.
 
-    heredar de una clase base común permite capturar todos los errores de
-    negocio conocidos con un solo bloque ``except ApplicationError``
-    mientras se dejan pasar errores inesperados del sistema
-
-    EXAMPLE
-        captura genérica de errores de aplicación::
-
-            try:
-                await handler.execute(command)
-            except ApplicationError as e:
-                # error conocido de negocio
-                return f"error: {e}"
-            except Exception as e:
-                # error inesperado del sistema
-                logger.critical(f"error no manejado: {e}")
-                raise
+    Heredar de una clase base común permite capturar todos los errores de
+    negocio conocidos con un solo bloque `except ApplicationError`, diferenciándolos
+    de errores inesperados del sistema (bugs, crash).
     """
 
     pass
@@ -76,21 +52,15 @@ class ApplicationError(Exception):
 
 class MicrophoneNotFoundError(ApplicationError):
     """
-    EXCEPCIÓN LANZADA CUANDO NO SE DETECTA NINGÚN MICRÓFONO FUNCIONAL
+    Excepción lanzada cuando no se detecta ningún micrófono funcional.
 
-    esta excepción indica que el dispositivo de grabación de audio por defecto
-    no está disponible no está conectado o no está configurado correctamente
-    en el sistema operativo
+    Indica que el dispositivo de entrada de audio predeterminado no está
+    disponible o accesible.
 
-    CAUSAS COMUNES
-        - micrófono usb desconectado
-        - permisos insuficientes para acceder al dispositivo de audio
-        - dispositivo de entrada por defecto mal configurado en pulseaudio alsa
-        - driver de audio no cargado
-
-    SOLUCIÓN SUGERIDA
-        verificar con ``pactl list sources`` o ``arecord -l`` que el
-        micrófono esté visible para el sistema
+    Causas comunes:
+        - Micrófono desconectado.
+        - Permisos insuficientes (Linux/PulseAudio).
+        - Configuración de sistema errónea.
     """
 
     pass
@@ -98,20 +68,14 @@ class MicrophoneNotFoundError(ApplicationError):
 
 class RecordingError(ApplicationError):
     """
-    EXCEPCIÓN LANZADA CUANDO OCURRE UN ERROR DURANTE LA GRABACIÓN DE AUDIO
+    Excepción lanzada cuando ocurre un error durante el proceso de grabación.
 
-    cubre errores relacionados con la captura de audio desde el inicio
-    de la grabación hasta la obtención de los datos del buffer
+    Cubre el ciclo de vida de la captura: inicio, flujo de datos y detención.
 
-    CAUSAS COMUNES
-        - intento de iniciar una grabación cuando ya hay una en progreso
-        - intento de detener cuando no hay grabación activa
-        - fallo del stream de sounddevice
-        - buffer de audio vacío grabación de duración cero
-        - permisos de acceso al dispositivo de audio revocados
-
-    ATRIBUTOS HEREDADOS
-        args[0] mensaje descriptivo del error específico
+    Causas comunes:
+        - Intento de iniciar grabación concurrente.
+        - Fallo del stream de audio (buffer overflow/underflow).
+        - Buffer vacío (grabación de duración cero).
     """
 
     pass
@@ -119,22 +83,14 @@ class RecordingError(ApplicationError):
 
 class TranscriptionError(ApplicationError):
     """
-    EXCEPCIÓN LANZADA CUANDO FALLA EL PROCESO DE TRANSCRIPCIÓN
+    Excepción lanzada cuando falla el proceso de transcripción (Whisper).
 
-    indica un problema durante la conversión de audio a texto usando el
-    modelo whisper el audio ya fue capturado exitosamente pero no pudo
-    ser procesado
+    Indica que el audio fue capturado pero la inferencia falló.
 
-    CAUSAS COMUNES
-        - modelo whisper corrupto o no descargado completamente
-        - memoria gpu insuficiente para cargar el modelo
-        - formato de audio inválido o corrupto
-        - error de ctranslate2 cuda durante la inferencia
-        - timeout en la transcripción audio demasiado largo
-
-    DIAGNÓSTICO
-        verificar logs para el mensaje de error específico de faster-whisper
-        o ctranslate2
+    Causas comunes:
+        - Modelo corrupto o no encontrado.
+        - Memoria VRAM insuficiente (OOM).
+        - Error en kernels CUDA (ctranslate2).
     """
 
     pass
@@ -142,26 +98,15 @@ class TranscriptionError(ApplicationError):
 
 class LLMError(ApplicationError):
     """
-    EXCEPCIÓN LANZADA CUANDO HAY UN ERROR EN LA COMUNICACIÓN CON EL LLM
+    Excepción lanzada cuando falla la comunicación o inferencia con el LLM.
 
-    encapsula errores relacionados con el servicio de modelo de lenguaje
-    actualmente google gemini incluyendo problemas de red autenticación
-    y límites de uso
+    Encapsula errores de proveedores externos (Gemini) o locales (Ollama/Llama).
 
-    CAUSAS COMUNES
-        - api key inválida expirada o sin permisos
-        - error de red o timeout en la conexión
-        - rate limiting demasiadas solicitudes
-        - respuesta vacía o malformada del servicio
-        - servicio de gemini no disponible
-
-    NOTE
-        el sistema tiene un fallback que si falla el llm copia el texto
-        original sin refinar al portapapeles
-
-    DIAGNÓSTICO
-        verificar que ``gemini_api_key`` esté correctamente configurada en
-        el archivo ``.env`` y que la cuenta tenga créditos disponibles
+    Causas comunes:
+        - API Key inválida o cuota excedida.
+        - Errores de red o timeout.
+        - Respuesta malformada o vacía.
+        - Servicio local no disponible.
     """
 
     pass

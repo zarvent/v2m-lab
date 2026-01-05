@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "voice2machine"
 version = "0.1.0"
-description = "State-of-the-art Voice to Machine Interface"
+description = "Interfaz de Voz a Máquina de última generación (SOTA)"
 requires-python = ">=3.12"
 dependencies = [
     "faster-whisper",
@@ -21,7 +21,7 @@ dependencies = [
 ]
 
 [tool.ruff]
-# Enable modern python rules
+# Habilitar reglas modernas de Python
 target-version = "py312"
 line-length = 120
 
@@ -32,10 +32,10 @@ select = [
     "F",   # pyflakes
     "I",   # isort
     "B",   # flake8-bugbear
-    "UP",  # pyupgrade (upgrade syntax to match python version)
+    "UP",  # pyupgrade (actualizar sintaxis)
     "N",   # pep8-naming
     "SIM", # flake8-simplify
-    "RUF", # ruff specific rules
+    "RUF", # reglas específicas de ruff
 ]
 ignore = []
 

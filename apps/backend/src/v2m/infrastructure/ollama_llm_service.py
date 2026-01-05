@@ -14,17 +14,17 @@
 # along with voice2machine.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Ollama LLM Service with Structured Outputs (SOTA 2026).
+Servicio LLM Ollama con Salidas Estructuradas (State of the Art 2026).
 
-This module implements the LLMService interface using Ollama as the backend.
-It leverages structured outputs via JSON schema to ensure reliable, parseable
-responses for text refinement tasks.
+Este módulo implementa la interfaz `LLMService` utilizando Ollama como backend.
+Aprovecha las salidas estructuradas mediante JSON schema para garantizar
+respuestas fiables y analizables para tareas de refinamiento de texto.
 
-Key features:
-- AsyncClient for non-blocking inference
-- format=JSON schema forces valid structured responses
-- options.keep_alive for VRAM management on consumer GPUs
-- tenacity retry for resilience against transient failures
+Características clave:
+- `AsyncClient` para inferencia no bloqueante.
+- `format=JSON schema` fuerza respuestas estructuradas válidas.
+- `options.keep_alive` gestiona la carga de VRAM en GPUs de consumidor.
+- Reintentos con `tenacity` para resiliencia contra fallos transitorios.
 """
 
 from __future__ import annotations
@@ -42,33 +42,27 @@ from v2m.domain.ports import CorrectionResult
 
 class OllamaLLMService(LLMService):
     """
-    LLM Service using Ollama with Structured Outputs.
+    Servicio LLM utilizando Ollama con Salidas Estructuradas.
 
-    Implements the LLMService interface for text refinement using local
-    Ollama models. Uses JSON schema constraints (format parameter) to
-    guarantee parseable responses.
+    Implementa la interfaz `LLMService` para el refinamiento de texto utilizando
+    modelos locales de Ollama. Utiliza restricciones de JSON schema (parámetro `format`)
+    para garantizar respuestas parseables.
 
-    Attributes:
-        system_prompt: System instruction for the model.
-
-    Example:
-        Basic usage::
-
-            service = OllamaLLMService()
-            result = await service.process_text("texto a corregir")
+    Atributos:
+        system_prompt: Instrucción del sistema para el modelo.
     """
 
     def __init__(self) -> None:
-        """Initialize the Ollama LLM Service."""
+        """Inicializa el servicio LLM de Ollama."""
         self._config = config.llm.ollama
         self._client = AsyncClient(host=self._config.host)
 
-        # Load system prompt
+        # Cargar prompt del sistema
         prompt_path = BASE_DIR / "prompts" / "refine_system.txt"
         try:
             self.system_prompt = prompt_path.read_text(encoding="utf-8")
         except FileNotFoundError:
-            logger.warning("system prompt not found, using default")
+            logger.warning("prompt del sistema no encontrado, usando valor por defecto")
             self.system_prompt = "Eres un editor experto. Corrige gramática y coherencia del texto."
 
     @retry(
@@ -79,19 +73,19 @@ class OllamaLLMService(LLMService):
     )
     async def process_text(self, text: str) -> str:
         """
-        Process text using Ollama with Structured Outputs.
+        Procesa texto utilizando Ollama con Salidas Estructuradas.
 
-        Uses the format parameter with a JSON schema derived from the
-        CorrectionResult Pydantic model to force valid, structured responses.
+        Utiliza el parámetro `format` con un esquema JSON derivado del modelo
+        Pydantic `CorrectionResult` para forzar respuestas estructuradas válidas.
 
         Args:
-            text: The text to process/refine.
+            text: El texto a procesar/refinar.
 
         Returns:
-            The corrected text extracted from the structured response.
+            str: El texto corregido extraído de la respuesta estructurada.
 
         Raises:
-            LLMError: If Ollama connection fails or response is invalid.
+            LLMError: Si la conexión a Ollama falla o la respuesta es inválida.
         """
         try:
             logger.info(f"procesando texto con ollama ({self._config.model})...")
@@ -109,14 +103,14 @@ class OllamaLLMService(LLMService):
                 },
             )
 
-            # Parse structured JSON response
+            # Parsear respuesta JSON estructurada
             result = CorrectionResult.model_validate_json(response.message.content)
             logger.info("✅ procesamiento con ollama completado")
             return result.corrected_text
 
         except httpx.ConnectError as e:
             logger.error(f"no se pudo conectar a ollama en {self._config.host}: {e}")
-            raise LLMError(f"ollama no disponible en {self._config.host}") from e
+            raise LLMError(f"Ollama no disponible en {self._config.host}") from e
         except Exception as e:
             logger.error(f"error procesando texto con ollama: {e}")
             raise LLMError(f"falló el procesamiento con ollama: {e}") from e
@@ -129,17 +123,17 @@ class OllamaLLMService(LLMService):
     )
     async def translate_text(self, text: str, target_lang: str) -> str:
         """
-        Translate text using Ollama.
+        Traduce texto utilizando Ollama.
 
         Args:
-            text: The text to translate.
-            target_lang: Target language code.
+            text: El texto a traducir.
+            target_lang: Código de idioma destino.
 
         Returns:
-            The translated text.
+            str: El texto traducido.
 
         Raises:
-            LLMError: If translation fails.
+            LLMError: Si la traducción falla.
         """
         try:
             logger.info(f"traduciendo texto a {target_lang} con ollama...")

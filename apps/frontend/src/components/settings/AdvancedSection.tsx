@@ -31,20 +31,20 @@ export const AdvancedSection: React.FC = () => {
       {/* COMPUTE TYPE */}
       <div className="form-group">
         <label className="label" htmlFor="compute-type">
-          precisión de cómputo (quantization)
+          Precisión de Cómputo (Cuantización)
         </label>
         <p className="form-hint">
-          afecta el uso de vram y la velocidad (int8 es más ligero pero
-          ligeramente menos preciso)
+          Afecta el uso de VRAM y la velocidad. 'int8' es más ligero pero
+          ligeramente menos preciso que 'float16'.
         </p>
         <select
           id="compute-type"
           className="select"
           {...register("whisper.compute_type")}
         >
-          <option value="float16">float16 (alta calidad, mayor vram)</option>
-          <option value="int8_float16">int8_float16 (balanceado)</option>
-          <option value="int8">int8 (rápido, menor vram)</option>
+          <option value="float16">float16 (Alta calidad, mayor VRAM)</option>
+          <option value="int8_float16">int8_float16 (Balanceado)</option>
+          <option value="int8">int8 (Rápido, menor VRAM)</option>
         </select>
       </div>
 
@@ -54,10 +54,10 @@ export const AdvancedSection: React.FC = () => {
       <div className="form-group form-group--row">
         <div>
           <label className="label" htmlFor="vad-filter">
-            filtro de silencio (vad)
+            Filtro de Silencio (VAD)
           </label>
           <p className="form-hint">
-            elimina segmentos de audio sin voz antes de transcribir
+            Elimina segmentos de audio sin voz antes de transcribir para reducir alucinaciones.
           </p>
         </div>
         <label className="toggle-switch">
@@ -75,11 +75,11 @@ export const AdvancedSection: React.FC = () => {
       {/* MAX TOKENS */}
       <div className="form-group">
         <label className="label" htmlFor="max-tokens">
-          máximo de tokens (llm local)
+          Máximo de Tokens (LLM Local)
         </label>
         <p className="form-hint">
-          longitud máxima de la respuesta generada (valores altos pueden
-          ralentizar)
+          Longitud máxima de la respuesta generada. Valores muy altos pueden
+          aumentar la latencia.
         </p>
         <input
           id="max-tokens"

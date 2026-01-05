@@ -14,32 +14,43 @@
 # along with voice2machine.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-MÓDULO QUE DEFINE LA INTERFAZ PARA LOS SERVICIOS DE MODELOS DE LENGUAJE GRANDES LLM
+Protocolo de Servicio de Modelos de Lenguaje (LLM).
 
-esta clase abstracta define el contrato que cualquier servicio de llm debe
-cumplir para ser utilizado por la aplicación la capa de aplicación depende de
-esta abstracción no de una implementación concreta como `geminillmservice`
+Define la interfaz (Protocol) para interactuar con proveedores de LLM
+(Gemini, Ollama, Local). Garantiza que cualquier backend de LLM cumpla
+con las operaciones requeridas por los casos de uso de la aplicación.
 """
 
-from abc import ABC, abstractmethod
+from typing import Protocol, runtime_checkable
 
 
-class LLMService(ABC):
+@runtime_checkable
+class LLMService(Protocol):
     """
-    CLASE BASE ABSTRACTA PARA LOS SERVICIOS DE MODELOS DE LENGUAJE
-
-    define las operaciones que se pueden realizar con un llm como procesar texto
+    Protocolo para servicios de procesamiento de lenguaje natural.
     """
 
-    @abstractmethod
     async def process_text(self, text: str) -> str:
         """
-        PROCESA Y REFINA UN BLOQUE DE TEXTO UTILIZANDO EL LLM
+        Procesa y refina un bloque de texto (ej. corrección gramatical).
 
-        ARGS:
-            text: el texto de entrada a procesar
+        Args:
+            text: El texto original.
 
-        RETURNS:
-            el texto procesado y refinado por el llm
+        Returns:
+            str: El texto procesado/refinado.
         """
-        raise NotImplementedError
+        ...
+
+    async def translate_text(self, text: str, target_lang: str) -> str:
+        """
+        Traduce un bloque de texto al idioma especificado.
+
+        Args:
+            text: El texto original.
+            target_lang: Código de idioma destino (ej. "en", "fr").
+
+        Returns:
+            str: El texto traducido.
+        """
+        ...

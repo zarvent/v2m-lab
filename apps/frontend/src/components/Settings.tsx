@@ -1,14 +1,15 @@
 import React from "react";
 import { SettingsModal } from "./settings/SettingsModal";
 
-// Re-export interface for compatibility if used elsewhere, though usually just the component is used.
 interface SettingsProps {
   onClose: () => void;
 }
 
 /**
- * Settings Entry Point.
- * Wraps the new modular SettingsModal.
+ * Punto de Entrada de Configuración.
+ *
+ * Envuelve el componente modular `SettingsModal`.
+ * Actúa como una fachada para el sistema de configuración del frontend.
  */
 export const Settings: React.FC<SettingsProps> = (props) => {
   return <SettingsModal {...props} />;

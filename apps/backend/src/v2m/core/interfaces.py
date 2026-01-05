@@ -14,142 +14,64 @@
 # along with voice2machine.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-interfaces abstractas para los adaptadores del sistema
+Interfaces (Protocolos) para los adaptadores del sistema.
 
-este módulo define las interfaces (puertos) que deben implementar los
-adaptadores de infraestructura para interactuar con el sistema operativo
-siguiendo el principio de inversión de dependencias la capa de aplicación
-depende de estas abstracciones y no de implementaciones concretas
+Este módulo define los contratos que deben cumplir los adaptadores de infraestructura
+para interactuar con el sistema operativo (Clipboard, Notificaciones).
+Siguiendo las mejores prácticas de 2026, utilizamos `typing.Protocol` para definir
+estas interfaces, permitiendo un tipado estructural flexible y desacoplado.
 
-interfaces definidas
-    - ``ClipboardInterface`` operaciones del portapapeles del sistema
-    - ``NotificationInterface`` envío de notificaciones al escritorio
-
-patrón utilizado
-    estas interfaces forman parte del patrón ports and adapters (hexagonal)
-    los puertos están aquí y los adaptadores están en
-    ``infrastructure/linux_adapters.py``
-
-example
-    inyección de dependencias en un handler::
-
-        class MyHandler:
-            def __init__(self, clipboard: ClipboardInterface):
-                self.clipboard = clipboard
-
-            def execute(self, text: str):
-                self.clipboard.copy(text)
+Interfaces definidas:
+    - ``ClipboardInterface``: Operaciones del portapapeles.
+    - ``NotificationInterface``: Envío de notificaciones al escritorio.
 """
 
-from abc import ABC, abstractmethod
+from typing import Protocol, runtime_checkable
 
 
-class ClipboardInterface(ABC):
+@runtime_checkable
+class ClipboardInterface(Protocol):
     """
-    interfaz abstracta para operaciones del portapapeles del sistema
+    Protocolo para operaciones del portapapeles del sistema.
 
-    define el contrato que deben cumplir los adaptadores de portapapeles
-    para diferentes sistemas operativos o entornos gráficos (x11 wayland)
-
-    esta interfaz permite desacoplar la lógica de negocio de la implementación
-    específica del portapapeles facilitando pruebas unitarias y portabilidad
-
-    example
-        implementación mock para pruebas::
-
-            class MockClipboard(ClipboardInterface):
-                def __init__(self):
-                    self._content = ""
-
-                def copy(self, text: str) -> None:
-                    self._content = text
-
-                def paste(self) -> str:
-                    return self._content
+    Define el contrato estructural para cualquier adaptador que gestione
+    el portapapeles (X11, Wayland, Windows, macOS).
     """
 
-    @abstractmethod
     def copy(self, text: str) -> None:
         """
-        copia el texto proporcionado al portapapeles del sistema
+        Copia el texto proporcionado al portapapeles del sistema.
 
-        el texto se almacena en el portapapeles y estará disponible para
-        pegar en cualquier aplicación hasta que sea reemplazado por otro
-        contenido
-
-        args:
-            text: el texto a copiar al portapapeles debe ser una cadena
-                válida las cadenas vacías pueden ser ignoradas por algunas
-                implementaciones
-
-        note:
-            la implementación debe manejar correctamente caracteres unicode
-            y saltos de línea
+        Args:
+            text: El texto a copiar.
         """
-        pass
+        ...
 
-    @abstractmethod
     def paste(self) -> str:
         """
-        obtiene el contenido actual del portapapeles del sistema
+        Obtiene el contenido actual del portapapeles del sistema.
 
-        lee y retorna el texto actualmente almacenado en el portapapeles
-        si el portapapeles contiene datos no textuales (imágenes archivos)
-        el comportamiento depende de la implementación
-
-        returns:
-            el texto contenido en el portapapeles retorna una cadena vacía
-            si el portapapeles está vacío o contiene datos no textuales
-
-        raises:
-            puede lanzar excepciones específicas de la implementación si
-            hay problemas de acceso al portapapeles del sistema
+        Returns:
+            str: El texto contenido en el portapapeles.
         """
-        pass
+        ...
 
 
-class NotificationInterface(ABC):
+@runtime_checkable
+class NotificationInterface(Protocol):
     """
-    interfaz abstracta para el sistema de notificaciones del escritorio
+    Protocolo para el sistema de notificaciones del escritorio.
 
-    define el contrato para enviar notificaciones visuales al usuario
-    las implementaciones pueden utilizar diferentes backends según el
-    entorno (notify-send en linux toast en windows etc)
-
-    las notificaciones son utilizadas para informar al usuario sobre el
-    estado de las operaciones (grabación iniciada transcripción completada
-    errores etc)
-
-    example
-        implementación mock para pruebas::
-
-            class MockNotification(NotificationInterface):
-                def __init__(self):
-                    self.notifications = []
-
-                def notify(self, title: str, message: str) -> None:
-                    self.notifications.append((title, message))
+    Define el contrato estructural para cualquier adaptador que envíe
+    alertas visuales al usuario.
     """
 
-    @abstractmethod
     def notify(self, title: str, message: str) -> None:
         """
-        envía una notificación visual al escritorio del usuario
+        Envía una notificación visual al escritorio del usuario.
 
-        muestra un mensaje emergente utilizando el sistema de notificaciones
-        del entorno de escritorio la notificación aparece brevemente y
-        luego desaparece automáticamente
-
-        args:
-            title: el título de la notificación debe ser breve y descriptivo
-                ejemplos "grabando" "copiado" "error"
-            message: el cuerpo del mensaje de la notificación puede incluir
-                más detalles sobre la operación se recomienda limitar a
-                80-100 caracteres para mejor legibilidad
-
-        note:
-            las implementaciones deben manejar silenciosamente los errores
-            (ej si notify-send no está instalado) para no interrumpir
-            el flujo principal de la aplicación
+        Args:
+            title: El título de la notificación.
+            message: El cuerpo del mensaje.
         """
-        pass
+        ...

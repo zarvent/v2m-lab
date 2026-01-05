@@ -2,7 +2,7 @@ import React, { useState, useCallback, useMemo, useEffect } from "react";
 import { CopyIcon, TrashIcon, CodeIcon } from "../assets/Icons";
 import { COPY_FEEDBACK_DURATION_MS } from "../constants";
 
-/** Snippet item stored in localStorage */
+/** Ítem de fragmento almacenado en localStorage */
 export interface SnippetItem {
   id: string;
   timestamp: number;
@@ -15,19 +15,19 @@ const SNIPPETS_STORAGE_KEY = "v2m_snippets_v1";
 const MAX_SNIPPETS = 100;
 
 interface SnippetsLibraryProps {
-  /** Callback when user wants to use a snippet in Studio */
+  /** Callback cuando el usuario quiere usar un fragmento en el Studio */
   onUseSnippet?: (text: string) => void;
 }
 
 /**
- * SnippetsLibrary - Saved fragments collection.
+ * SnippetsLibrary - Colección de fragmentos guardados.
  *
- * Manages snippets saved by the user from the Studio:
- * - View all saved snippets
- * - Search and filter
- * - Edit title
- * - Copy or delete snippets
- * - Use in Studio
+ * Gestiona los fragmentos guardados por el usuario desde el Studio:
+ * - Ver todos los fragmentos guardados
+ * - Buscar y filtrar
+ * - Editar título
+ * - Copiar o eliminar fragmentos
+ * - Usar en Studio
  */
 export const SnippetsLibrary: React.FC<SnippetsLibraryProps> = React.memo(
   ({ onUseSnippet }) => {
@@ -38,7 +38,7 @@ export const SnippetsLibrary: React.FC<SnippetsLibraryProps> = React.memo(
     const [searchQuery, setSearchQuery] = useState("");
     const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
-    // Load snippets from localStorage on mount
+    // Cargar fragmentos de localStorage al montar
     useEffect(() => {
       try {
         const saved = localStorage.getItem(SNIPPETS_STORAGE_KEY);
@@ -46,17 +46,17 @@ export const SnippetsLibrary: React.FC<SnippetsLibraryProps> = React.memo(
           setSnippets(JSON.parse(saved));
         }
       } catch (e) {
-        console.error("Failed to load snippets from localStorage:", e);
+        console.error("Fallo al cargar fragmentos de localStorage:", e);
       }
     }, []);
 
-    // Save snippets to localStorage
+    // Guardar fragmentos en localStorage
     const saveSnippets = useCallback((newSnippets: SnippetItem[]) => {
       setSnippets(newSnippets);
       localStorage.setItem(SNIPPETS_STORAGE_KEY, JSON.stringify(newSnippets));
     }, []);
 
-    // Filter snippets based on search query
+    // Filtrar fragmentos basado en la búsqueda
     const filteredSnippets = useMemo(() => {
       if (!searchQuery.trim()) return snippets;
       const query = searchQuery.toLowerCase();
@@ -109,7 +109,7 @@ export const SnippetsLibrary: React.FC<SnippetsLibraryProps> = React.memo(
       [onUseSnippet]
     );
 
-    // Close delete confirmation on Escape
+    // Cerrar confirmación de eliminación con Escape
     useEffect(() => {
       const handleKeyDown = (e: KeyboardEvent) => {
         if (e.key === "Escape") {
@@ -127,10 +127,10 @@ export const SnippetsLibrary: React.FC<SnippetsLibraryProps> = React.memo(
           <div className="empty-icon">
             <CodeIcon />
           </div>
-          <h3>No snippets saved</h3>
+          <h3>No hay fragmentos guardados</h3>
           <p>
-            Save transcriptions from the Studio to build your snippet library.
-            Use the "Save" button after recording to save a snippet.
+            Guarda transcripciones desde el Studio para construir tu biblioteca.
+            Usa el botón "Guardar" después de grabar para crear un fragmento.
           </p>
         </div>
       );
@@ -138,22 +138,22 @@ export const SnippetsLibrary: React.FC<SnippetsLibraryProps> = React.memo(
 
     return (
       <div className="snippets-container">
-        {/* Search Bar */}
+        {/* Barra de Búsqueda */}
         <div className="snippets-search">
           <input
             type="text"
-            placeholder="Search snippets..."
+            placeholder="Buscar fragmentos..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="search-input"
-            aria-label="Search snippets"
+            aria-label="Buscar fragmentos"
           />
           <span className="search-count">
-            {filteredSnippets.length} of {snippets.length}
+            {filteredSnippets.length} de {snippets.length}
           </span>
         </div>
 
-        {/* Snippets Grid */}
+        {/* Rejilla de Fragmentos */}
         <div className="snippets-grid">
           {filteredSnippets.map((item) => {
             const isCopied = copiedId === item.id;
@@ -162,7 +162,7 @@ export const SnippetsLibrary: React.FC<SnippetsLibraryProps> = React.memo(
 
             return (
               <div key={item.id} className="snippet-card">
-                {/* Card Header */}
+                {/* Cabecera de la Tarjeta */}
                 <div className="snippet-header">
                   {isEditing ? (
                     <input
@@ -180,7 +180,7 @@ export const SnippetsLibrary: React.FC<SnippetsLibraryProps> = React.memo(
                     <h3
                       className="snippet-title"
                       onClick={() => handleStartEdit(item)}
-                      title="Click to edit title"
+                      title="Clic para editar título"
                     >
                       {item.title}
                     </h3>
@@ -190,7 +190,7 @@ export const SnippetsLibrary: React.FC<SnippetsLibraryProps> = React.memo(
                   </span>
                 </div>
 
-                {/* Card Content */}
+                {/* Contenido de la Tarjeta */}
                 <div className="snippet-content">
                   <p className="snippet-preview">
                     {item.text.slice(0, 150)}
@@ -198,7 +198,7 @@ export const SnippetsLibrary: React.FC<SnippetsLibraryProps> = React.memo(
                   </p>
                 </div>
 
-                {/* Card Actions */}
+                {/* Acciones de la Tarjeta */}
                 <div className="snippet-actions">
                   {isEditing ? (
                     <>
@@ -206,23 +206,23 @@ export const SnippetsLibrary: React.FC<SnippetsLibraryProps> = React.memo(
                         className="btn-snippet-action"
                         onClick={handleSaveEdit}
                       >
-                        Save
+                        Guardar
                       </button>
                       <button
                         className="btn-snippet-action"
                         onClick={handleCancelEdit}
                       >
-                        Cancel
+                        Cancelar
                       </button>
                     </>
                   ) : isDeleteConfirm ? (
                     <>
-                      <span className="delete-confirm-text">Delete?</span>
+                      <span className="delete-confirm-text">¿Borrar?</span>
                       <button
                         className="btn-snippet-action btn-danger"
                         onClick={() => handleDelete(item.id)}
                       >
-                        Yes
+                        Sí
                       </button>
                       <button
                         className="btn-snippet-action"
@@ -236,24 +236,24 @@ export const SnippetsLibrary: React.FC<SnippetsLibraryProps> = React.memo(
                       <button
                         className="btn-snippet-action"
                         onClick={() => handleCopy(item)}
-                        aria-label="Copy snippet"
+                        aria-label="Copiar fragmento"
                       >
                         <CopyIcon />
-                        <span>{isCopied ? "Copied!" : "Copy"}</span>
+                        <span>{isCopied ? "¡Copiado!" : "Copiar"}</span>
                       </button>
                       {onUseSnippet && (
                         <button
                           className="btn-snippet-action"
                           onClick={() => handleUse(item)}
-                          aria-label="Use in Studio"
+                          aria-label="Usar en Studio"
                         >
-                          Use
+                          Usar
                         </button>
                       )}
                       <button
                         className="btn-snippet-action btn-delete"
                         onClick={() => setDeleteConfirmId(item.id)}
-                        aria-label="Delete snippet"
+                        aria-label="Eliminar fragmento"
                       >
                         <TrashIcon />
                       </button>
@@ -267,7 +267,7 @@ export const SnippetsLibrary: React.FC<SnippetsLibraryProps> = React.memo(
 
         {filteredSnippets.length === 0 && searchQuery && (
           <div className="snippets-no-results">
-            <p>No snippets match "{searchQuery}"</p>
+            <p>No hay fragmentos que coincidan con "{searchQuery}"</p>
           </div>
         )}
       </div>
@@ -277,11 +277,11 @@ export const SnippetsLibrary: React.FC<SnippetsLibraryProps> = React.memo(
 
 SnippetsLibrary.displayName = "SnippetsLibrary";
 
-// --- HELPER FUNCTIONS FOR EXTERNAL USE ---
+// --- FUNCIONES AUXILIARES PARA USO EXTERNO ---
 
 /**
- * Add a new snippet to localStorage.
- * Called from Studio component when user saves.
+ * Agrega un nuevo fragmento a localStorage.
+ * Llamado desde el componente Studio cuando el usuario guarda.
  */
 export function addSnippet(
   snippet: Omit<SnippetItem, "id" | "timestamp">
@@ -298,14 +298,14 @@ export function addSnippet(
     const updated = [newSnippet, ...snippets].slice(0, MAX_SNIPPETS);
     localStorage.setItem(SNIPPETS_STORAGE_KEY, JSON.stringify(updated));
   } catch (e) {
-    console.error("Failed to save snippet:", e);
+    console.error("Fallo al guardar fragmento:", e);
   }
 
   return newSnippet;
 }
 
 /**
- * Get all snippets from localStorage.
+ * Obtiene todos los fragmentos de localStorage.
  */
 export function getSnippets(): SnippetItem[] {
   try {

@@ -14,15 +14,15 @@
 # along with voice2machine.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-SERVICIO LLM LOCAL USANDO LLAMA-CPP-PYTHON
+Servicio LLM Local usando llama-cpp-python.
 
-DISEÑO CLAVE:
-- usa create_chat_completion() que lee la plantilla del gguf automáticamente
-- funciona con qwen llama phi mistral sin cambiar código
-- context manager async para hot-swap de vram
+Diseño Clave:
+- Usa `create_chat_completion()` que lee la plantilla del GGUF automáticamente.
+- Funciona con Qwen, Llama, Phi, Mistral sin cambiar código.
+- Context Manager Async para Hot-Swap de VRAM.
 
-este módulo implementa la interfaz llmservice usando llama.cpp como backend
-permitiendo inferencia local en gpu sin depender de apis externas
+Este módulo implementa la interfaz `LLMService` usando `llama.cpp` como backend,
+permitiendo inferencia local en GPU sin depender de APIs externas.
 """
 
 from __future__ import annotations
@@ -44,65 +44,50 @@ if TYPE_CHECKING:
 
 class LocalLLMService(LLMService):
     """
-    SERVICIO LLM LOCAL CON GESTIÓN DE VRAM BAJO DEMANDA
+    Servicio LLM Local con gestión de VRAM bajo demanda.
 
-    implementa la interfaz llmservice usando llama-cpp-python como backend
-    soporta cualquier modelo gguf (qwen llama phi mistral) gracias al uso
-    de create_chat_completion() que aplica automáticamente la plantilla
-    de chat correcta según los metadatos del archivo gguf
+    Implementa la interfaz `LLMService` usando `llama-cpp-python` como backend.
+    Soporta cualquier modelo GGUF (Qwen, Llama, Phi, Mistral) gracias al uso
+    de `create_chat_completion()` que aplica automáticamente la plantilla
+    de chat correcta según los metadatos del archivo GGUF.
 
-    CARACTERÍSTICAS PRINCIPALES:
-        - carga lazy del modelo no consume vram hasta primer uso
-        - método unload() para liberar vram inmediatamente
-        - context manager async loaded() para hot-swap automático
-        - agnóstico al formato de chat (chatml llama etc)
+    Características principales:
+        - Carga Lazy del modelo: no consume VRAM hasta el primer uso.
+        - Método `unload()` para liberar VRAM inmediatamente.
+        - Context Manager Async `loaded()` para hot-swap automático.
+        - Agnóstico al formato de chat (ChatML, Llama, etc.).
 
-    ATTRIBUTES:
-        system_prompt: instrucción del sistema para el modelo
-        is_loaded: indica si el modelo está cargado en vram
-
-    EXAMPLE:
-        uso básico con carga lazy::
-
-            service = LocalLLMService()
-            result = await service.process_text("texto a procesar")
-
-        uso con hot-swap de vram (para gpus con poca memoria)::
-
-            async with service.loaded():
-                result = await service.process_text("texto")
-            # vram liberada automáticamente al salir
+    Atributos:
+        system_prompt: Instrucción del sistema para el modelo.
+        is_loaded: Indica si el modelo está cargado en VRAM.
     """
 
     def __init__(self) -> None:
         """
-        INICIALIZA EL SERVICIO DE LLM LOCAL
+        Inicializa el servicio de LLM Local.
 
-        carga la configuración desde config.toml y el system prompt desde
-        el archivo refine_system.txt el modelo no se carga en este momento
-        carga lazy para evitar consumir vram innecesariamente
-
-        RAISES:
-            LLMError: si el archivo del modelo no existe
+        Carga la configuración desde `config.toml` y el prompt del sistema.
+        El modelo NO se carga en este momento (Lazy Loading) para evitar
+        consumir VRAM innecesariamente al inicio de la aplicación.
         """
         self._model: Llama | None = None
         self._config = config.llm.local
         self._model_path = BASE_DIR / self._config.model_path
 
-        # cargar system prompt
+        # Cargar system prompt
         prompt_path = BASE_DIR / "prompts" / "refine_system.txt"
         try:
             self.system_prompt = prompt_path.read_text(encoding="utf-8")
         except FileNotFoundError:
-            logger.warning("system prompt no encontrado usando default")
-            self.system_prompt = "eres un editor de texto experto"
+            logger.warning("prompt del sistema no encontrado, usando valor por defecto")
+            self.system_prompt = "Eres un editor de texto experto."
 
     def _ensure_model_exists(self) -> None:
         """
-        VERIFICA QUE EL ARCHIVO DEL MODELO EXISTE EN DISCO
+        Verifica que el archivo del modelo existe en disco.
 
-        RAISES:
-            LLMError: si el archivo gguf no existe con instrucciones de descarga
+        Raises:
+            LLMError: Si el archivo GGUF no existe, con instrucciones de descarga.
         """
         if not self._model_path.exists():
             raise LLMError(
@@ -114,23 +99,23 @@ class LocalLLMService(LLMService):
 
     def load(self) -> None:
         """
-        CARGA EL MODELO EN VRAM
+        Carga el modelo en VRAM.
 
-        si el modelo ya está cargado esta función no hace nada
-        la carga es una operación costosa (~2-5 segundos) que debe
-        hacerse una vez y reutilizarse
+        Si el modelo ya está cargado, esta función no hace nada.
+        La carga es una operación costosa (~2-5 segundos) que debe
+        hacerse una vez y reutilizarse.
 
-        RAISES:
-            LLMError: si el archivo del modelo no existe
-            RuntimeError: si hay problemas cargando el modelo en gpu
+        Raises:
+            LLMError: Si el archivo del modelo no existe.
+            RuntimeError: Si hay problemas cargando el modelo en GPU.
         """
         if self._model is not None:
-            return  # ya cargado
+            return  # Ya cargado
 
         self._ensure_model_exists()
         logger.info(f"cargando modelo local: {self._model_path.name}")
 
-        # import lazy para evitar error si llama-cpp-python no está instalado
+        # Import lazy para evitar error si llama-cpp-python no está instalado
         from llama_cpp import Llama
 
         self._model = Llama(
@@ -138,55 +123,54 @@ class LocalLLMService(LLMService):
             n_gpu_layers=self._config.n_gpu_layers,
             n_ctx=self._config.n_ctx,
             verbose=False,
-            chat_format="chatml",  # fallback si gguf no tiene metadata de chat
+            chat_format="chatml",  # Fallback si el GGUF no tiene metadatos de chat
         )
         logger.info("✅ modelo local cargado en vram")
 
     def unload(self) -> None:
         """
-        LIBERA EL MODELO DE VRAM INMEDIATAMENTE
+        Libera el modelo de VRAM inmediatamente.
 
-        destruye la instancia del modelo y fuerza garbage collection
-        para liberar la memoria cuda lo antes posible
+        Destruye la instancia del modelo y fuerza Garbage Collection
+        para liberar la memoria CUDA lo antes posible.
         """
         if self._model is not None:
             logger.info("descargando modelo local de vram...")
             del self._model
             self._model = None
-            # forzar liberación de memoria cuda
+            # Forzar liberación de memoria CUDA
             gc.collect()
             logger.info("✅ vram liberada")
 
     @property
     def is_loaded(self) -> bool:
         """
-        INDICA SI EL MODELO ESTÁ CARGADO EN VRAM
+        Indica si el modelo está cargado en VRAM.
 
-        RETURNS:
-            True si el modelo está cargado y listo para inferencia
+        Returns:
+            bool: True si el modelo está cargado y listo para inferencia.
         """
         return self._model is not None
 
     @asynccontextmanager
     async def loaded(self) -> AsyncIterator[None]:
         """
-        CONTEXT MANAGER ASYNC PARA HOT-SWAP DE VRAM
+        Context Manager Async para Hot-Swap de VRAM.
 
-        carga el modelo al entrar y lo descarga al salir útil para
-        gpus con poca memoria donde no es viable mantener múltiples
-        modelos cargados simultáneamente
+        Carga el modelo al entrar y lo descarga al salir. Útil para
+        GPUs con poca memoria donde no es viable mantener múltiples
+        modelos cargados simultáneamente.
 
-        EXAMPLE:
+        Ejemplo:
+            ```python
             async with llm_service.loaded():
                 result = await llm_service.process_text(text)
             # vram liberada automáticamente al salir
+            ```
 
-        NOTE:
-            si prefieres mantener el modelo cargado para menor latencia
-            llama a load() una vez al inicio y no uses este context manager
-
-        YIELDS:
-            None el modelo está disponible dentro del bloque
+        Nota:
+            Si prefieres mantener el modelo cargado para menor latencia,
+            llama a `load()` una vez al inicio y no uses este context manager.
         """
         try:
             await asyncio.to_thread(self.load)
@@ -196,23 +180,23 @@ class LocalLLMService(LLMService):
 
     async def process_text(self, text: str) -> str:
         """
-        PROCESA TEXTO USANDO EL MODELO LOCAL
+        Procesa texto usando el modelo local.
 
-        usa create_chat_completion() que aplica automáticamente la plantilla
-        de chat correcta según los metadatos del gguf esto hace el código
-        agnóstico al modelo funciona con qwen llama phi mistral sin
-        cambiar una sola línea de python
+        Usa `create_chat_completion()` que aplica automáticamente la plantilla
+        de chat correcta según los metadatos del GGUF. Esto hace el código
+        agnóstico al modelo (funciona con Qwen, Llama, Phi, Mistral) sin
+        cambiar una sola línea de Python.
 
-        ARGS:
-            text: el texto a procesar/refinar
+        Args:
+            text: El texto a procesar/refinar.
 
-        RETURNS:
-            el texto procesado por el modelo
+        Returns:
+            str: El texto procesado por el modelo.
 
-        RAISES:
-            LLMError: si el modelo no existe o hay errores de inferencia
+        Raises:
+            LLMError: Si el modelo no existe o hay errores de inferencia.
         """
-        # lazy loading si no está cargado
+        # Lazy loading si no está cargado
         if self._model is None:
             await asyncio.to_thread(self.load)
 
@@ -225,7 +209,7 @@ class LocalLLMService(LLMService):
             logger.info("procesando texto con modelo local...")
 
             # create_chat_completion lee la plantilla del gguf automáticamente
-            # no hardcodeamos <|im_start|> ni ningún formato específico
+            # No hardcodeamos <|im_start|> ni ningún formato específico
             response = await asyncio.to_thread(
                 self._model.create_chat_completion,  # type: ignore
                 messages=messages,
@@ -240,3 +224,48 @@ class LocalLLMService(LLMService):
         except Exception as e:
             logger.error(f"error procesando texto con modelo local: {e}")
             raise LLMError(f"falló el procesamiento con modelo local: {e}") from e
+
+    async def translate_text(self, text: str, target_lang: str) -> str:
+        """
+        Traduce texto usando el modelo local.
+
+        Args:
+            text: El texto a traducir.
+            target_lang: Idioma objetivo.
+
+        Returns:
+            str: El texto traducido.
+
+        Raises:
+            LLMError: Si falla la traducción.
+        """
+        if self._model is None:
+            await asyncio.to_thread(self.load)
+
+        system_instruction = (
+            f"Eres un traductor experto. Traduce el siguiente texto al idioma '{target_lang}'. "
+            "Devuelve SOLO el texto traducido, sin explicaciones ni notas adicionales."
+        )
+
+        messages = [
+            {"role": "system", "content": system_instruction},
+            {"role": "user", "content": text},
+        ]
+
+        try:
+            logger.info(f"traduciendo texto a {target_lang} con modelo local...")
+
+            response = await asyncio.to_thread(
+                self._model.create_chat_completion,  # type: ignore
+                messages=messages,
+                max_tokens=self._config.max_tokens,
+                temperature=self._config.translation_temperature,
+            )
+
+            result = response["choices"][0]["message"]["content"].strip()
+            logger.info("✅ traducción con modelo local completada")
+            return result
+
+        except Exception as e:
+            logger.error(f"error traduciendo con modelo local: {e}")
+            raise LLMError(f"falló la traducción con modelo local: {e}") from e

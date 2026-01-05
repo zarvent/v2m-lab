@@ -14,11 +14,11 @@
 # along with voice2machine.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-MÓDULO QUE DEFINE LOS COMANDOS ESPECÍFICOS DE LA APLICACIÓN
+Definición de Comandos Específicos de la Aplicación.
 
-cada clase en este módulo representa una intención de acción que el sistema
-puede realizar estos objetos son despachados por el `commandbus` y no
-contienen lógica de negocio solo los datos necesarios para ejecutar la acción
+Cada clase en este módulo representa una intención de acción concreta que el sistema
+puede realizar. Estos objetos (DTOs) son despachados por el `CommandBus` y no
+contienen lógica de negocio, solo los datos inmutables necesarios para ejecutar la acción.
 """
 
 from v2m.core.cqrs.command import Command
@@ -26,10 +26,10 @@ from v2m.core.cqrs.command import Command
 
 class StartRecordingCommand(Command):
     """
-    COMANDO PARA INICIAR LA GRABACIÓN DE AUDIO
+    Comando para iniciar la grabación de audio.
 
-    este comando no requiere datos adicionales al ser despachado instruye
-    al sistema para que comience a capturar audio del micrófono
+    Instruye al sistema para comenzar la captura de audio del micrófono predeterminado.
+    No requiere datos adicionales.
     """
 
     pass
@@ -37,10 +37,10 @@ class StartRecordingCommand(Command):
 
 class StopRecordingCommand(Command):
     """
-    COMANDO PARA DETENER LA GRABACIÓN Y SOLICITAR LA TRANSCRIPCIÓN
+    Comando para detener la grabación y solicitar la transcripción.
 
-    este comando tampoco requiere datos su función es finalizar la grabación
-    actual y disparar el proceso de transcripción del audio capturado
+    Finaliza la sesión de grabación actual, procesa el audio capturado con Whisper
+    y gestiona el resultado (portapapeles, notificaciones).
     """
 
     pass
@@ -48,33 +48,33 @@ class StopRecordingCommand(Command):
 
 class ProcessTextCommand(Command):
     """
-    COMANDO PARA PROCESAR Y REFINAR UN BLOQUE DE TEXTO USANDO UN LLM
+    Comando para procesar y refinar un bloque de texto usando un LLM.
 
-    este comando encapsula el texto que necesita ser procesado
+    Utilizado para corrección gramatical, reescritura o formateo de texto existente.
     """
 
     def __init__(self, text: str) -> None:
         """
-        INICIALIZA EL COMANDO CON EL TEXTO A PROCESAR
+        Inicializa el comando.
 
-        ARGS:
-            text: el texto que será enviado al servicio de llm para su refinamiento
+        Args:
+            text: El texto crudo que será enviado al servicio de LLM para su refinamiento.
         """
         self.text = text
 
 
 class TranslateTextCommand(Command):
     """
-    COMANDO PARA TRADUCIR UN BLOQUE DE TEXTO USANDO UN LLM
+    Comando para traducir un bloque de texto usando un LLM.
     """
 
     def __init__(self, text: str, target_lang: str) -> None:
         """
-        INICIALIZA EL COMANDO
+        Inicializa el comando.
 
-        ARGS:
-            text: el texto a traducir
-            target_lang: el idioma objetivo (ej: "en", "es")
+        Args:
+            text: El texto original a traducir.
+            target_lang: El código del idioma objetivo (ej: "en", "es", "fr").
         """
         self.text = text
         self.target_lang = target_lang
@@ -82,26 +82,42 @@ class TranslateTextCommand(Command):
 
 class UpdateConfigCommand(Command):
     """
-    COMANDO PARA ACTUALIZAR LA CONFIGURACIÓN DEL SISTEMA
+    Comando para actualizar la configuración del sistema en tiempo de ejecución.
     """
 
     def __init__(self, updates: dict) -> None:
+        """
+        Inicializa el comando.
+
+        Args:
+            updates: Diccionario con las claves de configuración a modificar y sus nuevos valores.
+                     Soporta notación de punto para claves anidadas (ej. "transcription.whisper.model").
+        """
         self.updates = updates
 
 
 class GetConfigCommand(Command):
-    """COMANDO PARA OBTENER LA CONFIGURACIÓN ACTUAL"""
+    """
+    Comando para obtener la configuración actual serializable del sistema.
+    """
 
     pass
 
 
 class PauseDaemonCommand(Command):
-    """COMANDO PARA PAUSAR EL DAEMON"""
+    """
+    Comando para pausar el funcionamiento del Demonio.
+
+    Evita que el demonio procese nuevas solicitudes de grabación o transcripción
+    hasta que sea reanudado. Útil para mantenimiento o evitar conflictos temporales.
+    """
 
     pass
 
 
 class ResumeDaemonCommand(Command):
-    """COMANDO PARA REANUDAR EL DAEMON"""
+    """
+    Comando para reanudar el funcionamiento del Demonio previamente pausado.
+    """
 
     pass

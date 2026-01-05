@@ -15,14 +15,14 @@ interface OverviewProps {
 }
 
 /**
- * Overview - Daemon control panel.
+ * Overview - Panel de control del Demonio.
  *
- * Provides controls for managing the backend daemon:
- * - Start/Resume
- * - Restart
- * - Shutdown
+ * Provee controles para gestionar el proceso de fondo (Daemon):
+ * - Iniciar/Reanudar/Pausar
+ * - Reiniciar
+ * - Apagar
  *
- * Also displays system telemetry (CPU, RAM, GPU).
+ * También visualiza telemetría del sistema (CPU, RAM, GPU) en tiempo real.
  */
 export const Overview: React.FC<OverviewProps> = React.memo(
   ({
@@ -44,12 +44,16 @@ export const Overview: React.FC<OverviewProps> = React.memo(
     const isOperating = status === "restarting" || status === "shutting_down";
     const isDisconnected = status === "disconnected";
     const isPaused = status === "paused";
-    const isRunning = status === "idle" || status === "recording" || status === "transcribing" || status === "processing";
+    const isRunning =
+      status === "idle" ||
+      status === "recording" ||
+      status === "transcribing" ||
+      status === "processing";
 
-    // Format last ping time
+    // Formatear última hora de ping
     const lastPingFormatted = lastPingTime
       ? new Date(lastPingTime).toLocaleTimeString()
-      : "Never";
+      : "Nunca";
 
     const handleResumeClick = useCallback(async () => {
       await onResume();
@@ -80,7 +84,7 @@ export const Overview: React.FC<OverviewProps> = React.memo(
       setPendingAction(null);
     }, []);
 
-    // Close modal on Escape
+    // Cerrar modal con Escape
     useEffect(() => {
       const handleKeyDown = (e: KeyboardEvent) => {
         if (e.key === "Escape" && showConfirmModal) {
@@ -95,77 +99,91 @@ export const Overview: React.FC<OverviewProps> = React.memo(
 
     return (
       <div className="overview-container">
-        {/* Connection Status Card */}
+        {/* Tarjeta de Estado de Conexión */}
         <div className="overview-card">
-          <h2 className="overview-card-title">Daemon Status</h2>
+          <h2 className="overview-card-title">Estado del Demonio</h2>
           <div className="status-grid">
             <div className="status-item">
-              <span className="status-label">Connection</span>
+              <span className="status-label">Conexión</span>
               <span
                 className={`status-badge ${
                   isConnected ? "connected" : "disconnected"
                 }`}
               >
                 <span className="status-dot" />
-                {isConnected ? "Connected" : "Disconnected"}
+                {isConnected ? "Conectado" : "Desconectado"}
               </span>
             </div>
             <div className="status-item">
-              <span className="status-label">State</span>
+              <span className="status-label">Estado</span>
               <span className={`status-badge state-${status}`}>{status}</span>
             </div>
             <div className="status-item">
-              <span className="status-label">Last Ping</span>
+              <span className="status-label">Último Ping</span>
               <span className="status-value mono">{lastPingFormatted}</span>
             </div>
           </div>
         </div>
 
-        {/* Daemon Controls Card */}
+        {/* Tarjeta de Controles del Demonio */}
         <div className="overview-card">
-          <h2 className="overview-card-title">Daemon Controls</h2>
+          <h2 className="overview-card-title">Controles</h2>
           <div className="daemon-controls-grid">
-            {/* Start/Resume/Pause Button */}
+            {/* Botón Iniciar/Reanudar/Pausar */}
             <button
               onClick={handleResumeClick}
               disabled={isOperating}
               className={`btn-daemon btn-start ${
                 isConnected && !isPaused ? "btn-pause" : ""
               }`}
-              title={isPaused ? "Resume daemon" : isRunning ? "Pause daemon" : "Start daemon"}
-              aria-label={isPaused ? "Resume daemon" : isRunning ? "Pause daemon" : "Start daemon"}
+              title={
+                isPaused
+                  ? "Reanudar demonio"
+                  : isRunning
+                  ? "Pausar demonio"
+                  : "Iniciar demonio"
+              }
+              aria-label={
+                isPaused
+                  ? "Reanudar demonio"
+                  : isRunning
+                  ? "Pausar demonio"
+                  : "Iniciar demonio"
+              }
             >
               {isConnected && !isPaused ? (
-                // Pause Icon
+                // Icono de Pausa
                 <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden="true"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
                 >
-                    <rect x="6" y="4" width="4" height="16" />
-                    <rect x="14" y="4" width="4" height="16" />
+                  <rect x="6" y="4" width="4" height="16" />
+                  <rect x="14" y="4" width="4" height="16" />
                 </svg>
               ) : (
                 <PlayIcon />
               )}
-              <span>{isPaused ? "Resume" : isRunning ? "Pause" : "Start"}</span>
+              <span>
+                {isPaused ? "Reanudar" : isRunning ? "Pausar" : "Iniciar"}
+              </span>
             </button>
 
-            {/* Restart Button */}
+            {/* Botón Reiniciar */}
             <button
               onClick={handleRestartClick}
               disabled={isOperating || isDisconnected}
               className={`btn-daemon btn-restart ${
                 status === "restarting" ? "btn-loading" : ""
               }`}
-              title="Restart daemon"
-              aria-label="Restart daemon"
+              title="Reiniciar demonio"
+              aria-label="Reiniciar demonio"
               aria-busy={status === "restarting"}
             >
               {status === "restarting" ? (
@@ -173,25 +191,25 @@ export const Overview: React.FC<OverviewProps> = React.memo(
                   <span className="spin-anim">
                     <LoaderIcon />
                   </span>
-                  <span>Restarting...</span>
+                  <span>Reiniciando...</span>
                 </>
               ) : (
                 <>
                   <RestartIcon />
-                  <span>Restart</span>
+                  <span>Reiniciar</span>
                 </>
               )}
             </button>
 
-            {/* Shutdown Button */}
+            {/* Botón Apagar */}
             <button
               onClick={handleShutdownClick}
               disabled={isOperating || isDisconnected}
               className={`btn-daemon btn-shutdown ${
                 status === "shutting_down" ? "btn-loading" : ""
               }`}
-              title="Shutdown daemon"
-              aria-label="Shutdown daemon"
+              title="Apagar demonio"
+              aria-label="Apagar demonio"
               aria-busy={status === "shutting_down"}
             >
               {status === "shutting_down" ? (
@@ -199,22 +217,22 @@ export const Overview: React.FC<OverviewProps> = React.memo(
                   <span className="spin-anim">
                     <LoaderIcon />
                   </span>
-                  <span>Shutting down...</span>
+                  <span>Apagando...</span>
                 </>
               ) : (
                 <>
                   <PowerIcon />
-                  <span>Shutdown</span>
+                  <span>Apagar</span>
                 </>
               )}
             </button>
           </div>
         </div>
 
-        {/* System Telemetry Card */}
+        {/* Tarjeta de Telemetría del Sistema */}
         {telemetry && (
           <div className="overview-card">
-            <h2 className="overview-card-title">System Resources</h2>
+            <h2 className="overview-card-title">Recursos del Sistema</h2>
             <div className="telemetry-grid">
               {/* CPU */}
               <div className="telemetry-item">
@@ -255,7 +273,7 @@ export const Overview: React.FC<OverviewProps> = React.memo(
                 )}
               </div>
 
-              {/* GPU (if available) */}
+              {/* GPU (si disponible) */}
               {telemetry.gpu && (
                 <div className="telemetry-item">
                   <div className="telemetry-header">
@@ -289,7 +307,7 @@ export const Overview: React.FC<OverviewProps> = React.memo(
           </div>
         )}
 
-        {/* Confirmation Modal */}
+        {/* Modal de Confirmación */}
         {showConfirmModal && (
           <div
             className="modal-overlay"
@@ -304,13 +322,13 @@ export const Overview: React.FC<OverviewProps> = React.memo(
               </div>
               <h3 id="confirm-title" className="confirm-modal-title">
                 {pendingAction === "shutdown"
-                  ? "Shutdown daemon?"
-                  : "Restart daemon?"}
+                  ? "¿Apagar demonio?"
+                  : "¿Reiniciar demonio?"}
               </h3>
               <p className="confirm-modal-description">
                 {pendingAction === "shutdown"
-                  ? "The service will stop completely. You will need to start it manually to use it again."
-                  : "The service will restart. This may take a few seconds."}
+                  ? "El servicio se detendrá completamente. Deberás iniciarlo manualmente para volver a usarlo."
+                  : "El servicio se reiniciará. Esto puede tomar unos segundos."}
               </p>
               <div className="confirm-modal-actions">
                 <button
@@ -318,7 +336,7 @@ export const Overview: React.FC<OverviewProps> = React.memo(
                   className="btn-secondary"
                   autoFocus
                 >
-                  Cancel
+                  Cancelar
                 </button>
                 <button
                   onClick={handleConfirm}
@@ -326,7 +344,7 @@ export const Overview: React.FC<OverviewProps> = React.memo(
                     pendingAction === "shutdown" ? "btn-danger" : "btn-warning"
                   }
                 >
-                  {pendingAction === "shutdown" ? "Shutdown" : "Restart"}
+                  {pendingAction === "shutdown" ? "Apagar" : "Reiniciar"}
                 </button>
               </div>
             </div>

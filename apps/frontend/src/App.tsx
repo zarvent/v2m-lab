@@ -41,7 +41,7 @@ function App() {
   const [activeView, setActiveView] = useState<NavItem>("studio");
   const [showSettings, setShowSettings] = useState(false);
 
-  // Separate word count memoization to avoid O(n) on every timer tick
+  // Memoización separada del conteo de palabras para evitar O(n) en cada tick del temporizador
   const wordCount = useMemo(() => countWords(transcription), [transcription]);
   const sessionStats = useMemo(
     () => ({
@@ -53,11 +53,11 @@ function App() {
     [wordCount, timer.formatted]
   );
 
-  // Direct refs to stable action methods (no wrapper overhead)
+  // Referencias directas a métodos de acción estables (sin overhead de wrappers)
   const handleStartRecording = actions.startRecording;
   const handleStopRecording = actions.stopRecording;
 
-  // Global shortcut for toggling recording (Ctrl+Space)
+  // Atajo global para alternar grabación (Ctrl+Space)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.code === "Space") {
@@ -86,7 +86,7 @@ function App() {
     setActiveView(nav);
   }, []);
 
-  // Save snippet to library
+  // Guardar fragmento en la biblioteca
   const handleSaveSnippet = useCallback(
     (snippet: { title: string; text: string }) => {
       addSnippet(snippet);
@@ -94,7 +94,7 @@ function App() {
     [addSnippet]
   );
 
-  // Use snippet in Studio (from SnippetsLibrary or Transcriptions)
+  // Usar fragmento en Studio (desde SnippetsLibrary o Transcriptions)
   const handleUseSnippet = useCallback(
     (text: string) => {
       actions.setTranscription(text);
@@ -103,14 +103,14 @@ function App() {
     [actions]
   );
 
-  // Delete history item
+  // Eliminar elemento del historial
   const handleDeleteHistoryItem = useCallback((id: string) => {
-    // This requires adding a deleteHistoryItem action to useBackend
-    // For now, we just log it
-    console.log("[App] Delete history item:", id);
+    // Esto requiere agregar una acción deleteHistoryItem a useBackend
+    // Por ahora, solo lo registramos en consola
+    console.log("[App] Eliminar elemento del historial:", id);
   }, []);
 
-  // Select history item -> open in Studio
+  // Seleccionar elemento del historial -> abrir en Studio
   const handleSelectHistoryItem = useCallback(
     (item: { text: string }) => {
       actions.setTranscription(item.text);
@@ -119,7 +119,7 @@ function App() {
     [actions]
   );
 
-  // Render active view content
+  // Renderizar contenido de la vista activa
   const renderView = () => {
     switch (activeView) {
       case "studio":
@@ -171,7 +171,7 @@ function App() {
 
   return (
     <div className="app-layout">
-      {/* Sidebar with navigation and stats */}
+      {/* Barra lateral con navegación y estadísticas */}
       <Sidebar
         sessionStats={sessionStats}
         activeNav={activeView}
@@ -179,14 +179,14 @@ function App() {
         onOpenSettings={handleOpenSettings}
       />
 
-      {/* Main content area */}
+      {/* Área de contenido principal */}
       <main className="main-content">{renderView()}</main>
 
-      {/* Settings Modal */}
+      {/* Modal de Configuración */}
       {showSettings && (
         <Suspense
           fallback={
-            <div className="modal-overlay modal-loading">Loading...</div>
+            <div className="modal-overlay modal-loading">Cargando...</div>
           }
         >
           <Settings onClose={() => setShowSettings(false)} />
