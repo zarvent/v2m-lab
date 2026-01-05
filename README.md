@@ -1,72 +1,72 @@
 # 🗣️ voice2machine (v2m-lab)
 
-Fuente de verdad interna y núcleo upstream para Voice2Machine.
+Internal source of truth and upstream core for Voice2Machine.
 
-_dictado por voz para cualquier campo de texto de tu sistema operativo_
-
----
-
-## qué es esto
-
-Una herramienta que convierte tu voz en texto usando tu GPU local.
-
-La premisa es simple: hablar es más rápido que escribir. Este proyecto te deja dictar en cualquier aplicación sin depender de servicios en la nube.
+_voice dictation for any text field in your OS_
 
 ---
 
-## filosofía
+## what is this
 
-- **local-first**: tu audio no sale de tu máquina
-- **modular**: empezó como un script, ahora es una app con responsabilidades separadas
-- **gpu-powered**: velocidad de transcripción usando WHISPER localmente
+A tool that converts your voice to text using your local GPU.
 
----
-
-## cómo funciona
-
-Dos atajos de teclado globales:
-
-| script          | función                                                        |
-| --------------- | -------------------------------------------------------------- |
-| `v2m-toggle.sh` | graba → transcribe → copia al portapapeles                     |
-| `v2m-llm.sh`    | toma texto del portapapeles → lo refina con LLM → lo reemplaza |
+The premise is simple: speaking is faster than typing. This project allows you to dictate in any application without depending on cloud services.
 
 ---
 
-## documentación
+## philosophy
 
-Toda la info técnica está en `/docs` (consolidada en español):
-
-- [instalación](docs/es/instalacion.md)
-- [arquitectura](docs/es/arquitectura.md)
-- [configuración](docs/es/configuracion.md)
-- [atajos de teclado](docs/es/atajos_teclado.md) ⌨️
-- [solución de problemas](docs/es/troubleshooting.md)
+- **local-first**: your audio never leaves your machine
+- **modular**: started as a script, now it's an app with separated responsibilities
+- **gpu-powered**: transcription speed using WHISPER locally
 
 ---
 
-## flujos visuales
+## how it works
 
-### voz → texto
+Two global keyboard shortcuts:
+
+| script          | function                                                        |
+| --------------- | --------------------------------------------------------------- |
+| `v2m-toggle.sh` | records → transcribes → copies to clipboard                     |
+| `v2m-llm.sh`    | takes text from clipboard → refines it with LLM → replaces it   |
+
+---
+
+## documentation
+
+All technical info is in `/docs` (consolidated in Spanish):
+
+- [installation](docs/es/instalacion.md)
+- [architecture](docs/es/arquitectura.md)
+- [configuration](docs/es/configuracion.md)
+- [keyboard shortcuts](docs/es/atajos_teclado.md) ⌨️
+- [troubleshooting](docs/es/troubleshooting.md)
+
+---
+
+## visual flows
+
+### voice → text
 
 ```mermaid
 flowchart LR
-A[🎤 grabar] --> B{whisper}
-B --> C[📋 portapapeles]
+A[🎤 record] --> B{whisper}
+B --> C[📋 clipboard]
 ```
 
-### texto → texto mejorado
+### text → improved text
 
 ```mermaid
 flowchart LR
-A[📋 copiar] --> B{LLM}
-B --> C[📋 reemplazar]
+A[📋 copy] --> B{LLM}
+B --> C[📋 replace]
 ```
 
-> si no ves los diagramas, necesitas una extensión de mermaid
+> if you don't see the diagrams, you need a mermaid extension
 
 ---
 
-## licencia
+## license
 
-Este proyecto está licenciado bajo la **GNU General Public License v3.0** - ver el archivo [LICENSE](LICENSE) para más detalles.
+This project is licensed under the **GNU General Public License v3.0** - see the [LICENSE](LICENSE) file for more details.
