@@ -19,7 +19,8 @@
 import { z } from "zod";
 
 /**
- * Zod Schema for Whisper Configuration
+ * Esquema Zod para Configuración de Whisper.
+ * Define la validación para los parámetros del motor de transcripción.
  */
 const WhisperConfigSchema = z.object({
   model: z.string().default("large-v3-turbo"),
@@ -39,15 +40,15 @@ const WhisperConfigSchema = z.object({
 });
 
 /**
- * Zod Schema for Gemini Configuration
+ * Esquema Zod para Configuración de Gemini.
  */
 const GeminiConfigSchema = z.object({
-  api_key: z.string().optional(), // Often loaded from env, so optional in config.toml updates
-  model: z.string().default("gemini-3-flash-preview"), // Match backend config.toml
+  api_key: z.string().optional(), // Generalmente cargada desde env, opcional en updates
+  model: z.string().default("gemini-3-flash-preview"), // Coincide con backend config.toml
 });
 
 /**
- * Zod Schema for Local LLM Configuration
+ * Esquema Zod para Configuración de LLM Local.
  */
 const LocalLLMConfigSchema = z.object({
   model_path: z.string().optional(),
@@ -55,7 +56,7 @@ const LocalLLMConfigSchema = z.object({
 });
 
 /**
- * Zod Schema for Ollama LLM Configuration
+ * Esquema Zod para Configuración de Ollama.
  */
 const OllamaConfigSchema = z.object({
   host: z.string().default("http://localhost:11434"),
@@ -64,7 +65,7 @@ const OllamaConfigSchema = z.object({
 });
 
 /**
- * Zod Schema for LLM Configuration
+ * Esquema Zod para Configuración General de LLM.
  */
 const LLMConfigSchema = z.object({
   backend: z.enum(["local", "gemini", "ollama"]).default("local"),
@@ -74,7 +75,10 @@ const LLMConfigSchema = z.object({
 });
 
 /**
- * Main App Configuration Schema
+ * Esquema Principal de Configuración de la Aplicación.
+ *
+ * Estructura jerárquica que mapea directamente con `config.toml` en el backend.
+ * Se utiliza para validar formularios en el frontend antes de enviar actualizaciones.
  */
 export const AppConfigSchema = z.object({
   whisper: WhisperConfigSchema.optional(),

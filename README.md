@@ -1,72 +1,72 @@
 # 🗣️ voice2machine (v2m-lab)
 
-Internal source of truth and upstream core for Voice2Machine.
+Fuente de verdad interna y núcleo upstream para Voice2Machine.
 
-_voice dictation for any text field in your operating system_
-
----
-
-## what is this
-
-A tool that converts your voice to text using your local GPU.
-
-The premise is simple: speaking is faster than typing. This project lets you dictate in any application without relying on cloud services.
+_dictado por voz para cualquier campo de texto de tu sistema operativo_
 
 ---
 
-## philosophy
+## qué es esto
 
-- **local-first**: your audio never leaves your machine
-- **modular**: started as a script, now it's an app with separated responsibilities
-- **gpu-powered**: transcription speed using WHISPER locally
+Una herramienta que convierte tu voz en texto usando tu GPU local.
 
----
-
-## how it works
-
-two global keyboard shortcuts:
-
-| script          | function                                        |
-| --------------- | ----------------------------------------------- |
-| `v2m-toggle.sh` | record → transcribe → copy to clipboard         |
-| `v2m-llm.sh`    | take clipboard text → refine with LLM → replace |
+La premisa es simple: hablar es más rápido que escribir. Este proyecto te deja dictar en cualquier aplicación sin depender de servicios en la nube.
 
 ---
 
-## documentation
+## filosofía
 
-all technical info is in `/docs`:
-
-- [installation](docs/en/installation.md)
-- [architecture](docs/en/architecture.md)
-- [configuration](docs/en/configuration.md)
-- [keyboard shortcuts](docs/atajos_teclado.md) ⌨️
-- [troubleshooting](docs/en/troubleshooting.md)
+- **local-first**: tu audio no sale de tu máquina
+- **modular**: empezó como un script, ahora es una app con responsabilidades separadas
+- **gpu-powered**: velocidad de transcripción usando WHISPER localmente
 
 ---
 
-## visual flows
+## cómo funciona
 
-### voice → text
+Dos atajos de teclado globales:
+
+| script          | función                                                        |
+| --------------- | -------------------------------------------------------------- |
+| `v2m-toggle.sh` | graba → transcribe → copia al portapapeles                     |
+| `v2m-llm.sh`    | toma texto del portapapeles → lo refina con LLM → lo reemplaza |
+
+---
+
+## documentación
+
+Toda la info técnica está en `/docs` (consolidada en español):
+
+- [instalación](docs/es/instalacion.md)
+- [arquitectura](docs/es/arquitectura.md)
+- [configuración](docs/es/configuracion.md)
+- [atajos de teclado](docs/es/atajos_teclado.md) ⌨️
+- [solución de problemas](docs/es/troubleshooting.md)
+
+---
+
+## flujos visuales
+
+### voz → texto
 
 ```mermaid
 flowchart LR
-A[🎤 record] --> B{whisper}
-B --> C[📋 clipboard]
+A[🎤 grabar] --> B{whisper}
+B --> C[📋 portapapeles]
 ```
 
-### text → improved text
+### texto → texto mejorado
 
 ```mermaid
 flowchart LR
-A[📋 copy] --> B{LLM}
-B --> C[📋 replace]
+A[📋 copiar] --> B{LLM}
+B --> C[📋 reemplazar]
 ```
 
-> if you can't see the diagrams, you need a mermaid extension
+> si no ves los diagramas, necesitas una extensión de mermaid
 
 ---
 
-## license
+## licencia
 
-This project is licensed under the **GNU General Public License v3.0** - see the [LICENSE](LICENSE) file for details.
+Este proyecto está licenciado bajo la **GNU General Public License v3.0** - ver el archivo [LICENSE](LICENSE) para más detalles.

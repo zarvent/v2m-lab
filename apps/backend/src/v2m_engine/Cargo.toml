@@ -3,6 +3,7 @@ name = "v2m_engine"
 version = "0.2.0"
 edition = "2024"
 rust-version = "1.85"
+description = "Motor de alto rendimiento en Rust para Voice2Machine"
 
 [lib]
 name = "v2m_engine"
@@ -19,10 +20,10 @@ pyo3-log = "0.12"
 sysinfo = "0.33"
 rubato = "0.16"
 
-# VAD: WebRTC Voice Activity Detection (2026 state-of-the-art)
+# VAD: Detección de Actividad de Voz WebRTC (estado del arte 2026)
 webrtc-vad = "0.4"
 
-# GPU Monitoring: NVIDIA Management Library (optional runtime)
+# Monitoreo GPU: NVIDIA Management Library (opcional en tiempo de ejecución)
 nvml-wrapper = { version = "0.10", optional = true }
 
 [features]

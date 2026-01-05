@@ -1,24 +1,24 @@
-# Voice2Machine (V2M) - Agent Instructions
+# Voice2Machine (V2M) - Instrucciones para Agentes
 
-> **Context**: You are working in a Hexagonal Architecture project (Python Backend + Tauri Frontend).
-> **Goal**: Maintain 2026 Code Quality Standards. High cohesion, low coupling, zero technical debt.
-
----
-
-## 🧠 Core Philosophy
-
-1.  **Local-First**: Privacy is paramount. Audio never leaves the machine.
-2.  **Modular**: The Daemon is the core. The GUI and Scripts are just clients.
-3.  **Hexagonal**: Dependencies point inward. The `Domain` knows nothing about `Infrastructure`.
+> **Contexto**: Estás trabajando en un proyecto de Arquitectura Hexagonal (Backend Python + Frontend Tauri).
+> **Objetivo**: Mantener estándares de calidad de código "State of the Art 2026". Alta cohesión, bajo acoplamiento, deuda técnica cero.
 
 ---
 
-## 🛠️ Toolchain & Commands
+## 🧠 Filosofía Core
+
+1.  **Local-First**: La privacidad es suprema. El audio nunca sale de la máquina.
+2.  **Modular**: El Demonio es el núcleo. La GUI y los Scripts son solo clientes.
+3.  **Hexagonal**: Las dependencias apuntan hacia adentro. El `Dominio` no sabe nada de la `Infraestructura`.
+
+---
+
+## 🛠️ Herramientas y Comandos
 
 ### Backend (Python 3.12+)
-*   **Run**: `python -m v2m.main --daemon`
-*   **Test**: `pytest tests/` (Unit: `tests/unit`, Integration: `tests/integration`)
-*   **Lint**: `ruff check src/ --fix` (Strict rules enabled)
+*   **Ejecutar**: `python -m v2m.main --daemon`
+*   **Test**: `pytest tests/` (Unitarios: `tests/unit`, Integración: `tests/integration`)
+*   **Lint**: `ruff check src/ --fix` (Reglas estrictas habilitadas)
 *   **Format**: `ruff format src/`
 
 ### Frontend (Tauri 2 + React 19)
@@ -27,48 +27,49 @@
 *   **Check**: `tsc --noEmit`
 
 ### Scripts
-*   **Install**: `./scripts/install.sh` (Idempotent)
-*   **Verify**: `python scripts/verify_daemon.py`
+*   **Instalar**: `./scripts/install.sh` (Idempotente)
+*   **Verificar**: `python scripts/verify_daemon.py`
 
 ---
 
-## 🏗️ Architecture Guidelines
+## 🏗️ Guías de Arquitectura
 
-### Directory Structure
+### Estructura de Directorios
 ```
 apps/backend/src/v2m/
-├── core/           # DI Container, Event Bus
-├── domain/         # Entities, Ports (Interfaces), Errors
-├── application/    # Command Handlers (Use Cases)
-└── infrastructure/ # Concrete Implementations (Whisper, SoundDevice)
+├── core/           # Contenedor DI, Event Bus (CQRS)
+├── domain/         # Entidades, Puertos (Protocolos), Errores
+├── application/    # Command Handlers (Casos de Uso)
+└── infrastructure/ # Implementaciones Concretas (Whisper, SoundDevice)
 ```
 
-### Rules
-1.  **Interfaces defined in Domain**: `infrastructure` implements them. `application` uses them.
-2.  **No "God Classes"**: Split responsibilities (e.g., `AudioRecorder` vs `TranscriptionService`).
-3.  **Type Hints**: 100% coverage required. Use `typing.Protocol` for interfaces.
-4.  **AsyncIO**: The core is async. Do not block the event loop with heavy computation (offload to threads/processes if needed, though `faster-whisper` handles this well).
+### Reglas
+1.  **Interfaces en Dominio/Aplicación**: Usa `typing.Protocol` con `@runtime_checkable` en lugar de `abc.ABC` para desacoplamiento estructural.
+2.  **Sin "God Classes"**: Divide responsabilidades (ej. `AudioRecorder` vs `TranscriptionService`).
+3.  **Type Hints**: Cobertura 100% requerida.
+4.  **AsyncIO**: El núcleo es asíncrono. No bloquees el event loop (usa `asyncio.to_thread` o ejecutores dedicados para tareas de CPU/GPU intensivas).
 
 ---
 
-## 🧪 Testing Strategy
+## 🧪 Estrategia de Testing
 
-1.  **Unit Tests**: Mock all infrastructure. Test logic in `application/`.
-2.  **Integration Tests**: Test real infrastructure (GPU, Audio) in isolated scripts or `tests/integration/`.
-3.  **Golden Rule**: If you fix a bug, add a test case that reproduces it.
-
----
-
-## 🚨 Common Pitfalls
-
-- **Hardcoded Paths**: NEVER use absolute paths like `/home/user`. Use `pathlib` relative to project root or config.
-- **Blocking the Loop**: Don't use `time.sleep()`. Use `await asyncio.sleep()`.
-- **Git Commits**: Use Conventional Commits (`feat:`, `fix:`, `refactor:`).
+1.  **Tests Unitarios**: Mockea toda la infraestructura. Testea la lógica en `application/`.
+2.  **Tests de Integración**: Testea infraestructura real (GPU, Audio) en scripts aislados o `tests/integration/`.
+3.  **Regla de Oro**: Si arreglas un bug, añade un test que lo reproduzca.
 
 ---
 
-## 🤖 AI Context
-When generating code:
-- Prefer **Pydantic V2** for data validation.
-- Use **Rust-like** error handling in Python where possible (explicit returns/raises).
-- assume **CUDA 12** context for GPU operations.
+## 🚨 Errores Comunes
+
+- **Rutas Hardcodeadas**: NUNCA uses rutas absolutas como `/home/user`. Usa `v2m.utils.paths.get_secure_runtime_dir`.
+- **Bloquear el Loop**: No uses `time.sleep()`. Usa `await asyncio.sleep()`.
+- **Git Commits**: Usa Conventional Commits (`feat:`, `fix:`, `refactor:`).
+
+---
+
+## 🤖 Contexto IA
+Al generar código:
+- Prefiere **Pydantic V2** para validación de datos.
+- Usa manejo de errores robusto (Jerarquía `ApplicationError`).
+- Asume un contexto de **CUDA 12** para operaciones GPU.
+- **Idioma**: Toda la documentación y comentarios deben estar en Español Latinoamericano Nativo.
