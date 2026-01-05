@@ -44,17 +44,12 @@ class AudioRecorder:
     Motores soportados:
     1. **Motor Rust (v2m_engine)** - [Predeterminado]
        - **State of the Art (2026)**: Utiliza `cpal` + `ringbuf` (SPSC).
-       - **Lock-Free**: El hilo de audio es 'Wait-Free', garantizando cero bloqueos (glitch-free).
+       - **Lock-Free**: El hilo de audio es 'Wait-Free'.
        - **GIL-Free**: La captura ocurre fuera del Global Interpreter Lock de Python.
-       - **Zero-Copy**: Intercambio de datos eficiente con NumPy.
+       - **Zero-Copy / Native Save**: Intercambio de datos eficiente o guardado directo a disco.
 
     2. **Motor Python (sounddevice)** - [Fallback]
-       - Se activa automáticamente si falla Rust (ej. hardware no soportado o error de driver).
-       - Utiliza `sounddevice` (PortAudio wrapper) con buffers pre-allocados.
-
-    Optimizaciones:
-    - Buffer pre-allocado en modo fallback para evitar reallocaciones O(n) -> O(1).
-    - Arquitectura resiliente: si Rust falla, el usuario no nota interrupción.
+       - Se activa automáticamente si falla Rust.
     """
 
     # Tamaño del chunk en samples (coincide con sounddevice default ~1024)
@@ -111,7 +106,7 @@ class AudioRecorder:
         return np.array([], dtype=np.float32)
 
     def _save_wav(self, audio_data: np.ndarray, save_path: Path):
-        """Guarda los datos de audio en un archivo WAV."""
+        """Guarda los datos de audio en un archivo WAV (Fallback Python)."""
         audio_int16 = (audio_data * 32767).astype(np.int16)
         with wave.open(str(save_path), "wb") as wf:
             wf.setnchannels(self.channels)
@@ -221,9 +216,13 @@ class AudioRecorder:
                 recorded_samples = len(audio_view)
                 logger.info(f"grabación detenida (rust engine): {recorded_samples} samples")
 
-                # Manejo de guardado a disco
+                # SOTA 2026: Delegar guardado a Rust si es posible para evitar copias
                 if save_path:
-                    self._save_wav(audio_view, save_path)
+                    try:
+                        self._rust_recorder.save_wav(audio_view, str(save_path))
+                    except Exception as e:
+                        logger.error(f"fallo guardando wav en rust: {e} - intentando python")
+                        self._save_wav(audio_view, save_path)
 
                 if not return_data:
                     return self._empty_audio_array()

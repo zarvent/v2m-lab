@@ -29,3 +29,4 @@ nvml-wrapper = { version = "0.10", optional = true }
 [features]
 default = []
 nvidia = ["nvml-wrapper"]
+hound = "3.5"

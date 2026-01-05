@@ -215,6 +215,42 @@ impl AudioRecorder {
         // PyO3 0.23: usar PyArray1::from_vec_bound
         Ok(PyArray1::from_vec(py, final_data))
     }
+
+    /// Guarda un buffer de audio (float32) a un archivo WAV directamente desde Rust.
+    ///
+    /// Args:
+    ///     data: Numpy array de audio (float32).
+    ///     path: Ruta donde guardar el archivo.
+    ///
+    /// Returns:
+    ///     None
+    fn save_wav(&self, data: &Bound<'_, PyArray1<f32>>, path: String) -> PyResult<()> {
+        let slice = unsafe { data.as_slice()? };
+        let spec = hound::WavSpec {
+            channels: self.channels,
+            sample_rate: self.requested_sample_rate,
+            bits_per_sample: 16,
+            sample_format: hound::SampleFormat::Int,
+        };
+
+        let mut writer = hound::WavWriter::create(&path, spec).map_err(|e| {
+            pyo3::exceptions::PyIOError::new_err(format!("Fallo creando archivo WAV: {}", e))
+        })?;
+
+        for &sample in slice {
+            let s = (sample.clamp(-1.0, 1.0) * 32767.0) as i16;
+            writer.write_sample(s).map_err(|e| {
+                pyo3::exceptions::PyIOError::new_err(format!("Fallo escribiendo sample: {}", e))
+            })?;
+        }
+
+        writer.finalize().map_err(|e| {
+            pyo3::exceptions::PyIOError::new_err(format!("Fallo finalizando WAV: {}", e))
+        })?;
+
+        info!("WAV guardado en: {}", path);
+        Ok(())
+    }
 }
 
 // ============================================================================
@@ -484,18 +520,26 @@ impl SystemMonitor {
         self.sys.global_cpu_usage()
     }
 
-    /// Obtener temperatura de GPU en Celsius (requiere feature nvidia).
-    /// Retorna 0 si NVML no está disponible o falla.
-    fn get_gpu_temp(&self) -> u32 {
+    /// Obtener métricas de GPU (temp, vram_used_mb, vram_total_mb)
+    /// Retorna (temp, used_mb, total_mb). Valores 0 si falla.
+    fn get_gpu_metrics(&self) -> (u32, f32, f32) {
         #[cfg(feature = "nvidia")]
         if let Some(ref nvml) = self.nvml {
             if let Ok(device) = nvml.device_by_index(0) {
-                if let Ok(temp) = device.temperature(nvml_wrapper::enum_wrappers::device::TemperatureSensor::Gpu) {
-                    return temp;
-                }
+                let temp = device.temperature(nvml_wrapper::enum_wrappers::device::TemperatureSensor::Gpu).unwrap_or(0);
+
+                let (used, total) = match device.memory_info() {
+                    Ok(mem) => (
+                        (mem.used as f64 / (1024.0 * 1024.0)) as f32,
+                        (mem.total as f64 / (1024.0 * 1024.0)) as f32
+                    ),
+                    Err(_) => (0.0, 0.0)
+                };
+
+                return (temp, used, total);
             }
         }
-        0
+        (0, 0.0, 0.0)
     }
 }
 
