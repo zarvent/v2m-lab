@@ -14,15 +14,15 @@
 # along with voice2machine.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-MÓDULO QUE CONTIENE LOS MANEJADORES DE COMANDOS COMMAND HANDLERS
+Manejadores de Comandos (Command Handlers).
 
-los handlers son el corazón de la lógica de negocio de la aplicación
-cada handler se suscribe a un tipo de comando específico y ejecuta las acciones
-correspondientes cuando ese comando es despachado por el command bus
+Los handlers son el corazón de la lógica de aplicación. Cada handler se suscribe
+a un tipo de comando específico y ejecuta las acciones correspondientes cuando
+ese comando es despachado por el Command Bus.
 
-este enfoque inspirado en cqrs command query responsibility segregation
-permite un bajo acoplamiento entre el punto de entrada de la aplicación main.py
-y la lógica de negocio real
+Este enfoque, inspirado en CQRS (Command Query Responsibility Segregation),
+permite un bajo acoplamiento entre el punto de entrada de la aplicación y la
+lógica de negocio real.
 """
 
 import asyncio
@@ -49,66 +49,59 @@ from v2m.core.cqrs.command_handler import CommandHandler
 from v2m.core.interfaces import ClipboardInterface, NotificationInterface
 from v2m.core.logging import logger
 
-# executor dedicado para operaciones de ml single worker para evitar contención gpu
-# esto es más eficiente que el default threadpoolexecutor de asyncio.to_thread
+# Executor dedicado para operaciones de ML (Single Worker).
+# Evita la contención de GPU y es más eficiente que el ThreadPoolExecutor
+# predeterminado para tareas intensivas en cómputo.
 _ml_executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="ml-inference")
 atexit.register(_ml_executor.shutdown, wait=True)
 
 
 class StartRecordingHandler(CommandHandler):
     """
-    MANEJADOR PARA EL COMANDO `STARTRECORDINGCOMMAND`
+    Manejador para el comando `StartRecordingCommand`.
 
-    este handler interactúa con el servicio de transcripción para iniciar
-    el proceso de grabación de audio también notifica al usuario que
-    la grabación ha comenzado
+    Este handler interactúa con el servicio de transcripción para iniciar
+    el proceso de grabación de audio y notifica al usuario.
     """
 
     def __init__(
         self, transcription_service: TranscriptionService, notification_service: NotificationInterface
     ) -> None:
         """
-        INICIALIZA EL HANDLER CON SUS DEPENDENCIAS
+        Inicializa el handler con sus dependencias.
 
-        ARGS:
-            transcription_service: el servicio responsable de la grabación y transcripción
-            notification_service: el servicio para enviar notificaciones al usuario
+        Args:
+            transcription_service: Servicio responsable de grabación y transcripción.
+            notification_service: Servicio para enviar notificaciones al usuario.
         """
         self.transcription_service = transcription_service
         self.notification_service = notification_service
 
     async def handle(self, command: StartRecordingCommand) -> None:
         """
-        EJECUTA LA LÓGICA PARA INICIAR LA GRABACIÓN
+        Ejecuta la lógica para iniciar la grabación.
 
-        ARGS:
-            command: el comando que activa este handler
+        Se ejecuta en un hilo separado para no bloquear el Event Loop principal
+        si la inicialización del dispositivo de audio toma tiempo.
         """
-        # start_recording es rápido pero por seguridad lo corremos en un hilo
-        # para no bloquear el loop si sounddevice tarda un poco
         await asyncio.to_thread(self.transcription_service.start_recording)
 
-        # crear bandera de grabación para que el script bash sepa que estamos grabando
+        # Crear bandera de grabación para que scripts externos (Bash) sepan el estado.
         config.paths.recording_flag.touch()
 
         self.notification_service.notify("🎤 voice2machine", "grabación iniciada...")
 
     def listen_to(self) -> type[Command]:
-        """
-        SE SUSCRIBE AL TIPO DE COMANDO `STARTRECORDINGCOMMAND`
-
-        RETURNS:
-            el tipo de comando que este handler puede manejar
-        """
+        """Se suscribe al tipo de comando `StartRecordingCommand`."""
         return StartRecordingCommand
 
 
 class StopRecordingHandler(CommandHandler):
     """
-    MANEJADOR PARA EL COMANDO `STOPRECORDINGCOMMAND`
+    Manejador para el comando `StopRecordingCommand`.
 
-    este handler detiene la grabación obtiene la transcripción del audio
-    la copia al portapapeles y notifica al usuario del resultado
+    Este handler detiene la grabación, obtiene la transcripción del audio,
+    la copia al portapapeles y notifica al usuario del resultado.
     """
 
     def __init__(
@@ -118,12 +111,12 @@ class StopRecordingHandler(CommandHandler):
         clipboard_service: ClipboardInterface,
     ) -> None:
         """
-        INICIALIZA EL HANDLER CON SUS DEPENDENCIAS
+        Inicializa el handler con sus dependencias.
 
-        ARGS:
-            transcription_service: el servicio responsable de la grabación y transcripción
-            notification_service: el servicio para enviar notificaciones al usuario
-            clipboard_service: el servicio para interactuar con el portapapeles
+        Args:
+            transcription_service: Servicio responsable de grabación y transcripción.
+            notification_service: Servicio para enviar notificaciones al usuario.
+            clipboard_service: Servicio para interactuar con el portapapeles.
         """
         self.transcription_service = transcription_service
         self.notification_service = notification_service
@@ -131,53 +124,45 @@ class StopRecordingHandler(CommandHandler):
 
     async def handle(self, command: StopRecordingCommand) -> str | None:
         """
-        EJECUTA LA LÓGICA PARA DETENER LA GRABACIÓN Y TRANSCRIBIR
+        Ejecuta la lógica para detener la grabación y transcribir.
 
-        notifica al usuario durante el procesamiento y maneja el caso donde
-        no se detecta voz en el audio
+        Notifica al usuario durante el procesamiento y maneja el caso donde
+        no se detecta voz en el audio. Utiliza un executor dedicado para la inferencia.
 
-        ARGS:
-            command: el comando que activa este handler
-
-        RETURNS:
-            el texto transcrito o None si no se detectó voz
+        Returns:
+            str | None: El texto transcrito o None si no se detectó voz.
         """
-        # borrar bandera de grabación para que el script bash sepa que ya paramos
+        # Eliminar bandera de grabación.
         if config.paths.recording_flag.exists():
             config.paths.recording_flag.unlink()
 
         self.notification_service.notify("⚡ v2m procesando", "procesando...")
 
-        # usar executor dedicado para ml - evita contención con otras tareas async
+        # Usar executor dedicado para ML - evita contención con otras tareas async
         loop = asyncio.get_running_loop()
         transcription = await loop.run_in_executor(_ml_executor, self.transcription_service.stop_and_transcribe)
 
-        # si la transcripción está vacía no tiene sentido copiarla
+        # Si la transcripción está vacía no tiene sentido copiarla
         if not transcription.strip():
             self.notification_service.notify("❌ whisper", "no se detectó voz en el audio")
             return None
 
         self.clipboard_service.copy(transcription)
-        preview = transcription[:80]  # se muestra una vista previa para no saturar la notificación
+        preview = transcription[:80]  # Vista previa para la notificación
         self.notification_service.notify("✅ whisper - copiado", f"{preview}...")
         return transcription
 
     def listen_to(self) -> type[Command]:
-        """
-        SE SUSCRIBE AL TIPO DE COMANDO `STOPRECORDINGCOMMAND`
-
-        RETURNS:
-            el tipo de comando que este handler puede manejar
-        """
+        """Se suscribe al tipo de comando `StopRecordingCommand`."""
         return StopRecordingCommand
 
 
 class ProcessTextHandler(CommandHandler):
     """
-    MANEJADOR PARA EL COMANDO `PROCESSTEXTCOMMAND`
+    Manejador para el comando `ProcessTextCommand`.
 
-    este handler utiliza un servicio de llm large language model para
-    procesar y refinar un texto dado el resultado se copia al portapapeles
+    Utiliza un servicio de LLM (Large Language Model) para procesar y refinar
+    un texto dado. El resultado se copia al portapapeles.
     """
 
     def __init__(
@@ -187,12 +172,12 @@ class ProcessTextHandler(CommandHandler):
         clipboard_service: ClipboardInterface,
     ) -> None:
         """
-        INICIALIZA EL HANDLER CON SUS DEPENDENCIAS
+        Inicializa el handler con sus dependencias.
 
-        ARGS:
-            llm_service: el servicio que interactúa con el llm ej gemini
-            notification_service: el servicio para enviar notificaciones al usuario
-            clipboard_service: el servicio para interactuar con el portapapeles
+        Args:
+            llm_service: Servicio que interactúa con el LLM (ej. Gemini, Ollama).
+            notification_service: Servicio para enviar notificaciones.
+            clipboard_service: Servicio para interactuar con el portapapeles.
         """
         self.llm_service = llm_service
         self.notification_service = notification_service
@@ -200,30 +185,25 @@ class ProcessTextHandler(CommandHandler):
 
     async def handle(self, command: ProcessTextCommand) -> str | None:
         """
-        EJECUTA LA LÓGICA PARA PROCESAR EL TEXTO CON EL LLM
+        Ejecuta la lógica para procesar el texto con el LLM.
 
-        ARGS:
-            command: el comando que contiene el texto a procesar
-
-        RETURNS:
-            el texto refinado o None si hubo error
+        Returns:
+            str | None: El texto refinado o el original si hubo error (con notificación).
         """
         try:
-            # asumimos que llm_service.process_text será async pronto
-            # si no lo es asyncio.to_thread lo manejaría pero queremos async nativo
-            # por ahora usaremos await si es corutina o to_thread si no
+            # Soporte dual para implementaciones síncronas y asíncronas de LLMService
             if asyncio.iscoroutinefunction(self.llm_service.process_text):
                 refined_text = await self.llm_service.process_text(command.text)
             else:
                 refined_text = await asyncio.to_thread(self.llm_service.process_text, command.text)
 
             self.clipboard_service.copy(refined_text)
-            backend_name = config.llm.backend  # "local" o "gemini"
+            backend_name = config.llm.backend  # "local", "gemini", "ollama"
             self.notification_service.notify(f"✅ {backend_name} - copiado", f"{refined_text[:80]}...")
             return refined_text
 
         except Exception:
-            # fallback si falla el llm copiamos el texto original
+            # Fallback: si falla el LLM, copiamos el texto original para no perder datos
             backend_name = config.llm.backend
             self.notification_service.notify(f"⚠️ {backend_name} falló", "usando texto original...")
             self.clipboard_service.copy(command.text)
@@ -231,20 +211,15 @@ class ProcessTextHandler(CommandHandler):
             return command.text
 
     def listen_to(self) -> type[Command]:
-        """
-        SE SUSCRIBE AL TIPO DE COMANDO `PROCESSTEXTCOMMAND`
-
-        RETURNS:
-            el tipo de comando que este handler puede manejar
-        """
+        """Se suscribe al tipo de comando `ProcessTextCommand`."""
         return ProcessTextCommand
 
 
 class TranslateTextHandler(CommandHandler):
     """
-    MANEJADOR PARA EL COMANDO `TRANSLATETEXTCOMMAND`
+    Manejador para el comando `TranslateTextCommand`.
 
-    este handler utiliza un servicio de llm para traducir texto
+    Utiliza un servicio de LLM para traducir texto a un idioma objetivo.
     """
 
     def __init__(
@@ -252,34 +227,22 @@ class TranslateTextHandler(CommandHandler):
         llm_service: LLMService,
         notification_service: NotificationInterface,
     ) -> None:
-        """
-        INICIALIZA EL HANDLER CON SUS DEPENDENCIAS
-
-        ARGS:
-            llm_service: el servicio que interactúa con el llm
-            notification_service: el servicio para enviar notificaciones al usuario
-        """
         self.llm_service = llm_service
         self.notification_service = notification_service
 
     async def handle(self, command: TranslateTextCommand) -> str | None:
         """
-        EJECUTA LA LÓGICA PARA TRADUCIR EL TEXTO
+        Ejecuta la lógica para traducir el texto.
 
-        ARGS:
-            command: el comando que contiene el texto y el idioma objetivo
-
-        RETURNS:
-            el texto traducido o None si hubo error
+        Valida el idioma de destino para prevenir inyección de prompts.
         """
-        # Validate target_lang to prevent prompt injection or garbage
+        # Validar target_lang para prevenir inyecciones
         if not re.match(r"^[a-zA-Z\s\-]{2,20}$", command.target_lang):
             logger.warning(f"Intento de traducción con idioma inválido: {command.target_lang}")
             self.notification_service.notify("❌ Error", "Idioma de destino inválido")
             return None
 
         try:
-            # Check for async implementation or fallback to thread
             if asyncio.iscoroutinefunction(self.llm_service.translate_text):
                 translated_text = await self.llm_service.translate_text(command.text, command.target_lang)
             else:
@@ -298,20 +261,15 @@ class TranslateTextHandler(CommandHandler):
             return None
 
     def listen_to(self) -> type[Command]:
-        """
-        SE SUSCRIBE AL TIPO DE COMANDO `TRANSLATETEXTCOMMAND`
-
-        RETURNS:
-            el tipo de comando que este handler puede manejar
-        """
         return TranslateTextCommand
 
 
 class UpdateConfigHandler(CommandHandler):
     """
-    MANEJADOR PARA `UPDATECONFIGCOMMAND`.
+    Manejador para `UpdateConfigCommand`.
 
-    Transforma el formato del frontend al formato TOML antes de guardar.
+    Transforma el formato del frontend (esquema plano) al formato TOML (esquema anidado)
+    antes de guardar.
     Frontend: whisper.model -> Backend: transcription.whisper.model
     """
 
@@ -322,7 +280,7 @@ class UpdateConfigHandler(CommandHandler):
     async def handle(self, command: UpdateConfigCommand) -> dict:
         updates = command.updates
 
-        # Transform frontend schema to TOML structure
+        # Transformar esquema frontend a estructura TOML
         toml_updates = {}
 
         if "whisper" in updates:
@@ -340,7 +298,7 @@ class UpdateConfigHandler(CommandHandler):
         if "notifications" in updates:
             toml_updates["notifications"] = updates["notifications"]
 
-        # Use transformed structure if we did any transforms, otherwise use original
+        # Usar estructura transformada si hubo cambios, sino usar original
         final_updates = toml_updates if toml_updates else updates
 
         self.config_manager.update_config(final_updates)
@@ -353,9 +311,9 @@ class UpdateConfigHandler(CommandHandler):
 
 class GetConfigHandler(CommandHandler):
     """
-    MANEJADOR PARA `GETCONFIGCOMMAND`.
+    Manejador para `GetConfigCommand`.
 
-    Transforma la estructura de config.toml al formato esperado por el frontend.
+    Transforma la estructura de `config.toml` al formato esperado por el frontend.
     Backend: transcription.whisper.model -> Frontend: whisper.model
     """
 
@@ -365,9 +323,7 @@ class GetConfigHandler(CommandHandler):
     async def handle(self, command: GetConfigCommand) -> dict:
         raw = self.config_manager.load_config()
 
-        # Transform TOML structure to frontend-expected schema
-        # Backend (config.toml):  transcription.whisper.model
-        # Frontend (schema):      whisper.model
+        # Transformar estructura TOML a esquema esperado por frontend
         return {
             "whisper": raw.get("transcription", {}).get("whisper", {}),
             "llm": raw.get("llm", {}),
@@ -381,13 +337,13 @@ class GetConfigHandler(CommandHandler):
 
 
 class PauseDaemonHandler(CommandHandler):
-    """MANEJADOR PARA PAUSAR EL DAEMON"""
+    """Manejador para pausar el Daemon."""
 
     def __init__(self, notification_service: NotificationInterface) -> None:
         self.notification_service = notification_service
 
     async def handle(self, command: PauseDaemonCommand) -> str:
-        # La lógica de estado real se maneja en el Daemon, este handler es para efectos secundarios
+        # La lógica de estado real se maneja en el Daemon, este handler es para efectos secundarios (UI)
         self.notification_service.notify("⏸️ v2m pausa", "daemon pausado")
         return "PAUSED"
 
@@ -396,7 +352,7 @@ class PauseDaemonHandler(CommandHandler):
 
 
 class ResumeDaemonHandler(CommandHandler):
-    """MANEJADOR PARA REANUDAR EL DAEMON"""
+    """Manejador para reanudar el Daemon."""
 
     def __init__(self, notification_service: NotificationInterface) -> None:
         self.notification_service = notification_service

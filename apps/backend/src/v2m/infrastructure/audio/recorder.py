@@ -36,40 +36,41 @@ except ImportError:
 
 class AudioRecorder:
     """
-    CLASE RESPONSABLE DE LA GRABACIÓN DE AUDIO
+    Clase responsable de la grabación de audio.
 
-    esta clase actúa como fachada ("Strangler Fig Pattern") para modernizar el stack de audio.
-    elige automáticamente entre dos motores:
+    Implementa el patrón de fachada ("Strangler Fig") para modernizar el stack de audio,
+    seleccionando automáticamente entre dos motores para garantizar estabilidad y rendimiento.
 
-    1. **MOTOR RUST (V2M_ENGINE)** - [PREDETERMINADO]
+    Motores soportados:
+    1. **Motor Rust (v2m_engine)** - [Predeterminado]
        - **State of the Art (2026)**: Utiliza `cpal` + `ringbuf` (SPSC).
        - **Lock-Free**: El hilo de audio es 'Wait-Free', garantizando cero bloqueos (glitch-free).
        - **GIL-Free**: La captura ocurre fuera del Global Interpreter Lock de Python.
        - **Zero-Copy**: Intercambio de datos eficiente con NumPy.
 
-    2. **MOTOR PYTHON (SOUNDDEVICE)** - [FALLBACK]
+    2. **Motor Python (sounddevice)** - [Fallback]
        - Se activa automáticamente si falla Rust (ej. hardware no soportado o error de driver).
        - Utiliza `sounddevice` (PortAudio wrapper) con buffers pre-allocados.
 
-    OPTIMIZACIONES
-    - buffer pre-allocado en modo fallback para evitar reallocaciones O(n) -> O(1).
-    - arquitectura resiliente: si Rust falla, el usuario no nota interrupción.
+    Optimizaciones:
+    - Buffer pre-allocado en modo fallback para evitar reallocaciones O(n) -> O(1).
+    - Arquitectura resiliente: si Rust falla, el usuario no nota interrupción.
     """
 
-    # tamaño del chunk en samples coincide con sounddevice default ~1024
+    # Tamaño del chunk en samples (coincide con sounddevice default ~1024)
     CHUNK_SIZE = 1024
 
     def __init__(
         self, sample_rate: int = 16000, channels: int = 1, max_duration_sec: int = 600, device_index: int | None = None
     ):
         """
-        INICIALIZA EL GRABADOR DE AUDIO
+        Inicializa el grabador de audio.
 
-        ARGS:
-            sample_rate: frecuencia de muestreo en hz
-            channels: número de canales de audio
-            max_duration_sec: duración máxima de grabación en segundos default 10 min
-            device_index: índice del dispositivo de audio a usar (solo soportado en modo Python)
+        Args:
+            sample_rate: Frecuencia de muestreo en Hz.
+            channels: Número de canales de audio.
+            max_duration_sec: Duración máxima de grabación en segundos. Defecto: 10 min.
+            device_index: Índice del dispositivo de audio a usar (solo soportado en modo Python).
         """
         self.sample_rate = sample_rate
         self.channels = channels
@@ -98,19 +99,19 @@ class AudioRecorder:
         self._buffer = self._allocate_buffer()
 
     def _allocate_buffer(self) -> np.ndarray:
-        """Allocate pre-allocated buffer based on channel configuration."""
+        """Asigna un buffer pre-allocado basado en la configuración de canales."""
         if self.channels > 1:
             return np.zeros((self.max_samples, self.channels), dtype=np.float32)
         return np.zeros(self.max_samples, dtype=np.float32)
 
     def _empty_audio_array(self) -> np.ndarray:
-        """Return empty audio array with correct shape for channel configuration."""
+        """Retorna un array de audio vacío con la forma correcta."""
         if self.channels > 1:
             return np.array([], dtype=np.float32).reshape(0, self.channels)
         return np.array([], dtype=np.float32)
 
     def _save_wav(self, audio_data: np.ndarray, save_path: Path):
-        """Save audio data to WAV file."""
+        """Guarda los datos de audio en un archivo WAV."""
         audio_int16 = (audio_data * 32767).astype(np.int16)
         with wave.open(str(save_path), "wb") as wf:
             wf.setnchannels(self.channels)
@@ -119,17 +120,17 @@ class AudioRecorder:
             wf.writeframes(audio_int16.tobytes())
 
     def _get_audio_slice(self, num_samples: int) -> np.ndarray:
-        """Extract audio slice from buffer based on channel configuration."""
+        """Extrae un segmento de audio del buffer."""
         if self.channels > 1:
             return self._buffer[:num_samples, :]
         return self._buffer[:num_samples]
 
     def start(self):
         """
-        INICIA LA GRABACIÓN DE AUDIO
+        Inicia la grabación de audio.
 
-        RAISES:
-            RecordingError: si la grabación ya está en progreso o falla al iniciar el stream
+        Raises:
+            RecordingError: Si la grabación ya está en progreso o falla al iniciar el stream.
         """
         if self._recording:
             raise RecordingError("grabación ya en progreso")
@@ -197,15 +198,15 @@ class AudioRecorder:
 
     def stop(self, save_path: Path | None = None, return_data: bool = True, copy_data: bool = True) -> np.ndarray:
         """
-        DETIENE LA GRABACIÓN Y DEVUELVE EL AUDIO CAPTURADO
+        Detiene la grabación y devuelve el audio capturado.
 
-        ARGS:
-            save_path: ruta opcional para guardar el audio como archivo wav
-            return_data: si es True retorna el audio grabado
-            copy_data: si es True retorna una copia del buffer (seguro)
+        Args:
+            save_path: Ruta opcional para guardar el audio como archivo WAV.
+            return_data: Si es True retorna el audio grabado.
+            copy_data: Si es True retorna una copia del buffer (seguro).
 
-        RETURNS:
-            el audio grabado como un array de numpy float32
+        Returns:
+            np.ndarray: El audio grabado como un array de numpy float32.
         """
         if not self._recording:
             raise RecordingError("no hay grabación en curso")

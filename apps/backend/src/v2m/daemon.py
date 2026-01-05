@@ -14,16 +14,16 @@
 # along with voice2machine.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Voice2Machine Daemon.
+Demonio Voice2Machine.
 
-This module implements the background daemon process that keeps the Whisper model
-in memory and listens for IPC commands via a Unix socket.
+Este módulo implementa el proceso demonio en segundo plano que mantiene el modelo Whisper
+en memoria y escucha comandos IPC a través de un socket Unix.
 
-The daemon is responsible for:
-    - Maintaining the transcription model preloaded.
-    - Processing IPC commands from clients.
-    - Dispatching commands to the CommandBus.
-    - Managing the service lifecycle.
+El demonio es responsable de:
+    - Mantener el modelo de transcripción precargado para una respuesta rápida.
+    - Procesar comandos IPC de los clientes (frontend, CLI).
+    - Despachar comandos al CommandBus (patrón CQRS).
+    - Gestionar el ciclo de vida del servicio.
 """
 
 import asyncio
@@ -64,39 +64,39 @@ HEADER_SIZE = 4
 
 class Daemon:
     """
-    Main Daemon class managing lifecycle and IPC communications.
+    Clase principal del Demonio que gestiona el ciclo de vida y las comunicaciones IPC.
     """
 
     def __init__(self) -> None:
         """
-        Initializes the Daemon instance.
+        Inicializa la instancia del Demonio.
         """
         self.running = False
         self.socket_path = Path(SOCKET_PATH)
-        # XDG_RUNTIME_DIR compliance
+        # Cumplimiento con XDG_RUNTIME_DIR
         from v2m.utils.paths import get_secure_runtime_dir
 
         self.pid_file = get_secure_runtime_dir() / "v2m_daemon.pid"
         self.command_bus = container.get_command_bus()
 
-        # Cleanup orphaned processes from previous runs
+        # Limpieza de procesos huérfanos de ejecuciones previas
         self._cleanup_orphaned_processes()
 
-        # Cleanup recording flag if it exists (error recovery)
+        # Limpieza de bandera de grabación si existe (recuperación de errores)
         if config.paths.recording_flag.exists():
-            logger.warning("cleaning up orphaned recording flag")
+            logger.warning("limpiando bandera de grabación huérfana")
             config.paths.recording_flag.unlink()
 
-        # Register cleanup on exit
+        # Registrar limpieza al salir
         atexit.register(self._cleanup_resources)
 
-        # System monitor
+        # Monitor del sistema
         self.system_monitor = SystemMonitor()
         self.paused = False
 
     async def _send_response(self, writer: asyncio.StreamWriter, response: IPCResponse) -> None:
         """
-        Helper to send a framed JSON response to the client.
+        Auxiliar para enviar una respuesta JSON enmarcada al cliente.
         """
         try:
             resp_bytes = response.to_json().encode("utf-8")
@@ -104,26 +104,26 @@ class Daemon:
             writer.write(resp_len.to_bytes(HEADER_SIZE, byteorder="big") + resp_bytes)
             await writer.drain()
         except Exception as e:
-            logger.error(f"failed to send response: {e}")
+            logger.error(f"fallo al enviar respuesta: {e}")
         finally:
             writer.close()
 
     async def handle_client(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
         """
-        Handles incoming IPC client connections.
+        Maneja las conexiones entrantes de clientes IPC.
         """
         response: IPCResponse
         cmd_name = "unknown"
 
         try:
-            # Read 4-byte header (big endian)
+            # Leer cabecera de 4 bytes (big endian)
             header_data = await reader.readexactly(HEADER_SIZE)
             length = int.from_bytes(header_data, byteorder="big")
 
             if length > MAX_PAYLOAD_SIZE:
-                logger.warning(f"payload rejected: {length} bytes > {MAX_PAYLOAD_SIZE} limit")
+                logger.warning(f"carga rechazada: {length} bytes > límite de {MAX_PAYLOAD_SIZE}")
                 response = IPCResponse(
-                    status="error", error=f"payload exceeds limit of {MAX_PAYLOAD_SIZE // (1024 * 1024)}MB"
+                    status="error", error=f"la carga excede el límite de {MAX_PAYLOAD_SIZE // (1024 * 1024)}MB"
                 )
                 await self._send_response(writer, response)
                 return
@@ -131,68 +131,68 @@ class Daemon:
             payload_data = await reader.readexactly(length)
             message = payload_data.decode("utf-8").strip()
         except asyncio.IncompleteReadError:
-            logger.warning("incomplete read from client")
+            logger.warning("lectura incompleta del cliente")
             writer.close()
             await writer.wait_closed()
             return
         except Exception as e:
-            logger.error(f"error reading ipc message: {e}")
+            logger.error(f"error leyendo mensaje ipc: {e}")
             writer.close()
             await writer.wait_closed()
             return
 
-        logger.info(f"ipc message received: {message[:200]}...")
+        logger.info(f"mensaje ipc recibido: {message[:200]}...")
 
-        # Parse JSON
+        # Parsear JSON
         try:
             req = IPCRequest.from_json(message)
             cmd_name = req.cmd
             data = req.data or {}
         except (json.JSONDecodeError, KeyError) as e:
-            logger.warning(f"invalid json, rejecting: {e}")
-            response = IPCResponse(status="error", error=f"invalid JSON format: {e!s}")
+            logger.warning(f"json inválido, rechazando: {e}")
+            response = IPCResponse(status="error", error=f"formato JSON inválido: {e!s}")
             await self._send_response(writer, response)
             return
 
         try:
             if cmd_name == IPCCommand.START_RECORDING:
                 if self.paused:
-                    response = IPCResponse(status="error", error="daemon is paused")
+                    response = IPCResponse(status="error", error="el demonio está pausado")
                 else:
                     await self.command_bus.dispatch(StartRecordingCommand())
                     response = IPCResponse(
-                        status="success", data={"state": "recording", "message": "recording started"}
+                        status="success", data={"state": "recording", "message": "grabación iniciada"}
                     )
 
             elif cmd_name == IPCCommand.STOP_RECORDING:
                 if self.paused:
-                    response = IPCResponse(status="error", error="daemon is paused")
+                    response = IPCResponse(status="error", error="el demonio está pausado")
                 else:
                     result = await self.command_bus.dispatch(StopRecordingCommand())
                     if result:
                         response = IPCResponse(status="success", data={"state": "idle", "transcription": result})
                     else:
-                        response = IPCResponse(status="error", error="no voice detected")
+                        response = IPCResponse(status="error", error="no se detectó voz")
 
             elif cmd_name == IPCCommand.PROCESS_TEXT:
                 if self.paused:
-                    response = IPCResponse(status="error", error="daemon is paused")
+                    response = IPCResponse(status="error", error="el demonio está pausado")
                 else:
                     text = data.get("text")
                     if not text:
-                        response = IPCResponse(status="error", error="missing data.text in payload")
+                        response = IPCResponse(status="error", error="falta data.text en la carga útil")
                     else:
                         result = await self.command_bus.dispatch(ProcessTextCommand(text))
                         response = IPCResponse(status="success", data={"refined_text": result})
 
             elif cmd_name == IPCCommand.TRANSLATE_TEXT:
                 if self.paused:
-                    response = IPCResponse(status="error", error="daemon is paused")
+                    response = IPCResponse(status="error", error="el demonio está pausado")
                 else:
                     text = data.get("text")
                     target_lang = data.get("target_lang", "en")
                     if not text:
-                        response = IPCResponse(status="error", error="missing data.text in payload")
+                        response = IPCResponse(status="error", error="falta data.text en la carga útil")
                     else:
                         result = await self.command_bus.dispatch(TranslateTextCommand(text, target_lang))
                         response = IPCResponse(status="success", data={"refined_text": result, "state": "idle"})
@@ -200,7 +200,7 @@ class Daemon:
             elif cmd_name == IPCCommand.UPDATE_CONFIG:
                 updates = data.get("updates")
                 if not updates:
-                    response = IPCResponse(status="error", error="missing data.updates in payload")
+                    response = IPCResponse(status="error", error="falta data.updates en la carga útil")
                 else:
                     result = await self.command_bus.dispatch(UpdateConfigCommand(updates))
                     response = IPCResponse(status="success", data=result)
@@ -232,11 +232,11 @@ class Daemon:
                 response = IPCResponse(status="success", data={"message": "SHUTTING_DOWN"})
 
             else:
-                logger.warning(f"unknown command: {cmd_name}")
-                response = IPCResponse(status="error", error=f"unknown command: {cmd_name}")
+                logger.warning(f"comando desconocido: {cmd_name}")
+                response = IPCResponse(status="error", error=f"comando desconocido: {cmd_name}")
 
         except Exception as e:
-            logger.error(f"error handling command {cmd_name}: {e}")
+            logger.error(f"error manejando comando {cmd_name}: {e}")
             response = IPCResponse(status="error", error=str(e))
 
         await self._send_response(writer, response)
@@ -246,24 +246,24 @@ class Daemon:
 
     async def start_server(self) -> None:
         """
-        Starts the Unix socket server.
+        Inicia el servidor socket Unix.
         """
         if self.socket_path.exists():
-            # Check if socket is actually alive
+            # Verificar si el socket está realmente vivo
             try:
                 _reader, writer = await asyncio.open_unix_connection(str(self.socket_path))
                 writer.close()
                 await writer.wait_closed()
-                logger.error("daemon is already running")
+                logger.error("el demonio ya está en ejecución")
                 sys.exit(1)
             except (ConnectionRefusedError, FileNotFoundError):
-                # Socket exists but no one listening, safe to remove
+                # El socket existe pero nadie escucha, seguro de eliminar
                 self.socket_path.unlink()
 
         server = await asyncio.start_unix_server(self.handle_client, str(self.socket_path))
 
         self.pid_file.write_text(str(os.getpid()))
-        logger.info(f"daemon listening on {self.socket_path} (pid: {os.getpid()})")
+        logger.info(f"demonio escuchando en {self.socket_path} (pid: {os.getpid()})")
 
         self.running = True
 
@@ -272,9 +272,9 @@ class Daemon:
 
     def _cleanup_orphaned_processes(self) -> None:
         """
-        Cleans up orphaned v2m processes.
+        Limpia procesos v2m huérfanos.
 
-        Terminates other v2m instances, releases VRAM, and cleans up residual files.
+        Termina otras instancias de v2m, libera VRAM y limpia archivos residuales.
         """
         current_pid = os.getpid()
         killed_count = 0
@@ -289,25 +289,25 @@ class Daemon:
                     cmdline_str = " ".join(cmdline)
                     proc_name = (proc.info["name"] or "").lower()
 
-                    # Identification criteria
+                    # Criterios de identificación
                     is_v2m_module = any(marker in cmdline_str for marker in ["v2m.daemon", "v2m.main", "-m v2m"])
                     is_v2m_binary = proc_name == "v2m"
 
                     if is_v2m_module or is_v2m_binary:
-                        logger.warning(f"🧹 killing orphaned v2m process pid {proc.pid}: {cmdline_str[:50]}...")
+                        logger.warning(f"🧹 matando proceso v2m huérfano pid {proc.pid}: {cmdline_str[:50]}...")
                         proc.kill()
                         with contextlib.suppress(psutil.TimeoutExpired):
                             proc.wait(timeout=3)
                         killed_count += 1
-                        logger.info(f"✅ process {proc.pid} killed")
+                        logger.info(f"✅ proceso {proc.pid} eliminado")
 
                 except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
                     pass
 
             if killed_count > 0:
-                logger.info(f"🧹 total: {killed_count} zombie process(s) killed")
+                logger.info(f"🧹 total: {killed_count} proceso(s) zombie eliminado(s)")
 
-                # Release VRAM
+                # Liberar VRAM
                 try:
                     if torch and torch.cuda.is_available():
                         torch.cuda.empty_cache()
@@ -315,7 +315,7 @@ class Daemon:
                 except Exception:
                     pass
 
-            # Clean residual files
+            # Limpiar archivos residuales
             residual_files = [
                 self.pid_file,
                 self.socket_path,
@@ -325,57 +325,57 @@ class Daemon:
                 if f.exists():
                     try:
                         f.unlink()
-                        logger.debug(f"🧹 residual file removed: {f}")
+                        logger.debug(f"🧹 archivo residual eliminado: {f}")
                     except Exception:
                         pass
 
         except Exception as e:
-            logger.warning(f"error during cleanup: {e}")
+            logger.warning(f"error durante la limpieza: {e}")
 
     def _cleanup_resources(self) -> None:
         """
-        Cleans up resources on exit (atexit).
+        Limpia recursos al salir (atexit).
         """
         try:
-            logger.info("🧹 cleaning up daemon resources...")
+            logger.info("🧹 limpiando recursos del demonio...")
 
-            # Release VRAM
+            # Liberar VRAM
             try:
                 if torch and torch.cuda.is_available():
                     torch.cuda.empty_cache()
-                    logger.info("✅ vram released")
+                    logger.info("✅ vram liberada")
             except Exception as e:
-                logger.debug(f"could not release vram: {e}")
+                logger.debug(f"no se pudo liberar vram: {e}")
 
-            # Remove socket
+            # Eliminar socket
             if self.socket_path.exists():
                 self.socket_path.unlink()
-                logger.info("✅ socket removed")
+                logger.info("✅ socket eliminado")
 
-            # Remove pid file
+            # Eliminar archivo pid
             if self.pid_file.exists():
                 self.pid_file.unlink()
-                logger.info("✅ pid file removed")
+                logger.info("✅ archivo pid eliminado")
         except Exception as e:
-            logger.error(f"error during cleanup: {e}")
+            logger.error(f"error durante la limpieza: {e}")
 
     def stop(self) -> None:
         """
-        Stops the daemon and releases resources.
+        Detiene el demonio y libera recursos.
         """
-        logger.info("stopping daemon...")
+        logger.info("deteniendo demonio...")
         self._cleanup_resources()
         sys.exit(0)
 
     def run(self) -> None:
         """
-        Runs the daemon main loop.
+        Ejecuta el bucle principal del demonio.
         """
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
 
         def signal_handler():
-            logger.info("signal received, shutting down...")
+            logger.info("señal recibida, apagando...")
             self.stop()
 
         loop.add_signal_handler(signal.SIGINT, signal_handler)

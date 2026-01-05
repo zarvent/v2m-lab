@@ -14,13 +14,14 @@
 # along with voice2machine.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Whisper Transcription Service Implementation.
+Implementación del Servicio de Transcripción Whisper.
 
-This module implements the `TranscriptionService` interface using `faster-whisper`.
-It handles:
-- Audio recording management via `AudioRecorder`.
-- Lazy loading of the Whisper model.
-- In-memory audio transcription.
+Este módulo implementa la interfaz `TranscriptionService` utilizando la librería
+`faster-whisper`.
+Maneja:
+- Gestión de la grabación de audio vía `AudioRecorder`.
+- Carga diferida (lazy loading) del modelo Whisper para optimizar el inicio.
+- Transcripción de audio en memoria (sin archivos intermedios si es posible).
 """
 
 from faster_whisper import WhisperModel
@@ -34,28 +35,28 @@ from v2m.infrastructure.audio.recorder import AudioRecorder
 
 class WhisperTranscriptionService(TranscriptionService):
     """
-    Implementation of `TranscriptionService` using `faster-whisper`.
+    Implementación concreta de `TranscriptionService` utilizando `faster-whisper`.
     """
 
     def __init__(self) -> None:
         """
-        Initializes the transcription service.
-        The model is not loaded at this point to improve startup time.
+        Inicializa el servicio de transcripción.
+        Nota: El modelo no se carga en este punto para mejorar el tiempo de arranque (lazy).
         """
         self._model: WhisperModel | None = None
-        # Access config via transcription.whisper
+        # Acceder a la configuración a través de la nueva estructura anidada
         self.recorder = AudioRecorder(device_index=config.transcription.whisper.audio_device_index)
 
     @property
     def model(self) -> WhisperModel:
         """
-        Lazy loads the `faster-whisper` model.
+        Carga diferida (Lazy Load) del modelo Whisper.
 
         Returns:
-            The loaded WhisperModel instance.
+            WhisperModel: La instancia del modelo cargada y lista para usar.
         """
         if self._model is None:
-            logger.info("loading whisper model...")
+            logger.info("cargando modelo whisper...")
             whisper_config = config.transcription.whisper
 
             try:
@@ -66,21 +67,21 @@ class WhisperTranscriptionService(TranscriptionService):
                     device_index=whisper_config.device_index,
                     num_workers=whisper_config.num_workers,
                 )
-                logger.info(f"whisper model loaded on {whisper_config.device}")
+                logger.info(f"modelo whisper cargado en {whisper_config.device}")
             except Exception as e:
-                logger.error(f"error loading model on {whisper_config.device}: {e}")
+                logger.error(f"error cargando modelo en {whisper_config.device}: {e}")
                 if whisper_config.device == "cuda":
-                    logger.warning("attempting cpu fallback...")
+                    logger.warning("intentando fallback a cpu...")
                     try:
                         self._model = WhisperModel(
                             whisper_config.model,
                             device="cpu",
-                            compute_type="int8",  # CPU usually requires int8 for speed
+                            compute_type="int8",  # CPU usualmente requiere int8 para velocidad
                             num_workers=whisper_config.num_workers,
                         )
-                        logger.info("whisper model loaded on cpu (fallback)")
+                        logger.info("modelo whisper cargado en cpu (fallback)")
                     except Exception as e2:
-                        logger.critical(f"critical failure: could not load model on cpu either: {e2}")
+                        logger.critical(f"fallo crítico: no se pudo cargar el modelo ni en cpu: {e2}")
                         raise e2
                 else:
                     raise e
@@ -89,51 +90,50 @@ class WhisperTranscriptionService(TranscriptionService):
 
     def start_recording(self) -> None:
         """
-        Starts audio recording.
+        Inicia la grabación de audio.
 
         Raises:
-            RecordingError: If recording fails to start.
+            RecordingError: Si falla el inicio de la grabación.
         """
         try:
             self.recorder.start()
-            logger.info("recording started")
+            logger.info("grabación iniciada")
         except RecordingError as e:
-            logger.error(f"error starting recording: {e}")
+            logger.error(f"error iniciando grabación: {e}")
             raise e
 
     def stop_and_transcribe(self) -> str:
         """
-        Stops recording and transcribes the audio.
+        Detiene la grabación y transcribe el audio capturado.
 
         Returns:
-            The transcribed text.
+            str: El texto transcrito.
 
         Raises:
-            RecordingError: If no audio was recorded or recording failed.
+            RecordingError: Si no se grabó audio o falló la grabación.
         """
         try:
-            # Stop recording and get audio data without saving to disk
+            # Detener grabación y obtener datos sin guardar a disco (in-memory)
             audio_data = self.recorder.stop(copy_data=False)
         except RecordingError as e:
-            logger.error(f"error stopping recording: {e}")
+            logger.error(f"error deteniendo grabación: {e}")
             raise e
 
         if audio_data.size == 0:
-            raise RecordingError("no audio recorded or buffer empty")
+            raise RecordingError("no se grabó audio o el buffer está vacío")
 
-        # --- Transcription with Whisper ---
-        logger.info("transcribing audio...")
+        # --- Transcripción con Whisper ---
+        logger.info("transcribiendo audio...")
         whisper_config = config.transcription.whisper
 
         try:
-            # 1. Auto-detection logic
+            # 1. Lógica de auto-detección
             lang = whisper_config.language
             if lang == "auto":
-                lang = None  # None enables auto-detection in faster-whisper
+                lang = None  # None habilita la auto-detección en faster-whisper
 
-            # 2. Initial prompt to guide the model (context)
-            # Using a generic prompt if not configured.
-            initial_prompt = "Transcription."
+            # 2. Prompt inicial para guiar el contexto del modelo
+            initial_prompt = "Transcripción."
 
             segments, info = self.model.transcribe(
                 audio_data,
@@ -148,15 +148,15 @@ class WhisperTranscriptionService(TranscriptionService):
             )
 
             if lang is None:
-                logger.info(f"detected language {info.language} prob {info.language_probability:.2f}")
+                logger.info(f"idioma detectado {info.language} probabilidad {info.language_probability:.2f}")
 
-            # Join segments efficiently
+            # Unir segmentos eficientemente
             text = " ".join(segment.text.strip() for segment in segments)
-            logger.info("transcription completed")
+            logger.info("transcripción completada")
             return text
 
         except Exception as e:
-            logger.error(f"error during transcription: {e}")
+            logger.error(f"error durante la transcripción: {e}")
             raise e
         finally:
             pass

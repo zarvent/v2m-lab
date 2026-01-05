@@ -17,11 +17,12 @@ import {
   SPARKLINE_HISTORY_LENGTH,
 } from "../constants";
 
-// --- OPTIMIZED HELPERS ---
+// --- HELPERS OPTIMIZADOS ---
 
 /**
- * O(1) Fuzzy telemetry comparison.
- * Ignores negligible changes (epsilon) to prevent excessive re-renders.
+ * Comparación difusa (Fuzzy) de telemetría O(1).
+ * Ignora cambios insignificantes (epsilon) para prevenir renderizados excesivos
+ * que consuman CPU innecesariamente en el frontend.
  */
 function isTelemetryEqual(
   a: TelemetryData | null,
@@ -30,9 +31,9 @@ function isTelemetryEqual(
   if (a === b) return true;
   if (!a || !b) return false;
 
-  const EPSILON_PERCENT = 0.5; // 0.5% change threshold
-  const EPSILON_RAM_GB = 0.1; // 100MB change threshold
-  const EPSILON_VRAM_MB = 50; // 50MB change threshold
+  const EPSILON_PERCENT = 0.5; // Umbral de cambio: 0.5%
+  const EPSILON_RAM_GB = 0.1; // Umbral de cambio: 100MB
+  const EPSILON_VRAM_MB = 50; // Umbral de cambio: 50MB
 
   // CPU
   if (Math.abs(a.cpu.percent - b.cpu.percent) > EPSILON_PERCENT) return false;
@@ -54,7 +55,10 @@ function isTelemetryEqual(
   return true;
 }
 
-/** Map daemon state string to Status type */
+/**
+ * Mapea el estado del demonio (string) al tipo Status del frontend.
+ * Maneja la normalización de estados transitorios.
+ */
 function mapDaemonState(state: string): Status {
   switch (state) {
     case "recording":
@@ -69,13 +73,13 @@ function mapDaemonState(state: string): Status {
     case "running":
       return "idle";
     default:
-      // Log unexpected states for debugging
-      console.warn(`[useBackend] Unexpected daemon state: ${state}`);
+      // Loguear estados inesperados para depuración
+      console.warn(`[useBackend] Estado del demonio inesperado: ${state}`);
       return "idle";
   }
 }
 
-/** Extract error message from IpcError or string */
+/** Extrae el mensaje de error de un objeto IpcError o string */
 function extractError(e: unknown): string {
   if (typeof e === "object" && e !== null && "message" in e) {
     return (e as IpcError).message;
@@ -84,16 +88,16 @@ function extractError(e: unknown): string {
 }
 
 /**
- * OPTIMIZED BACKEND HOOK - Event-driven with typed IPC
+ * HOOK DE BACKEND OPTIMIZADO - Basado en Eventos con IPC Tipado.
  *
- * Architecture:
- * - Initial GET_STATUS on mount for hydration
- * - Tauri event listener for push updates (v2m://state-update)
- * - Fallback polling only when events not received (disconnection recovery)
- * - Typed invoke() calls - no JSON.parse overhead
+ * Arquitectura:
+ * - GET_STATUS inicial al montar para hidratación rápida.
+ * - Listener de eventos Tauri para actualizaciones push (v2m://state-update).
+ * - Polling de respaldo (fallback) solo si no se reciben eventos (recuperación de desconexión).
+ * - Llamadas invoke() tipadas - evita el overhead de JSON.parse manual.
  */
 export function useBackend(): [BackendState, BackendActions] {
-  // --- STATE ---
+  // --- ESTADO (STATE) ---
   const [status, setStatus] = useState<Status>("disconnected");
   const [transcription, setTranscription] = useState("");
   const [telemetry, setTelemetry] = useState<TelemetryData | null>(null);
@@ -104,7 +108,7 @@ export function useBackend(): [BackendState, BackendActions] {
   const [lastPingTime, setLastPingTime] = useState<number | null>(null);
   const [history, setHistory] = useState<HistoryItem[]>([]);
 
-  // --- REFS (avoid stale closures) ---
+  // --- REFS (evitar clausuras obsoletas / stale closures) ---
   const statusRef = useRef<Status>(status);
   const prevTelemetryRef = useRef<TelemetryData | null>(null);
   const lastPingTimeRef = useRef<number>(0);
@@ -116,13 +120,13 @@ export function useBackend(): [BackendState, BackendActions] {
     statusRef.current = status;
   }, [status]);
 
-  // --- HISTORY PERSISTENCE ---
+  // --- PERSISTENCIA DE HISTORIAL ---
   useEffect(() => {
     try {
       const saved = localStorage.getItem(HISTORY_STORAGE_KEY);
       if (saved) setHistory(JSON.parse(saved));
     } catch (e) {
-      console.error("Failed to load history from localStorage:", e);
+      console.error("Fallo al cargar historial de localStorage:", e);
     }
   }, []);
 
@@ -144,19 +148,19 @@ export function useBackend(): [BackendState, BackendActions] {
     []
   );
 
-  // --- STATE UPDATE HANDLER (shared by poll and events) ---
+  // --- MANEJADOR DE ACTUALIZACIÓN DE ESTADO (compartido por poll y eventos) ---
   const handleStateUpdate = useCallback((data: DaemonState) => {
     lastEventTimeRef.current = Date.now();
     setIsConnected(true);
 
-    // Throttle ping time updates (5s)
+    // Limitar actualizaciones de tiempo de ping (throttle 5s)
     const now = Date.now();
     if (now - lastPingTimeRef.current > PING_UPDATE_INTERVAL_MS) {
       setLastPingTime(now);
       lastPingTimeRef.current = now;
     }
 
-    // Update telemetry with diff check
+    // Actualizar telemetría solo si hay cambios significativos
     if (
       data.telemetry &&
       !isTelemetryEqual(prevTelemetryRef.current, data.telemetry)
@@ -171,7 +175,7 @@ export function useBackend(): [BackendState, BackendActions] {
       );
     }
 
-    // Update transcription if present
+    // Actualizar transcripción si está presente en el payload
     if (data.transcription !== undefined) {
       setTranscription(data.transcription);
     }
@@ -179,49 +183,52 @@ export function useBackend(): [BackendState, BackendActions] {
       setTranscription(data.refined_text);
     }
 
-    // Map state - preserve transitional states
+    // Mapear estado - preservar estados transitorios del UI
     const newStatus = mapDaemonState(data.state);
     setStatus((prev) => {
       if (
         (prev === "transcribing" || prev === "processing") &&
         newStatus === "idle"
       ) {
-        return prev; // Don't interrupt transitional state
+        return prev; // No interrumpir estado transitorio hasta confirmación explícita
       }
       return newStatus;
     });
   }, []);
 
-  // --- POLL FUNCTION (for initial load and fallback) ---
+  // --- FUNCIÓN DE POLLING (carga inicial y fallback) ---
   const pollStatus = useCallback(async () => {
     try {
-      console.debug("[useBackend] Polling daemon status...");
+      console.debug("[useBackend] Polling estado del demonio...");
       const data = await invoke<DaemonState>("get_status");
-      console.debug("[useBackend] Received state:", data);
+      console.debug("[useBackend] Estado recibido:", data);
       handleStateUpdate(data);
       if (statusRef.current === "disconnected") setErrorMessage("");
     } catch (e) {
-      console.warn("[useBackend] Poll failed - daemon may be offline:", e);
+      console.warn(
+        "[useBackend] Poll fallido - demonio podría estar offline:",
+        e
+      );
       setIsConnected(false);
       setStatus("disconnected");
     }
   }, [handleStateUpdate]);
 
-  // --- EVENT LISTENER (primary update mechanism) ---
+  // --- LISTENER DE EVENTOS (mecanismo principal de actualización) ---
   useEffect(() => {
     let unlisten: UnlistenFn | null = null;
 
-    // Initial fetch
+    // Fetch inicial
     pollStatus();
 
-    // Subscribe to push events
+    // Suscribirse a eventos push del backend
     listen<DaemonState>("v2m://state-update", (event) => {
       handleStateUpdate(event.payload);
     }).then((fn) => {
       unlisten = fn;
     });
 
-    // Fallback polling - only if no events received in 2 seconds
+    // Polling de respaldo - solo si no se reciben eventos en 2 segundos
     const fallbackInterval = setInterval(() => {
       const timeSinceLastEvent = Date.now() - lastEventTimeRef.current;
       if (timeSinceLastEvent > STATUS_POLL_INTERVAL_MS * 4) {
@@ -235,13 +242,13 @@ export function useBackend(): [BackendState, BackendActions] {
     };
   }, [pollStatus, handleStateUpdate]);
 
-  // --- ACTIONS (typed invoke, no JSON.parse) ---
+  // --- ACCIONES (invoke tipado) ---
 
   const startRecording = useCallback(
     async (mode: "replace" | "append" = "replace") => {
       if (statusRef.current === "paused") return;
       try {
-        // Store mode and current transcription for append
+        // Almacenar modo y transcripción actual para 'append'
         recordingModeRef.current = mode;
         if (mode === "append") {
           transcriptionBeforeAppendRef.current = transcription;
@@ -257,11 +264,11 @@ export function useBackend(): [BackendState, BackendActions] {
   );
 
   const stopRecording = useCallback(async () => {
-    setStatus("transcribing"); // Optimistic UI
+    setStatus("transcribing"); // UI Optimista
     try {
       const data = await invoke<DaemonState>("stop_recording");
       if (data.transcription) {
-        // Handle append mode: combine previous + new transcription
+        // Manejo modo append: combinar previa + nueva transcripción
         if (
           recordingModeRef.current === "append" &&
           transcriptionBeforeAppendRef.current
@@ -273,12 +280,12 @@ export function useBackend(): [BackendState, BackendActions] {
           setTranscription(data.transcription);
           addToHistory(data.transcription, "recording");
         }
-        // Reset mode
+        // Resetear modo
         recordingModeRef.current = "replace";
         transcriptionBeforeAppendRef.current = "";
         setStatus("idle");
       } else {
-        setErrorMessage("No speech detected in audio");
+        setErrorMessage("No se detectó voz en el audio");
         setStatus("error");
       }
     } catch (e) {
@@ -289,7 +296,7 @@ export function useBackend(): [BackendState, BackendActions] {
 
   const processText = useCallback(async () => {
     if (!transcription) return;
-    setStatus("processing"); // Optimistic UI
+    setStatus("processing"); // UI Optimista
     try {
       const data = await invoke<DaemonState>("process_text", {
         text: transcription,
@@ -299,7 +306,7 @@ export function useBackend(): [BackendState, BackendActions] {
         addToHistory(data.refined_text, "refinement");
         setStatus("idle");
       } else {
-        setErrorMessage("Unexpected LLM response");
+        setErrorMessage("Respuesta inesperada del LLM");
         setStatus("error");
       }
     } catch (e) {
@@ -311,7 +318,7 @@ export function useBackend(): [BackendState, BackendActions] {
   const translateText = useCallback(
     async (targetLang: "es" | "en") => {
       if (!transcription) return;
-      setStatus("processing"); // Optimistic UI
+      setStatus("processing"); // UI Optimista
       try {
         const data = await invoke<DaemonState>("translate_text", {
           text: transcription,
@@ -322,7 +329,7 @@ export function useBackend(): [BackendState, BackendActions] {
           addToHistory(data.refined_text, "refinement");
           setStatus("idle");
         } else {
-          setErrorMessage("Translation failed");
+          setErrorMessage("Falló la traducción");
           setStatus("error");
         }
       } catch (e) {
@@ -357,7 +364,7 @@ export function useBackend(): [BackendState, BackendActions] {
     setStatus("restarting");
     try {
       await invoke<DaemonState>("restart_daemon");
-      // Event listener will detect when daemon is back online
+      // El listener de eventos detectará cuando el demonio vuelva a estar online
     } catch (e) {
       setErrorMessage(extractError(e));
       setStatus("error");
@@ -375,7 +382,8 @@ export function useBackend(): [BackendState, BackendActions] {
       setStatus("error");
     }
   }, []);
-  // --- MEMOIZED RETURN VALUES ---
+
+  // --- VALORES DE RETORNO MEMOIZADOS ---
 
   const state: BackendState = useMemo(
     () => ({

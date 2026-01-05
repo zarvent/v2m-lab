@@ -14,39 +14,35 @@
 # along with voice2machine.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-interfaz base para los manejadores de comandos (command handlers)
+Interfaz base para los Manejadores de Comandos (Command Handlers).
 
-este módulo define la clase abstracta ``CommandHandler`` que establece el
-contrato que deben cumplir todos los handlers de comandos en la aplicación
+Este módulo define la clase abstracta `CommandHandler` que establece el
+contrato que deben cumplir todos los handlers de comandos en la aplicación.
 
-en el patrón cqrs un handler es el componente que contiene la lógica de
-negocio para procesar un tipo específico de comando cada handler
+En el patrón CQRS, un handler es el componente que contiene la lógica de
+aplicación para procesar un tipo específico de comando.
 
-    - se suscribe a exactamente un tipo de comando
-    - es invocado por el ``CommandBus`` cuando llega un comando de su tipo
-    - coordina los servicios de dominio e infraestructura necesarios
+Responsabilidades de un Handler:
+    - Suscribirse a exactamente un tipo de comando.
+    - Orquestar llamadas a servicios de dominio e infraestructura.
+    - Manejar la interacción entre capas (Application -> Domain/Infrastructure).
+    - No contener lógica de negocio compleja (delegarla al Dominio).
 
-responsabilidades de un handler
-    - validar los datos del comando (si es necesario)
-    - orquestar llamadas a servicios de dominio e infraestructura
-    - manejar errores y traducirlos a respuestas apropiadas
-    - no contener lógica de dominio compleja (delegarla a servicios)
+Ejemplo:
+    ```python
+    class EnviarEmailHandler(CommandHandler):
+        def __init__(self, email_service: EmailService):
+            self.email_service = email_service
 
-example
-    implementación de un handler::
+        async def handle(self, command: EnviarEmailCommand) -> None:
+            await self.email_service.enviar(
+                command.destinatario,
+                command.asunto
+            )
 
-        class EnviarEmailHandler(CommandHandler):
-            def __init__(self, email_service: EmailService):
-                self.email_service = email_service
-
-            async def handle(self, command: EnviarEmailCommand) -> None:
-                await self.email_service.enviar(
-                    command.destinatario,
-                    command.asunto
-                )
-
-            def listen_to(self) -> Type[Command]:
-                return EnviarEmailCommand
+        def listen_to(self) -> type[Command]:
+            return EnviarEmailCommand
+    ```
 """
 
 from abc import ABC, abstractmethod
@@ -56,62 +52,41 @@ from .command import Command
 
 class CommandHandler(ABC):
     """
-    clase base abstracta para los manejadores de comandos
+    Clase base abstracta para los manejadores de comandos.
 
-    todos los handlers de la aplicación deben heredar de esta clase e
-    implementar los métodos abstractos ``handle()`` y ``listen_to()``
+    Todos los handlers de la aplicación deben heredar de esta clase e
+    implementar los métodos abstractos `handle()` y `listen_to()`.
 
-    el ciclo de vida de un handler es
-        1 se instancia durante la configuración (con dependencias inyectadas)
-        2 se registra en el ``CommandBus``
-        3 es invocado cada vez que llega un comando de su tipo
-
-    note
-        los handlers deben ser stateless o manejar su estado de forma
-        thread-safe ya que pueden ser invocado concurrentemente
+    Nota:
+        Los handlers deben ser stateless (sin estado) o manejar su estado de forma
+        segura (thread-safe), ya que son instanciados como Singletons.
     """
 
     @abstractmethod
     async def handle(self, command: Command) -> None:
         """
-        procesa el comando ejecutando la lógica de negocio correspondiente
+        Procesa el comando ejecutando la lógica de aplicación correspondiente.
 
-        este método es invocado por el ``CommandBus`` cuando un comando del
-        tipo apropiado es despachado debe coordinar las operaciones necesarias
-        utilizando los servicios inyectados en el constructor
+        Este método es invocado por el `CommandBus`. Debe coordinar las operaciones
+        necesarias utilizando los servicios inyectados en el constructor.
 
-        args:
-            command: la instancia del comando a procesar el tipo concreto
-                corresponde al tipo retornado por ``listen_to()``
+        Args:
+            command: La instancia del comando a procesar.
 
-        note:
-            este método es asíncrono para soportar operaciones i/o bound
-            (llamadas a apis acceso a disco etc) sin bloquear
-
-        raises:
-            puede lanzar excepciones de dominio (``ApplicationError`` y
-            subclases) que serán capturadas por el daemon y convertidas
-            en respuestas de error apropiadas
+        Raises:
+            Exception: Cualquier excepción será capturada por la capa superior
+            (Daemon) y devuelta como error al cliente.
         """
         raise NotImplementedError
 
     def listen_to(self) -> type[Command]:
         """
-        especifica a qué tipo de comando se suscribe este handler
+        Especifica a qué tipo de comando se suscribe este handler.
 
-        el ``CommandBus`` utiliza este método durante el registro para
-        construir el mapeo tipo-de-comando -> handler cuando un comando
-        es despachado el bus consulta este mapeo para determinar qué
-        handler debe procesarlo
+        El `CommandBus` utiliza este método durante el registro para
+        construir el enrutamiento.
 
-        returns:
-            el tipo (clase) del comando que este handler puede procesar
-            por ejemplo ``StartRecordingCommand`` (la clase no una instancia)
-
-        example
-            implementación típica::
-
-                def listen_to(self) -> Type[Command]:
-                    return MiComandoEspecifico
+        Returns:
+            type[Command]: La Clase del comando que este handler puede procesar.
         """
         raise NotImplementedError
