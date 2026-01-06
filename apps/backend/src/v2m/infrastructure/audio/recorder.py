@@ -18,7 +18,11 @@ import wave
 from pathlib import Path
 
 import numpy as np
-import sounddevice as sd
+
+try:
+    import sounddevice as sd
+except OSError:
+    sd = None
 
 from v2m.core.logging import logger
 from v2m.domain.errors import RecordingError
@@ -94,6 +98,9 @@ class AudioRecorder:
                 return
             except Exception as e:
                 logger.error(f"error inicializando motor rust: {e} - cayendo a python")
+
+        if sd is None:
+            logger.warning("sounddevice no está disponible (PortAudio no encontrado)")
 
         # Inicialización del fallback Python (buffer pre-allocado)
         self._buffer = self._allocate_buffer()
@@ -179,6 +186,8 @@ class AudioRecorder:
                     self._write_pos = end_pos
 
         try:
+            if sd is None:
+                raise OSError("PortAudio library not found")
             self._stream = sd.InputStream(
                 samplerate=self.sample_rate,
                 channels=self.channels,
