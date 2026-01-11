@@ -96,7 +96,6 @@ start_daemon() {
     # --- configurar ld_library_path para cuda y cudnn ---
     # buscamos las librerías de nvidia en el entorno virtual que son
     # necesarias para que whisper funcione con la tarjeta gráfica
-    # OPTIMIZATION 2026: Fast path lookup without Python startup cost
 
     # 1. Try to find site-packages dir directly
     VENV_LIB_BASE="${PROJECT_DIR}/venv/lib"
@@ -108,11 +107,6 @@ start_daemon() {
         CUDA_PATHS=""
 
         if [ -d "${VENV_LIB}" ]; then
-            # Optimized finding of lib directories
-            # Using find avoids looping in bash which is slow for many files
-            # but here we just need specific dirs.
-
-            # Using globbing instead of loop for speed
             for lib_path in "${VENV_LIB}"/*/lib; do
                 if [ -d "$lib_path" ]; then
                     if [ -z "${CUDA_PATHS}" ]; then

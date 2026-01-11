@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """
-Ultra-fast, standalone IPC client for voice2machine.
+Standalone IPC client for voice2machine.
 Designed to minimize startup latency for keyboard shortcuts.
-Dependency-free (uses only stdlib).
 """
 
 import sys

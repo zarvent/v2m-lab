@@ -110,10 +110,6 @@ run_client() {
     local command=$1
     local payload="${2:-}"
 
-    # OPTIMIZATION: Use lightweight standalone client (no imports) for instant response (<10ms)
-    # The VENV is actually NOT needed for this standalone script if it uses only stdlib!
-    # However, we use the system python3 which is usually fast enough.
-
     # Check if standalone client exists
     local CLIENT_SCRIPT="${SCRIPT_DIR}/../utils/send_command.py"
     if [ -f "$CLIENT_SCRIPT" ]; then

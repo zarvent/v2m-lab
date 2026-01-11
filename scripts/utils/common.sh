@@ -19,7 +19,6 @@ get_runtime_dir() {
     fi
 
     # Security verification: If directory exists, it MUST be owned by the current user
-    # Optimized check: Avoid 'stat' subshell overhead if unnecessary
     if [ -d "$runtime_dir" ]; then
         if [ ! -O "$runtime_dir" ]; then
             echo "ERROR: Runtime directory $runtime_dir is owned by another user." >&2
