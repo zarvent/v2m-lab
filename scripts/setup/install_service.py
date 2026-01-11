@@ -170,11 +170,14 @@ def install_service() -> None:
     SYSTEMD_USER_DIR.mkdir(parents=True, exist_ok=True)
 
     # 2. Rutas absolutas - Detectar estructura monorepo
-    repo_root = Path.cwd().resolve()
+    # Usar __file__ para ser robusto sin importar el CWD
+    repo_root = Path(__file__).resolve().parent.parent.parent
+
     if (repo_root / "apps" / "backend").exists():
         current_dir = repo_root / "apps" / "backend"
     else:
-        current_dir = repo_root  # Fallback para estructura legacy
+        # Fallback por si acaso, aunque con __file__ no debería pasar
+        current_dir = repo_root
     venv_python = current_dir / "venv/bin/python"
 
     # 2.1 Validar entornos virtuales duplicados
@@ -182,7 +185,7 @@ def install_service() -> None:
     if venv_duplicate.exists() and (current_dir / "venv").exists():
         print("❌ ERROR: Detectados dos entornos virtuales (.venv y venv)")
         print("   Esto puede causar consumo excesivo de disco (~10GB)")
-        print(f"   Ejecuta: python3 scripts/cleanup.py --fix-venv")
+        print(f"   Ejecuta: ./scripts/maintenance/cleanup_v2m.sh --fix-venv")
         sys.exit(1)
 
     # 3. Calcular LD_LIBRARY_PATH
