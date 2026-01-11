@@ -12,6 +12,7 @@ import { Studio } from "./components/Studio";
 import { Overview } from "./components/Overview";
 import { Transcriptions } from "./components/Transcriptions";
 import { SnippetsLibrary } from "./components/SnippetsLibrary";
+import { Export } from "./components/Export";
 import { useBackend } from "./hooks/useBackend";
 import { useTimer } from "./hooks/useTimer";
 import { useSnippets } from "./hooks/useSnippets";
@@ -163,6 +164,9 @@ function App() {
 
       case "snippets":
         return <SnippetsLibrary onUseSnippet={handleUseSnippet} />;
+
+      case "export":
+        return <Export onTranscriptionComplete={handleUseSnippet} />;
 
       default:
         return null;

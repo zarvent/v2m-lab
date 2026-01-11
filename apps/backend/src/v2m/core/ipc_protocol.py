@@ -77,6 +77,7 @@ class IPCCommand(str, Enum):
     GET_CONFIG = "GET_CONFIG"
     PAUSE_DAEMON = "PAUSE_DAEMON"
     RESUME_DAEMON = "RESUME_DAEMON"
+    TRANSCRIBE_FILE = "TRANSCRIBE_FILE"
 
 
 # =============================================================================

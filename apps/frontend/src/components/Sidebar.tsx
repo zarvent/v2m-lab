@@ -25,6 +25,7 @@ import {
   DragHandleIcon,
   StudioIcon,
   GithubIcon,
+  VideoIcon,
 } from "../assets/Icons";
 
 export type NavItem =
@@ -32,6 +33,7 @@ export type NavItem =
   | "overview"
   | "transcriptions"
   | "snippets"
+  | "export"
   | "settings";
 
 interface SessionStats {
@@ -61,6 +63,7 @@ const SORTABLE_NAV_ITEMS: NavItemDef[] = [
   { id: "overview", label: "Vista General", Icon: DashboardIcon },
   { id: "transcriptions", label: "Transcripciones", Icon: DescriptionIcon },
   { id: "snippets", label: "Biblioteca", Icon: CodeIcon },
+  { id: "export", label: "Exportar", Icon: VideoIcon },
 ];
 
 const FIXED_NAV_ITEM: NavItemDef = {

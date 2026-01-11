@@ -410,6 +410,26 @@ async fn shutdown_daemon(app: tauri::AppHandle) -> Result<DaemonState, IpcError>
     }
 }
 
+/// Transcribe a media file (video/audio) to text
+///
+/// Supports: MP4, MOV, MKV (video) and WAV, MP3, FLAC, M4A (audio)
+/// Uses FFmpeg for audio extraction and Whisper for transcription.
+#[tauri::command]
+async fn transcribe_file(app: tauri::AppHandle, file_path: String) -> Result<DaemonState, IpcError> {
+    eprintln!("[IPC] Transcribing file: {}", file_path);
+
+    let data = json!({ "file_path": file_path });
+    let result = send_json_request("TRANSCRIBE_FILE", Some(data))?;
+
+    let state: DaemonState = serde_json::from_value(result)
+        .map_err(|e| IpcError::from(format!("Parse error: {}", e)))?;
+
+    // Emit transcription complete event
+    let _ = app.emit("v2m://transcription-complete", &state);
+
+    Ok(state)
+}
+
 // --- ENTRY POINT ---
 
 /// Configuración inicial de la aplicación Tauri.
@@ -417,6 +437,7 @@ async fn shutdown_daemon(app: tauri::AppHandle) -> Result<DaemonState, IpcError>
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_dialog::init())
         .invoke_handler(tauri::generate_handler![
             get_status,
             start_recording,
@@ -429,9 +450,9 @@ pub fn run() {
             update_config,
             get_config,
             restart_daemon,
-            shutdown_daemon
+            shutdown_daemon,
+            transcribe_file
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
-

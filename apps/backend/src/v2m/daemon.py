@@ -50,6 +50,7 @@ from v2m.application.commands import (
     ResumeDaemonCommand,
     StartRecordingCommand,
     StopRecordingCommand,
+    TranscribeFileCommand,
     TranslateTextCommand,
     UpdateConfigCommand,
 )
@@ -230,6 +231,21 @@ class Daemon:
             elif cmd_name == IPCCommand.SHUTDOWN:
                 self.running = False
                 response = IPCResponse(status="success", data={"message": "SHUTTING_DOWN"})
+
+            elif cmd_name == IPCCommand.TRANSCRIBE_FILE:
+                if self.paused:
+                    response = IPCResponse(status="error", error="el demonio está pausado")
+                else:
+                    file_path = data.get("file_path")
+                    if not file_path:
+                        response = IPCResponse(status="error", error="falta data.file_path en la carga útil")
+                    else:
+                        logger.info(f"transcribiendo archivo: {file_path}")
+                        result = await self.command_bus.dispatch(TranscribeFileCommand(file_path))
+                        response = IPCResponse(
+                            status="success",
+                            data={"state": "idle", "transcription": result}
+                        )
 
             else:
                 logger.warning(f"comando desconocido: {cmd_name}")

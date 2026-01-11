@@ -62,7 +62,7 @@ Ejemplo:
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 
-from v2m.application.command_handlers import ProcessTextHandler, StartRecordingHandler, StopRecordingHandler
+from v2m.application.command_handlers import ProcessTextHandler, StartRecordingHandler, StopRecordingHandler, TranscribeFileHandler
 from v2m.application.llm_service import LLMService
 from v2m.application.transcription_service import TranscriptionService
 from v2m.config import config
@@ -75,6 +75,7 @@ from v2m.infrastructure.linux_adapters import LinuxClipboardAdapter
 from v2m.infrastructure.local_llm_service import LocalLLMService
 from v2m.infrastructure.notification_service import LinuxNotificationService
 from v2m.infrastructure.ollama_llm_service import OllamaLLMService
+from v2m.infrastructure.file_transcription_service import FileTranscriptionService
 
 # --- AUTO-REGISTRO DE PROVEEDORES ---
 # Los imports fuerzan el registro en los registries globales.
@@ -172,6 +173,11 @@ class Container:
             self.llm_service, self.notification_service, self.clipboard_service
         )
 
+        # --- Servicio de Transcripción de Archivos ---
+        # Reutiliza el modelo Whisper ya cargado para transcribir archivos
+        self.file_transcription_service = FileTranscriptionService(self.transcription_service)
+        self.transcribe_file_handler = TranscribeFileHandler(self.file_transcription_service)
+
         # --- 3. Instanciar y Configurar el Bus de Comandos ---
         # El bus de comandos se convierte en el punto de acceso central para
         # ejecutar la lógica de negocio
@@ -179,6 +185,7 @@ class Container:
         self.command_bus.register(self.start_recording_handler)
         self.command_bus.register(self.stop_recording_handler)
         self.command_bus.register(self.process_text_handler)
+        self.command_bus.register(self.transcribe_file_handler)
 
     def get_command_bus(self) -> CommandBus:
         """

@@ -37,6 +37,7 @@ from v2m.application.commands import (
     ResumeDaemonCommand,
     StartRecordingCommand,
     StopRecordingCommand,
+    TranscribeFileCommand,
     TranslateTextCommand,
     UpdateConfigCommand,
 )
@@ -363,3 +364,53 @@ class ResumeDaemonHandler(CommandHandler):
 
     def listen_to(self) -> type[Command]:
         return ResumeDaemonCommand
+
+
+class TranscribeFileHandler(CommandHandler):
+    """
+    Manejador para el comando `TranscribeFileCommand`.
+
+    Transcribe archivos de audio/video utilizando FFmpeg para extracción
+    y el modelo Whisper existente para la transcripción.
+    """
+
+    def __init__(self, file_transcription_service) -> None:
+        """
+        Inicializa el handler.
+
+        Args:
+            file_transcription_service: Servicio de transcripción de archivos.
+        """
+        from v2m.infrastructure.file_transcription_service import FileTranscriptionService
+
+        self.file_transcription_service: FileTranscriptionService = file_transcription_service
+
+    async def handle(self, command: TranscribeFileCommand) -> str:
+        """
+        Ejecuta la transcripción del archivo.
+
+        Utiliza el executor dedicado de ML para evitar bloquear el event loop.
+
+        Returns:
+            str: Texto transcrito.
+
+        Raises:
+            FileNotFoundError: Si el archivo no existe.
+            ValueError: Si el formato no es soportado.
+            RuntimeError: Si FFmpeg no está disponible para videos.
+        """
+        loop = asyncio.get_running_loop()
+
+        # Usar executor dedicado para ML - operación potencialmente larga
+        transcription = await loop.run_in_executor(
+            _ml_executor,
+            self.file_transcription_service.transcribe_file,
+            command.file_path,
+        )
+
+        return transcription
+
+    def listen_to(self) -> type[Command]:
+        """Se suscribe al tipo de comando `TranscribeFileCommand`."""
+        return TranscribeFileCommand
+
