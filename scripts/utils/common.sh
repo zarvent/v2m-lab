@@ -5,7 +5,7 @@
 
 # Determine the absolute path to the project root
 COMMON_SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-PROJECT_ROOT="$( dirname "${COMMON_SCRIPT_DIR}" )"
+PROJECT_ROOT="$( dirname "$( dirname "${COMMON_SCRIPT_DIR}" )" )"
 
 # XDG_RUNTIME_DIR compliance and secure runtime directory discovery
 get_runtime_dir() {
@@ -20,10 +20,8 @@ get_runtime_dir() {
 
     # Security verification: If directory exists, it MUST be owned by the current user
     if [ -d "$runtime_dir" ]; then
-        local owner_uid=$(stat -c '%u' "$runtime_dir")
-        local current_uid=$(id -u)
-        if [ "$owner_uid" != "$current_uid" ]; then
-            echo "ERROR: Runtime directory $runtime_dir is owned by another user ($owner_uid)." >&2
+        if [ ! -O "$runtime_dir" ]; then
+            echo "ERROR: Runtime directory $runtime_dir is owned by another user." >&2
             exit 1
         fi
     else

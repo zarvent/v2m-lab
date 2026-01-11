@@ -72,11 +72,11 @@
 
 # --- CONFIGURACIÓN ---
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-PROJECT_DIR="$( dirname "${SCRIPT_DIR}" )/apps/backend"
+PROJECT_DIR="$( dirname "$( dirname "${SCRIPT_DIR}" )" )/apps/backend"
 NOTIFY_EXPIRE_TIME=3000
 
 # --- LOAD COMMON UTILS ---
-source "${SCRIPT_DIR}/common.sh"
+source "${SCRIPT_DIR}/../utils/common.sh"
 RUNTIME_DIR=$(get_runtime_dir)
 
 # --- RUTAS DERIVADAS ---
@@ -110,17 +110,22 @@ run_client() {
     local command=$1
     local payload="${2:-}"
 
-    if [ ! -f "${VENV_PATH}/bin/activate" ]; then
-        if command -v notify-send > /dev/null 2>&1; then
-            notify-send --expire-time=${NOTIFY_EXPIRE_TIME} "❌ error de v2m" "no encontré el entorno virtual en ${VENV_PATH}"
+    # Check if standalone client exists
+    local CLIENT_SCRIPT="${SCRIPT_DIR}/../utils/send_command.py"
+    if [ -f "$CLIENT_SCRIPT" ]; then
+        python3 "$CLIENT_SCRIPT" "$command" "$payload"
+    else
+        # Fallback to slower full module method
+        if [ ! -f "${VENV_PATH}/bin/activate" ]; then
+            if command -v notify-send > /dev/null 2>&1; then
+                notify-send --expire-time=${NOTIFY_EXPIRE_TIME} "❌ error de v2m" "no encontré el entorno virtual en ${VENV_PATH}"
+            fi
+            exit 1
         fi
-        exit 1
+        source "${VENV_PATH}/bin/activate"
+        export PYTHONPATH="${PROJECT_DIR}/src"
+        python3 -m v2m.client "${command}" ${payload}
     fi
-
-    source "${VENV_PATH}/bin/activate"
-    export PYTHONPATH="${PROJECT_DIR}/src"
-    # URGENT FIX: Usar módulo cliente para output parseable y evitar desincronización
-    python3 -m v2m.client "${command}" ${payload}
 }
 
 # --- LÓGICA DE CONMUTACIÓN ---

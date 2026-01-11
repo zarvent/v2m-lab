@@ -83,7 +83,7 @@ ISSUES=0
 
 # Detectar directorio del proyecto dinámicamente
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-PROJECT_DIR="$( dirname "${SCRIPT_DIR}" )"
+PROJECT_DIR="$( dirname "$( dirname "${SCRIPT_DIR}" )" )"
 BACKEND_DIR="${PROJECT_DIR}/apps/backend"
 
 # 1. Verificar venv

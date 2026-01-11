@@ -60,7 +60,7 @@ fi
 
 # Load common utilities
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-source "${SCRIPT_DIR}/common.sh"
+source "${SCRIPT_DIR}/../utils/common.sh"
 
 RUNTIME_DIR=$(get_runtime_dir)
 

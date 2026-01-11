@@ -69,7 +69,7 @@ set -euo pipefail
 
 # --- Configuración ---
 # --- LOAD COMMON UTILS ---
-source "${SCRIPT_DIR}/common.sh"
+source "${SCRIPT_DIR}/../utils/common.sh"
 RUNTIME_DIR=$(get_runtime_dir)
 PROJECT_DIR="${PROJECT_ROOT}/apps/backend"
 NOTIFY_EXPIRE_TIME=3000

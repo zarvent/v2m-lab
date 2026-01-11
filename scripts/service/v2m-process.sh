@@ -55,7 +55,7 @@
 
 # --- CONFIGURACIÓN ---
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-PROJECT_DIR="$( dirname "${SCRIPT_DIR}" )/apps/backend"
+PROJECT_DIR="$( dirname "$( dirname "${SCRIPT_DIR}" )" )/apps/backend"
 NOTIFY_EXPIRE_TIME=3000
 
 # --- RUTAS DERIVADAS ---
@@ -66,6 +66,15 @@ MAIN_SCRIPT="${PROJECT_DIR}/src/v2m/main.py"
 run_orchestrator() {
     local text_to_process=$1
 
+    # OPTIMIZATION: Use lightweight IPC client
+    local CLIENT_SCRIPT="${SCRIPT_DIR}/../utils/send_command.py"
+    if [ -f "$CLIENT_SCRIPT" ]; then
+        # send_command.py handles json wrapping if arg is not json
+        python3 "$CLIENT_SCRIPT" "PROCESS_TEXT" "$text_to_process"
+        return $?
+    fi
+
+    # Legacy/Fallback method
     if [ ! -f "${VENV_PATH}/bin/activate" ]; then
         notify-send --expire-time=${NOTIFY_EXPIRE_TIME} "❌ error de v2m" "no encontré el entorno virtual en ${VENV_PATH}"
         exit 1
@@ -73,7 +82,9 @@ run_orchestrator() {
 
     source "${VENV_PATH}/bin/activate"
     export PYTHONPATH="${PROJECT_DIR}/src"
-    echo "${text_to_process}" | python3 "${MAIN_SCRIPT}" "process"
+    # Note: Sending via main.py "process" args might behave differently than IPC command
+    # Assuming intention is to send to daemon
+    python3 -m v2m.client "PROCESS_TEXT" "$text_to_process"
 }
 
 # --- LÓGICA PRINCIPAL ---
