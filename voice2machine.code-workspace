@@ -1,8 +1,17 @@
 {
-	"folders": [
-		{
-			"path": "."
-		}
-	],
-	"settings": {}
+  "folders": [
+	{
+		"name": "llm-skills",
+		"path": "../llm-skills"
+	},
+	{
+		"name": "llm-book",
+		"path": "../llm-book"
+	},
+	{
+		"name": "v2m-lab",
+		"path": "."
+	}
+],
+  "settings": {}
 }

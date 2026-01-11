@@ -150,13 +150,11 @@ class WhisperTranscriptionService(TranscriptionService):
             if lang is None:
                 logger.info(f"idioma detectado {info.language} probabilidad {info.language_probability:.2f}")
 
-            # Unir segmentos eficientemente
-            text = " ".join(segment.text.strip() for segment in segments)
+            # Unir segmentos (filtrar vacíos para eficiencia)
+            text = " ".join(s.text.strip() for s in segments if s.text)
             logger.info("transcripción completada")
             return text
 
         except Exception as e:
             logger.error(f"error durante la transcripción: {e}")
-            raise e
-        finally:
-            pass
+            raise

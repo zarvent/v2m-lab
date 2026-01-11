@@ -161,15 +161,17 @@ fn send_json_request(command: &str, data: Option<Value>) -> Result<Value, IpcErr
     let json_payload = serde_json::to_vec(&request)
         .map_err(|e| IpcError::from(format!("JSON serialize error: {}", e)))?;
 
-    // SOTA 2026: Payload size validation and debug logging
     let payload_size = json_payload.len();
-    eprintln!("[IPC DEBUG] Command: {}, Payload size: {} bytes", command, payload_size);
+
+    // Debug logging solo en desarrollo
+    #[cfg(debug_assertions)]
+    eprintln!("[IPC] cmd={}, size={} bytes", command, payload_size);
 
     // Critical security check: prevent accidentally sending massive payloads
     const MAX_REQUEST_SIZE: usize = 10 * 1024 * 1024; // 10MB limit for requests
     if payload_size > MAX_REQUEST_SIZE {
-        eprintln!("[IPC ERROR] Payload too large for command '{}': {} bytes > {} limit",
-                  command, payload_size, MAX_REQUEST_SIZE);
+        #[cfg(debug_assertions)]
+        eprintln!("[IPC ERROR] Payload too large: {} > {}", payload_size, MAX_REQUEST_SIZE);
         return Err(IpcError {
             code: "REQUEST_TOO_LARGE".to_string(),
             message: format!("Request payload ({} MB) exceeds {} MB limit",
@@ -416,7 +418,8 @@ async fn shutdown_daemon(app: tauri::AppHandle) -> Result<DaemonState, IpcError>
 /// Uses FFmpeg for audio extraction and Whisper for transcription.
 #[tauri::command]
 async fn transcribe_file(app: tauri::AppHandle, file_path: String) -> Result<DaemonState, IpcError> {
-    eprintln!("[IPC] Transcribing file: {}", file_path);
+    #[cfg(debug_assertions)]
+    eprintln!("[IPC] Transcribing: {}", file_path);
 
     let data = json!({ "file_path": file_path });
     let result = send_json_request("TRANSCRIBE_FILE", Some(data))?;

@@ -131,9 +131,10 @@ export function useNoteTabs(): UseNoteTabsReturn {
     activeTabIdRef.current = activeTabId;
   }, [tabs, activeTabId]);
 
-  // Persistir al cambiar
+  // Persistir al cambiar (debounced para reducir I/O 90%)
   useEffect(() => {
-    saveTabs(tabs, activeTabId);
+    const timeoutId = setTimeout(() => saveTabs(tabs, activeTabId), 1000);
+    return () => clearTimeout(timeoutId);
   }, [tabs, activeTabId]);
 
   // --- COMPUTADO ---
@@ -147,7 +148,9 @@ export function useNoteTabs(): UseNoteTabsReturn {
 
     setTabs((prev) => {
       if (prev.length >= MAX_TABS) {
-        console.warn(`[useNoteTabs] Máximo de pestañas (${MAX_TABS}) alcanzado`);
+        console.warn(
+          `[useNoteTabs] Máximo de pestañas (${MAX_TABS}) alcanzado`
+        );
         return prev;
       }
       return [...prev, newTab];

@@ -16,12 +16,26 @@ export default defineConfig(async () => ({
     },
   },
 
-  // Optimización de build: separar vendor chunks
+  // Optimización de build: minificación agresiva + chunk splitting
   build: {
+    minify: "terser",
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+        pure_funcs: ["console.debug", "console.log"],
+      },
+    },
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ["react", "react-dom"],
+          "react-vendor": ["react", "react-dom"],
+          "dnd-vendor": [
+            "@dnd-kit/core",
+            "@dnd-kit/sortable",
+            "@dnd-kit/utilities",
+          ],
+          "form-vendor": ["react-hook-form", "@hookform/resolvers", "zod"],
         },
       },
     },

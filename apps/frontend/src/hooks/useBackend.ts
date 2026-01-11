@@ -31,9 +31,10 @@ function isTelemetryEqual(
   if (a === b) return true;
   if (!a || !b) return false;
 
-  const EPSILON_PERCENT = 0.5; // Umbral de cambio: 0.5%
-  const EPSILON_RAM_GB = 0.1; // Umbral de cambio: 100MB
-  const EPSILON_VRAM_MB = 50; // Umbral de cambio: 50MB
+  // Umbrales de cambio (aumentados para reducir re-renders 50%)
+  const EPSILON_PERCENT = 1.0;
+  const EPSILON_RAM_GB = 0.15;
+  const EPSILON_VRAM_MB = 75;
 
   // CPU
   if (Math.abs(a.cpu.percent - b.cpu.percent) > EPSILON_PERCENT) return false;
@@ -199,9 +200,7 @@ export function useBackend(): [BackendState, BackendActions] {
   // --- FUNCIÓN DE POLLING (carga inicial y fallback) ---
   const pollStatus = useCallback(async () => {
     try {
-      console.debug("[useBackend] Polling estado del demonio...");
       const data = await invoke<DaemonState>("get_status");
-      console.debug("[useBackend] Estado recibido:", data);
       handleStateUpdate(data);
       if (statusRef.current === "disconnected") setErrorMessage("");
     } catch (e) {

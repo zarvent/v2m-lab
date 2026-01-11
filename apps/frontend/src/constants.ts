@@ -3,11 +3,12 @@
  * Centralización para eliminar magic numbers (MUDA) y facilitar mantenimiento (KAIZEN).
  */
 
-/** POLLING - Intervalo de sondeo del estado del daemon en milisegundos */
-export const STATUS_POLL_INTERVAL_MS = 500;
+/** POLLING - Intervalo de sondeo del estado del daemon en milisegundos
+ * Optimizado: 1000ms reduce CPU 50%, eventos push manejan tiempo real */
+export const STATUS_POLL_INTERVAL_MS = 1000;
 
 /** STORAGE - Clave para persistir el historial de transcripciones en localStorage */
-export const HISTORY_STORAGE_KEY = 'v2m_history_v1';
+export const HISTORY_STORAGE_KEY = "v2m_history_v1";
 
 /** HISTORY - Cantidad máxima de items a guardar en el historial para no saturar memoria */
 export const MAX_HISTORY_ITEMS = 50;

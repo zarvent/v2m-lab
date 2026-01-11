@@ -34,10 +34,17 @@ Estructura de Mensajes:
     - Response: `{"status": "success|error", "data": {...}, "error": "..."}`
 """
 
-from enum import Enum
-import json
 from dataclasses import dataclass
+from enum import Enum
 from typing import Any
+
+# SOTA 2026: orjson is 3-10x faster than stdlib json
+try:
+    import orjson
+    _USE_ORJSON = True
+except ImportError:
+    import json
+    _USE_ORJSON = False
 
 # Límite de payload para prevenir ataques de Denegación de Servicio (DoS)
 # por agotamiento de memoria. 1MB es suficiente para texto largo.
@@ -110,9 +117,10 @@ class IPCRequest:
 
     def to_json(self) -> str:
         """Serializa el request a cadena JSON."""
-        # OPTIMIZACIÓN: Construcción manual del dict
-        # Evita la llamada costosa a asdict() que realiza copias profundas.
-        return json.dumps({"cmd": self.cmd, "data": self.data}, ensure_ascii=False)
+        payload = {"cmd": self.cmd, "data": self.data}
+        if _USE_ORJSON:
+            return orjson.dumps(payload).decode("utf-8")
+        return json.dumps(payload, ensure_ascii=False)
 
     @classmethod
     def from_json(cls, json_str: str) -> "IPCRequest":
@@ -123,7 +131,7 @@ class IPCRequest:
             json.JSONDecodeError: Si el JSON es inválido.
             KeyError: Si falta el campo obligatorio 'cmd'.
         """
-        obj = json.loads(json_str)
+        obj = orjson.loads(json_str) if _USE_ORJSON else json.loads(json_str)
         return cls(cmd=obj["cmd"], data=obj.get("data"))
 
 
@@ -153,12 +161,15 @@ class IPCResponse:
 
     def to_json(self) -> str:
         """Serializa el response a cadena JSON."""
-        return json.dumps({"status": self.status, "data": self.data, "error": self.error}, ensure_ascii=False)
+        payload = {"status": self.status, "data": self.data, "error": self.error}
+        if _USE_ORJSON:
+            return orjson.dumps(payload).decode("utf-8")
+        return json.dumps(payload, ensure_ascii=False)
 
     @classmethod
     def from_json(cls, json_str: str) -> "IPCResponse":
         """Deserializa una cadena JSON a un objeto IPCResponse."""
-        obj = json.loads(json_str)
+        obj = orjson.loads(json_str) if _USE_ORJSON else json.loads(json_str)
         return cls(status=obj["status"], data=obj.get("data"), error=obj.get("error"))
 
 

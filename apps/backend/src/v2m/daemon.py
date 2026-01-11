@@ -41,7 +41,6 @@ try:
 except ImportError:
     torch = None
 
-import contextlib
 
 from v2m.application.commands import (
     GetConfigCommand,
@@ -142,7 +141,7 @@ class Daemon:
             await writer.wait_closed()
             return
 
-        logger.info(f"mensaje ipc recibido: {message[:200]}...")
+        logger.debug(f"ipc: {message[:100]}")
 
         # Parsear JSON
         try:
@@ -310,12 +309,12 @@ class Daemon:
                     is_v2m_binary = proc_name == "v2m"
 
                     if is_v2m_module or is_v2m_binary:
-                        logger.warning(f"🧹 matando proceso v2m huérfano pid {proc.pid}: {cmdline_str[:50]}...")
                         proc.kill()
-                        with contextlib.suppress(psutil.TimeoutExpired):
+                        try:
                             proc.wait(timeout=3)
+                        except psutil.TimeoutExpired:
+                            pass
                         killed_count += 1
-                        logger.info(f"✅ proceso {proc.pid} eliminado")
 
                 except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
                     pass
