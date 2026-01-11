@@ -112,6 +112,82 @@ export const Export: React.FC<ExportProps> = React.memo(
       };
     }, []);
 
+    // Common file processing logic
+    const processFile = useCallback(
+      async (path: string) => {
+        const ext = getExtension(path);
+        const name = getFileName(path);
+        const isVideo = VIDEO_EXTENSIONS.has(ext);
+
+        if (!VIDEO_EXTENSIONS.has(ext) && !AUDIO_EXTENSIONS.has(ext)) {
+          setErrorMessage(`Formato no soportado: ${ext}`);
+          setStatus("error");
+          return;
+        }
+
+        setFileInfo({ path, name, extension: ext, isVideo });
+        setStatus("transcribing");
+        setErrorMessage("");
+
+        // Call backend to transcribe
+        try {
+          const result = await invoke<{
+            state: string;
+            transcription?: string;
+            error?: string;
+          }>("transcribe_file", { filePath: path });
+
+          if (result.transcription) {
+            setTranscription(result.transcription);
+            setStatus("complete");
+            onTranscriptionComplete?.(result.transcription);
+          } else {
+            setErrorMessage(
+              result.error || "No se pudo transcribir el archivo"
+            );
+            setStatus("error");
+          }
+        } catch (err) {
+          console.error("[Export] Error:", err);
+          setErrorMessage(
+            err instanceof Error ? err.message : "Error desconocido"
+          );
+          setStatus("error");
+        }
+      },
+      [onTranscriptionComplete]
+    );
+
+    // Initial listener setup for Tauri file drop
+    useEffect(() => {
+      // Import dynamically if needed or just use the imported one (we need to add import)
+      import("@tauri-apps/api/event").then(({ listen }) => {
+        const unlistenDrop = listen<string[]>("tauri://file-drop", (event) => {
+          if (event.payload && event.payload.length > 0) {
+            const path = event.payload[0];
+            if (path) {
+              processFile(path);
+            }
+          }
+        });
+
+        const unlistenHover = listen("tauri://file-drop-hover", () => {
+          setIsDragOver(true);
+        });
+
+        const unlistenCancel = listen("tauri://file-drop-cancelled", () => {
+          setIsDragOver(false);
+        });
+
+        // Cleanup function
+        return () => {
+          unlistenDrop.then((f) => f());
+          unlistenHover.then((f) => f());
+          unlistenCancel.then((f) => f());
+        };
+      });
+    }, [processFile]);
+
     // Handle file selection via dialog
     const handleSelectFile = useCallback(async () => {
       setStatus("selecting");
@@ -135,34 +211,7 @@ export const Export: React.FC<ExportProps> = React.memo(
         }
 
         const path = typeof selected === "string" ? selected : selected;
-        const ext = getExtension(path);
-        const name = getFileName(path);
-        const isVideo = VIDEO_EXTENSIONS.has(ext);
-
-        if (!VIDEO_EXTENSIONS.has(ext) && !AUDIO_EXTENSIONS.has(ext)) {
-          setErrorMessage(`Formato no soportado: ${ext}`);
-          setStatus("error");
-          return;
-        }
-
-        setFileInfo({ path, name, extension: ext, isVideo });
-        setStatus("transcribing");
-
-        // Call backend to transcribe
-        const result = await invoke<{
-          state: string;
-          transcription?: string;
-          error?: string;
-        }>("transcribe_file", { filePath: path });
-
-        if (result.transcription) {
-          setTranscription(result.transcription);
-          setStatus("complete");
-          onTranscriptionComplete?.(result.transcription);
-        } else {
-          setErrorMessage(result.error || "No se pudo transcribir el archivo");
-          setStatus("error");
-        }
+        await processFile(path);
       } catch (err) {
         console.error("[Export] Error:", err);
         setErrorMessage(
@@ -170,49 +219,26 @@ export const Export: React.FC<ExportProps> = React.memo(
         );
         setStatus("error");
       }
-    }, [onTranscriptionComplete]);
+    }, [processFile]);
 
-    // Drag and drop handlers
+    // Drag and drop handlers (Web events - mainly for visual feedback or preventing defaults)
     const handleDragOver = useCallback((e: React.DragEvent) => {
       e.preventDefault();
       e.stopPropagation();
-      setIsDragOver(true);
+      // Visual feedback handled by Tauri event, but this keeps React happy
     }, []);
 
     const handleDragLeave = useCallback((e: React.DragEvent) => {
       e.preventDefault();
       e.stopPropagation();
-      // Only set false if leaving the drop zone entirely
-      if (!dropZoneRef.current?.contains(e.relatedTarget as Node)) {
-        setIsDragOver(false);
-      }
     }, []);
 
     const handleDrop = useCallback(async (e: React.DragEvent) => {
       e.preventDefault();
       e.stopPropagation();
+      // We ignore the web file object because it lacks the path.
+      // The 'tauri://file-drop' event handles the actual logic.
       setIsDragOver(false);
-
-      const files = e.dataTransfer.files;
-      if (files.length === 0) return;
-
-      const file = files[0];
-      if (!file) return;
-
-      const ext = getExtension(file.name);
-
-      if (!VIDEO_EXTENSIONS.has(ext) && !AUDIO_EXTENSIONS.has(ext)) {
-        setErrorMessage(`Formato no soportado: ${ext}`);
-        setStatus("error");
-        return;
-      }
-
-      // Nota: En Tauri, no podemos obtener la ruta completa desde
-      // el navegador. El usuario debe usar el selector de archivos.
-      setErrorMessage(
-        "Por favor, usa el botón de selección para elegir archivos."
-      );
-      setStatus("error");
     }, []);
 
     // Copy transcription
