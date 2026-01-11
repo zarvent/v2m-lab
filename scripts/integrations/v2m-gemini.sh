@@ -53,7 +53,7 @@
 
 # --- Configuración ---
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-PROJECT_DIR="$( dirname "${SCRIPT_DIR}" )/apps/backend"
+PROJECT_DIR="$( dirname "$( dirname "${SCRIPT_DIR}" )" )/apps/backend"
 
 # --- Rutas Derivadas ---
 VENV_PATH="${PROJECT_DIR}/venv"

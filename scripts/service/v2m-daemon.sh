@@ -67,11 +67,11 @@
 #
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-PROJECT_DIR="$( dirname "${SCRIPT_DIR}" )/apps/backend"
+PROJECT_DIR="$( dirname "$( dirname "${SCRIPT_DIR}" )" )/apps/backend"
 VENV_PYTHON="${PROJECT_DIR}/venv/bin/python"
 
 # --- LOAD COMMON UTILS ---
-source "${SCRIPT_DIR}/common.sh"
+source "${SCRIPT_DIR}/../utils/common.sh"
 RUNTIME_DIR=$(get_runtime_dir)
 LOG_FILE="${RUNTIME_DIR}/v2m_daemon.log"
 PID_FILE="${RUNTIME_DIR}/v2m_daemon.pid"
@@ -96,42 +96,41 @@ start_daemon() {
     # --- configurar ld_library_path para cuda y cudnn ---
     # buscamos las librerías de nvidia en el entorno virtual que son
     # necesarias para que whisper funcione con la tarjeta gráfica
-    # NOTA: detectamos la versión de Python dinámicamente para evitar hardcoding
-    PYTHON_VERSION=$("${VENV_PYTHON}" -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')" 2>/dev/null || echo "3.12")
-    VENV_LIB="${PROJECT_DIR}/venv/lib/python${PYTHON_VERSION}/site-packages/nvidia"
-    CUDA_PATHS=""
+    # OPTIMIZATION 2026: Fast path lookup without Python startup cost
 
-    if [ -d "${VENV_LIB}" ]; then
-        # paquetes de nvidia que contienen las librerías necesarias
-        NVIDIA_PACKAGES=(
-            "cuda_runtime"
-            "cudnn"
-            "cublas"
-            "cufft"
-            "curand"
-            "cusolver"
-            "cusparse"
-            "nvjitlink"
-        )
+    # 1. Try to find site-packages dir directly
+    VENV_LIB_BASE="${PROJECT_DIR}/venv/lib"
+    # Find the first python3.x dir (usually only one)
+    PYTHON_LIB_DIR=$(find "$VENV_LIB_BASE" -maxdepth 1 -name "python3.*" -type d | head -n 1)
 
-        for pkg in "${NVIDIA_PACKAGES[@]}"; do
-            lib_path="${VENV_LIB}/${pkg}/lib"
-            if [ -d "$lib_path" ]; then
-                if [ -z "${CUDA_PATHS}" ]; then
-                    CUDA_PATHS="$lib_path"
-                else
-                    CUDA_PATHS="${CUDA_PATHS}:${lib_path}"
+    if [ -n "$PYTHON_LIB_DIR" ]; then
+        VENV_LIB="${PYTHON_LIB_DIR}/site-packages/nvidia"
+        CUDA_PATHS=""
+
+        if [ -d "${VENV_LIB}" ]; then
+            # Optimized finding of lib directories
+            # Using find avoids looping in bash which is slow for many files
+            # but here we just need specific dirs.
+
+            # Using globbing instead of loop for speed
+            for lib_path in "${VENV_LIB}"/*/lib; do
+                if [ -d "$lib_path" ]; then
+                    if [ -z "${CUDA_PATHS}" ]; then
+                        CUDA_PATHS="$lib_path"
+                    else
+                        CUDA_PATHS="${CUDA_PATHS}:${lib_path}"
+                    fi
                 fi
-            fi
-        done
-    fi
+            done
+        fi
 
-    # agregamos las rutas a la variable de entorno
-    if [ -n "${CUDA_PATHS}" ]; then
-        export LD_LIBRARY_PATH="${CUDA_PATHS}:${LD_LIBRARY_PATH:-}"
-        echo "🔧 configuré las librerías de nvidia para usar la tarjeta gráfica"
-    else
-        echo "⚠️  no encontré las librerías de nvidia así que es posible que no pueda usar la tarjeta gráfica"
+        # agregamos las rutas a la variable de entorno
+        if [ -n "${CUDA_PATHS}" ]; then
+            export LD_LIBRARY_PATH="${CUDA_PATHS}:${LD_LIBRARY_PATH:-}"
+            echo "🔧 configuré las librerías de nvidia para usar la tarjeta gráfica"
+        else
+            echo "⚠️  no encontré las librerías de nvidia"
+        fi
     fi
 
     "${VENV_PYTHON}" -m v2m.main --daemon > "${LOG_FILE}" 2>&1 &

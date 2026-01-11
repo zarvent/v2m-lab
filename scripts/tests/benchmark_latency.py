@@ -37,7 +37,7 @@ from typing import List, Dict, Optional
 from dataclasses import dataclass, field
 
 # Agregar src al path
-sys.path.insert(0, str(Path(__file__).parent.parent / "apps" / "backend" / "src"))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "apps" / "backend" / "src"))
 
 import numpy as np
 

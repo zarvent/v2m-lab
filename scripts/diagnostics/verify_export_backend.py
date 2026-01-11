@@ -14,7 +14,7 @@ from pathlib import Path
 
 # Agregar el directorio src al path para importar módulos de v2m si fuera necesario
 # pero vamos a usar socket raw para minimizar dependencias de importación
-sys.path.append(str(Path(__file__).parent.parent / "apps/backend/src"))
+sys.path.append(str(Path(__file__).parent.parent.parent / "apps/backend/src"))
 
 SOCKET_PATH_ENV = os.environ.get("V2M_SOCKET_PATH")
 
