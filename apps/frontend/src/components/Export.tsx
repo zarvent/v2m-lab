@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
+import { listen } from "@tauri-apps/api/event";
 import {
   UploadIcon,
   VideoIcon,
@@ -108,10 +109,13 @@ export const Export: React.FC<ExportProps> = React.memo(
     const [errorMessage, setErrorMessage] = useState("");
     const [copyState, setCopyState] = useState<"idle" | "copied">("idle");
     const [isDragOver, setIsDragOver] = useState(false);
+    const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
     // Refs
     const dropZoneRef = useRef<HTMLDivElement>(null);
     const copyTimeoutRef = useRef<number | null>(null);
+    const timerRef = useRef<number | null>(null);
+    const startTimeRef = useRef<number>(0);
 
     // Computed
     const wordCount = transcription ? countWords(transcription) : 0;
@@ -121,6 +125,7 @@ export const Export: React.FC<ExportProps> = React.memo(
     useEffect(() => {
       return () => {
         if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
+        if (timerRef.current) clearInterval(timerRef.current);
       };
     }, []);
 
@@ -140,6 +145,15 @@ export const Export: React.FC<ExportProps> = React.memo(
         setFileInfo({ path, name, extension: ext, isVideo });
         setStatus("transcribing");
         setErrorMessage("");
+        setElapsedSeconds(0);
+
+        // Start elapsed timer (updates every 500ms for smooth display)
+        startTimeRef.current = Date.now();
+        timerRef.current = window.setInterval(() => {
+          setElapsedSeconds(
+            Math.floor((Date.now() - startTimeRef.current) / 1000)
+          );
+        }, 500);
 
         // Call backend to transcribe
         try {
@@ -150,6 +164,7 @@ export const Export: React.FC<ExportProps> = React.memo(
           }>("transcribe_file", { filePath: path });
 
           if (result.transcription) {
+            if (timerRef.current) clearInterval(timerRef.current);
             setTranscription(result.transcription);
             setStatus("complete");
             onTranscriptionComplete?.(result.transcription);
@@ -160,6 +175,7 @@ export const Export: React.FC<ExportProps> = React.memo(
             setStatus("error");
           }
         } catch (err) {
+          if (timerRef.current) clearInterval(timerRef.current);
           console.error("[Export] Error:", err);
           setErrorMessage(extractErrorMessage(err));
           setStatus("error");
@@ -168,34 +184,31 @@ export const Export: React.FC<ExportProps> = React.memo(
       [onTranscriptionComplete]
     );
 
-    // Initial listener setup for Tauri file drop
+    // Initial listener setup for Tauri file drop (static import - faster)
     useEffect(() => {
-      // Import dynamically if needed or just use the imported one (we need to add import)
-      import("@tauri-apps/api/event").then(({ listen }) => {
-        const unlistenDrop = listen<string[]>("tauri://file-drop", (event) => {
-          if (event.payload && event.payload.length > 0) {
-            const path = event.payload[0];
-            if (path) {
-              processFile(path);
-            }
+      const unlistenDrop = listen<string[]>("tauri://file-drop", (event) => {
+        if (event.payload && event.payload.length > 0) {
+          const path = event.payload[0];
+          if (path) {
+            processFile(path);
           }
-        });
-
-        const unlistenHover = listen("tauri://file-drop-hover", () => {
-          setIsDragOver(true);
-        });
-
-        const unlistenCancel = listen("tauri://file-drop-cancelled", () => {
-          setIsDragOver(false);
-        });
-
-        // Cleanup function
-        return () => {
-          unlistenDrop.then((f) => f());
-          unlistenHover.then((f) => f());
-          unlistenCancel.then((f) => f());
-        };
+        }
       });
+
+      const unlistenHover = listen("tauri://file-drop-hover", () => {
+        setIsDragOver(true);
+      });
+
+      const unlistenCancel = listen("tauri://file-drop-cancelled", () => {
+        setIsDragOver(false);
+      });
+
+      // Cleanup function
+      return () => {
+        unlistenDrop.then((f) => f());
+        unlistenHover.then((f) => f());
+        unlistenCancel.then((f) => f());
+      };
     }, [processFile]);
 
     // Handle file selection via dialog
@@ -412,7 +425,9 @@ export const Export: React.FC<ExportProps> = React.memo(
               </div>
 
               <p className="processing-hint">
-                Esto puede tomar un momento dependiendo del tamaño del archivo
+                {elapsedSeconds > 0
+                  ? `⏱️ ${elapsedSeconds}s — procesando...`
+                  : "Esto puede tomar un momento dependiendo del tamaño del archivo"}
               </p>
             </div>
           )}
