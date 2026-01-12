@@ -1,14 +1,12 @@
 import React, { useCallback, useState, useEffect } from "react";
-import type { Status, TelemetryData } from "../types";
+import type { Status } from "../types";
 import { LoaderIcon, PlayIcon } from "../assets/Icons";
+import { useTelemetry } from "../context/BackendProvider";
 
 interface OverviewProps {
   status: Status;
   isConnected: boolean;
   lastPingTime: number | null;
-  telemetry: TelemetryData | null;
-  cpuHistory: number[];
-  ramHistory: number[];
   onRestart: () => Promise<void>;
   onShutdown: () => Promise<void>;
   onResume: () => Promise<void>;
@@ -29,13 +27,11 @@ export const Overview: React.FC<OverviewProps> = React.memo(
     status,
     isConnected,
     lastPingTime,
-    telemetry,
-    cpuHistory,
-    ramHistory,
     onRestart,
     onShutdown,
     onResume,
   }) => {
+    const { telemetry, cpuHistory, ramHistory } = useTelemetry();
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [pendingAction, setPendingAction] = useState<
       "restart" | "shutdown" | null

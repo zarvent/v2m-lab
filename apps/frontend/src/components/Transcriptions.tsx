@@ -10,14 +10,98 @@ interface TranscriptionsProps {
   onSelectItem?: (item: HistoryItem) => void;
 }
 
+// --- SUB-COMPONENT: ITEM ---
+// Memoizado para evitar re-render de toda la lista al expandir uno
+
+interface TranscriptionItemProps {
+  item: HistoryItem;
+  isExpanded: boolean;
+  onToggleExpand: (id: string) => void;
+  onCopy: (item: HistoryItem) => void;
+  onDelete: (id: string) => void;
+  onSelect: (item: HistoryItem) => void;
+  copiedId: string | null;
+}
+
+const TranscriptionItem = React.memo(({
+  item, isExpanded, onToggleExpand, onCopy, onDelete, onSelect, copiedId
+}: TranscriptionItemProps) => {
+  const wordCount = countWords(item.text);
+  const isCopied = copiedId === item.id;
+
+  return (
+    <div className={`transcription-item ${isExpanded ? "expanded" : ""}`}>
+      {/* Cabecera */}
+      <div
+        className="transcription-header"
+        onClick={() => onToggleExpand(item.id)}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onToggleExpand(item.id);
+          }
+        }}
+        aria-expanded={isExpanded}
+      >
+        <div className="transcription-meta">
+          <span className="transcription-time">
+            {formatRelativeTime(item.timestamp)}
+          </span>
+          <span className={`transcription-source ${item.source}`}>
+            {item.source === "recording" ? "Grabación" : "Refinado"}
+          </span>
+          <span className="transcription-words mono">
+            {wordCount} palabras
+          </span>
+        </div>
+        <div className="transcription-preview">
+          {item.text.slice(0, 80)}
+          {item.text.length > 80 ? "..." : ""}
+        </div>
+      </div>
+
+      {/* Contenido Expandido */}
+      {isExpanded && (
+        <div className="transcription-content">
+          <pre className="transcription-text">{item.text}</pre>
+          <div className="transcription-actions">
+            <button
+              className="btn-transcription-action"
+              onClick={() => onCopy(item)}
+              aria-label="Copiar transcripción"
+            >
+              <CopyIcon />
+              <span>{isCopied ? "¡Copiado!" : "Copiar"}</span>
+            </button>
+            <button
+              className="btn-transcription-action"
+              onClick={() => onSelect(item)}
+              aria-label="Abrir en Studio"
+            >
+              <DescriptionIcon />
+              <span>Abrir en Studio</span>
+            </button>
+              <button
+                className="btn-transcription-action btn-delete"
+                onClick={() => onDelete(item.id)}
+                aria-label="Eliminar transcripción"
+              >
+                <TrashIcon />
+                <span>Eliminar</span>
+              </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+});
+
+TranscriptionItem.displayName = "TranscriptionItem";
+
 /**
  * Transcriptions - Vista de historial de transcripciones pasadas.
- *
- * Muestra todas las transcripciones almacenadas en localStorage con:
- * - Marca de tiempo (relativa)
- * - Conteo de palabras
- * - Etiqueta de fuente (grabación vs refinamiento)
- * - Acciones de copiar y eliminar
  */
 export const Transcriptions: React.FC<TranscriptionsProps> = React.memo(
   ({ history, onDeleteItem, onSelectItem }) => {
@@ -42,19 +126,13 @@ export const Transcriptions: React.FC<TranscriptionsProps> = React.memo(
       setExpandedId((prev) => (prev === id ? null : id));
     }, []);
 
-    const handleDelete = useCallback(
-      (id: string) => {
-        onDeleteItem?.(id);
-      },
-      [onDeleteItem]
-    );
+    const handleDelete = useCallback((id: string) => {
+      onDeleteItem?.(id);
+    }, [onDeleteItem]);
 
-    const handleSelect = useCallback(
-      (item: HistoryItem) => {
-        onSelectItem?.(item);
-      },
-      [onSelectItem]
-    );
+    const handleSelect = useCallback((item: HistoryItem) => {
+      onSelectItem?.(item);
+    }, [onSelectItem]);
 
     if (history.length === 0) {
       return (
@@ -90,84 +168,18 @@ export const Transcriptions: React.FC<TranscriptionsProps> = React.memo(
 
         {/* Lista de Transcripciones */}
         <div className="transcriptions-list">
-          {filteredHistory.map((item) => {
-            const wordCount = countWords(item.text);
-            const isExpanded = expandedId === item.id;
-            const isCopied = copiedId === item.id;
-
-            return (
-              <div
-                key={item.id}
-                className={`transcription-item ${isExpanded ? "expanded" : ""}`}
-              >
-                {/* Cabecera */}
-                <div
-                  className="transcription-header"
-                  onClick={() => handleToggleExpand(item.id)}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      handleToggleExpand(item.id);
-                    }
-                  }}
-                  aria-expanded={isExpanded}
-                >
-                  <div className="transcription-meta">
-                    <span className="transcription-time">
-                      {formatRelativeTime(item.timestamp)}
-                    </span>
-                    <span className={`transcription-source ${item.source}`}>
-                      {item.source === "recording" ? "Grabación" : "Refinado"}
-                    </span>
-                    <span className="transcription-words mono">
-                      {wordCount} palabras
-                    </span>
-                  </div>
-                  <div className="transcription-preview">
-                    {item.text.slice(0, 80)}
-                    {item.text.length > 80 ? "..." : ""}
-                  </div>
-                </div>
-
-                {/* Contenido Expandido */}
-                {isExpanded && (
-                  <div className="transcription-content">
-                    <pre className="transcription-text">{item.text}</pre>
-                    <div className="transcription-actions">
-                      <button
-                        className="btn-transcription-action"
-                        onClick={() => handleCopy(item)}
-                        aria-label="Copiar transcripción"
-                      >
-                        <CopyIcon />
-                        <span>{isCopied ? "¡Copiado!" : "Copiar"}</span>
-                      </button>
-                      <button
-                        className="btn-transcription-action"
-                        onClick={() => handleSelect(item)}
-                        aria-label="Abrir en Studio"
-                      >
-                        <DescriptionIcon />
-                        <span>Abrir en Studio</span>
-                      </button>
-                      {onDeleteItem && (
-                        <button
-                          className="btn-transcription-action btn-delete"
-                          onClick={() => handleDelete(item.id)}
-                          aria-label="Eliminar transcripción"
-                        >
-                          <TrashIcon />
-                          <span>Eliminar</span>
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })}
+          {filteredHistory.map((item) => (
+            <TranscriptionItem
+              key={item.id}
+              item={item}
+              isExpanded={expandedId === item.id}
+              onToggleExpand={handleToggleExpand}
+              onCopy={handleCopy}
+              onDelete={handleDelete}
+              onSelect={handleSelect}
+              copiedId={copiedId}
+            />
+          ))}
         </div>
 
         {filteredHistory.length === 0 && searchQuery && (
