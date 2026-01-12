@@ -101,8 +101,14 @@ ensure_daemon() {
             fi
             exit 1
         fi
-        # Esperar un momento a que el daemon esté listo
-        sleep 2
+        # Wait for socket to be ready (model loading can take 30s+)
+        SOCKET_PATH="${RUNTIME_DIR}/v2m.sock"
+        WAIT_TIMEOUT=60
+        WAITED=0
+        while [ ! -S "${SOCKET_PATH}" ] && [ "${WAITED}" -lt "${WAIT_TIMEOUT}" ]; do
+            sleep 0.5
+            WAITED=$((WAITED + 1))
+        done
     fi
 }
 
@@ -131,19 +137,24 @@ run_client() {
 # --- LÓGICA DE CONMUTACIÓN ---
 ensure_daemon
 
-# Consultar estado real al daemon (IPC) en lugar de confiar en archivo PID
+# Consultar estado real al daemon (IPC) - respuesta es JSON
 STATUS_OUTPUT=$(run_client "GET_STATUS")
 
-if [[ "$STATUS_OUTPUT" == *"STATUS: recording"* ]]; then
-    # Si está grabando, detener
-    run_client "STOP_RECORDING"
-elif [[ "$STATUS_OUTPUT" == *"STATUS: idle"* ]] || [[ "$STATUS_OUTPUT" == *"STATUS: paused"* ]]; then
-    # Si está inactivo o pausado, iniciar
-    run_client "START_RECORDING"
-else
-    # Estado desconocido o error, intentar iniciar por defecto
-    if command -v notify-send > /dev/null 2>&1; then
-        notify-send --expire-time=${NOTIFY_EXPIRE_TIME} "⚠️ estado desconocido" "intentando grabar..."
-    fi
-    run_client "START_RECORDING"
-fi
+# Extract state efficiently with grep (single process vs multiple [[ ]] tests)
+STATE=$(echo "$STATUS_OUTPUT" | grep -oP '"state"\s*:\s*"\K[^"]+' || echo "unknown")
+
+case "$STATE" in
+    recording)
+        run_client "STOP_RECORDING"
+        ;;
+    idle|paused)
+        run_client "START_RECORDING"
+        ;;
+    *)
+        # Estado desconocido o error, intentar iniciar por defecto
+        if command -v notify-send > /dev/null 2>&1; then
+            notify-send --expire-time=${NOTIFY_EXPIRE_TIME} "⚠️ estado desconocido" "intentando grabar..."
+        fi
+        run_client "START_RECORDING"
+        ;;
+esac

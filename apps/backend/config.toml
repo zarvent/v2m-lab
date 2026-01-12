@@ -28,14 +28,19 @@ backend = "whisper"  # Backend selector: "whisper" (future: "vosk", "custom")
 model = "large-v3-turbo"
 language = "auto"
 device = "cuda"
-compute_type = "float16"  # Options: "float32", "float16", "int8" | Optimal: float16 for GPU
+# OPTIMIZATION for RTX 3060 (Ampere): "int8_float16"
+# Weights in int8 (low VRAM), Compute in float16 (Tensor Cores).
+# This is the "Asian/Torvalds" sweet spot: 2x less RAM, essentially lossless.
+compute_type = "int8_float16"
 device_index = 0
 num_workers = 2  # 2 workers sufficient for single stream
 
 # Inference parameters (state-of-the-art 2026)
-beam_size = 5  # Beam search for higher accuracy (~1.3x slower but better quality)
-best_of = 5    # Candidate steps (improved from 3 → 5 for quality boost)
-temperature = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]  # ANTI-HALLUCINATION: fallback temperatures
+# OPTIMIZATION: Beam size 1 (greedy) provides 3-5x speedup with minimal WER increase for clear audio.
+# "Performance is Design" - Instant feedback is prioritized.
+beam_size = 1
+best_of = 1    # No candidates ranking (fastest)
+temperature = [0.0, 0.2]  # Reduced fallback chain for faster failure/retry
 vad_filter = true  # Enable faster-whisper native VAD
 
 # VAD parameters (optimized for natural speech)

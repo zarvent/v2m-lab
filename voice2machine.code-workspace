@@ -1,17 +1,17 @@
 {
   "folders": [
-	{
-		"name": "llm-skills",
-		"path": "../llm-skills"
-	},
-	{
-		"name": "llm-book",
-		"path": "../llm-book"
-	},
-	{
-		"name": "v2m-lab",
-		"path": "."
-	}
-],
+    {
+      "name": "skills",
+      "path": "../llm-skills"
+    },
+    {
+      "name": "book for llms",
+      "path": "../llm-book"
+    },
+    {
+      "name": "voice2machine",
+      "path": "."
+    }
+  ],
   "settings": {}
 }
