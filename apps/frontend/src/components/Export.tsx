@@ -21,6 +21,7 @@ import { countWords } from "../utils";
 type ExportStatus =
   | "idle"
   | "selecting"
+  | "extracting"
   | "transcribing"
   | "complete"
   | "error";
@@ -143,7 +144,9 @@ export const Export: React.FC<ExportProps> = React.memo(
         }
 
         setFileInfo({ path, name, extension: ext, isVideo });
-        setStatus("transcribing");
+        // Optimistic update: if video, assume extracting first.
+        // Real event from Rust will confirm/correct this milliseconds later.
+        setStatus(isVideo ? "extracting" : "transcribing");
         setErrorMessage("");
         setElapsedSeconds(0);
 
@@ -186,6 +189,27 @@ export const Export: React.FC<ExportProps> = React.memo(
 
     // Initial listener setup for Tauri file drop (static import - faster)
     useEffect(() => {
+      const unlistenStatus = listen<{ step: string; progress: number }>(
+        "v2m://export-status",
+        (event) => {
+          console.log("Export status event:", event.payload);
+          if (event.payload.step === "extracting") {
+            setStatus("extracting");
+            setElapsedSeconds(0); // Reset timer for this phase
+            startTimeRef.current = Date.now();
+          } else if (event.payload.step === "transcribing") {
+            setStatus("transcribing");
+            // Optional: Don't reset timer here if we want cumulative,
+            // OR reset to track just transcription time.
+            // Let's keep it cumulative for simplicity or just let it flow.
+            // Actually, users might like to see "Extracting: 10s", then "Transcribing: 5s".
+            // Let's NOT reset for now to show total time,
+            // or reset if we want to time each phase.
+            // Decision: Let's keep total time running but change label.
+          }
+        }
+      );
+
       const unlistenDrop = listen<string[]>("tauri://file-drop", (event) => {
         if (event.payload && event.payload.length > 0) {
           const path = event.payload[0];
@@ -205,6 +229,7 @@ export const Export: React.FC<ExportProps> = React.memo(
 
       // Cleanup function
       return () => {
+        unlistenStatus.then((f) => f());
         unlistenDrop.then((f) => f());
         unlistenHover.then((f) => f());
         unlistenCancel.then((f) => f());
@@ -392,45 +417,58 @@ export const Export: React.FC<ExportProps> = React.memo(
             </div>
           )}
 
-          {/* === Transcribing State === */}
-          {status === "transcribing" && fileInfo && (
-            <div className="export-processing">
-              <div className="processing-animation">
-                <div className="processing-ring" />
-                <div className="processing-icon">
-                  {fileInfo.isVideo ? <VideoIcon /> : <AudioIcon />}
+          {/* === Processing State (Extracting or Transcribing) === */}
+          {(status === "transcribing" || status === "extracting") &&
+            fileInfo && (
+              <div className="export-processing">
+                <div className="processing-animation">
+                  <div className="processing-ring" />
+                  <div className="processing-icon">
+                    {status === "extracting" ? <VideoIcon /> : <FileTextIcon />}
+                  </div>
                 </div>
+
+                <h2 className="processing-title">
+                  {status === "extracting"
+                    ? "Extrayendo Audio..."
+                    : "Transcribiendo..."}
+                </h2>
+                <p className="processing-file">{fileInfo.name}</p>
+
+                <div className="processing-steps">
+                  <div
+                    className={`step ${
+                      status === "extracting" ? "active" : "completed"
+                    }`}
+                  >
+                    <span className="step-indicator" />
+                    <span>Extraer Audio</span>
+                  </div>
+                  <div
+                    className={`step ${
+                      status === "transcribing" ? "active" : ""
+                    }`}
+                  >
+                    <span className="step-indicator" />
+                    <span>Transcribir (Whisper)</span>
+                  </div>
+                  <div className="step">
+                    <span className="step-indicator" />
+                    <span>Generar Texto</span>
+                  </div>
+                </div>
+
+                <p className="processing-hint">
+                  {elapsedSeconds > 0
+                    ? `⏱️ ${elapsedSeconds}s — ${
+                        status === "extracting"
+                          ? "separando audio del video"
+                          : "procesando con IA local"
+                      }`
+                    : "Iniciando proceso..."}
+                </p>
               </div>
-
-              <h2 className="processing-title">Transcribiendo...</h2>
-              <p className="processing-file">{fileInfo.name}</p>
-
-              <div className="processing-steps">
-                <div className="step active">
-                  <span className="step-indicator" />
-                  <span>
-                    {fileInfo.isVideo
-                      ? "Extrayendo audio del video"
-                      : "Procesando audio"}
-                  </span>
-                </div>
-                <div className="step">
-                  <span className="step-indicator" />
-                  <span>Transcribiendo con Whisper</span>
-                </div>
-                <div className="step">
-                  <span className="step-indicator" />
-                  <span>Generando texto</span>
-                </div>
-              </div>
-
-              <p className="processing-hint">
-                {elapsedSeconds > 0
-                  ? `⏱️ ${elapsedSeconds}s — procesando...`
-                  : "Esto puede tomar un momento dependiendo del tamaño del archivo"}
-              </p>
-            </div>
-          )}
+            )}
 
           {/* === Complete State === */}
           {status === "complete" && (
