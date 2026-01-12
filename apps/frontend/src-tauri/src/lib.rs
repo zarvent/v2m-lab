@@ -62,6 +62,16 @@ const MAX_RESPONSE_SIZE: usize = 1 << 20;
 /// Performance Note: Prevents abandoning expensive inference computations mid-flight.
 const READ_TIMEOUT_SECS: u64 = 300;
 
+// --- PERSISTENCE (SOTA 2026: Remote Control State) ---
+// Stores the last successful export result to allow checking "job status"
+// even if the frontend component unmounted/remounted (tab switch).
+use std::sync::Mutex;
+static LAST_EXPORT: OnceLock<Mutex<Option<DaemonState>>> = OnceLock::new();
+
+fn get_last_export_store() -> &'static Mutex<Option<DaemonState>> {
+    LAST_EXPORT.get_or_init(|| Mutex::new(None))
+}
+
 // --- TYPED STRUCTURES (Eliminates double serialization) ---
 
 /// IPC request to daemon
@@ -448,10 +458,22 @@ async fn transcribe_file(app: tauri::AppHandle, file_path: String) -> Result<Dae
              // Emit event for "Remote Control" UI listeners
              let _ = app.emit("v2m://transcription-complete", &state);
 
+             // PERSISTENCE: Save state so frontend can recover it on mount
+             if let Ok(mut store) = get_last_export_store().lock() {
+                 *store = Some(state.clone());
+             }
+
              Ok(state)
         },
         Err(e) => Err(e)
     }
+}
+
+/// Retrieve the last successful export result
+/// Used by frontend on mount to check if a job finished while it was unmounted.
+#[tauri::command]
+fn get_last_export() -> Option<DaemonState> {
+    get_last_export_store().lock().ok().and_then(|g| g.clone())
 }
 
 // --- ENTRY POINT ---
@@ -475,7 +497,9 @@ pub fn run() {
             get_config,
             restart_daemon,
             shutdown_daemon,
-            transcribe_file
+            shutdown_daemon,
+            transcribe_file,
+            get_last_export
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

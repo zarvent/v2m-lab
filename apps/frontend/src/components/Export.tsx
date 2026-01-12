@@ -33,6 +33,13 @@ interface FileInfo {
   isVideo: boolean;
 }
 
+interface ExportResult {
+  state: string;
+  transcription?: string;
+  refined_text?: string;
+  message?: string;
+}
+
 // ============================================
 // CONSTANTS
 // ============================================
@@ -189,6 +196,23 @@ export const Export: React.FC<ExportProps> = React.memo(
 
     // Initial listener setup for Tauri file drop (static import - faster)
     useEffect(() => {
+      // PERSISTENCE CHECK: Recover state if job finished while we were away
+      invoke<ExportResult | null>("get_last_export")
+        .then((lastExport) => {
+          if (lastExport && lastExport.transcription && status === "idle") {
+            console.log("Persistence: Recovered last export", lastExport);
+            setTranscription(lastExport.transcription);
+            setStatus("complete");
+            setFileInfo({
+              name: "Exportación Recuperada",
+              path: "",
+              extension: ".txt",
+              isVideo: false,
+            });
+          }
+        })
+        .catch(console.error);
+
       const unlistenStatus = listen<{ step: string; progress: number }>(
         "v2m://export-status",
         (event) => {
