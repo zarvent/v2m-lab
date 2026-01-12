@@ -433,32 +433,25 @@ async fn transcribe_file(app: tauri::AppHandle, file_path: String) -> Result<Dae
     let is_video = video_extensions.contains(&ext.as_str());
 
     // 1. Notify Frontend: Processing Started
-    // We emit "extracting" for video just to keep UI feedback consistent for now,
-    // even though the backend does it all in one go.
     let initial_step = if is_video { "extracting" } else { "transcribing" };
     let _ = app.emit("v2m://export-status", json!({ "step": initial_step, "progress": 0 }));
 
     let data = json!({ "file_path": file_path });
 
     // 2. Call Backend
-    // The backend's FileTranscriptionService handles optimized FFmpeg streaming (zero-copy).
-    // This blocks until completion (for now), but utilizes the optimized backend pipeline.
-    let result = send_json_request("TRANSCRIBE_FILE", Some(data));
+    match send_json_request("TRANSCRIBE_FILE", Some(data)) {
+        Ok(json_value) => {
+             // Deserialize success state
+             let state: DaemonState = serde_json::from_value(json_value)
+                .map_err(|e| IpcError::from(format!("Parse error: {}", e)))?;
 
-    // Handle response
-    let result = result;
-    if let Ok(val) = &result {
-         let state: DaemonState = serde_json::from_value(val.clone())
-            .map_err(|e| IpcError::from(format!("Parse error: {}", e)))?;
-         let _ = app.emit("v2m://transcription-complete", &state);
+             // Emit event for "Remote Control" UI listeners
+             let _ = app.emit("v2m://transcription-complete", &state);
+
+             Ok(state)
+        },
+        Err(e) => Err(e)
     }
-
-    // Propagate error if any
-    let result = result?;
-    let state: DaemonState = serde_json::from_value(result)
-        .map_err(|e| IpcError::from(format!("Parse error: {}", e)))?;
-
-    Ok(state)
 }
 
 // --- ENTRY POINT ---

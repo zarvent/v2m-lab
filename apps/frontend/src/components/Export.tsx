@@ -195,20 +195,29 @@ export const Export: React.FC<ExportProps> = React.memo(
           console.log("Export status event:", event.payload);
           if (event.payload.step === "extracting") {
             setStatus("extracting");
-            setElapsedSeconds(0); // Reset timer for this phase
+            setElapsedSeconds(0);
             startTimeRef.current = Date.now();
           } else if (event.payload.step === "transcribing") {
             setStatus("transcribing");
-            // Optional: Don't reset timer here if we want cumulative,
-            // OR reset to track just transcription time.
-            // Let's keep it cumulative for simplicity or just let it flow.
-            // Actually, users might like to see "Extracting: 10s", then "Transcribing: 5s".
-            // Let's NOT reset for now to show total time,
-            // or reset if we want to time each phase.
-            // Decision: Let's keep total time running but change label.
           }
         }
       );
+
+      // Listen for explicit completion event (Remote Control Pattern)
+      // This ensures we update even if the invoke promise hangs or times out silently
+      const unlistenComplete = listen<{
+        encryption?: string;
+        transcription?: string;
+        state: string;
+      }>("v2m://transcription-complete", (event) => {
+        console.log("Remote Control: Job Complete", event.payload);
+        if (event.payload.transcription) {
+          if (timerRef.current) clearInterval(timerRef.current);
+          setTranscription(event.payload.transcription);
+          setStatus("complete");
+          onTranscriptionComplete?.(event.payload.transcription);
+        }
+      });
 
       const unlistenDrop = listen<string[]>("tauri://file-drop", (event) => {
         if (event.payload && event.payload.length > 0) {
@@ -230,11 +239,12 @@ export const Export: React.FC<ExportProps> = React.memo(
       // Cleanup function
       return () => {
         unlistenStatus.then((f) => f());
+        unlistenComplete.then((f) => f()); // Clean up completion listener
         unlistenDrop.then((f) => f());
         unlistenHover.then((f) => f());
         unlistenCancel.then((f) => f());
       };
-    }, [processFile]);
+    }, [processFile, onTranscriptionComplete]); // Added onTranscriptionComplete dependency
 
     // Handle file selection via dialog
     const handleSelectFile = useCallback(async () => {
