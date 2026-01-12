@@ -31,8 +31,6 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "resources": [
-      "../../../scripts/v2m-daemon.sh"
-    ]
+    "resources": ["../../../scripts/service/v2m-daemon.sh"]
   }
 }

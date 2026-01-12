@@ -79,6 +79,18 @@ const getFileName = (path: string): string => {
 const sanitizeFilename = (title: string): string =>
   title.replace(/[/\\?%*:|"<>]/g, "-").trim() || "transcription";
 
+/**
+ * Extracts error message from various error types.
+ * Optimized for Tauri IPC errors which are plain objects.
+ */
+const extractErrorMessage = (err: unknown): string => {
+  if (typeof err === "string") return err;
+  if (err && typeof err === "object" && "message" in err) {
+    return String((err as { message: unknown }).message);
+  }
+  return "Error desconocido";
+};
+
 // ============================================
 // COMPONENT
 // ============================================
@@ -149,9 +161,7 @@ export const Export: React.FC<ExportProps> = React.memo(
           }
         } catch (err) {
           console.error("[Export] Error:", err);
-          setErrorMessage(
-            err instanceof Error ? err.message : "Error desconocido"
-          );
+          setErrorMessage(extractErrorMessage(err));
           setStatus("error");
         }
       },
@@ -214,9 +224,7 @@ export const Export: React.FC<ExportProps> = React.memo(
         await processFile(path);
       } catch (err) {
         console.error("[Export] Error:", err);
-        setErrorMessage(
-          err instanceof Error ? err.message : "Error desconocido"
-        );
+        setErrorMessage(extractErrorMessage(err));
         setStatus("error");
       }
     }, [processFile]);

@@ -118,10 +118,13 @@ start_daemon() {
             done
         fi
 
-        # agregamos las rutas a la variable de entorno
+    # agregamos las rutas a la variable de entorno
         if [ -n "${CUDA_PATHS}" ]; then
             export LD_LIBRARY_PATH="${CUDA_PATHS}:${LD_LIBRARY_PATH:-}"
-            echo "🔧 configuré las librerías de nvidia para usar la tarjeta gráfica"
+            # Force usage of discrete GPU (RTX 3060) instead of iGPU
+            # "Performance is Design": Avoid overhead of device scanning
+            export CUDA_VISIBLE_DEVICES=0
+            echo "🔧 configuré las librerías de nvidia para usar la tarjeta gráfica (GPU 0)"
         else
             echo "⚠️  no encontré las librerías de nvidia"
         fi
@@ -132,8 +135,25 @@ start_daemon() {
     DAEMON_PID=$!
     echo "${DAEMON_PID}" > "${PID_FILE}"
 
-    # esperamos un momento para asegurarnos de que arrancó bien
-    sleep 2
+    # Wait for socket to be created (max ~30s for model loading)
+    SOCKET_PATH="${RUNTIME_DIR}/v2m.sock"
+    WAIT_TIMEOUT=60
+    WAITED=0
+    while [ ! -S "${SOCKET_PATH}" ] && [ "${WAITED}" -lt "${WAIT_TIMEOUT}" ]; do
+        # Check if process died during startup
+        if ! ps -p "${DAEMON_PID}" > /dev/null 2>&1; then
+            echo "❌ el proceso murió durante el arranque"
+            tail -20 "${LOG_FILE}"
+            rm -f "${PID_FILE}"
+            return 1
+        fi
+        sleep 0.5
+        WAITED=$((WAITED + 1))
+    done
+
+    if [ ! -S "${SOCKET_PATH}" ]; then
+        echo "⚠️  el socket no apareció después de ${WAIT_TIMEOUT}s"
+    fi
 
     if ps -p "${DAEMON_PID}" > /dev/null 2>&1; then
         echo "✅ el servicio arrancó correctamente (pid: ${DAEMON_PID})"

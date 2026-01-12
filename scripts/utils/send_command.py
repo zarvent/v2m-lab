@@ -16,12 +16,10 @@ def get_socket_path():
     if "V2M_SOCKET_PATH" in os.environ:
         return os.environ["V2M_SOCKET_PATH"]
 
-    # 2. Check XDG_RUNTIME_DIR
+    # 2. Check XDG_RUNTIME_DIR (always prefer, same logic as daemon)
     xdg_runtime = os.environ.get("XDG_RUNTIME_DIR")
     if xdg_runtime:
-        path = os.path.join(xdg_runtime, "v2m", "v2m.sock")
-        if os.path.exists(path):
-            return path
+        return os.path.join(xdg_runtime, "v2m", "v2m.sock")
 
     # 3. Fallback to /tmp
     uid = os.getuid()

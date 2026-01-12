@@ -57,8 +57,10 @@ fn socket_path() -> &'static str {
 /// Max response size (1MB) - DoS protection
 const MAX_RESPONSE_SIZE: usize = 1 << 20;
 
-/// Read timeout (5 seconds)
-const READ_TIMEOUT_SECS: u64 = 5;
+/// Read timeout (300 seconds / 5 minutes)
+/// Increased to accommodate Whisper transcription of long files and LLM processing.
+/// Performance Note: Prevents abandoning expensive inference computations mid-flight.
+const READ_TIMEOUT_SECS: u64 = 300;
 
 // --- TYPED STRUCTURES (Eliminates double serialization) ---
 
