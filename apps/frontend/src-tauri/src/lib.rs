@@ -417,7 +417,7 @@ async fn shutdown_daemon(app: tauri::AppHandle) -> Result<DaemonState, IpcError>
 /// Transcribe a media file (video/audio) to text
 ///
 /// Supports: MP4, MOV, MKV (video) and WAV, MP3, FLAC, M4A (audio)
-/// Uses FFmpeg for audio extraction and Whisper for transcription.
+/// Forwards request to Python backend which handles efficient streaming extraction.
 #[tauri::command]
 async fn transcribe_file(app: tauri::AppHandle, file_path: String) -> Result<DaemonState, IpcError> {
     #[cfg(debug_assertions)]
@@ -432,76 +432,31 @@ async fn transcribe_file(app: tauri::AppHandle, file_path: String) -> Result<Dae
     let video_extensions = ["mp4", "mov", "mkv", "avi", "webm"];
     let is_video = video_extensions.contains(&ext.as_str());
 
-    let target_file_path = if is_video {
-        // 1. Notify Frontend: Extraction Started
-        let _ = app.emit("v2m://export-status", json!({ "step": "extracting", "progress": 0 }));
+    // 1. Notify Frontend: Processing Started
+    // We emit "extracting" for video just to keep UI feedback consistent for now,
+    // even though the backend does it all in one go.
+    let initial_step = if is_video { "extracting" } else { "transcribing" };
+    let _ = app.emit("v2m://export-status", json!({ "step": initial_step, "progress": 0 }));
 
-        // 2. Extract Audio to Temp File
-        let temp_dir = std::env::temp_dir();
-        let timestamp = std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap_or_default()
-            .as_secs();
-        let temp_filename = format!("v2m_extract_{}_{}.wav", timestamp, uuid::Uuid::new_v4());
-        let temp_path = temp_dir.join(temp_filename);
-        let temp_path_str = temp_path.to_string_lossy().to_string();
+    let data = json!({ "file_path": file_path });
 
-        #[cfg(debug_assertions)]
-        eprintln!("[IPC] Extracting audio to: {}", temp_path_str);
-
-        // FFmpeg command: Extract audio as 16kHz Mono PCM F32LE (or just standard WAV for compatibility)
-        // We'll use standard WAV (pcm_s16le) to be safe with all backends, simpler to debug.
-        // -y: overwrite
-        // -vn: no video
-        // -ar 16000: 16kHz
-        // -ac 1: Mono
-        let output = SysCommand::new("ffmpeg")
-            .args(&[
-                "-y",
-                "-i", &file_path,
-                "-vn",
-                "-acodec", "pcm_s16le",
-                "-ar", "16000",
-                "-ac", "1",
-                &temp_path_str
-            ])
-            .output()
-            .map_err(|e| IpcError::from(format!("FFmpeg execution failed: {}", e)))?;
-
-        if !output.status.success() {
-            let stderr = String::from_utf8_lossy(&output.stderr);
-            return Err(IpcError::from(format!("FFmpeg extraction failed: {}", stderr)));
-        }
-
-        // 3. Notify Frontend: Extraction Done / Transcription Starting
-        let _ = app.emit("v2m://export-status", json!({ "step": "transcribing", "progress": 0 }));
-
-        Some(temp_path_str)
-    } else {
-        // Audio file - just notify and pass through
-        let _ = app.emit("v2m://export-status", json!({ "step": "transcribing", "progress": 0 }));
-        None
-    };
-
-    // Use either the extracted temporary path or the original file path
-    let path_to_transcribe = target_file_path.clone().unwrap_or(file_path);
-
-    let data = json!({ "file_path": path_to_transcribe });
-
-    // Call Backend
+    // 2. Call Backend
+    // The backend's FileTranscriptionService handles optimized FFmpeg streaming (zero-copy).
+    // This blocks until completion (for now), but utilizes the optimized backend pipeline.
     let result = send_json_request("TRANSCRIBE_FILE", Some(data));
 
-    // Cleanup Temp File if we created one
-    if let Some(temp_path) = target_file_path {
-        let _ = std::fs::remove_file(temp_path);
+    // Handle response
+    let result = result;
+    if let Ok(val) = &result {
+         let state: DaemonState = serde_json::from_value(val.clone())
+            .map_err(|e| IpcError::from(format!("Parse error: {}", e)))?;
+         let _ = app.emit("v2m://transcription-complete", &state);
     }
 
+    // Propagate error if any
     let result = result?;
     let state: DaemonState = serde_json::from_value(result)
         .map_err(|e| IpcError::from(format!("Parse error: {}", e)))?;
-
-    // Emit transcription complete event
-    let _ = app.emit("v2m://transcription-complete", &state);
 
     Ok(state)
 }

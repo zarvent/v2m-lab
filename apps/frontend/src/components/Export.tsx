@@ -428,44 +428,20 @@ export const Export: React.FC<ExportProps> = React.memo(
                   </div>
                 </div>
 
-                <h2 className="processing-title">
-                  {status === "extracting"
-                    ? "Extrayendo Audio..."
-                    : "Transcribiendo..."}
-                </h2>
+                <h2 className="processing-title">Procesando Inteligencia...</h2>
                 <p className="processing-file">{fileInfo.name}</p>
 
-                <div className="processing-steps">
-                  <div
-                    className={`step ${
-                      status === "extracting" ? "active" : "completed"
-                    }`}
-                  >
-                    <span className="step-indicator" />
-                    <span>Extraer Audio</span>
-                  </div>
-                  <div
-                    className={`step ${
-                      status === "transcribing" ? "active" : ""
-                    }`}
-                  >
-                    <span className="step-indicator" />
-                    <span>Transcribir (Whisper)</span>
-                  </div>
-                  <div className="step">
-                    <span className="step-indicator" />
-                    <span>Generar Texto</span>
-                  </div>
+                <div className="processing-single-indicator">
+                  <div className="pulse-bar" />
+                  <p className="processing-status-text">
+                    {status === "extracting"
+                      ? "Extrayendo audio y optimizando entrada..."
+                      : "Transcribiendo con modelo Whisper local..."}
+                  </p>
                 </div>
 
                 <p className="processing-hint">
-                  {elapsedSeconds > 0
-                    ? `⏱️ ${elapsedSeconds}s — ${
-                        status === "extracting"
-                          ? "separando audio del video"
-                          : "procesando con IA local"
-                      }`
-                    : "Iniciando proceso..."}
+                  ⏱️ {elapsedSeconds}s — El rendimiento es diseño
                 </p>
               </div>
             )}
