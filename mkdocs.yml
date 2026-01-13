@@ -1,0 +1,69 @@
+site_name: Voice2Machine
+site_description: Documentación oficial de Voice2Machine - Dictado por voz local-first.
+site_url: https://voice2machine.local/
+repo_url: https://github.com/v2m-lab/voice2machine
+edit_uri: edit/main/docs/docs/
+
+# Configuration relative to mkdocs.yml location (root)
+docs_dir: docs/docs
+
+theme:
+  name: material
+  language: es
+  palette:
+    - scheme: default
+      primary: teal
+      accent: purple
+      toggle:
+        icon: material/brightness-7
+        name: Cambiar a modo oscuro
+    - scheme: slate
+      primary: teal
+      accent: purple
+      toggle:
+        icon: material/brightness-4
+        name: Cambiar a modo claro
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.sections
+    - navigation.expand
+    - content.code.copy
+  icon:
+    repo: fontawesome/brands/github
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - toc:
+      permalink: true
+
+nav:
+  - Exploración:
+    - Inicio: es/index.md
+    - Guía Rápida: es/guia_rapida.md
+    - Glosario: es/glosario.md
+  - Procedimientos:
+    - Instalación: es/instalacion.md
+    - Contribución: es/contribucion.md
+  - Referencia:
+    - Configuración: es/configuracion.md
+    - Atajos de Teclado: es/atajos_teclado.md
+    - API: es/referencia_api.md
+  - Conceptos:
+    - Arquitectura: es/arquitectura.md
+    - Frontend: es/frontend.md
+    - Decisiones (ADR): es/adr/index.md
+  - Diagnóstico:
+    - Troubleshooting: es/troubleshooting.md
+  - Mantenimiento:
+    - Changelog: es/changelog.md
+  - Gobernanza:
+    - Guía de Estilo: es/style_guide.md

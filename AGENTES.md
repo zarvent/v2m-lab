@@ -5,6 +5,30 @@
 
 ---
 
+## 📚 Gobernanza de Documentación (SOTA 2026)
+
+### Docs as Code
+*   **Fuente de Verdad**: La documentación técnica vive en `docs/docs/es/`. `mkdocs.yml` define la estructura del sitio.
+*   **Sincronización**: Todo PR que cambie funcionalidad (código) **DEBE** incluir la actualización correspondiente en la documentación.
+*   **README**: `README.md` (Inglés) y `LEEME.md` (Español) deben mantenerse sincronizados y apuntar a la documentación detallada.
+
+### Estándares de Calidad
+1.  **Accesibilidad (WCAG 2.1 AA)**:
+    *   Usa `alt text` descriptivo en todas las imágenes.
+    *   Mantén jerarquía estricta de encabezados (H1 > H2 > H3).
+    *   Usa bloques de código con especificación de lenguaje.
+2.  **Estructura**:
+    *   **Exploración**: Qué es y por qué usarlo.
+    *   **Procedimientos**: Guías paso a paso (How-to).
+    *   **Referencia**: APIs, Configuración, Comandos.
+    *   **Conceptos**: Arquitectura, decisiones de diseño (ADRs).
+3.  **Idioma**:
+    *   Documentación detallada (`docs/`): **Español Latinoamericano Nativo**.
+    *   Comentarios de código: **Español Latinoamericano Nativo**.
+    *   Commits: Inglés (Conventional Commits).
+
+---
+
 ## 🧠 Filosofía Core
 
 1.  **Local-First**: La privacidad es suprema. El audio nunca sale de la máquina.
@@ -14,6 +38,9 @@
 ---
 
 ## 🛠️ Herramientas y Comandos
+
+### Documentación
+*   **Servir localmente**: `mkdocs serve`
 
 ### Backend (Python 3.12+)
 *   **Ejecutar**: `python -m v2m.main --daemon`
@@ -53,9 +80,9 @@ apps/backend/src/v2m/
 
 ## 🧪 Estrategia de Testing
 
-1.  **Tests Unitarios**: Mockea toda la infraestructura. Testea la lógica en `application/`.
-2.  **Tests de Integración**: Testea infraestructura real (GPU, Audio) en scripts aislados o `tests/integration/`.
-3.  **Regla de Oro**: Si arreglas un bug, añade un test que lo reproduzca.
+1.  **Unit Tests**: Mockea toda la infraestructura. Testea la lógica en `application/`.
+2.  **Integration Tests**: Testea infraestructura real (GPU, Audio) en scripts aislados o `tests/integration/`.
+3.  **Golden Rule**: Si arreglas un bug, añade un test que lo reproduzca.
 
 ---
 
@@ -63,7 +90,7 @@ apps/backend/src/v2m/
 
 - **Rutas Hardcodeadas**: NUNCA uses rutas absolutas como `/home/user`. Usa `v2m.utils.paths.get_secure_runtime_dir`.
 - **Bloquear el Loop**: No uses `time.sleep()`. Usa `await asyncio.sleep()`.
-- **Git Commits**: Usa Conventional Commits (`feat:`, `fix:`, `refactor:`).
+- **Git Commits**: Use Conventional Commits (`feat:`, `fix:`, `refactor:`).
 
 ---
 
