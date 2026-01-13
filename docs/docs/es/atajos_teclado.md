@@ -1,23 +1,27 @@
 # ⌨️ Atajos de Teclado y Scripts
 
-La filosofía de **Voice2Machine** es integrarse con tu sistema operativo, no reemplazarlo. Por eso, delegamos la gestión de atajos globales a tu gestor de ventanas (GNOME, KDE, i3, Hyprland).
+!!! abstract "Filosofía de Integración"
+    **Voice2Machine** no secuestra tu teclado. Proporciona scripts "atómicos" que tú vinculas a tu gestor de ventanas favorito (GNOME, KDE, Hyprland, i3). Esto garantiza compatibilidad universal y cero consumo de recursos en segundo plano para escuchar teclas.
 
 ---
 
-## 🔗 Vinculación de Scripts
+## 🔗 Scripts Principales
 
-Para usar la herramienta, debes asignar atajos de teclado globales a los siguientes scripts.
+Para activar las funciones, debes crear atajos globales que ejecuten estos scripts ubicados en `scripts/`.
 
-### 1. Dictado (Start/Stop)
-*   **Script**: `/ruta/al/repo/scripts/v2m-toggle.sh`
-*   **Acción**:
-    *   **Primer toque**: Inicia grabación (Sonido: `beep-high`).
-    *   **Segundo toque**: Detiene grabación, transcribe y copia al portapapeles (Sonido: `beep-low`).
-*   **Atajo Sugerido**: `Super + V` (o una tecla Fx libre).
+### 1. Dictado (Toggle)
+*   **Script**: `scripts/v2m-toggle.sh`
+*   **Función**: Interruptor de grabación.
+    *   **Estado Inactivo**: Inicia grabación 🔴 (Sonido de confirmación).
+    *   **Estado Grabando**: Detiene, transcribe y pega el texto 🟢.
+*   **Atajo Sugerido**: `Super + V` o botón lateral del mouse.
 
 ### 2. Refinado con IA
-*   **Script**: `/ruta/al/repo/scripts/v2m-llm.sh`
-*   **Acción**: Toma el texto seleccionado (o del portapapeles), lo envía a Gemini/LocalLLM para mejorarlo, y reemplaza el contenido del portapapeles.
+*   **Script**: `scripts/v2m-llm.sh`
+*   **Función**: Mejora de texto contextual.
+    *   Lee el portapapeles actual.
+    *   Envía el texto al proveedor LLM configurado (Gemini/Ollama).
+    *   Reemplaza el portapapeles con la versión mejorada.
 *   **Atajo Sugerido**: `Super + G`.
 
 ---
@@ -25,32 +29,43 @@ Para usar la herramienta, debes asignar atajos de teclado globales a los siguien
 ## 🐧 Ejemplos de Configuración
 
 ### GNOME / Ubuntu
-1.  Abre `Configuración` -> `Teclado` -> `Atajos de teclado` -> `Ver y personalizar`.
-2.  Ve a `Atajos personalizados`.
-3.  Añade uno nuevo:
-    *   Nombre: `V2M: Dictar`
-    *   Comando: `/home/tu_usuario/voice2machine/scripts/v2m-toggle.sh`
-    *   Atajo: `Super+V`
+1.  Ve a **Configuración** > **Teclado** > **Atajos de teclado** > **Ver y personalizar**.
+2.  Selecciona **Atajos personalizados**.
+3.  Añade nuevo:
+    *   **Nombre**: `V2M: Dictar`
+    *   **Comando**: `/home/tu_usuario/voice2machine/scripts/v2m-toggle.sh`
+    *   **Atajo**: `Super+V`
 
-### i3 / Sway
-Añade a tu `~/.config/i3/config`:
+### Hyprland
+En tu `hyprland.conf`:
 
-```i3config
-bindsym Mod4+v exec --no-startup-id /home/tu_usuario/voice2machine/scripts/v2m-toggle.sh
-bindsym Mod4+g exec --no-startup-id /home/tu_usuario/voice2machine/scripts/v2m-llm.sh
+```ini
+bind = SUPER, V, exec, /home/$USER/voice2machine/scripts/v2m-toggle.sh
+bind = SUPER, G, exec, /home/$USER/voice2machine/scripts/v2m-llm.sh
 ```
 
-### KDE Plasma
-1.  `Preferencias del Sistema` -> `Accesos rápidos`.
-2.  `Añadir comando nuevo`.
+### i3 / Sway
+En tu `config`:
+
+```i3config
+bindsym Mod4+v exec --no-startup-id /home/$USER/voice2machine/scripts/v2m-toggle.sh
+bindsym Mod4+g exec --no-startup-id /home/$USER/voice2machine/scripts/v2m-llm.sh
+```
 
 ---
 
-## ⚠️ Solución de Problemas Comunes
+## ⚠️ Solución de Problemas
 
-*   **Permisos de Ejecución**: Si el atajo no hace nada, asegúrate de que el script sea ejecutable:
+!!! warning "Permisos de Ejecución"
+    Si el atajo parece "muerto", verifica que los scripts tengan permiso de ejecución:
     ```bash
     chmod +x scripts/v2m-toggle.sh scripts/v2m-llm.sh
     ```
-*   **Rutas Absolutas**: Siempre usa la ruta completa (`/home/user/...`), no `~/...` ni rutas relativas en la config de atajos.
-*   **Wayland**: En algunos entornos Wayland, `xclip` puede fallar. V2M intenta usar `wl-copy` automáticamente, pero asegúrate de tenerlo instalado.
+
+!!! info "Wayland vs X11"
+    Los scripts detectan automáticamente tu servidor gráfico.
+    - **X11**: Usa `xclip` y `xdotool`.
+    - **Wayland**: Usa `wl-copy` y `wtype` (asegúrate de tenerlos instalados si usas Wayland puro).
+
+!!! tip "Latencia"
+    Estos scripts usan comunicación por sockets crudos (raw sockets) para hablar con el demonio, asegurando una latencia de activación < 10ms. No inician una instancia de Python pesada cada vez.

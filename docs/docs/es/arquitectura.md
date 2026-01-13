@@ -1,90 +1,90 @@
 # 🧩 Arquitectura del Sistema
 
-**Voice2Machine** está diseñado siguiendo principios de **Arquitectura Hexagonal (Puertos y Adaptadores)** y **CQRS (Command Query Responsibility Segregation)**. Esto asegura un bajo acoplamiento entre la lógica de negocio y los detalles de infraestructura (como la librería de audio o el proveedor de LLM).
+!!! abstract "Filosofía Técnica"
+    **Voice2Machine** implementa una **Arquitectura Hexagonal (Ports & Adapters)** estricta, priorizando el desacoplamiento, la testabilidad y la independencia tecnológica. El sistema se adhiere a estándares SOTA 2026 como tipos estáticos en Python (Protocol) y separación Frontend/Backend mediante IPC binario.
 
 ---
 
-## Diagrama de Alto Nivel
-
-El siguiente diagrama ilustra el flujo de datos y la separación de responsabilidades entre las capas del sistema.
+## 🏗️ Diagrama de Alto Nivel
 
 ```mermaid
 graph TD
-    subgraph Client ["🖥️ Cliente / Entrada"]
-        CLI("CLI / Scripts<br>(main.py)")
-        GUI("GUI App<br>(Tauri + React)")
-        Shortcuts("Atajos de Teclado")
+    subgraph Frontend ["🖥️ Frontend (Tauri)"]
+        React["React 19 GUI"]
+        Rust["Rust Core"]
     end
 
-    subgraph Application ["🧠 Capa de Aplicación"]
-        Bus("Command Bus")
-        Handlers("Command Handlers<br>(Lógica de Negocio)")
+    subgraph Backend ["🐍 Backend (Python)"]
+        Daemon["Daemon Loop"]
+
+        subgraph Hexagon ["Hexagon (Core)"]
+            App["Application<br>(Use Cases)"]
+            Domain["Domain<br>(Interfaces/Models)"]
+        end
+
+        subgraph Infra ["Infrastructure (Adapters)"]
+            Whisper["Whisper Adapter"]
+            Audio["Audio Engine<br>(Rust Ext)"]
+            LLM["LLM Providers<br>(Ollama/Gemini)"]
+        end
     end
 
-    subgraph Domain ["💎 Capa de Dominio"]
-        Interfaces("Interfaces<br>(Puertos)")
-        Entities("Entidades y Errores")
-    end
+    React <-->|Events| Rust
+    Rust <-->|Unix Socket (IPC)| Daemon
+    Daemon --> App
+    App --> Domain
+    Whisper -.->|Implements| Domain
+    Audio -.->|Implements| Domain
+    LLM -.->|Implements| Domain
 
-    subgraph Infrastructure ["🔌 Capa de Infraestructura"]
-        Whisper("Whisper Service<br>(faster-whisper)")
-        Gemini("LLM Service<br>(Google Gemini)")
-        Audio("Audio Recorder<br>(sounddevice)")
-        System("System Adapters<br>(xclip, notify-send)")
-    end
-
-    Shortcuts --> CLI
-    GUI -. "Socket IPC" .-> CLI
-    CLI -- "Envía Comandos" --> Bus
-    Bus -- "Despacha a" --> Handlers
-    Handlers -- "Usa Interfaces" --> Interfaces
-    Whisper -.-> |Implementa| Interfaces
-    Gemini -.-> |Implementa| Interfaces
-    Audio -.-> |Implementa| Interfaces
-    System -.-> |Implementa| Interfaces
-
-    Handlers -- "Invoca" --> Infrastructure
-
-    style Client fill:#e1f5fe,stroke:#01579b
-    style Application fill:#fff3e0,stroke:#e65100
-    style Domain fill:#f3e5f5,stroke:#4a148c
-    style Infrastructure fill:#e8f5e9,stroke:#1b5e20
+    style Frontend fill:#e3f2fd,stroke:#1565c0
+    style Backend fill:#e8f5e9,stroke:#2e7d32
+    style Hexagon fill:#fff3e0,stroke:#ef6c00
+    style Infra fill:#f3e5f5,stroke:#7b1fa2
 ```
 
 ---
 
-## Componentes Principales
+## 📦 Componentes del Backend
 
-### 1. Capa de Entrada (Client & GUI)
-Puntos de acceso al sistema. No contienen lógica de negocio, solo intención del usuario.
+### 1. Core (El Hexágono)
+Ubicado en `apps/backend/src/v2m/core/` y `domain/`.
+*   **Puertos (Interfaces)**: Definidos usando `typing.Protocol` + `@runtime_checkable` para chequeo estructural en tiempo de ejecución.
+*   **CQRS**: Toda acción es un `Command` (DTO Pydantic) procesado por un `CommandHandler` vía un `CommandBus`.
 
-*   **`main.py` (Daemon)**: El cerebro persistente. Corre como un servidor escuchando comandos.
-*   **Scripts Bash**: Atajos ligeros (`v2m-toggle.sh`) que envían señales al daemon.
-*   **Tauri GUI**: Aplicación de escritorio (Rust + React) que actúa como "control remoto" visual, comunicándose vía sockets Unix.
+### 2. Application
+Ubicado en `apps/backend/src/v2m/application/`.
+*   Orquesta la lógica de negocio pura.
+*   Ejemplo: `TranscribeAudioHandler` recibe el audio, invoca al puerto `TranscriptionService`, y notifica eventos.
 
-### 2. Capa de Aplicación (Application)
-Orquesta las operaciones.
-
-*   **Command Bus**: Recibe DTOs (Data Transfer Objects) como `StartRecordingCommand` y los enruta.
-*   **Handlers**: Ejecutan casos de uso puros (ej. "Iniciar grabación", "Procesar texto").
-
-### 3. Capa de Dominio (Domain)
-El núcleo agnóstico. Aquí viven las reglas inmutables.
-
-*   **Interfaces**: Contratos estrictos (ej. `TranscriptionService`) que obligan a la infraestructura a comportarse de cierta manera.
-*   **Entidades**: Objetos de valor y estado del negocio.
-
-### 4. Capa de Infraestructura (Infrastructure)
-Implementación concreta ("el mundo real").
-
-*   **WhisperService**: Wrapper optimizado para `faster-whisper` con gestión de VRAM.
-*   **GeminiLLMService**: Cliente para la API de Google AI Studio.
-*   **LinuxAdapters**: Integración nativa con `DBus` y `X11/Wayland` (portapapeles).
+### 3. Infrastructure
+Ubicado en `apps/backend/src/v2m/infrastructure/`.
+*   **WhisperAdapter**: Implementación concreta usando `faster-whisper`. Gestiona la carga diferida (lazy loading) para ahorrar VRAM.
+*   **SystemMonitor**: Servicio crítico que monitorea uso de GPU/CPU en tiempo real para telemetría.
+*   **ProviderRegistry**: Patrón Factory para instanciar dinámicamente proveedores LLM (Gemini/Ollama) según configuración.
 
 ---
 
-## Patrones de Diseño Clave (2026 Standards)
+## ⚡ Comunicación Frontend-Backend (IPC)
 
-*   **Inyección de Dependencias (DI)**: Todo componente recibe sus dependencias, facilitando tests unitarios (mocking) y cambios de tecnología (ej. cambiar Gemini por OpenAI sin tocar el dominio).
-*   **Singleton de Modelos**: Los modelos pesados (Whisper) se mantienen "calientes" en VRAM dentro del proceso Daemon, eliminando el *cold start*.
-*   **Asincronía Non-blocking**: El núcleo usa `asyncio` para manejar E/S (grabación, red) sin congelar la interfaz.
+Voice2Machine evita HTTP/REST para maximizar rendimiento local. Utiliza **Unix Domain Sockets** con un protocolo personalizado:
+
+1.  **Header**: 4 bytes (Big Endian) indicando longitud.
+2.  **Payload**: JSON utf-8.
+3.  **Persistencia**: La conexión se mantiene viva (Keep-Alive), eliminando el *handshake overhead*.
+
+---
+
+## 🦀 Extensiones Nativas (Rust)
+
+Para tareas críticas donde el GIL de Python es un cuello de botella, utilizamos extensiones nativas compiladas en Rust (`v2m_engine`):
+*   **Audio I/O**: Escritura de WAVs directa a disco (Zero-copy).
+*   **VAD**: Detección de voz de ultra-baja latencia.
+
+---
+
+## 🛡️ Principios de Diseño 2026
+
+1.  **Local-First & Privacy-By-Design**: Ningún dato sale de la máquina a menos que se configure explícitamente un proveedor de nube.
+2.  **Resiliencia**: El Daemon implementa recuperación automática de errores y reinicio de subsistemas (ej. si el driver de audio crashea).
+3.  **Observabilidad**: Logging estructurado (OpenTelemetry standard) y métricas en tiempo real expuestas al frontend.
