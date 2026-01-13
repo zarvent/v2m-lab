@@ -154,36 +154,32 @@ impl From<String> for IpcError {
 
 // --- CORE IPC FUNCTION ---
 
+/// Global persistent connection lock
+static CONNECTION: OnceLock<Mutex<Option<UnixStream>>> = OnceLock::new();
+
+fn get_connection() -> &'static Mutex<Option<UnixStream>> {
+    CONNECTION.get_or_init(|| Mutex::new(None))
+}
+
 /// Send JSON request to Python daemon via Unix socket.
 /// Returns typed Value on success, IpcError on failure.
+/// Uses persistent connection to reduce latency (SOTA 2026).
 fn send_json_request(command: &str, data: Option<Value>) -> Result<Value, IpcError> {
-    // 1. Connect to socket
-    let mut stream = UnixStream::connect(socket_path())
-        .map_err(|e| IpcError::from(format!("Daemon not running: {}", e)))?;
+    let conn_lock = get_connection();
+    let mut guard = conn_lock.lock().map_err(|_| IpcError::from("Lock poisoned".to_string()))?;
 
-    stream
-        .set_read_timeout(Some(std::time::Duration::from_secs(READ_TIMEOUT_SECS)))
-        .map_err(|e| IpcError::from(format!("Timeout config failed: {}", e)))?;
-
-    // 2. Serialize request
+    // 1. Prepare payload (fail fast before network ops)
     let request = IpcCommand {
         cmd: command.to_string(),
         data,
     };
     let json_payload = serde_json::to_vec(&request)
         .map_err(|e| IpcError::from(format!("JSON serialize error: {}", e)))?;
-
     let payload_size = json_payload.len();
 
-    // Debug logging solo en desarrollo
-    #[cfg(debug_assertions)]
-    eprintln!("[IPC] cmd={}, size={} bytes", command, payload_size);
-
-    // Critical security check: prevent accidentally sending massive payloads
-    const MAX_REQUEST_SIZE: usize = 10 * 1024 * 1024; // 10MB limit for requests
+    // Critical security check
+    const MAX_REQUEST_SIZE: usize = 10 * 1024 * 1024; // 10MB limit
     if payload_size > MAX_REQUEST_SIZE {
-        #[cfg(debug_assertions)]
-        eprintln!("[IPC ERROR] Payload too large: {} > {}", payload_size, MAX_REQUEST_SIZE);
         return Err(IpcError {
             code: "REQUEST_TOO_LARGE".to_string(),
             message: format!("Request payload ({} MB) exceeds {} MB limit",
@@ -191,36 +187,67 @@ fn send_json_request(command: &str, data: Option<Value>) -> Result<Value, IpcErr
         });
     }
 
-    // 3. Send with length-prefix framing (4 bytes big-endian + payload)
-    let len = json_payload.len() as u32;
-    stream
-        .write_all(&len.to_be_bytes())
-        .map_err(|e| IpcError::from(format!("Write header error: {}", e)))?;
-    stream
-        .write_all(&json_payload)
-        .map_err(|e| IpcError::from(format!("Write payload error: {}", e)))?;
+    // 2. Ensure connected
+    if guard.is_none() {
+        let stream = UnixStream::connect(socket_path())
+            .map_err(|e| IpcError::from(format!("Daemon not running: {}", e)))?;
+        stream.set_read_timeout(Some(std::time::Duration::from_secs(READ_TIMEOUT_SECS)))
+            .map_err(|e| IpcError::from(format!("Timeout config failed: {}", e)))?;
+        *guard = Some(stream);
+    }
 
-    // 4. Read response length
+    // 3. Send Request (with one retry on broken pipe)
+    let len = payload_size as u32;
+
+    // Use a scope to isolate the borrow of the stream
+    let write_result = {
+        let stream = guard.as_mut().unwrap();
+        stream.write_all(&len.to_be_bytes())
+    };
+
+    if let Err(_) = write_result {
+        // Write failed, assume stale connection. Reconnect.
+        // We can modify guard now because 'stream' borrow has ended.
+        let new_stream = UnixStream::connect(socket_path())
+            .map_err(|e| IpcError::from(format!("Reconnect failed: {}", e)))?;
+
+        new_stream.set_read_timeout(Some(std::time::Duration::from_secs(READ_TIMEOUT_SECS)))
+             .map_err(|e| IpcError::from(format!("Timeout config failed: {}", e)))?;
+
+        *guard = Some(new_stream);
+
+        // Retry write header with new stream
+        guard.as_mut().unwrap().write_all(&len.to_be_bytes())
+            .map_err(|e| IpcError::from(format!("Write header failed: {}", e)))?;
+    }
+
+    // Write payload
+    guard.as_mut().unwrap().write_all(&json_payload)
+        .map_err(|e| IpcError::from(format!("Write payload failed: {}", e)))?;
+
+    // 4. Read Response
     let mut len_buf = [0u8; 4];
-    stream
-        .read_exact(&mut len_buf)
-        .map_err(|e| IpcError::from(format!("Read header error: {}", e)))?;
+    if let Err(e) = guard.as_mut().unwrap().read_exact(&mut len_buf) {
+        *guard = None; // Invalidate connection
+        return Err(IpcError::from(format!("Read header failed: {}", e)));
+    }
 
     let response_len = u32::from_be_bytes(len_buf) as usize;
     if response_len > MAX_RESPONSE_SIZE {
+        *guard = None;
         return Err(IpcError {
             code: "PAYLOAD_TOO_LARGE".to_string(),
             message: format!("Response exceeds {} MB limit", MAX_RESPONSE_SIZE >> 20),
         });
     }
 
-    // 5. Read response body
     let mut response_buf = vec![0u8; response_len];
-    stream
-        .read_exact(&mut response_buf)
-        .map_err(|e| IpcError::from(format!("Read body error: {}", e)))?;
+    if let Err(e) = guard.as_mut().unwrap().read_exact(&mut response_buf) {
+        *guard = None;
+        return Err(IpcError::from(format!("Read body failed: {}", e)));
+    }
 
-    // 6. Deserialize and handle status
+    // 5. Deserialize
     let response: RawDaemonResponse = serde_json::from_slice(&response_buf)
         .map_err(|e| IpcError::from(format!("Invalid JSON response: {}", e)))?;
 
