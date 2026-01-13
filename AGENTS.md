@@ -5,6 +5,30 @@
 
 ---
 
+## 📚 Documentation Governance (SOTA 2026)
+
+### Docs as Code
+*   **Source of Truth**: Technical documentation lives in `docs/docs/es/`. `mkdocs.yml` defines the site structure.
+*   **Sync**: Any PR that changes functionality (code) **MUST** include the corresponding update in the documentation.
+*   **README**: `README.md` (English) and `LEEME.md` (Spanish) must stay synchronized and point to the detailed documentation.
+
+### Quality Standards
+1.  **Accessibility (WCAG 2.1 AA)**:
+    *   Use descriptive `alt text` for all images.
+    *   Maintain strict heading hierarchy (H1 > H2 > H3).
+    *   Use code blocks with language specification.
+2.  **Structure**:
+    *   **Exploration**: What it is and why use it.
+    *   **Procedures**: Step-by-step guides (How-to).
+    *   **Reference**: APIs, Configuration, Commands.
+    *   **Concepts**: Architecture, design decisions (ADRs).
+3.  **Language**:
+    *   Detailed documentation (`docs/`): **Native Latin American Spanish**.
+    *   Code comments: **Native Latin American Spanish**.
+    *   Commits: English (Conventional Commits).
+
+---
+
 ## 🧠 Core Philosophy
 
 1.  **Local-First**: Privacy is supreme. Audio never leaves the machine.
@@ -14,6 +38,9 @@
 ---
 
 ## 🛠️ Tools and Commands
+
+### Documentation
+*   **Serve locally**: `mkdocs serve`
 
 ### Backend (Python 3.12+)
 *   **Run**: `python -m v2m.main --daemon`

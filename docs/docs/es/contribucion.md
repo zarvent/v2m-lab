@@ -1,12 +1,70 @@
-# ❤️ CONTRIBUCIÓN
+# ❤️ Guía de Contribución
 
-gracias por tu interés en contribuir a este proyecto
+¡Gracias por tu interés en contribuir a **Voice2Machine**! Este proyecto se construye sobre la colaboración y el código de calidad.
 
-toda ayuda es bienvenida ya sea reportando bugs sugiriendo mejoras o añadiendo nuevas funcionalidades
+Para mantener nuestros estándares "State of the Art 2026", seguimos reglas estrictas pero justas. Por favor, lee esto antes de enviar tu primer Pull Request.
 
-### CÓMO CONTRIBUIR
+---
 
-1.  **abre un issue** para discutir el cambio que deseas hacer
-2.  **haz un fork** del repositorio y crea una nueva rama para tus cambios
-3.  **asegúrate** de que tu código sigue el estilo y las convenciones del proyecto
-4.  **envía un pull request** con una descripción clara de tus cambios
+## 🚀 Flujo de Trabajo
+
+1.  **Discusión Primero**: Antes de escribir código, abre un [Issue](https://github.com/v2m-lab/voice2machine/issues) para discutir el cambio. Esto evita trabajo duplicado o rechazos por desalineación arquitectónica.
+2.  **Fork & Branch**:
+    - Haz fork del repositorio.
+    - Crea una rama descriptiva: `feat/nuevo-soporte-gpu` o `fix/error-transcripcion`.
+3.  **Desarrollo Local**: Sigue la guía de [Instalación](instalacion.md) para configurar tu entorno de desarrollo.
+
+---
+
+## 📏 Estándares de Calidad
+
+### Código
+- **Backend (Python)**:
+    - Tipado estático estricto (100% Type Hints).
+    - Linter: `ruff check src/ --fix`.
+    - Formateador: `ruff format src/`.
+    - Tests: `pytest` debe pasar al 100%.
+- **Frontend (Tauri/React)**:
+    - TypeScript estricto (no `any`).
+    - Linter: `npm run lint`.
+    - Componentes funcionales y Hooks.
+
+### Commits
+Usamos **Conventional Commits**. Tu mensaje de commit debe seguir este formato:
+
+```text
+<tipo>(<alcance>): <descripción corta>
+
+[Cuerpo opcional detallado]
+```
+
+**Tipos permitidos:**
+- `feat`: Nueva funcionalidad.
+- `fix`: Corrección de bug.
+- `docs`: Solo documentación.
+- `refactor`: Cambio de código que no arregla bugs ni añade features.
+- `test`: Añadir o corregir tests.
+- `chore`: Mantenimiento, dependencias.
+
+**Ejemplo:**
+> `feat(whisper): upgrade to faster-whisper 1.0.0 for 20% speedup`
+
+### Documentación (Docs as Code)
+Si cambias funcionalidad, **debes** actualizar la documentación en `docs/docs/es/`.
+- Verifica que `mkdocs serve` funcione localmente.
+- Sigue la [Guía de Estilo](style_guide.md).
+
+---
+
+## ✅ Checklist de Pull Request
+
+Antes de enviar tu PR:
+
+- [ ] He ejecutado los tests locales y pasan.
+- [ ] He lintado el código (`ruff`, `eslint`).
+- [ ] He actualizado la documentación relevante.
+- [ ] He añadido una entrada al `CHANGELOG.md` (si aplica).
+- [ ] Mi código sigue la Arquitectura Hexagonal (sin imports cruzados prohibidos).
+
+!!! tip "Ayuda"
+    Si tienes dudas sobre arquitectura o diseño, consulta los documentos en `docs/docs/es/adr/` o pregunta en el Issue correspondiente.

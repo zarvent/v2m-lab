@@ -1,74 +1,84 @@
 # ⚙️ Guía de Configuración
 
-> **Ubicación del archivo**: `apps/backend/config.toml` (en tiempo de ejecución se puede buscar en rutas locales).
+!!! info "Gestión de Configuración"
+    La configuración se gestiona principalmente a través de la interfaz gráfica del Frontend (Icono de engranaje ⚙️). Sin embargo, los usuarios avanzados pueden editar directamente el archivo `config.toml`.
 
-Voice2Machine expone un sistema de configuración granular para desarrolladores y "power users". Permite ajustar desde la latencia de inferencia hasta la creatividad de la IA.
-
----
-
-## 1. Transcripción Local (`[whisper]`)
-
-El corazón del sistema. Estos parámetros controlan el modelo **Faster-Whisper**.
-
-| Parámetro | Tipo | Descripción y "Best Practice" 2026 |
-| :--- | :--- | :--- |
-| `model` | `str` | Modelo a cargar. **Default**: `large-v3-turbo` (SOTA actual en equilibrio velocidad/precisión). Opciones: `distil-large-v3`, `medium`, `base`. |
-| `device` | `str` | `cuda` (GPU) es mandatorio para experiencia en tiempo real. `cpu` es funcional pero lento. |
-| `compute_type` | `str` | Precisión de tensores. `int8_float16` es el estándar para GPUs modernas (ahorra VRAM sin perder calidad). Usar `int8` para CPU. |
-| `beam_size` | `int` | `5` es el estándar de oro. Define cuántas rutas de decodificación explora en paralelo. |
-| `best_of` | `int` | `3`. Número de candidatos a generar antes de elegir el mejor. Reduce alucinaciones. |
-| `temperature` | `float` | `0.0` (determinístico). Es crucial mantenerlo en 0 para transcripciones fieles. |
-
-### Detección de Voz (`[whisper.vad_parameters]`)
-
-El sistema VAD (Voice Activity Detection) filtra el silencio antes de transcribir, acelerando drásticamente el proceso.
-
-- **`threshold`** (`0.35`): Sensibilidad. Más bajo = detecta susurros, pero puede captar ruido de fondo.
-- **`min_speech_duration_ms`** (`250`): Un sonido debe durar al menos 1/4 de segundo para ser considerado voz.
-- **`min_silence_duration_ms`** (`600`): Cuánto silencio esperar antes de "cortar" una frase.
+> **Ubicación del archivo**: `$XDG_CONFIG_HOME/v2m/config.toml` (usualmente `~/.config/v2m/config.toml`).
 
 ---
 
-## 2. Refinado con LLM (`[gemini]` & `[llm]`)
+## 1. Transcripción Local (`[transcription]`)
 
-Voice2Machine soporta un enfoque híbrido: Nube (Gemini) o Local (Llama/Qwen).
+El corazón del sistema. Estos parámetros controlan el motor **Faster-Whisper**.
 
-### Gemini (Nube)
-| Parámetro | Default | Notas |
-| :--- | :--- | :--- |
-| `model` | `gemini-1.5-flash-latest` | Modelo optimizado para baja latencia. |
-| `temperature` | `0.3` | Baja creatividad para corrección de estilo. Subir a `0.7` para reescritura creativa. |
-| `api_key` | `${GEMINI_API_KEY}` | **Seguridad**: Se inyecta desde variables de entorno. |
+| Parámetro | Tipo | Default | Descripción y "Best Practice" 2026 |
+| :--- | :--- | :--- | :--- |
+| `model` | `str` | `distil-large-v3` | Modelo a cargar. `distil-large-v3` ofrece velocidad extrema con precisión SOTA. Opciones: `large-v3-turbo`, `medium`. |
+| `device` | `str` | `cuda` | `cuda` (GPU NVIDIA) es mandatorio para experiencia en tiempo real. `cpu` es funcional pero no recomendado. |
+| `compute_type` | `str` | `float16` | Precisión de tensores. `float16` o `int8_float16` optimizan VRAM y throughput en GPUs modernas. |
+| `use_faster_whisper` | `bool` | `true` | Habilita el backend optimizado CTranslate2. |
 
-### Local LLM (Privacidad Total)
-Configuración bajo la sección `[llm.local]`.
-- **`model_path`**: Ruta al archivo `.gguf` (ej. `models/qwen2.5-3b-instruct-q4_k_m.gguf`).
-- **`n_gpu_layers`**: `-1` para volcar todo a la VRAM (máxima velocidad).
+### Detección de Voz (VAD)
 
----
+El sistema utiliza **Silero VAD** (versión Rust en `v2m_engine`) para filtrar silencio antes de invocar a Whisper, ahorrando GPU.
 
-## 3. Notificaciones (`[notifications]`)
-
-Controla el feedback visual del sistema (popups de escritorio).
-
-- **`expire_time_ms`** (`3000`): Las notificaciones desaparecen tras 3 segundos.
-- **`auto_dismiss`** (`true`): Fuerza el cierre vía DBUS (útil en GNOME/Unity donde las notificaciones a veces se "pegan").
+- **`vad_filter`** (`true`): Activa el pre-filtrado.
+- **`vad_parameters`**: Ajuste fino de sensibilidad (umbral de silencio, duración mínima de voz).
 
 ---
 
-## 4. Rutas del Sistema (`[paths]`)
+## 2. Servicios LLM (`[llm]`)
 
-> ⚠️ **Zona de Peligro**: Cambiar esto puede romper la integración con los scripts de bash.
+Voice2Machine implementa un patrón de **Proveedor** para soportar múltiples backends de IA para el refinado de texto.
 
-Se definen rutas temporales (`/tmp/v2m_*`) para comunicación entre procesos (IPC) usando archivos como semáforos y buffers. Esto asegura que no queden residuos en el disco duro tras reiniciar.
+### Configuración Global
+| Parámetro | Descripción |
+| :--- | :--- |
+| `provider` | Proveedor activo: `gemini` (Nube) u `ollama` (Local). |
+| `model` | Nombre del modelo específico (ej. `gemini-1.5-flash` o `llama3:8b`). |
+
+### Proveedores Específicos
+
+#### Google Gemini (`provider = "gemini"`)
+Requiere API Key. Ideal para usuarios sin GPU potente (VRAM < 8GB).
+- **Modelo recomendado**: `gemini-1.5-flash-latest` (latencia mínima).
+- **Temperatura**: `0.3` (conservador) para corrección gramatical.
+
+#### Ollama (`provider = "ollama"`)
+Privacidad total. Requiere correr el servidor de Ollama (`ollama serve`).
+- **Endpoint**: `http://localhost:11434`
+- **Modelo recomendado**: `qwen2.5:7b` o `llama3.1:8b`.
 
 ---
 
-## Secretos (`.env`)
+## 3. Grabación (`[recording]`)
 
-Las claves de API **nunca** deben ir en `config.toml`. Crea un archivo `.env` en la raíz:
+Controla la captura de audio mediante `SoundDevice` y `v2m_engine`.
+
+- **`sample_rate`**: `16000` (Fijo, requerido por Whisper).
+- **`channels`**: `1` (Mono).
+- **`device_index`**: ID del micrófono. Si es `null`, usa el default del sistema (PulseAudio/PipeWire).
+
+---
+
+## 4. Sistema e IPC (`[system]`)
+
+Configuración de bajo nivel para el Demonio y comunicación.
+
+- **`socket_path`**: Ruta al socket Unix (`/tmp/v2m.sock` o en `$XDG_RUNTIME_DIR`).
+- **`log_level`**: `INFO` por defecto. Cambiar a `DEBUG` para diagnósticos profundos.
+- **`max_retries`**: Intentos de reconexión del frontend al backend.
+
+---
+
+## Secretos y Seguridad
+
+Las claves de API se gestionan mediante variables de entorno o almacenamiento seguro, nunca en texto plano dentro de `config.toml` si es posible.
 
 ```bash
-# .env
-GEMINI_API_KEY="AIzaSy_TU_CLAVE_AQUI"
+# Definir en .env o entorno del sistema
+export GEMINI_API_KEY="AIzaSy_TU_CLAVE_AQUI"
 ```
+
+!!! warning "Importante"
+    Reinicia el demonio (`python -m v2m.main --daemon`) después de editar manualmente el archivo de configuración para aplicar los cambios.

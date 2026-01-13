@@ -1,7 +1,8 @@
 # 🛠️ Instalación y Configuración
 
-> **Prerrequisito**: Este proyecto está optimizado para **Linux (Debian/Ubuntu)**.
-> **Estado del Arte 2026**: Utilizamos aceleración por hardware (CUDA) y un enfoque modular para garantizar privacidad y rendimiento.
+!!! note "Prerrequisito"
+    Este proyecto está optimizado para **Linux (Debian/Ubuntu)**.
+    **Estado del Arte 2026**: Utilizamos aceleración por hardware (CUDA) y un enfoque modular para garantizar privacidad y rendimiento.
 
 Esta guía te llevará desde cero hasta un sistema de dictado completamente funcional en tu máquina local.
 
@@ -17,6 +18,7 @@ Hemos creado un script que maneja todo el "trabajo sucio" por ti: verifica tu si
 ```
 
 **Lo que hace este script:**
+
 1.  📦 Instala librerías del sistema (`ffmpeg`, `xclip`, `pulseaudio-utils`).
 2.  🐍 Crea un entorno Python aislado (`venv`).
 3.  ⚙️ Instala las dependencias del proyecto (`faster-whisper`, `torch`).
@@ -70,14 +72,18 @@ echo 'GEMINI_API_KEY="tu_clave_api_aqui"' > .env
 
 Asegúrate de que todo funciona antes de continuar.
 
-**1. Verificar Aceleración GPU**
+### 1. Verificar Aceleración GPU
+
 Esto confirma que Whisper puede usar tu tarjeta gráfica (esencial para velocidad).
+
 ```bash
 python scripts/test_whisper_gpu.py
 ```
 
-**2. Diagnóstico del Sistema**
+### 2. Diagnóstico del Sistema
+
 Verifica que el demonio y los servicios de audio estén listos.
+
 ```bash
 python scripts/verify_daemon.py
 ```
