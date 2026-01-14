@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
+import { cn } from "../../utils/classnames";
 import {
   CopyIcon,
   CheckIcon,
@@ -148,7 +149,7 @@ export const StudioHeader: React.FC<StudioHeaderProps> = React.memo(
         <div className="studio-header-actions">
           {/* Botón Copiar */}
           <button
-            className={`studio-btn studio-btn-copy ${copyState}`}
+            className={cn("studio-btn studio-btn-copy", copyState)}
             onClick={onCopy}
             disabled={!hasContent || isBusy}
             aria-label={
@@ -165,9 +166,10 @@ export const StudioHeader: React.FC<StudioHeaderProps> = React.memo(
             aria-label="Idioma de Traducción"
           >
             <button
-              className={`semantic-toggle-option ${
-                currentLanguage === "en" ? "active" : ""
-              }`}
+              className={cn(
+                "semantic-toggle-option",
+                currentLanguage === "en" && "active"
+              )}
               onClick={() => onTranslate("en")}
               disabled={isBusy}
               title="Traducir a Inglés"
@@ -175,9 +177,10 @@ export const StudioHeader: React.FC<StudioHeaderProps> = React.memo(
               <span className="toggle-label">EN</span>
             </button>
             <button
-              className={`semantic-toggle-option ${
-                currentLanguage === "es" ? "active" : ""
-              }`}
+              className={cn(
+                "semantic-toggle-option",
+                currentLanguage === "es" && "active"
+              )}
               onClick={() => onTranslate("es")}
               disabled={isBusy}
               title="Traducir a Español"
@@ -186,7 +189,7 @@ export const StudioHeader: React.FC<StudioHeaderProps> = React.memo(
             </button>
             {/* Indicador Activo (Solo visual) */}
             <div
-              className={`toggle-indicator ${currentLanguage}`}
+              className={cn("toggle-indicator", currentLanguage)}
               aria-hidden="true"
             />
           </div>

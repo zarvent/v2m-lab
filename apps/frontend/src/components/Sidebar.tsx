@@ -16,6 +16,7 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { cn } from "../utils/classnames";
 import {
   MicIcon,
   DashboardIcon,
@@ -141,9 +142,11 @@ const SortableNavItem: React.FC<SortableNavItemProps> = React.memo(({
       style={style}
       href="#"
       data-nav={item.id}
-      className={`nav-item${isActive ? " active" : ""}${
-        isDragging ? " dragging" : ""
-      }`}
+      className={cn(
+        "nav-item",
+        isActive && "active",
+        isDragging && "dragging"
+      )}
       onClick={onClick}
       aria-current={isActive ? "page" : undefined}
     >
@@ -289,9 +292,10 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(
           <a
             href="#"
             data-nav={FIXED_NAV_ITEM.id}
-            className={`nav-item nav-item-fixed${
-              activeNav === "settings" ? " active" : ""
-            }`}
+            className={cn(
+              "nav-item nav-item-fixed",
+              activeNav === "settings" && "active"
+            )}
             onClick={handleNavClick}
             aria-current={activeNav === "settings" ? "page" : undefined}
           >
