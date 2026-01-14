@@ -1,5 +1,6 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useCallback } from "react";
 import type { Status } from "../types";
+import { cn } from "../utils/classnames";
 import { TabBar } from "./TabBar";
 import { StudioHeader } from "./studio/StudioHeader";
 import { StudioEditor } from "./studio/StudioEditor";
@@ -106,8 +107,17 @@ export const Studio: React.FC<StudioProps> = React.memo(
       isError,
     } = statusFlags;
 
+    const handleEditTitle = useCallback(
+      () => setIsEditingTitle(true),
+      [setIsEditingTitle]
+    );
+
+    const handleAddTab = useCallback(() => addTab(), [addTab]);
+
     return (
-      <div className={`studio-workspace ${isRecording ? "is-recording" : ""}`}>
+      <div
+        className={cn("studio-workspace", isRecording && "is-recording")}
+      >
         <StudioHeader
           noteTitle={noteTitle}
           isEditingTitle={isEditingTitle}
@@ -117,7 +127,7 @@ export const Studio: React.FC<StudioProps> = React.memo(
           copyState={copyState}
           onTitleChange={setNoteTitle}
           onTitleSubmit={handleTitleSubmit}
-          onEditTitle={() => setIsEditingTitle(true)}
+          onEditTitle={handleEditTitle}
           onCopy={handleCopy}
           onTranslate={handleTranslate}
           onExport={handleExport}
@@ -129,7 +139,7 @@ export const Studio: React.FC<StudioProps> = React.memo(
           activeTabId={activeTabId}
           onTabSelect={setActiveTab}
           onTabClose={removeTab}
-          onTabAdd={() => addTab()}
+          onTabAdd={handleAddTab}
           onTabReorder={reorderTabs}
         />
 
