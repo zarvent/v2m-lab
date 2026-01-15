@@ -1,0 +1,222 @@
+@layer components {
+  /* ============================================
+   * MODALS & TOASTS
+   * ============================================ */
+  .studio-modal-overlay,
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: oklch(0 0 0 / 0.7);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    animation: fade-in-up 0.2s ease-out;
+  }
+
+  .studio-modal,
+  .confirm-modal {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    min-width: 360px;
+    max-width: 480px;
+    overflow: hidden;
+  }
+
+  .studio-modal.success {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-xl);
+  }
+
+  .save-success-state {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    color: var(--color-success);
+    font-size: var(--text-lg);
+    font-weight: 600;
+
+    .success-icon {
+      display: flex;
+      svg {
+        width: 24px;
+        height: 24px;
+      }
+    }
+  }
+
+  .studio-modal-header {
+    padding: var(--space-lg);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .studio-modal-title {
+    margin: 0;
+    font-size: var(--text-lg);
+    font-weight: 700;
+    color: var(--fg-primary);
+  }
+
+  .studio-modal-body {
+    padding: var(--space-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+
+  .form-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+
+    label {
+      font-size: var(--text-sm);
+      font-weight: 500;
+      color: var(--fg-secondary);
+    }
+
+    input {
+      background: var(--bg-app);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: var(--space-sm);
+      font-size: var(--text-base);
+      color: var(--fg-primary);
+
+      &:focus {
+        outline: none;
+        border-color: var(--color-primary-base);
+      }
+    }
+  }
+
+  .snippet-preview-box {
+    background: var(--bg-app);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+  }
+
+  .snippet-preview-text {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--fg-secondary);
+    line-height: 1.5;
+    margin: 0 0 var(--space-sm);
+    max-height: 100px;
+    overflow: hidden;
+  }
+
+  .snippet-preview-meta {
+    display: flex;
+    gap: var(--space-sm);
+    font-size: var(--text-xs);
+    color: var(--fg-muted);
+  }
+
+  .studio-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-sm);
+    padding: var(--space-lg);
+    border-top: 1px solid var(--border-subtle);
+    background: var(--bg-panel);
+  }
+
+  .confirm-modal {
+    padding: var(--space-xl);
+    text-align: center;
+
+    .confirm-modal-icon {
+      display: flex;
+      justify-content: center;
+      margin-bottom: var(--space-md);
+      color: var(--fg-muted);
+      svg {
+        width: 48px;
+        height: 48px;
+      }
+    }
+
+    .confirm-modal-title {
+      margin: 0 0 var(--space-sm);
+      font-size: var(--text-lg);
+      color: var(--fg-primary);
+    }
+
+    .confirm-modal-description {
+      color: var(--fg-secondary);
+      font-size: var(--text-sm);
+      margin: 0 0 var(--space-lg);
+    }
+
+    .confirm-modal-actions {
+      display: flex;
+      justify-content: center;
+      gap: var(--space-sm);
+    }
+  }
+
+  .studio-error-toast,
+  .export-toast {
+    position: fixed;
+    bottom: var(--space-lg);
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-lg);
+    border-radius: var(--radius-pill);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    box-shadow: var(--shadow-lg);
+    animation: fade-in-up 0.3s ease-out;
+    z-index: 200;
+  }
+
+  .studio-error-toast {
+    background: var(--color-error);
+    color: white;
+
+    .error-icon {
+      font-size: var(--text-lg);
+    }
+
+    .error-close-btn {
+      background: transparent;
+      border: none;
+      color: white;
+      opacity: 0.7;
+      cursor: pointer;
+      padding: 0 4px;
+
+      &:hover {
+        opacity: 1;
+      }
+    }
+  }
+
+  .export-toast {
+    background: var(--color-success);
+    color: white;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  .modal-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--fg-muted);
+    font-size: var(--text-lg);
+  }
+}
