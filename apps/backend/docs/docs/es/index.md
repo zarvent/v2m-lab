@@ -1,5 +1,6 @@
 ---
-docs/docs/es/index.md
+source:
+  - docs/docs/es/index.md
 ---
 # Backend de Voice2Machine
 
