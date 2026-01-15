@@ -8,8 +8,8 @@
 ## 📚 Documentation Governance (SOTA 2026)
 
 ### Docs as Code
-*   **Source of Truth**: Technical documentation lives in `docs/docs/es/`. `mkdocs.yml` defines the site structure.
-*   **Sync**: Any PR that changes functionality (code) **MUST** include the corresponding update in the documentation.
+*   **Source of Truth**: Technical documentation lives in `docs/docs/es/` (Spanish) and `docs/docs/en/` (English). `mkdocs.yml` defines the site structure.
+*   **Sync**: Any PR that changes functionality (code) **MUST** include the corresponding update in the documentation for BOTH languages.
 *   **README**: `README.md` (English) and `LEEME.md` (Spanish) must stay synchronized and point to the detailed documentation.
 
 ### Quality Standards
@@ -23,7 +23,7 @@
     *   **Reference**: APIs, Configuration, Commands.
     *   **Concepts**: Architecture, design decisions (ADRs).
 3.  **Language**:
-    *   Detailed documentation (`docs/`): **Native Latin American Spanish**.
+    *   Detailed documentation (`docs/`): **Bilingual (English `docs/docs/en` and Native Latin American Spanish `docs/docs/es`)**.
     *   Code comments: **Native Latin American Spanish**.
     *   Commits: English (Conventional Commits).
 
@@ -99,4 +99,4 @@ When generating code:
 - Prefer **Pydantic V2** for data validation.
 - Use robust error handling (`ApplicationError` hierarchy).
 - Assume a **CUDA 12** context for GPU operations.
-- **Language**: All documentation and comments must be in Native Latin American Spanish.
+- **Language**: Documentation must be bilingual (English/Spanish). Comments must be in Native Latin American Spanish.

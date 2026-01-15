@@ -1,5 +1,5 @@
 site_name: Voice2Machine
-site_description: Documentación oficial de Voice2Machine - Dictado por voz local-first.
+site_description: Official Documentation for Voice2Machine / Documentación Oficial de Voice2Machine
 site_url: https://voice2machine.local/
 repo_url: https://github.com/v2m-lab/voice2machine
 edit_uri: edit/main/docs/docs/
@@ -9,20 +9,20 @@ docs_dir: docs/docs
 
 theme:
   name: material
-  language: es
+  language: en
   palette:
     - scheme: default
       primary: teal
       accent: purple
       toggle:
         icon: material/brightness-7
-        name: Cambiar a modo oscuro
+        name: Switch to dark mode
     - scheme: slate
       primary: teal
       accent: purple
       toggle:
         icon: material/brightness-4
-        name: Cambiar a modo claro
+        name: Switch to light mode
   features:
     - navigation.instant
     - navigation.tracking
@@ -46,24 +46,47 @@ markdown_extensions:
       permalink: true
 
 nav:
-  - Exploración:
-    - Inicio: es/index.md
-    - Guía Rápida: es/guia_rapida.md
-    - Glosario: es/glosario.md
-  - Procedimientos:
-    - Instalación: es/instalacion.md
-    - Contribución: es/contribucion.md
-  - Referencia:
-    - Configuración: es/configuracion.md
-    - Atajos de Teclado: es/atajos_teclado.md
-    - API: es/referencia_api.md
-  - Conceptos:
-    - Arquitectura: es/arquitectura.md
-    - Frontend: es/frontend.md
-    - Decisiones (ADR): es/adr/index.md
-  - Diagnóstico:
-    - Troubleshooting: es/troubleshooting.md
-  - Mantenimiento:
-    - Changelog: es/changelog.md
-  - Gobernanza:
-    - Guía de Estilo: es/style_guide.md
+  - English:
+    - Exploration:
+      - Home: en/index.md
+      - Quick Start: en/quick_start.md
+      - Glossary: en/glossary.md
+    - Procedures:
+      - Installation: en/installation.md
+      - Contributing: en/contributing.md
+    - Reference:
+      - Configuration: en/configuration.md
+      - Keyboard Shortcuts: en/keyboard_shortcuts.md
+      - API: en/api_reference.md
+    - Concepts:
+      - Architecture: en/architecture.md
+      - Frontend: en/frontend.md
+      - Decisions (ADR): en/adr/index.md
+    - Diagnostics:
+      - Troubleshooting: en/troubleshooting.md
+    - Maintenance:
+      - Changelog: en/changelog.md
+    - Governance:
+      - Style Guide: en/style_guide.md
+  - Español:
+    - Exploración:
+      - Inicio: es/index.md
+      - Guía Rápida: es/guia_rapida.md
+      - Glosario: es/glosario.md
+    - Procedimientos:
+      - Instalación: es/instalacion.md
+      - Contribución: es/contribucion.md
+    - Referencia:
+      - Configuración: es/configuracion.md
+      - Atajos de Teclado: es/atajos_teclado.md
+      - API: es/referencia_api.md
+    - Conceptos:
+      - Arquitectura: es/arquitectura.md
+      - Frontend: es/frontend.md
+      - Decisiones (ADR): es/adr/index.md
+    - Diagnóstico:
+      - Troubleshooting: es/troubleshooting.md
+    - Mantenimiento:
+      - Changelog: es/changelog.md
+    - Gobernanza:
+      - Guía de Estilo: es/style_guide.md
