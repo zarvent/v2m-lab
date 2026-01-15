@@ -22,6 +22,12 @@ def mock_daemon(monkeypatch, tmp_path):
     mock_container = MagicMock()
     mock_container.get_command_bus.return_value = mock_bus
 
+    # Mock ClientSessionManager with async methods (refactor Phase 3)
+    mock_session_manager = AsyncMock()
+    mock_session_manager.register = AsyncMock()
+    mock_session_manager.unregister = AsyncMock()
+    mock_container.client_session_manager = mock_session_manager
+
     # Patch dependencies in daemon.py
     monkeypatch.setattr("v2m.daemon.container", mock_container)
 

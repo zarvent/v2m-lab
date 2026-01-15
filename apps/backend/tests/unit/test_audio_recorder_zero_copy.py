@@ -40,7 +40,14 @@ class TestAudioRecorderZeroCopy(unittest.TestCase):
 
     def setUp(self) -> None:
         """Inicializa el entorno de prueba."""
+        # Force Python fallback path for these tests (tests are designed for Python impl)
+        self.patcher = patch('v2m.infrastructure.audio.recorder.HAS_RUST_ENGINE', False)
+        self.patcher.start()
         self.recorder = AudioRecorder()
+
+    def tearDown(self) -> None:
+        """Limpia el entorno de prueba después de cada test."""
+        self.patcher.stop()
 
     @patch('v2m.infrastructure.audio.recorder.sd')
     def test_stop_with_copy_data_false_returns_view(self, mock_sd: MagicMock) -> None:

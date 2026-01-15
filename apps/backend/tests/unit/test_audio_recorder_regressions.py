@@ -19,7 +19,13 @@ from v2m.domain.errors import RecordingError
 
 class TestAudioRecorderRegressions(unittest.TestCase):
     def setUp(self):
+        # Force Python fallback path for these tests (tests are designed for Python impl)
+        self.patcher = patch('v2m.infrastructure.audio.recorder.HAS_RUST_ENGINE', False)
+        self.patcher.start()
         self.recorder = AudioRecorder()
+
+    def tearDown(self):
+        self.patcher.stop()
 
     @patch('v2m.infrastructure.audio.recorder.sd')
     def test_start_failure_cleans_up_resources(self, mock_sd):

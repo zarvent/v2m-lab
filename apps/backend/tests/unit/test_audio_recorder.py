@@ -73,7 +73,14 @@ class TestAudioRecorder(unittest.TestCase):
             Corresponde al concepto de "Test Fixture" - el estado conocido
             desde el cual se ejecuta cada prueba.
         """
+        # Force Python fallback path for these tests (tests are designed for Python impl)
+        self.patcher = patch('v2m.infrastructure.audio.recorder.HAS_RUST_ENGINE', False)
+        self.patcher.start()
         self.recorder = AudioRecorder()
+
+    def tearDown(self) -> None:
+        """Limpia el entorno de prueba después de cada test."""
+        self.patcher.stop()
 
     @patch('v2m.infrastructure.audio.recorder.sd')
     def test_stop_clears_frames(self, mock_sd: MagicMock) -> None:
