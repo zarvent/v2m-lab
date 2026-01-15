@@ -18,6 +18,9 @@ dependencies = [
     "pyyaml",
     "requests",
     "coloredlogs",
+    "psutil",
+    "uvloop",
+    "aiofiles",
 ]
 
 [tool.ruff]

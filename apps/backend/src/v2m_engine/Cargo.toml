@@ -10,15 +10,17 @@ name = "v2m_engine"
 crate-type = ["cdylib"]
 
 [dependencies]
-pyo3 = { version = "0.23", features = ["extension-module"] }
+pyo3 = { version = "0.20", features = ["extension-module"] }
 cpal = "0.15"
-numpy = "0.23"
+numpy = "0.20"
 ringbuf = "0.4"
 anyhow = "1.0"
 log = "0.4"
-pyo3-log = "0.12"
+pyo3-log = "0.9"
 sysinfo = "0.33"
 rubato = "0.16"
+pyo3-asyncio = { version = "0.20", features = ["tokio-runtime"] }
+tokio = { version = "1.37", features = ["full"] }
 
 # VAD: Detección de Actividad de Voz WebRTC (estado del arte 2026)
 webrtc-vad = "0.4"

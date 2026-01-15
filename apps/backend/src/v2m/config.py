@@ -144,6 +144,7 @@ class WhisperConfig(BaseModel):
     temperature: float | list[float] = 0.0
     vad_filter: bool = True
     audio_device_index: int | None = None
+    keep_warm: bool = Field(default=True)
     vad_parameters: VadParametersConfig = Field(default_factory=VadParametersConfig)
 
 

@@ -7,16 +7,18 @@
 //! - Monitoreo: Llamadas al sistema nativas (sysinfo 0.33).
 
 use log::{error, info, warn};
-use numpy::{PyArray1, PyArrayMethods};
+use numpy::PyArray1;
 use pyo3::prelude::*;
 use ringbuf::{
-    traits::{Consumer, Producer, Split},
+    traits::{Consumer, Producer, Split, Observer},
     HeapRb,
 };
 use rubato::{
     Resampler, SincFixedIn, SincInterpolationParameters, SincInterpolationType, WindowFunction,
 };
 use sysinfo::System;
+use std::sync::{Arc, Mutex};
+use tokio::sync::Notify;
 
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 
@@ -34,7 +36,8 @@ type RingConsumer = ringbuf::HeapCons<f32>;
 #[pyclass(unsendable)]
 struct AudioRecorder {
     stream: Option<cpal::Stream>,
-    consumer: Option<RingConsumer>,
+    consumer: Arc<Mutex<Option<RingConsumer>>>,
+    notify: Arc<Notify>,
 
     requested_sample_rate: u32,
     device_sample_rate: u32,
@@ -51,7 +54,8 @@ impl AudioRecorder {
 
         AudioRecorder {
             stream: None,
-            consumer: None,
+            consumer: Arc::new(Mutex::new(None)),
+            notify: Arc::new(Notify::new()),
             requested_sample_rate: sample_rate,
             device_sample_rate: 0,
             channels,
@@ -124,7 +128,8 @@ impl AudioRecorder {
         let rb = HeapRb::<f32>::new(buffer_size);
         let (mut producer, consumer) = rb.split();
 
-        self.consumer = Some(consumer);
+        *self.consumer.lock().unwrap() = Some(consumer);
+        let notify = self.notify.clone();
 
         let err_fn = move |err| {
             error!("Error en flujo de audio: {}", err);
@@ -136,6 +141,7 @@ impl AudioRecorder {
                 move |data: &[f32], _: &cpal::InputCallbackInfo| {
                     // API ringbuf 0.4: push_slice devuelve conteo, lo ignoramos (descarta muestras si está lleno)
                     let _ = producer.push_slice(data);
+                    notify.notify_one();
                 },
                 err_fn,
                 None,
@@ -157,7 +163,42 @@ impl AudioRecorder {
         Ok(())
     }
 
-    fn stop<'py>(&mut self, py: Python<'py>) -> PyResult<Bound<'py, PyArray1<f32>>> {
+    /// Lee los datos disponibles en el búfer.
+    fn read_chunk<'py>(&self, py: Python<'py>) -> PyResult<&'py PyArray1<f32>> {
+        let mut guard = self.consumer.lock().unwrap();
+        if let Some(consumer) = guard.as_mut() {
+             let mut data = Vec::new();
+             while let Some(s) = consumer.try_pop() {
+                 data.push(s);
+             }
+             return Ok(PyArray1::from_vec(py, data));
+        }
+        Ok(PyArray1::from_vec(py, Vec::new()))
+    }
+
+    /// Espera de forma asíncrona a que haya nuevos datos.
+    fn wait_for_data<'py>(&self, py: Python<'py>) -> PyResult<&'py PyAny> {
+        let notify = self.notify.clone();
+        let consumer = self.consumer.clone();
+
+        pyo3_asyncio::tokio::future_into_py(py, async move {
+            loop {
+                {
+                    let mut guard = consumer.lock().unwrap();
+                    if let Some(c) = guard.as_ref() {
+                        if c.occupied_len() > 0 {
+                            return Ok(());
+                        }
+                    } else {
+                        return Err(pyo3::exceptions::PyRuntimeError::new_err("Stream closed"));
+                    }
+                }
+                notify.notified().await;
+            }
+        })
+    }
+
+    fn stop<'py>(&mut self, py: Python<'py>) -> PyResult<&'py PyArray1<f32>> {
         if !self.is_recording {
             return Err(pyo3::exceptions::PyRuntimeError::new_err("No se está grabando"));
         }
@@ -166,7 +207,8 @@ impl AudioRecorder {
         self.is_recording = false;
 
         let mut raw_data = Vec::new();
-        if let Some(mut consumer) = self.consumer.take() {
+        let mut guard = self.consumer.lock().unwrap();
+        if let Some(mut consumer) = guard.take() {
             // ringbuf 0.4: usar pop_iter() o try_pop()
             while let Some(sample) = consumer.try_pop() {
                 raw_data.push(sample);
@@ -212,7 +254,7 @@ impl AudioRecorder {
             raw_data
         };
 
-        // PyO3 0.23: usar PyArray1::from_vec_bound
+        // PyO3 0.20: usar PyArray1::from_vec
         Ok(PyArray1::from_vec(py, final_data))
     }
 }
@@ -284,7 +326,7 @@ impl VoiceActivityDetector {
     ///
     /// Returns:
     ///     True si se detecta voz, False en caso contrario
-    fn is_speech(&mut self, frame: &Bound<'_, PyArray1<i16>>) -> PyResult<bool> {
+    fn is_speech(&mut self, frame: &PyArray1<i16>) -> PyResult<bool> {
         let slice = unsafe { frame.as_slice()? };
 
         match self.vad.is_voice_segment(slice) {
@@ -312,7 +354,7 @@ impl VoiceActivityDetector {
     #[pyo3(signature = (audio, frame_ms=30, min_speech_frames=3, min_silence_frames=10))]
     fn detect_segments(
         &mut self,
-        audio: &Bound<'_, PyArray1<f32>>,
+        audio: &PyArray1<f32>,
         frame_ms: u32,
         min_speech_frames: usize,
         min_silence_frames: usize,
@@ -400,9 +442,9 @@ impl VoiceActivityDetector {
     fn filter_speech<'py>(
         &mut self,
         py: Python<'py>,
-        audio: &Bound<'py, PyArray1<f32>>,
+        audio: &PyArray1<f32>,
         frame_ms: u32,
-    ) -> PyResult<Bound<'py, PyArray1<f32>>> {
+        ) -> PyResult<&'py PyArray1<f32>> {
         let segments = self.detect_segments(audio, frame_ms, 3, 10)?;
         let audio_slice = unsafe { audio.as_slice()? };
 
@@ -504,7 +546,7 @@ impl SystemMonitor {
 // ============================================================================
 
 #[pymodule]
-fn v2m_engine(m: &Bound<'_, PyModule>) -> PyResult<()> {
+fn v2m_engine(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<AudioRecorder>()?;
     m.add_class::<VoiceActivityDetector>()?;
     m.add_class::<SystemMonitor>()?;

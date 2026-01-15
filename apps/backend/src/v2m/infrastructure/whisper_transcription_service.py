@@ -16,95 +16,72 @@
 """
 Implementación del Servicio de Transcripción Whisper.
 
-Este módulo implementa la interfaz `TranscriptionService` utilizando la librería
-`faster-whisper`.
-Maneja:
-- Gestión de la grabación de audio vía `AudioRecorder`.
-- Carga diferida (lazy loading) del modelo Whisper para optimizar el inicio.
-- Transcripción de audio en memoria (sin archivos intermedios si es posible).
+Este módulo implementa la interfaz `TranscriptionService` utilizando
+`persistent_model` para gestionar el ciclo de vida del modelo de forma eficiente
+y `streaming_transcriber` para feedback en tiempo real.
 """
 
-from faster_whisper import WhisperModel
+import asyncio
 
 from v2m.application.transcription_service import TranscriptionService
 from v2m.config import config
+from v2m.core.client_session import ClientSessionManager
 from v2m.core.logging import logger
 from v2m.domain.errors import RecordingError
 from v2m.infrastructure.audio.recorder import AudioRecorder
+from v2m.infrastructure.persistent_model import PersistentWhisperWorker
+from v2m.infrastructure.streaming_transcriber import StreamingTranscriber
 
 
 class WhisperTranscriptionService(TranscriptionService):
     """
-    Implementación concreta de `TranscriptionService` utilizando `faster-whisper`.
+    Implementación concreta de `TranscriptionService` utilizando `faster-whisper`
+    gestionado por un worker persistente. Soporta streaming.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, worker: PersistentWhisperWorker, session_manager: ClientSessionManager) -> None:
         """
         Inicializa el servicio de transcripción.
-        Nota: El modelo no se carga en este punto para mejorar el tiempo de arranque (lazy).
+
+        Args:
+            worker: Worker persistente que gestiona el modelo Whisper.
+            session_manager: Gestor de sesión IPC para eventos de streaming.
         """
-        self._model: WhisperModel | None = None
+        self.worker = worker
+        self.session_manager = session_manager
         # Acceder a la configuración a través de la nueva estructura anidada
         self.recorder = AudioRecorder(device_index=config.transcription.whisper.audio_device_index)
 
-    @property
-    def model(self) -> WhisperModel:
-        """
-        Carga diferida (Lazy Load) del modelo Whisper.
-
-        Returns:
-            WhisperModel: La instancia del modelo cargada y lista para usar.
-        """
-        if self._model is None:
-            logger.info("cargando modelo whisper...")
-            whisper_config = config.transcription.whisper
-
-            try:
-                self._model = WhisperModel(
-                    whisper_config.model,
-                    device=whisper_config.device,
-                    compute_type=whisper_config.compute_type,
-                    device_index=whisper_config.device_index,
-                    num_workers=whisper_config.num_workers,
-                )
-                logger.info(f"modelo whisper cargado en {whisper_config.device}")
-            except Exception as e:
-                logger.error(f"error cargando modelo en {whisper_config.device}: {e}")
-                if whisper_config.device == "cuda":
-                    logger.warning("intentando fallback a cpu...")
-                    try:
-                        self._model = WhisperModel(
-                            whisper_config.model,
-                            device="cpu",
-                            compute_type="int8",  # CPU usualmente requiere int8 para velocidad
-                            num_workers=whisper_config.num_workers,
-                        )
-                        logger.info("modelo whisper cargado en cpu (fallback)")
-                    except Exception as e2:
-                        logger.critical(f"fallo crítico: no se pudo cargar el modelo ni en cpu: {e2}")
-                        raise e2
-                else:
-                    raise e
-
-        return self._model
+        # Delegar lógica de grabación/transcripción al streamer
+        self.streamer = StreamingTranscriber(worker, session_manager, self.recorder)
 
     def start_recording(self) -> None:
         """
-        Inicia la grabación de audio.
+        Inicia la grabación de audio y el streaming.
 
         Raises:
             RecordingError: Si falla el inicio de la grabación.
         """
         try:
-            self.recorder.start()
-            logger.info("grabación iniciada")
-        except RecordingError as e:
-            logger.error(f"error iniciando grabación: {e}")
-            raise e
+            # Lanzar tarea de streaming (async desde contexto sync)
+            try:
+                loop = asyncio.get_running_loop()
+                loop.create_task(self.streamer.start())
+            except RuntimeError:
+                # Si no hay loop (ej. tests sync), no podemos iniciar streaming async
+                # Fallback a grabación normal?
+                # La arquitectura Daemon siempre corre en loop.
+                # Tests deben usar pytest-asyncio.
+                raise RecordingError("No event loop found for streaming start")
 
-    def stop_and_transcribe(self) -> str:
+            logger.info("grabación y streaming iniciados")
+        except Exception as e:
+            logger.error(f"error iniciando grabación: {e}")
+            raise RecordingError(str(e))
+
+    async def stop_and_transcribe(self) -> str:
         """
-        Detiene la grabación y transcribe el audio capturado.
+        Detiene la grabación y devuelve el resultado final.
 
         Returns:
             str: El texto transcrito.
@@ -113,48 +90,9 @@ class WhisperTranscriptionService(TranscriptionService):
             RecordingError: Si no se grabó audio o falló la grabación.
         """
         try:
-            # Detener grabación y obtener datos sin guardar a disco (in-memory)
-            audio_data = self.recorder.stop(copy_data=False)
-        except RecordingError as e:
-            logger.error(f"error deteniendo grabación: {e}")
-            raise e
-
-        if audio_data.size == 0:
-            raise RecordingError("no se grabó audio o el buffer está vacío")
-
-        # --- Transcripción con Whisper ---
-        logger.info("transcribiendo audio...")
-        whisper_config = config.transcription.whisper
-
-        try:
-            # 1. Lógica de auto-detección
-            lang = whisper_config.language
-            if lang == "auto":
-                lang = None  # None habilita la auto-detección en faster-whisper
-
-            # 2. Prompt inicial para guiar el contexto del modelo
-            initial_prompt = "Transcripción."
-
-            segments, info = self.model.transcribe(
-                audio_data,
-                language=lang,
-                task="transcribe",
-                initial_prompt=initial_prompt,
-                beam_size=whisper_config.beam_size,
-                best_of=whisper_config.best_of,
-                temperature=whisper_config.temperature,
-                vad_filter=whisper_config.vad_filter,
-                vad_parameters=whisper_config.vad_parameters.model_dump() if whisper_config.vad_filter else None,
-            )
-
-            if lang is None:
-                logger.info(f"idioma detectado {info.language} probabilidad {info.language_probability:.2f}")
-
-            # Unir segmentos (filtrar vacíos para eficiencia)
-            text = " ".join(s.text.strip() for s in segments if s.text)
-            logger.info("transcripción completada")
+            text = await self.streamer.stop()
+            logger.info("transcripción completada (stream stop)")
             return text
-
         except Exception as e:
-            logger.error(f"error durante la transcripción: {e}")
-            raise
+            logger.error(f"error deteniendo/transcribiendo: {e}")
+            raise RecordingError(str(e))

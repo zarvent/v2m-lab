@@ -85,7 +85,10 @@ class StartRecordingHandler(CommandHandler):
         Se ejecuta en un hilo separado para no bloquear el Event Loop principal
         si la inicialización del dispositivo de audio toma tiempo.
         """
-        await asyncio.to_thread(self.transcription_service.start_recording)
+        # await asyncio.to_thread(self.transcription_service.start_recording)
+        # Fix: start_recording launches an async task and needs the running loop.
+        # Calling it directly is non-blocking.
+        self.transcription_service.start_recording()
 
         # Crear bandera de grabación para que scripts externos (Bash) sepan el estado.
         config.paths.recording_flag.touch()
@@ -140,8 +143,9 @@ class StopRecordingHandler(CommandHandler):
         self.notification_service.notify("⚡ v2m procesando", "procesando...")
 
         # Usar executor dedicado para ML - evita contención con otras tareas async
-        loop = asyncio.get_running_loop()
-        transcription = await loop.run_in_executor(_ml_executor, self.transcription_service.stop_and_transcribe)
+        # loop = asyncio.get_running_loop()
+        # Ahora el servicio es async y gestiona su propio threading via PersistentWhisperWorker
+        transcription = await self.transcription_service.stop_and_transcribe()
 
         # Si la transcripción está vacía no tiene sentido copiarla
         if not transcription.strip():

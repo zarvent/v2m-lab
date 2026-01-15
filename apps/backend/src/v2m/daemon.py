@@ -111,8 +111,12 @@ class Daemon:
     async def handle_client(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
         """
         Maneja las conexiones entrantes de clientes IPC.
-        Soporta conexiones persistentes (múltiples comandos por conexión).
+        Soporta conexiones persistentes y streaming de eventos.
         """
+        # Registrar sesión para streaming (Events)
+        if hasattr(container, "client_session_manager") and container.client_session_manager:
+            await container.client_session_manager.register(writer)
+
         try:
             while True:
                 response: IPCResponse
@@ -192,75 +196,74 @@ class Daemon:
                                 response = IPCResponse(status="success", data={"refined_text": result, "state": "idle"})
 
                     elif cmd_name == IPCCommand.TRANSLATE_TEXT:
-                if self.paused:
-                    response = IPCResponse(status="error", error="el demonio está pausado")
-                else:
-                    text = data.get("text")
-                    target_lang = data.get("target_lang", "en")
-                    if not text:
-                        response = IPCResponse(status="error", error="falta data.text en la carga útil")
+                        if self.paused:
+                            response = IPCResponse(status="error", error="el demonio está pausado")
+                        else:
+                            text = data.get("text")
+                            target_lang = data.get("target_lang", "en")
+                            if not text:
+                                response = IPCResponse(status="error", error="falta data.text en la carga útil")
+                            else:
+                                result = await self.command_bus.dispatch(TranslateTextCommand(text, target_lang))
+                                response = IPCResponse(status="success", data={"refined_text": result, "state": "idle"})
+
+
+                    elif cmd_name == IPCCommand.UPDATE_CONFIG:
+                        updates = data.get("updates")
+                        if not updates:
+                            response = IPCResponse(status="error", error="falta data.updates en la carga útil")
+                        else:
+                            result = await self.command_bus.dispatch(UpdateConfigCommand(updates))
+                            response = IPCResponse(status="success", data=result)
+
+                    elif cmd_name == IPCCommand.GET_CONFIG:
+                        result = await self.command_bus.dispatch(GetConfigCommand())
+                        response = IPCResponse(status="success", data={"config": result})
+
+                    elif cmd_name == IPCCommand.PAUSE_DAEMON:
+                        await self.command_bus.dispatch(PauseDaemonCommand())
+                        self.paused = True
+                        response = IPCResponse(status="success", data={"state": "paused"})
+
+                    elif cmd_name == IPCCommand.RESUME_DAEMON:
+                        await self.command_bus.dispatch(ResumeDaemonCommand())
+                        self.paused = False
+                        response = IPCResponse(status="success", data={"state": "running"})
+
+                    elif cmd_name == IPCCommand.PING:
+                        response = IPCResponse(status="success", data={"message": "PONG"})
+
+                    elif cmd_name == IPCCommand.GET_STATUS:
+                        state = "paused" if self.paused else ("recording" if config.paths.recording_flag.exists() else "idle")
+                        metrics = self.system_monitor.get_system_metrics()
+                        response = IPCResponse(status="success", data={"state": state, "telemetry": metrics})
+
+                    elif cmd_name == IPCCommand.SHUTDOWN:
+                        self.running = False
+                        response = IPCResponse(status="success", data={"message": "SHUTTING_DOWN"})
+
+                    elif cmd_name == IPCCommand.TRANSCRIBE_FILE:
+                        if self.paused:
+                            response = IPCResponse(status="error", error="el demonio está pausado")
+                        else:
+                            file_path = data.get("file_path")
+                            if not file_path:
+                                response = IPCResponse(status="error", error="falta data.file_path en la carga útil")
+                            else:
+                                logger.info(f"transcribiendo archivo: {file_path}")
+                                result = await self.command_bus.dispatch(TranscribeFileCommand(file_path))
+                                response = IPCResponse(
+                                    status="success",
+                                    data={"state": "idle", "transcription": result}
+                                )
+
                     else:
-                        result = await self.command_bus.dispatch(TranslateTextCommand(text, target_lang))
-                        response = IPCResponse(status="success", data={"refined_text": result, "state": "idle"})
+                        logger.warning(f"comando desconocido: {cmd_name}")
+                        response = IPCResponse(status="error", error=f"comando desconocido: {cmd_name}")
 
-            elif cmd_name == IPCCommand.UPDATE_CONFIG:
-                updates = data.get("updates")
-                if not updates:
-                    response = IPCResponse(status="error", error="falta data.updates en la carga útil")
-                else:
-                    result = await self.command_bus.dispatch(UpdateConfigCommand(updates))
-                    response = IPCResponse(status="success", data=result)
-
-            elif cmd_name == IPCCommand.GET_CONFIG:
-                result = await self.command_bus.dispatch(GetConfigCommand())
-                response = IPCResponse(status="success", data={"config": result})
-
-            elif cmd_name == IPCCommand.PAUSE_DAEMON:
-                await self.command_bus.dispatch(PauseDaemonCommand())
-                self.paused = True
-                response = IPCResponse(status="success", data={"state": "paused"})
-
-            elif cmd_name == IPCCommand.RESUME_DAEMON:
-                await self.command_bus.dispatch(ResumeDaemonCommand())
-                self.paused = False
-                response = IPCResponse(status="success", data={"state": "running"})
-
-            elif cmd_name == IPCCommand.PING:
-                response = IPCResponse(status="success", data={"message": "PONG"})
-
-            elif cmd_name == IPCCommand.GET_STATUS:
-                state = "paused" if self.paused else ("recording" if config.paths.recording_flag.exists() else "idle")
-                metrics = self.system_monitor.get_system_metrics()
-                response = IPCResponse(status="success", data={"state": state, "telemetry": metrics})
-
-            elif cmd_name == IPCCommand.SHUTDOWN:
-                self.running = False
-                response = IPCResponse(status="success", data={"message": "SHUTTING_DOWN"})
-
-            elif cmd_name == IPCCommand.TRANSCRIBE_FILE:
-                if self.paused:
-                    response = IPCResponse(status="error", error="el demonio está pausado")
-                else:
-                    file_path = data.get("file_path")
-                    if not file_path:
-                        response = IPCResponse(status="error", error="falta data.file_path en la carga útil")
-                    else:
-                        logger.info(f"transcribiendo archivo: {file_path}")
-                        result = await self.command_bus.dispatch(TranscribeFileCommand(file_path))
-                        response = IPCResponse(
-                            status="success",
-                            data={"state": "idle", "transcription": result}
-                        )
-
-            else:
-                logger.warning(f"comando desconocido: {cmd_name}")
-                response = IPCResponse(status="error", error=f"comando desconocido: {cmd_name}")
-
-        except Exception as e:
-            logger.error(f"error manejando comando {cmd_name}: {e}")
-            response = IPCResponse(status="error", error=str(e))
-
-        await self._send_response(writer, response)
+                except Exception as e:
+                    logger.error(f"error manejando comando {cmd_name}: {e}")
+                    response = IPCResponse(status="error", error=str(e))
 
                 await self._send_response(writer, response)
 
@@ -271,6 +274,10 @@ class Daemon:
         except Exception as e:
             logger.error(f"error en bucle de cliente: {e}")
         finally:
+            # Limpiar sesión
+            if hasattr(container, "client_session_manager") and container.client_session_manager:
+                await container.client_session_manager.unregister()
+
             writer.close()
             try:
                 await writer.wait_closed()

@@ -37,7 +37,7 @@ class TranscriptionService(Protocol):
         """
         ...
 
-    def stop_and_transcribe(self) -> str:
+    async def stop_and_transcribe(self) -> str:
         """
         Detiene la grabación activa y procesa el audio para generar texto.
 

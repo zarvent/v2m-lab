@@ -23,11 +23,7 @@ Optimizaciones implementadas:
 - Async FFmpeg: asyncio subprocess para I/O no bloqueante
 - Streaming PCM: Extracción directa a memoria sin archivos temporales
 - Timing metrics: Logging detallado de cada fase para profiling
-- Zero-copy: Reutilización del modelo Whisper ya cargado
-
-Formatos soportados:
-- Video: MP4, M4A (video), MOV, MKV, AVI, WEBM
-- Audio: WAV, MP3, FLAC, OGG, M4A (audio), AAC, AIFF
+- Zero-copy: Reutilización del modelo Whisper via PersistentWorker
 """
 
 from __future__ import annotations
@@ -42,9 +38,7 @@ import numpy as np
 
 from v2m.config import config
 from v2m.core.logging import logger
-
-if TYPE_CHECKING:
-    from v2m.infrastructure.whisper_transcription_service import WhisperTranscriptionService
+from v2m.infrastructure.persistent_model import PersistentWhisperWorker
 
 # Lazy import for BatchedInferencePipeline (reduces startup time)
 _batched_pipeline = None
@@ -74,23 +68,18 @@ class FileTranscriptionService:
 
     Utiliza FFmpeg para normalizar/extraer audio y el modelo Whisper existente
     para la transcripción. Diseñado para reutilizar el modelo ya cargado en memoria.
-
-    Performance Philosophy (極限最適化):
-    - Cada ms cuenta: timing metrics en cada fase
-    - Zero disk I/O: streaming directo a memoria
-    - Single model: reutiliza instancia Whisper del daemon
     """
 
-    __slots__ = ("_transcription_service", "_ffmpeg_available", "_ffmpeg_version")
+    __slots__ = ("worker", "_ffmpeg_available", "_ffmpeg_version")
 
-    def __init__(self, transcription_service: WhisperTranscriptionService) -> None:
+    def __init__(self, worker: PersistentWhisperWorker) -> None:
         """
         Inicializa el servicio.
 
         Args:
-            transcription_service: Servicio de transcripción Whisper existente.
+            worker: Worker persistente que contiene el modelo Whisper.
         """
-        self._transcription_service = transcription_service
+        self.worker = worker
         self._ffmpeg_available, self._ffmpeg_version = self._check_ffmpeg()
 
     def _check_ffmpeg(self) -> tuple[bool, str]:
@@ -118,41 +107,19 @@ class FileTranscriptionService:
     def transcribe_file(self, file_path: str) -> str:
         """
         Transcribe audio desde un archivo (sync wrapper para async).
-
-        Para archivos de video, extrae el audio primero usando FFmpeg.
-        Para archivos de audio, los normaliza directamente.
-
-        Args:
-            file_path: Ruta al archivo a transcribir.
-
-        Returns:
-            Texto transcrito.
-
-        Raises:
-            FileNotFoundError: Si el archivo no existe.
-            ValueError: Si el formato no es soportado.
-            RuntimeError: Si FFmpeg no está disponible para videos.
         """
-        # Ejecutar versión async en un nuevo event loop si no hay uno activo
+        # Ejecutar versión async
         try:
             loop = asyncio.get_running_loop()
-            # Ya estamos en un loop - esto no debería pasar con el executor
             return asyncio.run_coroutine_threadsafe(
                 self._transcribe_file_async(file_path), loop
             ).result()
         except RuntimeError:
-            # No hay loop - crear uno nuevo (caso normal desde executor)
             return asyncio.run(self._transcribe_file_async(file_path))
 
     async def _transcribe_file_async(self, file_path: str) -> str:
         """
         Transcribe audio desde un archivo (async implementation).
-
-        Args:
-            file_path: Ruta al archivo a transcribir.
-
-        Returns:
-            Texto transcrito.
         """
         total_start = time.perf_counter()
         path = Path(file_path)
@@ -190,7 +157,8 @@ class FileTranscriptionService:
 
         # --- Fase 2: Transcripción con Whisper ---
         transcription_start = time.perf_counter()
-        text = self._transcribe_audio_data(audio_data)
+        # Await the async transcription wrapper
+        text = await self._transcribe_audio_data_async(audio_data)
         transcription_time = time.perf_counter() - transcription_start
 
         # --- Metrics Finales ---
@@ -207,32 +175,22 @@ class FileTranscriptionService:
         return text
 
     async def _extract_audio_async(self, file_path: Path, *, is_video: bool) -> np.ndarray:
-        """
-        Extrae/normaliza audio usando FFmpeg con async subprocess.
-
-        Args:
-            file_path: Ruta al archivo.
-            is_video: True si es un archivo de video.
-
-        Returns:
-            Array numpy con datos de audio float32 a 16kHz mono.
-        """
+        """Extrae/normaliza audio usando FFmpeg con async subprocess."""
         timeout = FFMPEG_TIMEOUT_VIDEO if is_video else FFMPEG_TIMEOUT_AUDIO
         action = "extrayendo de video" if is_video else "normalizando"
         logger.debug(f"🎵 {action}: {file_path.name}")
 
-        # Comando FFmpeg optimizado: 16kHz mono PCM f32le directo a stdout
         cmd = [
             "ffmpeg",
             "-hide_banner",
             "-loglevel", "error",
             "-i", str(file_path),
-            "-vn",  # Sin video
-            "-acodec", "pcm_f32le",  # PCM 32-bit float (nativo para Whisper)
-            "-ar", "16000",  # 16kHz (requerido por Whisper)
-            "-ac", "1",  # Mono
-            "-f", "f32le",  # Formato raw sin header
-            "pipe:1",  # Output a stdout
+            "-vn",
+            "-acodec", "pcm_f32le",
+            "-ar", "16000",
+            "-ac", "1",
+            "-f", "f32le",
+            "pipe:1",
         ]
 
         try:
@@ -257,74 +215,63 @@ class FileTranscriptionService:
         audio_data = np.frombuffer(stdout, dtype=np.float32)
         return audio_data
 
-    def _transcribe_audio_data(self, audio_data: np.ndarray) -> str:
+    async def _transcribe_audio_data_async(self, audio_data: np.ndarray) -> str:
         """
-        Transcribe datos de audio usando el modelo Whisper.
-
-        SOTA 2026: Usa BatchedInferencePipeline para archivos largos (>30s)
-        para maximizar utilización de GPU (~3x speedup).
-
-        Args:
-            audio_data: Array numpy float32 a 16kHz mono.
-
-        Returns:
-            Texto transcrito.
+        Transcribe datos de audio usando el modelo Whisper via PersistentWorker.
         """
         duration = len(audio_data) / 16000
-
-        # Usar el modelo Whisper existente del servicio de transcripción
-        model = self._transcription_service.model
         whisper_config = config.transcription.whisper
 
-        # Configurar idioma
-        lang = whisper_config.language
-        if lang == "auto":
-            lang = None
-
-        # OPTIMIZATION: Use batched inference for long files (>30s)
-        # BatchedInferencePipeline provides ~3x speedup by maximizing GPU utilization
         use_batched = duration > 30.0
 
-        if use_batched:
-            logger.debug(f"🚀 usando batched inference ({duration:.0f}s audio)")
-            pipeline = _get_batched_pipeline(model)
-            segments, info = pipeline.transcribe(
-                audio_data,
-                language=lang,
-                task="transcribe",
-                beam_size=whisper_config.beam_size,
-                temperature=whisper_config.temperature,
-                vad_filter=whisper_config.vad_filter,
-                vad_parameters=(
-                    whisper_config.vad_parameters.model_dump()
-                    if whisper_config.vad_filter
-                    else None
-                ),
-                batch_size=16,  # Optimal for RTX 3060 6GB VRAM
-            )
-        else:
-            # Standard inference for short files (lower overhead)
-            segments, info = model.transcribe(
-                audio_data,
-                language=lang,
-                task="transcribe",
-                beam_size=whisper_config.beam_size,
-                best_of=whisper_config.best_of,
-                temperature=whisper_config.temperature,
-                vad_filter=whisper_config.vad_filter,
-                vad_parameters=(
-                    whisper_config.vad_parameters.model_dump()
-                    if whisper_config.vad_filter
-                    else None
-                ),
-            )
+        # Define the inference function to run on the worker thread
+        def _inference(model):
+            lang = whisper_config.language
+            if lang == "auto":
+                lang = None
 
-        if lang is None:
-            logger.info(
-                f"🌐 idioma detectado: {info.language} ({info.language_probability:.0%})"
-            )
+            if use_batched:
+                pipeline = _get_batched_pipeline(model)
+                segments, info = pipeline.transcribe(
+                    audio_data,
+                    language=lang,
+                    task="transcribe",
+                    beam_size=whisper_config.beam_size,
+                    temperature=whisper_config.temperature,
+                    vad_filter=whisper_config.vad_filter,
+                    vad_parameters=(
+                        whisper_config.vad_parameters.model_dump()
+                        if whisper_config.vad_filter
+                        else None
+                    ),
+                    batch_size=16,
+                )
+            else:
+                segments, info = model.transcribe(
+                    audio_data,
+                    language=lang,
+                    task="transcribe",
+                    beam_size=whisper_config.beam_size,
+                    best_of=whisper_config.best_of,
+                    temperature=whisper_config.temperature,
+                    vad_filter=whisper_config.vad_filter,
+                    vad_parameters=(
+                        whisper_config.vad_parameters.model_dump()
+                        if whisper_config.vad_filter
+                        else None
+                    ),
+                )
 
-        # Unir segmentos eficientemente
+            # Materialize generator in executor
+            seg_list = list(segments)
+            return seg_list, info
+
+        # Execute using worker
+        logger.debug(f"🚀 enviando a worker (batched={use_batched})")
+        segments, info = await self.worker.run_inference(_inference)
+
+        if info.language_probability:
+             logger.info(f"🌐 idioma detectado: {info.language} ({info.language_probability:.0%})")
+
         text = " ".join(segment.text.strip() for segment in segments)
         return text
-

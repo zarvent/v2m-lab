@@ -187,3 +187,12 @@ def get_socket_path() -> str:
 
 # Ruta del socket (Evaluada al importar el módulo)
 SOCKET_PATH = get_socket_path()
+
+HEADER_SIZE = 4
+
+async def send_ipc_message(writer, message: IPCResponse) -> None:
+    """Helper para enviar mensaje IPC con framing."""
+    resp_bytes = message.to_json().encode("utf-8")
+    resp_len = len(resp_bytes)
+    writer.write(resp_len.to_bytes(HEADER_SIZE, byteorder="big") + resp_bytes)
+    await writer.drain()
