@@ -1,107 +1,204 @@
-# Voice2Machine Backend (Python 3.12+)
+# Voice2Machine Backend
 
-AI agent instructions for the core daemon and backend services in `apps/backend/`.
+AI agent instructions for the core daemon and backend services.
 
-This is the "Brain" of Voice2Machine. It follows a **Hexagonal Architecture** (Ports & Adapters) with a strict "local-first" privacy model. The core is asynchronous and optimized for low-latency GPU/CPU inference.
+**Architecture**: Hexagonal (Ports & Adapters) + 4-Phase Performance Pipeline
+**Language**: Python 3.12+ (Asyncio-native, uvloop)
+**Privacy**: Local-first, no telemetry
 
-## Development Setup
+---
 
-### Installation
-
-```bash
-# From apps/backend/
-pip install -r requirements.txt
-pip install -e .
-```
-
-### Fast Commands (File-Scoped)
+## Commands (File-Scoped)
 
 Prioritize these over full-project runs.
 
-- **Lint (Single File)**: `ruff check src/v2m/path/to/file.py --fix`
-- **Format (Single File)**: `ruff format src/v2m/path/to/file.py`
-- **Test (Single File)**: `pytest tests/unit/path/to/test_file.py`
-- **Type Check**: Use `ruff` (integrated) or your LSP. Ensure 100% type hint coverage.
+```bash
+# Lint single file
+ruff check src/v2m/path/to/file.py --fix
 
-### Run Daemon
+# Format single file
+ruff format src/v2m/path/to/file.py
 
-- `python -m v2m.main --daemon`
+# Type check (via LSP or)
+# ruff integrates type checking
+
+# Test single file
+venv/bin/pytest tests/unit/path/to/test_file.py -v
+
+# Run daemon
+python -m v2m.main --daemon
+```
+
+> **Full builds only on explicit request.**
+
+---
 
 ## Tech Stack
 
-- **Language**: Python 3.12+ (Asyncio-native)
-- **Data Validation**: [Pydantic V2](https://docs.pydantic.dev/latest/)
-- **Linting/Formatting**: [Ruff](https://docs.astral.sh/ruff/) (SOTA 2026 standard)
-- **Testing**: Pytest with `pytest-asyncio`
-- **Inference**: Faster-Whisper, Google GenAI (Gemini)
-- **Architecture**: Hexagonal (Domain, Application, Infrastructure)
+| Component | Version/Tool |
+|-----------|--------------|
+| Language | Python 3.12+ with `asyncio` |
+| Event Loop | `uvloop` (installed on daemon startup) |
+| Validation | Pydantic V2 |
+| Linting | Ruff (SOTA 2026) |
+| Testing | Pytest + `pytest-asyncio` |
+| Serialization | `orjson` (3-10x faster than stdlib) |
+| Audio | Rust `v2m_engine` (primary), `sounddevice` (fallback) |
+| ML | `faster-whisper`, Google GenAI (Gemini) |
+
+---
 
 ## Project Structure
 
-- `src/v2m/domain/`: **Core Entities & Protocols**. Must have ZERO external dependencies (except Pydantic).
-- `src/v2m/application/`: **Use Cases**. Handlers for commands and queries. Orchestrates domain logic.
-- `src/v2m/infrastructure/`: **Adapters**. Concrete implementations for Whisper, SoundDevice, LLM clients, and File System.
-- `src/v2m/core/`: **System Plumbing**. Dependency Injection container, Event Bus, and Logging.
-- `src/v2m/main.py`: Entry point for the CLI and Daemon.
+```
+src/v2m/
+├── domain/          # Entities & Protocols. ZERO external deps (except Pydantic)
+├── application/     # Handlers, use cases. Orchestrates domain logic
+├── infrastructure/  # Adapters: Whisper, Audio, LLM, FileSystem
+│   ├── audio/       # AudioRecorder (Rust/Python hybrid)
+│   ├── persistent_model.py      # Whisper "always warm" worker
+│   └── streaming_transcriber.py # Real-time inference loop
+├── core/            # DI container, IPC protocol, logging
+│   ├── di/container.py
+│   ├── ipc_protocol.py
+│   └── client_session.py
+└── main.py          # Entry point
+```
+
+---
+
+## Performance Architecture (4 Phases)
+
+### Phase 1: Rust-Python Bridge
+- Audio capture via `v2m_engine` (lock-free ring buffer, GIL-free)
+- `RustAudioStream` implements `AsyncIterator`
+- `wait_for_data()` is awaitable—no polling
+
+### Phase 2: Persistent Model Worker
+- `PersistentWhisperWorker` keeps model in VRAM ("always warm")
+- GPU ops isolated in dedicated `ThreadPoolExecutor`
+- Memory pressure detection via `psutil` (>90% triggers unload)
+
+### Phase 3: Streaming Inference
+- `StreamingTranscriber` emits provisional text every 500ms
+- `ClientSessionManager` handles event push to clients
+- Protocol: `status="event"` (provisional) → `status="success"` (final)
+
+### Phase 4: Async Hygiene
+- `uvloop.install()` on daemon startup
+- `orjson` for fast IPC serialization
+- No sync I/O in hot paths
+
+---
 
 ## Code Standards
 
-### 1. Hexagonal Boundaries
+### Hexagonal Boundaries
+- **Inward pointing**: Domain knows nothing about Infrastructure
+- **Protocols over Classes**: Use `typing.Protocol` in `domain/`
 
-- **Inward pointing**: Domain knows nothing about Infrastructure.
-- **Protocols over Classes**: Use `typing.Protocol` in `domain/` for interfaces. Implement them in `infrastructure/`.
+### Async Non-Blocking
+```python
+# ❌ NEVER
+time.sleep(1)
+open("file.txt").read()
 
-### 2. Async Non-Blocking
+# ✅ ALWAYS
+await asyncio.sleep(1)
+await aiofiles.open("file.txt")
 
-- **Never** use `time.sleep()`. Use `await asyncio.sleep()`.
-- **CPU/GPU Intensive Tasks**: Offload to `asyncio.to_thread` or a dedicated executor to keep the event loop responsive.
+# GPU/CPU intensive → offload to executor
+await asyncio.to_thread(heavy_computation)
+await loop.run_in_executor(self._executor, func)
+```
 
-### 3. Concrete Example: Pydantic & Domain
-
+### Concrete Example: Domain Entity
 ```python
 # src/v2m/domain/entities.py
 from pydantic import BaseModel, ConfigDict
 
 class Transcription(BaseModel):
-    model_config = ConfigDict(frozen=True) # Immutability by default
+    model_config = ConfigDict(frozen=True)  # Immutable
     text: str
     confidence: float
     language: str
 ```
 
+### Concrete Example: Async Handler
+```python
+# src/v2m/application/command_handlers.py
+async def handle(self, command: StopRecordingCommand) -> str | None:
+    # Async service call—no blocking
+    transcription = await self.transcription_service.stop_and_transcribe()
+    self.clipboard_service.copy(transcription)
+    return transcription
+```
+
+---
+
 ## Testing Guidelines
 
-- **Unit Tests**: Test `application/` and `domain/` logic. Mock ALL infrastructure (Adapters).
-- **Behavioral**: Tests should verify "What the system does", not "How it does it".
-- **Coverage**: Target >80% for domain logic.
+- **Unit Tests**: Mock ALL infrastructure adapters
+- **Behavioral**: Verify "what the system does", not implementation details
+- **Coverage**: Target >80% for domain/application logic
+- **Async Tests**: Use `@pytest.mark.asyncio` decorator
+
+```bash
+# Run all unit tests
+venv/bin/pytest tests/unit/ -v
+
+# Run with coverage
+venv/bin/pytest tests/unit/ --cov=src/v2m --cov-report=term-missing
+```
+
+---
 
 ## Git & PR Standards
 
-- **Commit Format**: `[scope]: behavior description` (e.g., `infra/whisper: fix VAD sensitivity`).
-- **PR Check**: All ruff checks must pass. No blocking calls in async handlers.
+- **Commit**: `[scope]: behavior` (e.g., `infra/whisper: fix VAD sensitivity`)
+- **PR Check**: `ruff check` + `ruff format` must pass
+- **Diff**: Small, focused changes with brief summaries
+
+---
 
 ## Boundaries
 
-### Always do
+### ✅ Always do
+- Read `domain/` protocols before implementing adapters
+- Verify `ruff` passes on every modified file
+- Use `logger.info/debug` for trace-level info
+- Run single-file tests before committing
 
-- Read `src/v2m/domain/` protocols before implementing a new adapter.
-- Use `logger.info` or `logger.debug` for trace-level info.
-- Verify `ruff` passes for every modified file.
+### ⚠️ Ask first
+- Adding dependencies to `pyproject.toml`
+- Modifying DI container or Event Bus
+- Changing `config.toml` schema
+- Full project builds
 
-### Ask first
+### 🚫 Never do
+- **Commit secrets**: No API keys, tokens, or credentials in code
+- **Hardcode paths**: Use `v2m.utils.paths` or `get_secure_runtime_dir()`
+- **Block the loop**: No sync I/O in async handlers
+- **Delete node_modules/venv**: Ask first
+- **Push to main**: Always use PRs
 
-- Adding new heavy dependencies to `pyproject.toml`.
-- Modifying the Core Event Bus or DI container.
-- Changing `config.toml` structure.
+---
 
-### Never do
+## Security Considerations
 
-- **Hardcode Paths**: Use `v2m.utils.paths` or secure runtime directory helpers.
-- **Commit Secrets**: Never include API keys or tokens in code or configs.
-- **Block the Loop**: Avoid synchronous I/O in the main application flow.
+- **No telemetry**: All processing is local
+- **Secrets**: Use environment variables (`GEMINI_API_KEY`)
+- **IPC**: Unix socket with 1MB payload limit (DoS protection)
+- **Config**: Validate with Pydantic before use
+
+---
 
 ## Common Pitfalls
 
-- **Pydantic V1 vs V2**: Use V2 features exclusively.
-- **Circular Imports**: Watch out for cross-layer imports. Always import from `domain/` into `application/`, never vice-versa.
-- **CUDA Context**: Assume CUDA 12. Use `torch.cuda.is_available()` where applicable but prefer high-level abstractions from Faster-Whisper.
+| Pitfall | Fix |
+|---------|-----|
+| Pydantic V1 syntax | Use V2 exclusively (`model_config`, `ConfigDict`) |
+| Circular imports | Import from `domain/` into `application/`, never vice-versa |
+| CUDA context | Prefer `faster-whisper` abstractions over raw PyTorch |
+| Sync in async | Offload blocking calls to `asyncio.to_thread` |
+| MagicMock for async | Use `AsyncMock` for async methods |
