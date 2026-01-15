@@ -27,20 +27,12 @@ const Settings = lazy(() =>
 function AppContent() {
   const status = useBackendStore((state) => state.status);
   const transcription = useBackendStore((state) => state.transcription);
-  const errorMessage = useBackendStore((state) => state.errorMessage);
-  const isConnected = useBackendStore((state) => state.isConnected);
-  const lastPingTime = useBackendStore((state) => state.lastPingTime);
   const history = useBackendStore((state) => state.history);
-  
+
   // Actions
   const startRecording = useBackendStore((state) => state.startRecording);
   const stopRecording = useBackendStore((state) => state.stopRecording);
   const setTranscription = useBackendStore((state) => state.setTranscription);
-  const clearError = useBackendStore((state) => state.clearError);
-  const translateText = useBackendStore((state) => state.translateText);
-  const restartDaemon = useBackendStore((state) => state.restartDaemon);
-  const shutdownDaemon = useBackendStore((state) => state.shutdownDaemon);
-  const togglePause = useBackendStore((state) => state.togglePause);
 
   const timer = useTimer(status);
   const { addSnippet } = useSnippets();
@@ -112,28 +104,14 @@ function AppContent() {
       case "studio":
         return (
           <Studio
-            status={status}
-            transcription={transcription}
             timerFormatted={timer.formatted}
-            errorMessage={errorMessage}
-            onStartRecording={startRecording}
-            onStopRecording={stopRecording}
-            onClearError={clearError}
             onSaveSnippet={handleSaveSnippet}
-            onTranslate={translateText}
           />
         );
 
       case "overview":
         return (
-          <Overview
-            status={status}
-            isConnected={isConnected}
-            lastPingTime={lastPingTime}
-            onRestart={restartDaemon}
-            onShutdown={shutdownDaemon}
-            onResume={togglePause}
-          />
+          <Overview />
         );
 
       case "transcriptions":

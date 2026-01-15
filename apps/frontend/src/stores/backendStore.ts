@@ -12,14 +12,14 @@ interface BackendState {
   isConnected: boolean;
   lastPingTime: number | null;
   history: HistoryItem[];
-  
+
   // Actions
   setStatus: (status: Status) => void;
   setTranscription: (text: string) => void;
   setErrorMessage: (msg: string) => void;
   setIsConnected: (connected: boolean) => void;
   setLastPingTime: (time: number) => void;
-  
+
   // History Actions
   loadHistory: () => void;
   addToHistory: (text: string, source: "recording" | "refinement") => void;
@@ -34,7 +34,7 @@ interface BackendState {
   retryConnection: () => Promise<void>;
   restartDaemon: () => Promise<void>;
   shutdownDaemon: () => Promise<void>;
-  
+
   // Internal Helper
   handleStateUpdate: (data: DaemonState) => void;
 }
@@ -111,7 +111,7 @@ export const useBackendStore = create<BackendState>()(
           set({ lastPingTime: now });
           lastPingTimeRef = now;
         }
-        
+
         // Transcription Update
         if (data.transcription !== undefined) set({ transcription: data.transcription });
         if (data.refined_text !== undefined) set({ transcription: data.refined_text });
@@ -119,32 +119,32 @@ export const useBackendStore = create<BackendState>()(
         // Status Update
         const newStatus = mapDaemonState(data.state);
         const currentStatus = get().status;
-        
+
         if ((currentStatus === "transcribing" || currentStatus === "processing") && newStatus === "idle") {
           // Keep current status if we are waiting for something specific
           // This logic mimics the original provider but might need revisiting
-          // Original: 
+          // Original:
           // setStatus((prev) => {
           //   if ((prev === "transcribing" || prev === "processing") && newStatus === "idle") {
           //     return prev;
           //   }
           //   return newStatus;
           // });
-          // But here we are setting state directly. 
-          // Ideally the daemon state update should be the source of truth. 
+          // But here we are setting state directly.
+          // Ideally the daemon state update should be the source of truth.
           // However, to match the provider logic:
-          return; 
+          return;
         }
         set({ status: newStatus });
       },
 
-      startRecording: async (mode = "replace") => {
+      startRecording: async (_mode = "replace") => {
         const { status } = get();
         if (status === "paused") return;
         try {
            // Note: mode logic (replace/append) handling might need local refs if used elsewhere
            // The original used refs for recordingMode and transcriptionBeforeAppend
-           // If the backend handles this, good. If frontend needs to handle append locally before sending, 
+           // If the backend handles this, good. If frontend needs to handle append locally before sending,
            // we might need to store it. Assuming invoke handles it or we just fire and forget for now.
            // Checking original provider:
            // recordingModeRef.current = mode;
@@ -153,7 +153,7 @@ export const useBackendStore = create<BackendState>()(
            // `await invoke<DaemonState>("start_recording");`
            // So they might be for local logic not fully implemented or just side effects.
            // I will proceed without them for now as they aren't passed to invoke.
-           
+
           const data = await invoke<DaemonState>("start_recording");
           get().handleStateUpdate(data);
         } catch (e) {
@@ -226,7 +226,7 @@ export const useBackendStore = create<BackendState>()(
       },
 
       clearError: () => set({ errorMessage: "" }),
-      
+
       retryConnection: async () => {
         // This is primarily handled by the poller/initializer
         // checking status

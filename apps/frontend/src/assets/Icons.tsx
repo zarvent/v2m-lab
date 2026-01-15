@@ -413,7 +413,7 @@ export const StudioIcon = () => (
 );
 
 /** Edit/Pencil icon for inline editing */
-export const EditIcon = () => (
+export const EditIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
     width="14"
     height="14"
@@ -424,6 +424,7 @@ export const EditIcon = () => (
     strokeLinecap="round"
     strokeLinejoin="round"
     aria-hidden="true"
+    {...props}
   >
     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />

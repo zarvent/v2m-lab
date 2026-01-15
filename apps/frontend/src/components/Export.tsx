@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { open } from "@tauri-apps/plugin-dialog";
@@ -12,6 +12,7 @@ import {
   CheckIcon,
   LoaderIcon,
   FileTextIcon,
+  UploadIcon,
 } from "../assets/Icons";
 import { countWords } from "../utils";
 
