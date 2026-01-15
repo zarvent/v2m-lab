@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { useNoteTabs } from "./useNoteTabs";
 import { countWords } from "../utils";
+import { useBackendStore } from "../stores/backendStore";
 import type { Status } from "../types";
 
 export interface UseStudioReturn {
@@ -64,13 +65,14 @@ const sanitizeFilename = (title: string): string =>
   title.replace(/[/\\?%*:|"<>]/g, "-").trim() || "sin_titulo";
 
 export function useStudio(
-  status: Status,
-  transcription: string,
-  onStartRecording: (mode?: "replace" | "append") => void,
-  onSaveSnippet?: (snippet: any) => void,
-  onTranscriptionChange?: (text: string) => void,
-  onTranslate?: (targetLang: "es" | "en") => Promise<void>
+  onSaveSnippet?: (snippet: any) => void
 ): UseStudioReturn {
+  const status = useBackendStore((state) => state.status);
+  const transcription = useBackendStore((state) => state.transcription);
+  const startRecording = useBackendStore((state) => state.startRecording);
+  const setTranscription = useBackendStore((state) => state.setTranscription);
+  const translateText = useBackendStore((state) => state.translateText);
+
   // --- STATE ---
   const {
     tabs,
@@ -182,9 +184,9 @@ export function useStudio(
     (mode: "replace" | "append" = "replace") => {
       setRecordingMode(mode);
       setPreRecordingContent(localContent);
-      onStartRecording(mode);
+      startRecording(mode);
     },
-    [onStartRecording, localContent]
+    [startRecording, localContent]
   );
 
   const handleNewNoteAndRecord = useCallback(() => {
@@ -195,8 +197,8 @@ export function useStudio(
 
     setPreRecordingContent("");
     setRecordingMode("replace");
-    onStartRecording("replace");
-  }, [addTab, onStartRecording]);
+    startRecording("replace");
+  }, [addTab, startRecording]);
 
   const handleTitleSubmit = useCallback(() => {
     setIsEditingTitle(false);
@@ -208,11 +210,7 @@ export function useStudio(
   }, [noteTitle, activeTabId, updateTabTitle]);
 
   const handleCopy = useCallback(async () => {
-    // Logic extracted from Studio.tsx
-    // ... displayContent logic needed here?
-    // Actually, localContent is source of truth except when recording.
-    // But copy usually happens when idle.
-    const textToCopy = localContent; // Simplify for now, assuming idle when copying
+    const textToCopy = localContent; 
 
     if (!textToCopy || copyState === "copied") return;
 
@@ -231,11 +229,11 @@ export function useStudio(
   }, [localContent, copyState]);
 
   const handleTranslate = useCallback((lang: "es" | "en") => {
-    onTranslate?.(lang);
+    translateText(lang);
     if (activeTabId) {
       updateTabLanguage(activeTabId, lang);
     }
-  }, [onTranslate, activeTabId, updateTabLanguage]);
+  }, [translateText, activeTabId, updateTabLanguage]);
 
   const handleExport = useCallback((format: "txt" | "md" | "json") => {
     if (!localContent) return;
@@ -304,12 +302,6 @@ export function useStudio(
 
   // --- DERIVED STATE ---
 
-  // Override localContent display during recording if needed
-  // But for better separation, the Hook exposes the 'authoritative' local content,
-  // and the Component calculates the 'live' display based on status.
-  // However, for word count and exports, we want the live view?
-  // Let's stick to: "Hook manages persistent state". "Component manages view".
-
   const displayContent = useMemo(() => {
     if (status === "recording") {
       return recordingMode === "append"
@@ -324,7 +316,7 @@ export function useStudio(
   const lines = useMemo(() => (displayContent ? displayContent.split("\n") : [""]), [displayContent]);
 
   return {
-    localContent: displayContent, // Export the calculated display content for the editor
+    localContent: displayContent, 
     noteTitle,
     currentLanguage: activeTab?.language ?? "es",
     hasContent,
@@ -344,7 +336,7 @@ export function useStudio(
     setLocalContent: (c) => {
         setLocalContent(c);
         if (activeTabId) updateTabContent(activeTabId, c);
-        onTranscriptionChange?.(c);
+        setTranscription(c);
     },
     setNoteTitle: (t) => {
         setNoteTitle(t);

@@ -1,0 +1,17 @@
+{
+  "context": {
+    "fileName": "AGENTS.md"
+  },
+  "general": {
+    "previewFeatures": true
+  },
+  "experimental": {
+    "introspectionAgentSettings": {
+      "enabled": true
+    },
+    "codebaseInvestigatorSettings": {
+      "maxNumTurns": 15
+    },
+    "skills": true
+  }
+}

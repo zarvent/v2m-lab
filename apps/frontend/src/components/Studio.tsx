@@ -1,5 +1,4 @@
 import React, { useMemo, useCallback } from "react";
-import type { Status } from "../types";
 import { cn } from "../utils/classnames";
 import { TabBar } from "./TabBar";
 import { StudioHeader } from "./studio/StudioHeader";
@@ -9,6 +8,7 @@ import { StudioEmptyState } from "./studio/StudioEmptyState";
 import { SaveDialog } from "./studio/SaveDialog";
 import { useStudio } from "../hooks/useStudio";
 import { CheckIcon } from "../assets/Icons";
+import { useBackendStore } from "../stores/backendStore";
 
 export interface SnippetItem {
   id: string;
@@ -19,16 +19,8 @@ export interface SnippetItem {
 }
 
 interface StudioProps {
-  status: Status;
-  transcription: string;
   timerFormatted: string;
-  errorMessage: string;
-  onStartRecording: (mode?: "replace" | "append") => void;
-  onStopRecording: () => void;
-  onClearError: () => void;
   onSaveSnippet?: (snippet: Omit<SnippetItem, "id" | "timestamp">) => void;
-  onTranscriptionChange?: (text: string) => void;
-  onTranslate?: (targetLang: "es" | "en") => Promise<void>;
 }
 
 const RECORD_SHORTCUT = navigator.platform.includes("Mac")
@@ -37,17 +29,14 @@ const RECORD_SHORTCUT = navigator.platform.includes("Mac")
 
 export const Studio: React.FC<StudioProps> = React.memo(
   ({
-    status,
-    transcription,
     timerFormatted,
-    errorMessage,
-    onStartRecording,
-    onStopRecording,
-    onClearError,
     onSaveSnippet,
-    onTranscriptionChange,
-    onTranslate,
   }) => {
+    const status = useBackendStore((state) => state.status);
+    const errorMessage = useBackendStore((state) => state.errorMessage);
+    const stopRecording = useBackendStore((state) => state.stopRecording);
+    const clearError = useBackendStore((state) => state.clearError);
+
     const {
       localContent,
       noteTitle,
@@ -78,12 +67,7 @@ export const Studio: React.FC<StudioProps> = React.memo(
       addTab,
       reorderTabs,
     } = useStudio(
-      status,
-      transcription,
-      onStartRecording,
-      onSaveSnippet,
-      onTranscriptionChange,
-      onTranslate
+      onSaveSnippet
     );
 
     const statusFlags = useMemo(
@@ -175,7 +159,7 @@ export const Studio: React.FC<StudioProps> = React.memo(
           hasContent={hasContent}
           recordShortcut={RECORD_SHORTCUT}
           onStartRecording={handleStartRecording}
-          onStopRecording={onStopRecording}
+          onStopRecording={stopRecording}
           onNewNote={handleNewNoteAndRecord}
         />
 
@@ -188,7 +172,7 @@ export const Studio: React.FC<StudioProps> = React.memo(
             <span className="error-icon">⚠</span>
             <span className="error-text">{errorMessage}</span>
             <button
-              onClick={onClearError}
+              onClick={clearError}
               className="error-close-btn"
               aria-label="Descartar error"
             >
