@@ -133,9 +133,22 @@ class Daemon:
                     length = int.from_bytes(header_data, byteorder="big")
 
                     if length > MAX_PAYLOAD_SIZE:
-                        logger.warning(f"carga rechazada: {length} bytes > límite de {MAX_PAYLOAD_SIZE}")
+                        # Detect raw JSON (protocol mismatch): if header decodes to '{...'
+                        # it means client sent raw JSON without 4-byte length prefix
+                        try:
+                            header_ascii = header_data.decode("ascii", errors="ignore")
+                            if header_ascii.startswith("{"):
+                                logger.error(
+                                    f"protocolo incorrecto: cliente envió JSON sin prefijo de longitud. "
+                                    f"Header bytes: {header_data.hex()} = '{header_ascii}'"
+                                )
+                            else:
+                                logger.warning(f"carga rechazada: {length} bytes > límite de {MAX_PAYLOAD_SIZE}")
+                        except Exception:
+                            logger.warning(f"carga rechazada: {length} bytes > límite de {MAX_PAYLOAD_SIZE}")
+
                         response = IPCResponse(
-                            status="error", error=f"la carga excede el límite de {MAX_PAYLOAD_SIZE // (1024 * 1024)}MB"
+                            status="error", error="protocolo IPC inválido: use prefijo de longitud de 4 bytes"
                         )
                         await self._send_response(writer, response)
                         # Error de protocolo irrecuperable, cerrar conexión

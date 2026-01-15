@@ -108,17 +108,33 @@ def check_pid_file() -> int | None:
 
 
 def is_daemon_responsive() -> bool:
-    """Verifica si el daemon responde a PING."""
+    """Verifica si el daemon responde a PING usando el protocolo IPC correcto."""
     try:
         import socket
+        import struct
+        import json
+
         s = socket.socket(socket.AF_UNIX)
         s.settimeout(2)
         socket_path = get_runtime_dir() / 'v2m.sock'
         s.connect(str(socket_path))
-        s.send(b'PING')
-        response = s.recv(1024).decode()
+
+        # Protocolo correcto: 4-byte big-endian length prefix + JSON payload
+        request = json.dumps({"cmd": "PING", "data": {}}).encode("utf-8")
+        s.sendall(struct.pack(">I", len(request)) + request)
+
+        # Leer respuesta con el mismo protocolo
+        header = s.recv(4)
+        if len(header) < 4:
+            s.close()
+            return False
+
+        response_len = struct.unpack(">I", header)[0]
+        response_data = s.recv(response_len)
         s.close()
-        return response == 'PONG'
+
+        response = json.loads(response_data.decode("utf-8"))
+        return response.get("status") == "success"
     except Exception:
         return False
 
