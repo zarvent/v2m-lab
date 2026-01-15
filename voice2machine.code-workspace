@@ -5,6 +5,10 @@
       "path": "../llm-book"
     },
     {
+      "name": "agents skills",
+      "path": "../llm-skills"
+    },
+    {
       "name": "backend",
       "path": "apps/backend"
     },
@@ -15,10 +19,6 @@
     {
       "name": "voice2machine",
       "path": "."
-    },
-    {
-      "name": "agents skills",
-      "path": "../llm-skills"
     }
   ],
   "settings": {}

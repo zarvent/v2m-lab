@@ -1,8 +1,6 @@
 import React, { useRef, useEffect, useCallback, useMemo } from "react";
 import { cn } from "../../utils/classnames";
 import "../../styles/components/studio-editor.css";
-import {
-  MicIcon,
 import { EditIcon } from "../../assets/Icons";
 import { RecordingWaveform } from "./RecordingWaveform";
 
