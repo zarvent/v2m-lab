@@ -3,6 +3,7 @@ import type { HistoryItem } from "../types";
 import { CopyIcon, TrashIcon, DescriptionIcon } from "../assets/Icons";
 import { COPY_FEEDBACK_DURATION_MS } from "../constants";
 import { countWords, formatRelativeTime } from "../utils";
+import "../styles/components/transcriptions.css";
 
 interface TranscriptionsProps {
   history: HistoryItem[];

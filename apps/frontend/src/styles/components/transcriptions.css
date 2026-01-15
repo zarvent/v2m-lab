@@ -1,0 +1,212 @@
+@layer components {
+  .transcriptions-container {
+    padding: var(--space-lg);
+    height: 100%;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+  }
+
+  .transcriptions-empty {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: var(--space-xl);
+    color: var(--fg-secondary);
+    animation: fade-in-up 0.5s ease-out;
+
+    .empty-icon {
+      font-size: 3rem;
+      color: var(--fg-muted);
+      margin-bottom: var(--space-lg);
+      opacity: 0.5;
+
+      svg {
+        width: 64px;
+        height: 64px;
+      }
+    }
+
+    h3 {
+      font-size: var(--text-xl);
+      color: var(--fg-primary);
+      margin: 0 0 var(--space-sm);
+    }
+
+    p {
+      color: var(--fg-muted);
+      max-width: 300px;
+      line-height: 1.5;
+    }
+  }
+
+  .transcriptions-search,
+  .snippets-search {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: var(--space-sm) var(--space-md);
+
+    .search-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--fg-primary);
+      font-size: var(--text-sm);
+
+      &::placeholder {
+        color: var(--fg-muted);
+      }
+    }
+
+    .search-count {
+      font-size: var(--text-xs);
+      color: var(--fg-muted);
+      white-space: nowrap;
+    }
+  }
+
+  .transcriptions-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .transcription-item {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    transition: all 150ms;
+
+    &:hover {
+      border-color: var(--border-strong);
+    }
+
+    &.expanded {
+      border-color: var(--color-primary-base);
+    }
+  }
+
+  .transcription-header {
+    padding: var(--space-md);
+    cursor: pointer;
+    transition: background 150ms;
+
+    &:hover {
+      background: var(--bg-surface-hover);
+    }
+  }
+
+  .transcription-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    margin-bottom: var(--space-xs);
+  }
+
+  .transcription-time {
+    font-size: var(--text-xs);
+    color: var(--fg-muted);
+  }
+
+  .transcription-source {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    font-weight: 500;
+    text-transform: uppercase;
+
+    &.recording {
+      background: oklch(0.6 0.2 25 / 0.15);
+      color: var(--color-error);
+    }
+
+    &.refined {
+      background: oklch(0.6 0.2 250 / 0.15);
+      color: var(--color-primary-base);
+    }
+  }
+
+  .transcription-words {
+    font-size: var(--text-xs);
+    color: var(--fg-muted);
+    font-family: var(--font-mono);
+  }
+
+  .transcription-preview {
+    font-size: var(--text-sm);
+    color: var(--fg-secondary);
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .transcription-content {
+    padding: var(--space-md);
+    border-top: 1px solid var(--border-subtle);
+    background: var(--bg-app);
+  }
+
+  .transcription-text {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--fg-primary);
+    line-height: 1.6;
+    white-space: pre-wrap;
+    margin: 0 0 var(--space-md);
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  .transcription-actions {
+    display: flex;
+    gap: var(--space-sm);
+  }
+
+  .btn-transcription-action {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-xs) var(--space-sm);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    color: var(--fg-secondary);
+    font-size: var(--text-xs);
+    cursor: pointer;
+    transition: all 150ms;
+
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    &:hover {
+      background: var(--bg-surface-hover);
+      border-color: var(--border-strong);
+      color: var(--fg-primary);
+    }
+
+    &.btn-delete:hover {
+      border-color: var(--color-error);
+      color: var(--color-error);
+    }
+  }
+
+  .transcriptions-no-results,
+  .snippets-no-results {
+    text-align: center;
+    padding: var(--space-xl);
+    color: var(--fg-muted);
+  }
+}

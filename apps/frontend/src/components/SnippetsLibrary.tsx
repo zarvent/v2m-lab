@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useMemo, useEffect } from "react";
 import { CopyIcon, TrashIcon, CodeIcon } from "../assets/Icons";
 import { COPY_FEEDBACK_DURATION_MS } from "../constants";
+import "../styles/components/snippets.css";
 
 /** Ítem de fragmento almacenado en localStorage */
 export interface SnippetItem {
