@@ -165,11 +165,14 @@ class StreamingTranscriber:
                 full_audio,
                 language=whisper_config.language if whisper_config.language != "auto" else None,
                 task="transcribe",
-                beam_size=whisper_config.beam_size, # Full quality
+                beam_size=whisper_config.beam_size,  # Full quality
                 best_of=whisper_config.best_of,
                 temperature=whisper_config.temperature,
                 vad_filter=whisper_config.vad_filter,
                 vad_parameters=whisper_config.vad_parameters.model_dump() if whisper_config.vad_filter else None
+            )
+            return list(segments)
+
         try:
             segments = await self.worker.run_inference(_inference_func)
             text = " ".join(s.text.strip() for s in segments if s.text)
@@ -178,4 +181,5 @@ class StreamingTranscriber:
             return text
         except Exception:
             return ""
+
 
