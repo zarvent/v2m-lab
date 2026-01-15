@@ -257,6 +257,24 @@ class Daemon:
                                     data={"state": "idle", "transcription": result}
                                 )
 
+                    elif cmd_name == IPCCommand.TOGGLE_RECORDING:
+                        if self.paused:
+                            response = IPCResponse(status="error", error="el demonio está pausado")
+                        else:
+                            # Verificar estado (si existe la bandera, estamos grabando)
+                            is_recording = config.paths.recording_flag.exists()
+                            if is_recording:
+                                result = await self.command_bus.dispatch(StopRecordingCommand())
+                                if result:
+                                    response = IPCResponse(status="success", data={"state": "idle", "transcription": result})
+                                else:
+                                    response = IPCResponse(status="error", error="no se detectó voz")
+                            else:
+                                await self.command_bus.dispatch(StartRecordingCommand())
+                                response = IPCResponse(
+                                    status="success", data={"state": "recording", "message": "grabación iniciada"}
+                                )
+
                     else:
                         logger.warning(f"comando desconocido: {cmd_name}")
                         response = IPCResponse(status="error", error=f"comando desconocido: {cmd_name}")

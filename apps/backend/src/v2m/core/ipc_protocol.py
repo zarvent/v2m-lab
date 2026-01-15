@@ -85,6 +85,7 @@ class IPCCommand(str, Enum):
     PAUSE_DAEMON = "PAUSE_DAEMON"
     RESUME_DAEMON = "RESUME_DAEMON"
     TRANSCRIBE_FILE = "TRANSCRIBE_FILE"
+    TOGGLE_RECORDING = "TOGGLE_RECORDING"
 
 
 # =============================================================================

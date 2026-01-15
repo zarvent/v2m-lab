@@ -43,15 +43,19 @@
 *   **Serve locally**: `mkdocs serve`
 
 ### Backend (Python 3.12+)
+*   **Core**: `asyncio`, `uvloop`, `pydantic` (v2).
+*   **ML/AI**: `faster-whisper` (Local ASR), `google-genai` (Gemini).
 *   **Run**: `python -m v2m.main --daemon`
 *   **Test**: `pytest tests/` (Unit: `tests/unit`, Integration: `tests/integration`)
 *   **Lint**: `ruff check src/ --fix` (Strict rules enabled)
 *   **Format**: `ruff format src/`
 
 ### Frontend (Tauri 2 + React 19)
-*   **Dev**: `npm run tauri dev`
-*   **Build**: `npm run tauri build`
-*   **Check**: `tsc --noEmit`
+*   **Stack**: Vite 7.x, TypeScript 5.8.x, Tailwind CSS 4.1.x, Zustand, Zod.
+*   **Dev**: `npm run dev` (Web), `npm run tauri dev` (Desktop).
+*   **Build**: `npm run tauri build`.
+*   **Check**: `tsc --noEmit`, `npx eslint .`.
+*   **Test**: `npm test` (Vitest).
 
 ### Scripts
 *   **Install**: `./scripts/install.sh` (Idempotent)
@@ -67,14 +71,19 @@ apps/backend/src/v2m/
 ├── core/           # DI Container, Event Bus (CQRS)
 ├── domain/         # Entities, Ports (Protocols), Errors
 ├── application/    # Command Handlers (Use Cases)
-└── infrastructure/ # Concrete Implementations (Whisper, SoundDevice)
+└── infrastructure/ # Concrete Implementations (Whisper, Gemini, SoundDevice)
 ```
 
-### Rules
-1.  **Interfaces in Domain/Application**: Use `typing.Protocol` with `@runtime_checkable` instead of `abc.ABC` for structural decoupling.
+### Backend Rules
+1.  **Interfaces in Domain/Application**: Use `typing.Protocol` with `@runtime_checkable`.
 2.  **No "God Classes"**: Divide responsibilities (e.g., `AudioRecorder` vs `TranscriptionService`).
 3.  **Type Hints**: 100% coverage required.
-4.  **AsyncIO**: The core is asynchronous. Do not block the event loop (use `asyncio.to_thread` or dedicated executors for CPU/GPU intensive tasks).
+4.  **AsyncIO**: Core is async. Offload blocking CPU/GPU tasks to executors.
+
+### Frontend Rules
+1.  **Store-First**: Components call Zustand stores, not `invoke` directly.
+2.  **Local State**: Use `v2m://state-update` events with polling fallback.
+3.  **Styling**: Tailwind CSS 4.0 standards.
 
 ---
 
@@ -82,21 +91,23 @@ apps/backend/src/v2m/
 
 1.  **Unit Tests**: Mock all infrastructure. Test logic in `application/`.
 2.  **Integration Tests**: Test real infrastructure (GPU, Audio) in isolated scripts or `tests/integration/`.
-3.  **Golden Rule**: If you fix a bug, add a test that reproduces it.
+3.  **Frontend Tests**: Vitest + Testing Library. Focus on user flows.
+4.  **Golden Rule**: If you fix a bug, add a test that reproduces it.
 
 ---
 
 ## 🚨 Common Errors
 
-- **Hardcoded Paths**: NEVER use absolute paths like `/home/user`. Use `v2m.utils.paths.get_secure_runtime_dir`.
+- **Hardcoded Paths**: NEVER use absolute paths. Use `v2m.utils.paths`.
 - **Blocking the Loop**: Do not use `time.sleep()`. Use `await asyncio.sleep()`.
+- **Secrets**: No API keys in code. Use `GeminiConfig` masked in UI.
 - **Git Commits**: Use Conventional Commits (`feat:`, `fix:`, `refactor:`).
 
 ---
 
 ## 🤖 AI Context
 When generating code:
-- Prefer **Pydantic V2** for data validation.
-- Use robust error handling (`ApplicationError` hierarchy).
-- Assume a **CUDA 12** context for GPU operations.
+- **Python**: Pydantic V2, robust `ApplicationError` hierarchy.
+- **Frontend**: Functional components, Hooks, Zod validation.
+- **Hardware**: Assume **CUDA 12** context for GPU operations.
 - **Language**: All documentation and comments must be in Native Latin American Spanish.
