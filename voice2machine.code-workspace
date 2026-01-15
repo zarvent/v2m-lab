@@ -21,5 +21,17 @@
       "path": "."
     }
   ],
-  "settings": {}
+  "settings": {
+    "explorer.fileNesting.enabled": true,
+    "explorer.fileNesting.expand": false,
+    "explorer.fileNesting.patterns": {
+      "package.json": ".npmrc, .yarnrc, package-lock.json, pnpm-lock.yaml, bun.lockb",
+      "tsconfig.json": "tsconfig.*.json, jsconfig.*.json",
+      "vite.config.ts": "vitest.config.ts, vitest.setup.ts, postcss.config.js, tailwind.config.js, index.html, env.d.ts, eslint.config.js",
+      "pyproject.toml": "requirements*.txt, .python-version, .ruff.toml, ruff.toml, config.toml",
+      "*.tsx": "${capture}.ts, ${capture}.css, ${capture}.module.css, ${capture}.scss, ${capture}.test.tsx, ${capture}.spec.tsx",
+      ".env": ".env.*",
+      "README.md": "AGENTS.md, AGENTES.md, LEEME.md, LICENSE, LICENCE, CHANGELOG.md"
+    }
+  }
 }
