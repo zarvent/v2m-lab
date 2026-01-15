@@ -26,6 +26,7 @@ import { GeneralSection } from "./GeneralSection";
 import { AdvancedSection } from "./AdvancedSection";
 import { Toast } from "../Toast";
 import { SETTINGS_CLOSE_DELAY_MS } from "../../constants";
+import "../../styles/components/settings.css";
 
 interface SettingsModalProps {
   onClose: () => void;
