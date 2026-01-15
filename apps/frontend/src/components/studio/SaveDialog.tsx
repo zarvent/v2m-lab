@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { SaveIcon, CheckIcon } from "../../assets/Icons";
+import "../../styles/components/modals.css";
+import "../../styles/components/buttons.css";
 
 export interface SaveDialogProps {
   initialTitle: string;

@@ -1,5 +1,7 @@
 import React from "react";
 import { MicIcon } from "../../assets/Icons";
+import "../../styles/components/buttons.css";
+import "../../styles/components/studio-editor.css";
 
 export interface StudioEmptyStateProps {
   isIdle: boolean;

@@ -11,6 +11,14 @@
     {
       "name": "voice2machine",
       "path": "."
+    },
+    {
+      "name": "backend",
+      "path": "apps/backend"
+    },
+    {
+      "name": "frontend",
+      "path": "apps/frontend"
     }
   ],
   "settings": {}
