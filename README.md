@@ -1,77 +1,68 @@
-# 🗣️ voice2machine (v2m-lab)
+# 🗣️ Voice2Machine (V2M)
 
-Internal source of truth and upstream core for Voice2Machine.
-
-_voice dictation for any text field in your OS_
+> **Local Voice Dictation & Text Refinement**
+> *State of the Art 2026 - Privacy First - GPU Accelerated*
 
 ---
 
-## 🚀 Exploration
+## 🚀 Overview
 
-### What is this?
-A tool that converts your voice to text using your local GPU. The premise is simple: speaking is faster than typing. This project allows you to dictate in any application without depending on cloud services.
+**Voice2Machine** allows you to dictate text into **any application** on your operating system. It uses your local GPU to transcribe audio with maximum speed and accuracy, ensuring your data never leaves your machine.
 
-### Why use it?
-- **Privacy**: Local-first philosophy. Your audio never leaves your machine.
-- **Speed**: GPU-accelerated transcription (Whisper) for near real-time performance.
-- **Flexibility**: Works with any OS text field via clipboard injection.
+*   **Dictation**: Voice → Text (Whisper)
+*   **Refinement**: Text → AI → Better Text (LLM)
 
-### For Whom?
-- **Developers**: Automate documentation and coding via voice.
-- **Writers**: Draft content at the speed of thought.
-- **Privacy Advocates**: Use AI without surveillance capitalism.
+---
+
+## 📚 Documentation
+
+We maintain comprehensive documentation in both English and Spanish.
+
+*   🇺🇸 **[English Documentation](docs/docs/en/index.md)**
+*   🇪🇸 **[Documentación en Español](docs/docs/es/index.md)**
+
+### Quick Links
+
+| Topic | English | Español |
+| :--- | :--- | :--- |
+| **Start Here** | [Quick Start](docs/docs/en/quick_start.md) | [Guía Rápida](docs/docs/es/guia_rapida.md) |
+| **Setup** | [Installation](docs/docs/en/installation.md) | [Instalación](docs/docs/es/instalacion.md) |
+| **Config** | [Configuration](docs/docs/en/configuration.md) | [Configuración](docs/docs/es/configuracion.md) |
+| **Design** | [Architecture](docs/docs/en/architecture.md) | [Arquitectura](docs/docs/es/arquitectura.md) |
 
 ---
 
 ## ⚡ Quick Start
 
 ### Installation
-See the [Installation Guide](docs/docs/es/instalacion.md) for detailed steps on Ubuntu/Debian.
+
+```bash
+# Clone and install (Ubuntu/Debian)
+git clone https://github.com/v2m-lab/voice2machine.git
+cd voice2machine
+./scripts/install.sh
+```
 
 ### Usage
-Two global keyboard shortcuts control the flow:
 
-| Script | Function |
-| :--- | :--- |
-| `v2m-toggle.sh` | **Record** → **Transcribe** → **Paste** (via clipboard) |
-| `v2m-llm.sh` | **Copy** → **Refine** (LLM) → **Replace** |
+1.  **Start the Daemon**: `python -m v2m.main --daemon`
+2.  **Toggle Recording**: Run `scripts/v2m-toggle.sh` (Bind this to a key like `Super+V`).
 
 ---
 
-## 📚 Documentation
+## 🧩 Architecture
 
-Detailed technical documentation is consolidated in the `docs/` directory (in Spanish) and can be served locally with `mkdocs serve`.
-
-- [**Installation**](docs/docs/es/instalacion.md): Setup guide.
-- [**Architecture**](docs/docs/es/arquitectura.md): System design.
-- [**Configuration**](docs/docs/es/configuracion.md): Tweak parameters.
-- [**Keyboard Shortcuts**](docs/docs/es/atajos_teclado.md): Control reference.
-- [**Troubleshooting**](docs/docs/es/troubleshooting.md): Fix common issues.
-
----
-
-## 🧩 Visual Flows
-
-### Voice to Text (Standard)
+Voice2Machine follows a **Hexagonal Architecture** with a strict separation between the Python Backend (Core logic) and the Tauri Frontend (GUI).
 
 ```mermaid
-flowchart LR
-    A[🎤 Record] --> B{Whisper Local}
-    B --> C[📋 Clipboard]
+graph TD
+    Frontend[Tauri Frontend] <-->|IPC Unix Socket| Daemon[Python Daemon]
+    Daemon --> Whisper[Local Whisper]
+    Daemon --> LLM[Local/Cloud LLM]
 ```
-
-### Text to Refined Text (LLM)
-
-```mermaid
-flowchart LR
-    A[📋 Copy Text] --> B{Local LLM}
-    B --> C[📋 Replace Text]
-```
-
-> *Note: Diagrams require a Mermaid-compatible viewer.*
 
 ---
 
 ## 📄 License
 
-This project is licensed under the **GNU General Public License v3.0** - see the [LICENSE](LICENSE) file for more details.
+This project is licensed under the **GNU General Public License v3.0**.
