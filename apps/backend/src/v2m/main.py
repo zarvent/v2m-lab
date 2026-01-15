@@ -37,6 +37,7 @@ import sys
 from v2m.client import send_command
 from v2m.core.ipc_protocol import IPCCommand
 from v2m.core.logging import logger
+from v2m.utils.env import configure_gpu_environment
 
 
 def _setup_uvloop() -> None:
@@ -67,6 +68,7 @@ def main() -> None:
 
     if args.daemon:
         _setup_uvloop()
+        configure_gpu_environment()
 
         from v2m.daemon import Daemon
 

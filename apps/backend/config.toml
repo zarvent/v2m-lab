@@ -6,9 +6,6 @@
 #   3. .env file (local secrets)
 #   4. THIS FILE (config.toml)
 #   5. Defaults from Pydantic models
-#
-# SECURITY: Never commit secrets to this file.
-# Use environment variables or .env for sensitive data.
 
 # ============================================================================
 # PATHS - XDG Base Directory Compliant
@@ -28,24 +25,13 @@ backend = "whisper"  # Backend selector: "whisper" (future: "vosk", "custom")
 model = "large-v3-turbo"
 language = "auto"
 device = "cuda"
-# OPTIMIZATION for RTX 3060 (Ampere): "int8_float16"
-# Weights in int8 (low VRAM), Compute in float16 (Tensor Cores).
-# This is the "Asian/Torvalds" sweet spot: 2x less RAM, essentially lossless.
 compute_type = "int8_float16"
 device_index = 0
 num_workers = 2  # 2 workers sufficient for single stream
 
-# Inference parameters (state-of-the-art 2026)
-# OPTIMIZATION: Beam size 1 (greedy) provides 3-5x speedup with minimal WER increase for clear audio.
-# "Performance is Design" - Instant feedback is prioritized.
-beam_size = 1
-best_of = 1    # No candidates ranking (fastest)
-temperature = [0.0, 0.2]  # Reduced fallback chain for faster failure/retry
-vad_filter = true  # Enable faster-whisper native VAD
-
 # VAD parameters (optimized for natural speech)
 [transcription.whisper.vad_parameters]
-threshold = 0.5              # Probability threshold 0.0-1.0 (higher = stricter detection)
+threshold = 0.3              # Probability threshold 0.0-1.0 (higher = stricter detection)
 min_speech_duration_ms = 250  # Minimum speech segment duration (filters brief noise)
 min_silence_duration_ms = 2000  # Minimum silence for utterance end (2s allows natural pauses)
 
@@ -61,8 +47,6 @@ request_timeout = 30
 retry_attempts = 3
 retry_min_wait = 2
 retry_max_wait = 10
-
-# SECURITY: Load from environment variable (never commit API keys)
 api_key = "${GEMINI_API_KEY}"
 
 # ============================================================================

@@ -170,12 +170,11 @@ class StreamingTranscriber:
                 temperature=whisper_config.temperature,
                 vad_filter=whisper_config.vad_filter,
                 vad_parameters=whisper_config.vad_parameters.model_dump() if whisper_config.vad_filter else None
-            )
-            return list(segments)
-
         try:
             segments = await self.worker.run_inference(_inference_func)
             text = " ".join(s.text.strip() for s in segments if s.text)
+            if not text:
+                logger.debug("transcripción final vacía (posiblemente filtrado por VAD o silencio)")
             return text
         except Exception:
             return ""

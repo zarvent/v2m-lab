@@ -116,7 +116,7 @@ run_client() {
     local command=$1
     local payload="${2:-}"
 
-    # Check if standalone client exists
+    # Check i sudo apt install -y /home/zarvent/Downloads/code-insiders_1.109.0-1768466146_amd64.debf standalone client exists
     local CLIENT_SCRIPT="${SCRIPT_DIR}/../utils/send_command.py"
     if [ -f "$CLIENT_SCRIPT" ]; then
         python3 "$CLIENT_SCRIPT" "$command" "$payload"
