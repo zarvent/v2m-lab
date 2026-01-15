@@ -1,5 +1,6 @@
 import React from "react";
 import { MicIcon, PlusIcon } from "../../assets/Icons";
+import "../../styles/components/buttons.css";
 
 export interface StudioFooterProps {
   wordCount: number;

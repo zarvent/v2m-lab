@@ -29,6 +29,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { cn } from "../utils/classnames";
 import { PlusIcon } from "../assets/Icons";
 import type { NoteTab } from "../hooks/useNoteTabs";
+import "../styles/components/tabbar.css";
 
 // ============================================
 // TIPOS

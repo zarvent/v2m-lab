@@ -1,9 +1,10 @@
-import React, { useState, useCallback, useRef, useEffect } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { open } from "@tauri-apps/plugin-dialog";
 import { listen } from "@tauri-apps/api/event";
+import { open } from "@tauri-apps/plugin-dialog";
+import "../styles/components/export.css";
+
 import {
-  UploadIcon,
   VideoIcon,
   AudioIcon,
   DownloadIcon,
