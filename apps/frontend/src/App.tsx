@@ -19,7 +19,6 @@ import { useUiStore } from "./stores/uiStore";
 import { useTimer } from "./hooks/useTimer";
 import { useSnippets } from "./hooks/useSnippets";
 import { countWords } from "./utils";
-import "./App.css";
 
 const Settings = lazy(() =>
   import("./components/Settings").then((m) => ({ default: m.Settings }))

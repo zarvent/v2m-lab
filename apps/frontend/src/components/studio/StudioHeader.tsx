@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import { cn } from "../../utils/classnames";
+import "../../styles/components/studio-header.css";
 import {
   CopyIcon,
   CheckIcon,

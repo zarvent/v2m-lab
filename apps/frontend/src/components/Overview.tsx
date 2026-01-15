@@ -2,6 +2,7 @@ import React, { useCallback, useState, useEffect } from "react";
 import { LoaderIcon, PlayIcon } from "../assets/Icons";
 import { useTelemetryStore } from "../stores/telemetryStore";
 import { useBackendStore } from "../stores/backendStore";
+import "../styles/components/overview.css";
 
 /**
  * Overview - Panel de control del Demonio.

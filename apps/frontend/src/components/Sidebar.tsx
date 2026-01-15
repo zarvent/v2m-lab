@@ -17,6 +17,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { cn } from "../utils/classnames";
+import "../styles/components/sidebar.css";
 import {
   MicIcon,
   DashboardIcon,
