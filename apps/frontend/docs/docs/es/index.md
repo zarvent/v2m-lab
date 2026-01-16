@@ -1,37 +1,39 @@
-# Frontend de Voice2Machine
+# Documentación del Frontend
 
-El frontend de Voice2Machine (V2M) es una aplicación de escritorio moderna construida sobre **Tauri 2** y **React 19**. Su propósito es servir como una interfaz liviana, segura y eficiente para controlar el motor de transcripción local (Daemon de Python).
+Bienvenido a la documentación técnica del frontend de **Voice2Machine**. Esta aplicación representa el estado del arte (SOTA 2026) en interfaces de usuario para IA local: ultraligera, reactiva y respetuosa con la privacidad.
 
-## 🚀 Filosofía
+## 🚀 Visión General
 
-1.  **Local-First**: La privacidad es suprema. Todo el audio y el texto se procesan en la máquina local sin llamadas externas innecesarias.
-2.  **Ligereza (SOTA 2026)**: Binario optimizado (< 15MB) y bajo consumo de recursos (RAM < 50MB en reposo) gracias a la eliminación del runtime de Node.js en producción.
-3.  **Seguridad**: Comunicación endurecida mediante un puente IPC seguro en Rust. No se exponen APIs de Node.js al contexto del renderizador.
+El frontend no es solo una "vista"; es un **orquestador inteligente** que gestiona la interacción entre el usuario humano y el motor de inferencia local.
 
-## 🛠️ Stack Tecnológico
+### Características Clave
 
-- **Framework Desktop**: [Tauri 2.x](https://tauri.app/) (Rust Backend)
-- **UI Library**: [React 19](https://react.dev/)
-- **Bundler**: [Vite 7.x](https://vitejs.dev/)
-- **Lenguaje**: [TypeScript 5.8](https://www.typescriptlang.org/)
-- **Estilos**: [Tailwind CSS 4.1](https://tailwindcss.com/)
-- **Estado**: [Zustand 5.x](https://zustand-demo.pmnd.rs/)
-- **Formularios**: React Hook Form + [Zod](https://zod.dev/)
-- **Testing**: [Vitest](https://vitest.dev/) + Testing Library
+- **Local-First & Offline**: Funciona sin internet. La privacidad es la norma.
+- **Rendimiento Nativo**: Construido sobre Tauri 2.0, consumiendo una fracción de la RAM que una app Electron tradicional.
+- **Latencia Cero**: Interfaz optimista que reacciona instantáneamente mientras el backend procesa asíncronamente.
+- **Accesible**: Cumplimiento estricto de WCAG 2.1 AA.
 
-## 🏛️ Estructura del Proyecto
+## 📚 Navegación de la Documentación
 
-```
-apps/frontend/
-├── src/
-│   ├── components/    # Componentes atómicos y layouts
-│   ├── hooks/         # Lógica de hooks reutilizable
-│   ├── stores/        # Gestión de estado con Zustand
-│   ├── schemas/       # Validación de datos y configuración
-│   ├── types/         # Definiciones de TypeScript (incluidas las de IPC)
-│   └── App.tsx        # Shell principal de la aplicación
-├── src-tauri/
-│   ├── src/lib.rs     # Implementación del puente IPC y manejo de sockets
-│   └── tauri.conf.json # Configuración de permisos y ventanas
-└── docs/              # Documentación técnica (específica del frontend)
-```
+Esta documentación está estructurada para diferentes perfiles:
+
+- **Para Arquitectos**: Consulta [Arquitectura](arquitectura.md) para entender el flujo de datos y el puente IPC.
+- **Para Desarrolladores UI**: Revisa [Componentes](componentes.md) y [Hooks y Utilidades](hooks_utils.md).
+- **Para Ingenieros de Integración**: Estudia la [Gestión de Estado](estados.md) y los contratos de datos.
+- **Para Contribuidores**: Sigue la guía de [Desarrollo](desarrollo.md) para configurar tu entorno.
+
+## 🛠️ Tecnologías Principales
+
+| Tecnología | Versión | Propósito |
+| :--- | :--- | :--- |
+| **Tauri** | 2.0 | Framework de aplicación nativa (Rust Core). |
+| **React** | 19 | Biblioteca de UI con renderizado concurrente. |
+| **TypeScript** | 5.x | Seguridad de tipos estática y contratos IPC. |
+| **Zustand** | 5.x | Gestión de estado global atómico y optimizado. |
+| **Tailwind CSS** | 4.0 | Sistema de diseño utility-first con motor Rust. |
+| **Vitest** | 1.x | Testing unitario de alta velocidad. |
+
+---
+
+!!! info "Nota de Versión"
+    Esta documentación corresponde a la versión `v2.0.0-alpha` (Codename: *Hyperion*).
