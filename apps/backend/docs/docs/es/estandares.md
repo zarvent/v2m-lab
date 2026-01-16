@@ -33,3 +33,7 @@ Para mantener la excelencia técnica en Voice2Machine, seguimos normas estrictas
 
 - Usar una jerarquía de excepciones propia basada en `ApplicationError`.
 - Evitar el uso de `try/except` genéricos sin loguear el contexto adecuado.
+
+## 🧪 Testing
+
+Para detalles sobre cómo escribir tests que cumplan con estos estándares (especialmente mocks y asincronía), ver la [Guía de Testing](testing.md).

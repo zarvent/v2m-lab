@@ -31,3 +31,14 @@ apps/backend/src/v2m/
 ├── core/           # Bus de eventos, Inyección de dependencias y Logs
 └── main.py         # Punto de entrada CLI/Daemon
 ```
+
+## 📚 Documentación Técnica Detallada
+
+*   [**Arquitectura**](arquitectura.md): Visión general de las capas y flujo de datos.
+*   [**Referencia API IPC**](referencia_api_ipc.md): Protocolo de comunicación socket con el Frontend.
+*   [**Referencia de Configuración**](referencia_configuracion.md): Detalles de `config.toml` y variables de entorno.
+*   [**Componentes Internos**](componentes_internos.md): Deep dive en servicios (Whisper, VAD, Rust).
+*   [**Guía de Testing**](testing.md): Estrategias de prueba y mocking.
+*   [**Guía de Desarrollo**](desarrollo.md): Setup y comandos básicos.
+*   [**Gestión del Demonio**](gestion_demonio.md): Ciclo de vida y troubleshooting del proceso principal.
+*   [**Estándares de Código**](estandares.md): Convenciones de estilo y calidad.

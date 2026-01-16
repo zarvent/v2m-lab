@@ -64,7 +64,7 @@ htop -p $(pgrep -f v2m)
 #### 2. Limpieza de Recursos (Cleanup)
 Si el proceso murió mal, verifica lo siguiente:
 
-*   **Socket IPC**: Asegúrate de que no quedó un socket Unix basura.
+*   **Socket IPC**: Asegúrate de que no quedó un socket Unix basura (ver [Especificación IPC](referencia_api_ipc.md)).
     ```bash
     ls -l /run/user/$(id -u)/v2m/v2m.sock
     # Si existe y no hay proceso, bórralo (aunque el demonio intenta hacerlo al arrancar).

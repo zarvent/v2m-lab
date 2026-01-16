@@ -1,50 +1,107 @@
----
-source:
-  - docs/docs/en/development.md
----
-
 # Guía de Desarrollo Backend
 
 Instrucciones para configurar el entorno de desarrollo y contribuir al daemon de Voice2Machine.
 
-## 🛠️ Configuración Inicial
+## 🛠️ Prerrequisitos del Sistema
 
-### Entorno Virtual
+Antes de instalar las dependencias de Python, asegúrate de tener las librerías del sistema necesarias.
 
-Se recomienda el uso de `venv` con Python 3.12:
-
+### Ubuntu/Debian
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-pip install -e .
+sudo apt update
+sudo apt install -y python3-dev build-essential portaudio19-dev ffmpeg git
 ```
 
-### Configuración (config.toml)
+### Fedora
+```bash
+sudo dnf install -y python3-devel gcc portaudio-devel ffmpeg git
+```
 
-El backend busca un archivo `config.toml` en la raíz del proyecto para definir el modelo de Whisper (ej. `large-v3-turbo`) y las claves de API para LLMs.
+### Arch Linux
+```bash
+sudo pacman -S python base-devel portaudio ffmpeg git
+```
+
+---
+
+## 🐍 Configuración del Entorno Python
+
+Recomendamos **Python 3.12** para aprovechar las mejoras de rendimiento en `asyncio`.
+
+1.  **Crear Entorno Virtual**:
+    ```bash
+    cd apps/backend
+    python3.12 -m venv .venv
+    source .venv/bin/activate
+    ```
+
+2.  **Instalar Dependencias**:
+    ```bash
+    pip install --upgrade pip
+    pip install -r requirements.txt
+    ```
+
+3.  **Instalar en modo Editable**:
+    Esto permite reflejar cambios en el código sin reinstalar el paquete.
+    ```bash
+    pip install -e .
+    ```
+
+---
+
+## ⚙️ Configuración Básica
+
+El backend necesita un archivo `config.toml` en la raíz del repositorio (o variables de entorno).
+
+1.  Copia el ejemplo:
+    ```bash
+    cp config.example.toml config.toml
+    ```
+2.  Edita `config.toml` según tus necesidades (ver [Referencia de Configuración](referencia_configuracion.md)).
+
+---
 
 ## ⌨️ Comandos de Desarrollo
 
-### Ejecución
+### Ejecución del Demonio
+Para levantar el servidor IPC y ver logs en consola:
 
-- **Daemon**: `python -m v2m.main --daemon`
-- **CLI**: `python -m v2m.main transcribe file.wav`
+```bash
+python -m v2m.main --daemon
+```
 
-### Calidad (Ruff)
+### Comandos CLI
+Puedes invocar funcionalidades directamente sin el socket:
 
-Estamos comprometidos con el estándar SOTA 2026.
+```bash
+# Transcribir un archivo WAV
+python -m v2m.main transcribe grabacion.wav --model small
 
-- **Chequeo**: `ruff check .`
-- **Formateo**: `ruff format .`
+# Listar dispositivos de audio
+python -m v2m.utils.audio_devices
+```
 
-### Pruebas (Pytest)
+### Calidad de Código (Linting)
+Usamos **Ruff** como linter y formatter todo-en-uno.
 
-- **Todas**: `pytest`
-- **Unitarias**: `pytest tests/unit`
-- **Con cobertura**: `pytest --cov=v2m`
+```bash
+# Verificar errores
+ruff check .
 
-## 🧪 Estrategia de Testing
+# Corregir automáticamente
+ruff check --fix .
 
-1.  **Mocks Rigurosos**: Nunca llamar a hardware real (Micrófono) o APIs externas en tests unitarios. Usar los protocolos de `domain/` para inyectar mocks.
-2.  **Tests de Integración**: Prueban que los adaptadores reales funcionan con el daemon, idealmente en entornos controlados de CI/CD con soporte para GPU si es posible.
+# Formatear código
+ruff format .
+```
+
+---
+
+## 🧪 Testing
+
+Tenemos una suite completa de pruebas unitarias e integración. Para detalles sobre cómo correrlas, mockear hardware y medir cobertura, consulta la **[Guía de Testing Detallada](testing.md)**.
+
+Resumen rápido:
+```bash
+pytest tests/unit
+```
