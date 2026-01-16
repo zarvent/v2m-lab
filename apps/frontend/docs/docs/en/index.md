@@ -1,37 +1,39 @@
-# Voice2Machine Frontend
+# Frontend Documentation
 
-The Voice2Machine (V2M) frontend is a modern desktop application built with **Tauri 2** and **React 19**. It serves as a lightweight, secure, and efficient interface to control the local transcription engine (Python Daemon).
+Welcome to the technical documentation for the **Voice2Machine** frontend. This application represents the state of the art (SOTA 2026) in local AI user interfaces: ultra-lightweight, reactive, and privacy-respecting.
 
-## 🚀 Philosophy
+## 🚀 Overview
 
-1.  **Local-First**: Privacy is paramount. All audio and text are processed on the local machine without unnecessary external calls.
-2.  **Lightweight (SOTA 2026)**: Optimized binary (< 15MB) and low resource consumption (RAM < 50MB at rest) by eliminating the Node.js runtime in production.
-3.  **Security**: Hardened communication via a secure IPC bridge in Rust. No Node.js APIs are exposed to the renderer context.
+The frontend is not just a "view"; it is an **intelligent orchestrator** that manages the interaction between the human user and the local inference engine.
 
-## 🛠️ Technology Stack
+### Key Features
 
-- **Desktop Framework**: [Tauri 2.x](https://tauri.app/) (Rust Backend)
-- **UI Library**: [React 19](https://react.dev/)
-- **Bundler**: [Vite 7.x](https://vitejs.dev/)
-- **Language**: [TypeScript 5.8](https://www.typescriptlang.org/)
-- **Styling**: [Tailwind CSS 4.1](https://tailwindcss.com/)
-- **State**: [Zustand 5.x](https://zustand-demo.pmnd.rs/)
-- **Forms**: React Hook Form + [Zod](https://zod.dev/)
-- **Testing**: [Vitest](https://vitest.dev/) + Testing Library
+- **Local-First & Offline**: Works without internet. Privacy is the norm.
+- **Native Performance**: Built on Tauri 2.0, consuming a fraction of the RAM traditional Electron apps use.
+- **Zero Latency**: Optimistic interface that reacts instantaneously while the backend processes asynchronously.
+- **Accessible**: Strict compliance with WCAG 2.1 AA.
 
-## 🏛️ Project Structure
+## 📚 Documentation Navigation
 
-```
-apps/frontend/
-├── src/
-│   ├── components/    # Atomic components and layouts
-│   ├── hooks/         # Reusable hook logic
-│   ├── stores/        # State management with Zustand
-│   ├── schemas/       # Data and config validation
-│   ├── types/         # TypeScript definitions (including IPC)
-│   └── App.tsx        # Main application shell
-├── src-tauri/
-│   ├── src/lib.rs     # IPC bridge and socket handling
-│   └── tauri.conf.json # Permissions and window configuration
-└── docs/              # Technical documentation (frontend-specific)
-```
+This documentation is structured for different profiles:
+
+- **For Architects**: See [Architecture](architecture.md) to understand data flow and the IPC bridge.
+- **For UI Developers**: Check [Components](components.md) and [Hooks and Utilities](hooks_utils.md).
+- **For Integration Engineers**: Study [State Management](state_management.md) and data contracts.
+- **For Contributors**: Follow the [Development](development.md) guide to set up your environment.
+
+## 🛠️ Main Technologies
+
+| Technology | Version | Purpose |
+| :--- | :--- | :--- |
+| **Tauri** | 2.0 | Native application framework (Rust Core). |
+| **React** | 19 | UI library with concurrent rendering. |
+| **TypeScript** | 5.x | Static type safety and IPC contracts. |
+| **Zustand** | 5.x | Atomic and optimized global state management. |
+| **Tailwind CSS** | 4.0 | Utility-first design system with Rust engine. |
+| **Vitest** | 1.x | High-speed unit testing. |
+
+---
+
+!!! info "Version Note"
+    This documentation corresponds to version `v2.0.0-alpha` (Codename: *Hyperion*).

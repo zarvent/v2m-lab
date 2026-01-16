@@ -21,13 +21,22 @@ theme:
     - content.code.copy
 
 nav:
-  - Inicio: es/index.md
-  - Arquitectura: es/arquitectura.md
-  - Componentes: es/componentes.md
-  - Gestión de Estado: es/estados.md
-  - Hooks y Utilidades: es/hooks_utils.md
-  - Desarrollo: es/desarrollo.md
-  - Estándares: es/estandares.md
+  - Spanish:
+      - Inicio: es/index.md
+      - Arquitectura: es/arquitectura.md
+      - Componentes: es/componentes.md
+      - Gestión de Estado: es/estados.md
+      - Hooks y Utilidades: es/hooks_utils.md
+      - Desarrollo: es/desarrollo.md
+      - Estándares: es/estandares.md
+  - English:
+      - Home: en/index.md
+      - Architecture: en/architecture.md
+      - Components: en/components.md
+      - State Management: en/state_management.md
+      - Hooks and Utilities: en/hooks_utils.md
+      - Development: en/development.md
+      - Standards: en/standards.md
 
 markdown_extensions:
   - admonition

@@ -4,36 +4,77 @@ This guide details how to set up and contribute to the Voice2Machine frontend.
 
 ## 🛠️ Prerequisites
 
-- **Node.js**: Version 20 or higher.
-- **Rust**: Stable toolchain (to compile `src-tauri`).
-- **System Dependencies (Linux)**: `libwebkit2gtk-4.1-dev`, `libappindicator3-dev`, `librsvg2-dev`.
-- **Python Daemon**: It is recommended to have the daemon running to see real data in the interface.
+- **Node.js**: Version 20 (LTS Iron) or higher. We recommend using `nvm`.
+- **Rust**: Stable toolchain (1.75+) to compile `src-tauri`.
+- **System Dependencies (Linux)**:
+    ```bash
+    sudo apt install libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev
+    ```
+- **Daemon**: For full functionality, the `voice2machine` service must be installed or running in another terminal.
 
-## ⌨️ Frequent Commands
+## ⌨️ Key Commands
 
-Commands must be executed from the `apps/frontend/` directory.
+Commands should be run from the project root or from `apps/frontend/`.
 
-### Development
+### 🚀 Development Server
 
-- `npm run dev`: Starts the web development server (Vite) in the browser.
-- `npm run tauri dev`: Starts the application in native mode with Hot Reload for both Rust and React.
+There are two modes to start the application:
 
-### Validation and Quality
+1.  **Pure Web Mode (Mocked)**:
+    ```bash
+    npm run dev
+    ```
+    - **Speed**: Instant (<300ms).
+    - **Usage**: UI/UX design, layout, isolated component logic.
+    - **Limitation**: No access to Rust APIs or the real Daemon.
 
-- `npx tsc -p tsconfig.json --noEmit`: Static type checking.
-- `npx eslint . --fix`: Linting and style correction according to project configuration.
-- `npm test`: Runs unit tests with Vitest.
+2.  **Tauri Mode (Native)**:
+    ```bash
+    npm run tauri dev
+    ```
+    - **Speed**: Requires Rust compilation (~10s initial, <2s incremental).
+    - **Usage**: Real integration, IPC testing, final verification.
+    - **Debug**: Opens a native window + DevTools (Inspect Element).
 
-### Build
+### ✅ Quality and Testing
 
-- `npm run build`: Generate the web application production bundle.
-- `npm run tauri build`: Compiles the optimized executable binary. The result will be in `src-tauri/target/release/`.
+We maintain rigorous "State of the Art" standards.
 
-## 🧪 Testing
+- **Linting**:
+    ```bash
+    npm run lint
+    # or to auto-fix:
+    npx eslint . --fix
+    ```
 
-The project uses **Vitest** with the `happy-dom` environment.
+- **Testing (Vitest)**:
+    The project uses `vitest` with `happy-dom` for ultra-fast test execution.
+    ```bash
+    npm test
+    ```
+    - **Scope**: Unit tests for stores, utilities, and isolated components.
+    - **Snapshot**: Snapshots are used to detect visual regressions in complex components.
 
-- **Unit Tests**: Located next to components or utilities with the `.spec.tsx` or `.test.ts` extension.
-- **Mocking**: We use mocks for Tauri APIs in `vitest.setup.ts` to allow tests to run without a real native environment.
+### 📦 Build
 
-**Golden Rule**: Whenever a bug is fixed or a feature is added, a test must be included to validate it.
+To generate the final distributable binary:
+
+```bash
+npm run tauri build
+```
+The resulting artifact (`.deb`, `.AppImage`, or `.msi`) will be generated in `src-tauri/target/release/bundle/`.
+
+## 🧪 Testing Strategy
+
+### Unit Tests
+Located alongside the code (`MyComponent.spec.tsx`). They must test:
+1.  Correct rendering.
+2.  Basic interactions (clicks, inputs).
+3.  Conditional logic (loading/error states).
+
+### Integration Tests
+Test complete flows, for example:
+1.  Start recording -> Store changes to `recording` -> UI shows Stop button.
+
+### Tauri Mocks
+Since `window.__TAURI__` does not exist in the `vitest` environment, we use a robust mock in `vitest.setup.ts` that simulates backend responses (`invoke`).

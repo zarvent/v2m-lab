@@ -1,33 +1,90 @@
 # Frontend Architecture
 
-The architecture of the Voice2Machine frontend follows a **decoupled view** pattern. The heavy lifting of audio processing and transcription resides in the Python Daemon, while the frontend acts as a visual orchestrator and state manager.
+The Voice2Machine frontend architecture follows a **decoupled vision** and **Extreme Reactivity** pattern. Heavy audio processing and transcription logic reside in the Python Daemon, while the frontend acts as a lightweight visual orchestrator and state manager.
 
-## 🌉 IPC Bridge and Communication
+!!! abstract "State of the Art 2026 Philosophy"
+    The design prioritizes **zero latency** in the interface. The UI must never block waiting for the backend. All heavy operations are asynchronous and notify their progress via events, allowing the interface to maintain constant 60/120 FPS even during intense inference loads.
 
-The communication flow is hierarchical and secure to ensure a Non-blocking UI:
+---
 
-1.  **React (View Layer)**: Invokes a Tauri command (e.g., `start_recording`).
-2.  **Rust (Security Layer)**: Intercepts the call, validates parameters, and communicates with the Daemon via a **Unix Socket**.
-3.  **Daemon (Core Layer)**: Processes the request (Whisper/LLM Inference) and returns the response to the socket.
-4.  **Rust**: Receives the response and resolves it to the original promise in React.
+## 🏗️ Directory Structure
 
-### Automatic State Management
+The source code is organized following a fractal structure by technical and functional domain:
 
-The application uses a `BackendInitializer` component that synchronizes the backend state with the frontend using two mechanisms:
+```
+apps/frontend/src/
+├── components/      # React Components
+│   ├── settings/    # Configuration panel modules
+│   ├── studio/      # Editor and recorder components
+│   └── ...          # Shared components (Sidebar, Toast, etc.)
+├── hooks/           # Reusable Custom Hooks (UI Logic)
+├── stores/          # Global state (Zustand) - The frontend "Database"
+├── schemas/         # Validation definitions (Zod)
+├── types/           # TypeScript definitions and IPC Interfaces
+├── utils/           # Pure utilities (formatting, classes, time)
+├── App.tsx          # Root component and Main Layout
+└── main.tsx         # Entry point and React mounting
+```
 
-- **Events (Push)**: Listens for `v2m://state-update` events emitted by Rust when the daemon changes state (e.g., "Recording").
-- **Polling (Fallback)**: If no recent events are received, it performs a periodic `get_status` to ensure connection.
+---
+
+## Bridge IPC and Communication (Tauri Bridge)
+
+The frontend communicates with the operating system and the Python daemon through the secure Tauri bridge. There is no insecure direct HTTP/WebSocket communication; everything passes through the Rust message bus.
+
+### Data Flow
+
+1.  **React (View)**: The user interacts (e.g., clicks "Record").
+2.  **Action (Zustand)**: The `backendStore` invokes a Tauri command (`invoke("start_recording")`).
+3.  **Rust (Core)**:
+    - Validates the command.
+    - Sends the instruction to the Python Daemon via Unix Socket.
+    - Returns an immediate promise to the frontend ("Command received").
+4.  **Daemon (Python)**:
+    - Executes the logic.
+    - Emits state events (`recording`, `transcribing`) as it progresses.
+5.  **Event Listeners**: The frontend listens for `v2m://state-update` events and updates the store reactively.
+
+### State Payload (DaemonState)
+
+The communication contract is strictly defined in `src/types/ipc.ts`:
+
+```typescript
+export interface DaemonState {
+  state: "idle" | "recording" | "transcribing" | "processing" | "paused";
+  transcription?: string;  // Partial or final text
+  refined_text?: string;   // LLM post-processed text
+  message?: string;        // Error or info messages
+  telemetry?: TelemetryData; // CPU/GPU/RAM data
+}
+```
+
+---
 
 ## 🧠 State Management (Zustand)
 
-We have adopted a **Stores First** approach. React components should not call `invoke()` directly. Instead, they interact with Zustand stores located in `src/stores/`.
+We have adopted a **Stores First** approach. React components **must never** call `invoke()` directly or manage complex business logic.
 
-- **`backendStore.ts`**: Source of truth for daemon state (current transcription, recording mode, errors, connection).
-- **`uiStore.ts`**: Manages volatile visual state (active navigation, open modals).
-- **`telemetryStore.ts`**: Stores performance data (CPU, RAM, VRAM) received via telemetry.
+### 1. BackendStore (`backendStore.ts`)
+Acts as the **digital twin** of the daemon.
+- **Responsibility**: Keep UI state synchronized with backend reality.
+- **Data**: Transcription history, connection status, system errors.
 
-## 📝 Zod Validation
+### 2. TelemetryStore (`telemetryStore.ts`)
+Optimized high-frequency channel.
+- **Responsibility**: Visualize resource consumption without triggering re-renders in the rest of the app.
+- **Optimization**: Uses deep comparison (`isTelemetryEqual`) with thresholds (e.g., change > 1%) to avoid unnecessary state updates (noise).
 
-Application configuration (mapped from the backend's `config.toml`) is rigorously validated in the frontend using **Zod**. This ensures that invalid configurations are never sent to the transcription engine, preventing catastrophic failures.
+### 3. UiStore (`uiStore.ts`)
+Ephemeral interface state.
+- **Responsibility**: Control which view is active (Studio, Settings), which modals are open, and notification management (Toasts).
 
-The main schema resides in [src/schemas/config.ts](../../src/schemas/config.ts).
+---
+
+## 📝 Validation and Security (Zod)
+
+Application configuration is critical. An incorrect value could crash the inference engine.
+Therefore, we use **Zod** to strictly validate any configuration before saving it or sending it to the backend.
+
+- **Schemas**: Defined in `src/schemas/config.ts`.
+- **Synchronization**: Zod schemas must exactly match the backend's Pydantic models (`v2m/config.py`).
