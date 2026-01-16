@@ -3,7 +3,7 @@
 The Voice2Machine frontend architecture follows a **decoupled vision** and **Extreme Reactivity** pattern. Heavy audio processing and transcription logic reside in the Python Daemon, while the frontend acts as a lightweight visual orchestrator and state manager.
 
 !!! abstract "State of the Art 2026 Philosophy"
-    The design prioritizes **zero latency** in the interface. The UI must never block waiting for the backend. All heavy operations are asynchronous and notify their progress via events, allowing the interface to maintain constant 60/120 FPS even during intense inference loads.
+The design prioritizes **zero latency** in the interface. The UI must never block waiting for the backend. All heavy operations are asynchronous and notify their progress via events, allowing the interface to maintain constant 60/120 FPS even during intense inference loads.
 
 ---
 
@@ -52,9 +52,9 @@ The communication contract is strictly defined in `src/types/ipc.ts`:
 ```typescript
 export interface DaemonState {
   state: "idle" | "recording" | "transcribing" | "processing" | "paused";
-  transcription?: string;  // Partial or final text
-  refined_text?: string;   // LLM post-processed text
-  message?: string;        // Error or info messages
+  transcription?: string; // Partial or final text
+  refined_text?: string; // LLM post-processed text
+  message?: string; // Error or info messages
   telemetry?: TelemetryData; // CPU/GPU/RAM data
 }
 ```
@@ -66,17 +66,23 @@ export interface DaemonState {
 We have adopted a **Stores First** approach. React components **must never** call `invoke()` directly or manage complex business logic.
 
 ### 1. BackendStore (`backendStore.ts`)
+
 Acts as the **digital twin** of the daemon.
+
 - **Responsibility**: Keep UI state synchronized with backend reality.
 - **Data**: Transcription history, connection status, system errors.
 
 ### 2. TelemetryStore (`telemetryStore.ts`)
+
 Optimized high-frequency channel.
+
 - **Responsibility**: Visualize resource consumption without triggering re-renders in the rest of the app.
 - **Optimization**: Uses deep comparison (`isTelemetryEqual`) with thresholds (e.g., change > 1%) to avoid unnecessary state updates (noise).
 
 ### 3. UiStore (`uiStore.ts`)
+
 Ephemeral interface state.
+
 - **Responsibility**: Control which view is active (Studio, Settings), which modals are open, and notification management (Toasts).
 
 ---

@@ -20,6 +20,7 @@ The `Studio.tsx` component acts as a container (Layout) that orchestrates sub-co
 ### Logic (`useStudio`)
 
 To keep the view clean, all Studio business logic is extracted to the `useStudio` hook. This includes:
+
 - Hotkey management.
 - Recording lifecycle management.
 - Draft autosave.
@@ -47,7 +48,7 @@ We use `useForm` with a `zodResolver`. This allows real-time validation:
 ```typescript
 // Simplified example
 const { register, handleSubmit } = useForm({
-  resolver: zodResolver(configSchema)
+  resolver: zodResolver(configSchema),
 });
 ```
 
@@ -61,7 +62,7 @@ The sidebar is persistent and fulfills two critical functions:
 2.  **System Monitor**: Renders "Sparklines" (mini-graphs) for CPU and RAM.
 
 !!! tip "Performance Optimization"
-    The metrics component within the Sidebar is wrapped in `React.memo` and selectively subscribes to the `telemetryStore`. This ensures that graph updates (occurring 10 times per second) do not cause the entire sidebar or application to re-render.
+The metrics component within the Sidebar is wrapped in `React.memo` and selectively subscribes to the `telemetryStore`. This ensures that graph updates (occurring 10 times per second) do not cause the entire sidebar or application to re-render.
 
 ---
 

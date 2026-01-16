@@ -24,16 +24,16 @@ This documentation is structured for different profiles:
 
 ## 🛠️ Main Technologies
 
-| Technology | Version | Purpose |
-| :--- | :--- | :--- |
-| **Tauri** | 2.0 | Native application framework (Rust Core). |
-| **React** | 19 | UI library with concurrent rendering. |
-| **TypeScript** | 5.x | Static type safety and IPC contracts. |
-| **Zustand** | 5.x | Atomic and optimized global state management. |
-| **Tailwind CSS** | 4.0 | Utility-first design system with Rust engine. |
-| **Vitest** | 1.x | High-speed unit testing. |
+| Technology       | Version | Purpose                                       |
+| :--------------- | :------ | :-------------------------------------------- |
+| **Tauri**        | 2.0     | Native application framework (Rust Core).     |
+| **React**        | 19      | UI library with concurrent rendering.         |
+| **TypeScript**   | 5.x     | Static type safety and IPC contracts.         |
+| **Zustand**      | 5.x     | Atomic and optimized global state management. |
+| **Tailwind CSS** | 4.0     | Utility-first design system with Rust engine. |
+| **Vitest**       | 1.x     | High-speed unit testing.                      |
 
 ---
 
 !!! info "Version Note"
-    This documentation corresponds to version `v2.0.0-alpha` (Codename: *Hyperion*).
+This documentation corresponds to version `v2.0.0-alpha` (Codename: _Hyperion_).

@@ -11,12 +11,14 @@ The Voice2Machine frontend uses **Zustand** to manage global state. The architec
 The "source of truth" for system state. Manages business logic and communication with the daemon.
 
 **Key States:**
+
 - `status`: Current state machine status (`idle` | `recording` | `transcribing` | `paused`).
 - `transcription`: Accumulated text for the current session.
 - `isConnected`: Boolean indicating if the IPC bridge is active.
 - `history`: Persistent list of past transcriptions.
 
 **Main Actions:**
+
 - `startRecording(mode)`: Starts audio capture.
 - `stopRecording()`: Stops capture and requests final transcription.
 - `processText()`: Sends current text to LLM for refinement.
@@ -51,7 +53,14 @@ The payload sent by the backend whenever something important happens.
 ```typescript
 export interface DaemonState {
   // Current engine state
-  state: "idle" | "recording" | "transcribing" | "processing" | "paused" | "restarting" | "disconnected";
+  state:
+    | "idle"
+    | "recording"
+    | "transcribing"
+    | "processing"
+    | "paused"
+    | "restarting"
+    | "disconnected";
 
   // Real-time (partial) or final text
   transcription?: string;
@@ -79,7 +88,8 @@ export interface TelemetryData {
     total_gb: number;
     percent: number;
   };
-  gpu?: { // Optional (only if NVIDIA/AMD detected)
+  gpu?: {
+    // Optional (only if NVIDIA/AMD detected)
     name: string;
     vram_used_mb: number;
     vram_total_mb: number;

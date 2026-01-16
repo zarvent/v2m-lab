@@ -11,6 +11,7 @@ Voice2Machine implements a series of custom Hooks and utilities to encapsulate r
 Encapsulates main editor interaction logic.
 
 **Features:**
+
 - **Hotkeys**: Detects key presses like `Ctrl+S` (Save) or `Ctrl+Enter` (Refine).
 - **Autosave**: Implements a debounce to save the draft to `localStorage` every time the user stops typing for 1 second.
 - **Session Management**: Orchestrates recording start/stop by communicating with `backendStore`.
@@ -27,6 +28,7 @@ Abstracts `react-hook-form` complexity for the settings modal.
 ### `useTimer` (`src/hooks/useTimer.ts`)
 
 A simple but essential hook for the recording timer (`00:15`).
+
 - Active only when state is `recording`.
 - Uses `requestAnimationFrame` or a corrected `setInterval` to avoid temporal drift.
 
@@ -56,5 +58,6 @@ Converts seconds (e.g., `125`) to readable format (`02:05`). Used in the recordi
 ### `safeInvoke` (`ipc.ts`)
 
 A wrapper over Tauri's `invoke` that adds:
+
 - **Strong return typing**.
 - **Unified error handling**: Captures Rust exceptions and transforms them into user-friendly UI errors.
