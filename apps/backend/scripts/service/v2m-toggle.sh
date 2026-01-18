@@ -30,12 +30,13 @@ readonly HEADER=$'\x00\x00\x00\x20'
 # ══════════════════════════════════════════════════════════════════════════════
 
 # Resolve XDG_RUNTIME_DIR efficiently using common utils
-RUNTIME_BASE=$(get_runtime_dir)
-readonly SOCKET_PATH="${RUNTIME_BASE}/v2m.sock"
-
 readonly SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 source "${SCRIPT_DIR}/../utils/common.sh"
 readonly DAEMON_SCRIPT="${SCRIPT_DIR}/v2m-daemon.sh"
+
+# Resolve XDG_RUNTIME_DIR efficiently using common utils
+RUNTIME_BASE=$(get_runtime_dir)
+readonly SOCKET_PATH="${RUNTIME_BASE}/v2m.sock"
 
 # ══════════════════════════════════════════════════════════════════════════════
 # NOTIFICATION (async, non-blocking)
