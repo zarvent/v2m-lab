@@ -23,9 +23,11 @@ la seguridad y el cumplimiento de los estándares XDG (XDG_RUNTIME_DIR).
 import contextlib
 import os
 import tempfile
+from functools import cache
 from pathlib import Path
 
 
+@cache
 def get_secure_runtime_dir(app_name: str = "v2m") -> Path:
     """
     Retorna un directorio de ejecución seguro para la aplicación.
