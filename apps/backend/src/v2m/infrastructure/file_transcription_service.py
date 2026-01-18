@@ -32,7 +32,6 @@ import asyncio
 import subprocess
 import time
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 import numpy as np
 
@@ -43,13 +42,16 @@ from v2m.infrastructure.persistent_model import PersistentWhisperWorker
 # Lazy import for BatchedInferencePipeline (reduces startup time)
 _batched_pipeline = None
 
+
 def _get_batched_pipeline(model):
     """Lazily create BatchedInferencePipeline wrapper."""
     global _batched_pipeline
     if _batched_pipeline is None:
         from faster_whisper import BatchedInferencePipeline
+
         _batched_pipeline = BatchedInferencePipeline(model)
     return _batched_pipeline
+
 
 # Extensiones de audio que no necesitan extracción
 AUDIO_EXTENSIONS = frozenset({".wav", ".mp3", ".flac", ".ogg", ".m4a", ".aac", ".aiff"})
@@ -70,7 +72,7 @@ class FileTranscriptionService:
     para la transcripción. Diseñado para reutilizar el modelo ya cargado en memoria.
     """
 
-    __slots__ = ("worker", "_ffmpeg_available", "_ffmpeg_version")
+    __slots__ = ("_ffmpeg_available", "_ffmpeg_version", "worker")
 
     def __init__(self, worker: PersistentWhisperWorker) -> None:
         """
@@ -111,9 +113,7 @@ class FileTranscriptionService:
         # Ejecutar versión async
         try:
             loop = asyncio.get_running_loop()
-            return asyncio.run_coroutine_threadsafe(
-                self._transcribe_file_async(file_path), loop
-            ).result()
+            return asyncio.run_coroutine_threadsafe(self._transcribe_file_async(file_path), loop).result()
         except RuntimeError:
             return asyncio.run(self._transcribe_file_async(file_path))
 
@@ -136,10 +136,7 @@ class FileTranscriptionService:
 
         if suffix in VIDEO_EXTENSIONS:
             if not self._ffmpeg_available:
-                raise RuntimeError(
-                    "FFmpeg es requerido para archivos de video. "
-                    "Instalar con: sudo apt install ffmpeg"
-                )
+                raise RuntimeError("FFmpeg es requerido para archivos de video. Instalar con: sudo apt install ffmpeg")
             audio_data = await self._extract_audio_async(path, is_video=True)
 
         elif suffix in AUDIO_EXTENSIONS:
@@ -147,8 +144,7 @@ class FileTranscriptionService:
 
         else:
             raise ValueError(
-                f"formato no soportado: {suffix}. "
-                f"Soportados: {', '.join(sorted(AUDIO_EXTENSIONS | VIDEO_EXTENSIONS))}"
+                f"formato no soportado: {suffix}. Soportados: {', '.join(sorted(AUDIO_EXTENSIONS | VIDEO_EXTENSIONS))}"
             )
 
         extraction_time = time.perf_counter() - extraction_start
@@ -183,13 +179,19 @@ class FileTranscriptionService:
         cmd = [
             "ffmpeg",
             "-hide_banner",
-            "-loglevel", "error",
-            "-i", str(file_path),
+            "-loglevel",
+            "error",
+            "-i",
+            str(file_path),
             "-vn",
-            "-acodec", "pcm_f32le",
-            "-ar", "16000",
-            "-ac", "1",
-            "-f", "f32le",
+            "-acodec",
+            "pcm_f32le",
+            "-ar",
+            "16000",
+            "-ac",
+            "1",
+            "-f",
+            "f32le",
             "pipe:1",
         ]
 
@@ -205,7 +207,7 @@ class FileTranscriptionService:
                 timeout=timeout,
             )
 
-        except asyncio.TimeoutError as e:
+        except TimeoutError as e:
             raise RuntimeError(f"timeout {action} ({timeout}s)") from e
 
         if proc.returncode != 0:
@@ -239,11 +241,7 @@ class FileTranscriptionService:
                     beam_size=whisper_config.beam_size,
                     temperature=whisper_config.temperature,
                     vad_filter=whisper_config.vad_filter,
-                    vad_parameters=(
-                        whisper_config.vad_parameters.model_dump()
-                        if whisper_config.vad_filter
-                        else None
-                    ),
+                    vad_parameters=(whisper_config.vad_parameters.model_dump() if whisper_config.vad_filter else None),
                     batch_size=16,
                 )
             else:
@@ -255,11 +253,7 @@ class FileTranscriptionService:
                     best_of=whisper_config.best_of,
                     temperature=whisper_config.temperature,
                     vad_filter=whisper_config.vad_filter,
-                    vad_parameters=(
-                        whisper_config.vad_parameters.model_dump()
-                        if whisper_config.vad_filter
-                        else None
-                    ),
+                    vad_parameters=(whisper_config.vad_parameters.model_dump() if whisper_config.vad_filter else None),
                 )
 
             # Materialize generator in executor
@@ -271,7 +265,7 @@ class FileTranscriptionService:
         segments, info = await self.worker.run_inference(_inference)
 
         if info.language_probability:
-             logger.info(f"🌐 idioma detectado: {info.language} ({info.language_probability:.0%})")
+            logger.info(f"🌐 idioma detectado: {info.language} ({info.language_probability:.0%})")
 
         text = " ".join(segment.text.strip() for segment in segments)
         return text

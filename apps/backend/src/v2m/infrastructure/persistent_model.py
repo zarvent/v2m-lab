@@ -1,18 +1,34 @@
 import asyncio
+import gc
 import logging
+import sys
 from concurrent.futures import ThreadPoolExecutor
-from typing import Optional, Any
+from typing import Any
+
 import psutil
 from faster_whisper import WhisperModel
-import gc
 
 logger = logging.getLogger(__name__)
+
+
+def _safe_log(level: int, msg: str) -> None:
+    """Log safely, suppressing errors when interpreter is shutting down."""
+    try:
+        # Check if interpreter is shutting down (sys.stderr may be None or closed)
+        if sys.stderr is None:
+            return
+        logger.log(level, msg)
+    except (ValueError, OSError):
+        # I/O operation on closed file - interpreter is shutting down
+        pass
+
 
 class PersistentWhisperWorker:
     """
     Gestiona una instancia persistente del modelo Whisper en un hilo dedicado.
     Implementa política de 'keep-warm' por defecto, liberando recursos solo bajo presión de memoria.
     """
+
     def __init__(
         self,
         model_size: str,
@@ -20,7 +36,7 @@ class PersistentWhisperWorker:
         compute_type: str = "float16",
         device_index: int = 0,
         num_workers: int = 1,
-        keep_warm: bool = True
+        keep_warm: bool = True,
     ):
         self.model_size = model_size
         self.device = device
@@ -29,7 +45,7 @@ class PersistentWhisperWorker:
         self.num_workers_whisper = num_workers
         self.keep_warm = keep_warm
 
-        self._model: Optional[WhisperModel] = None
+        self._model: WhisperModel | None = None
         self._lock = asyncio.Lock()
         # Single worker strict for GPU isolation
         self._executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="whisper_worker")
@@ -37,15 +53,15 @@ class PersistentWhisperWorker:
     async def initialize(self):
         """Pre-loads the model if keep_warm is True."""
         if self.keep_warm:
-             async with self._lock:
-                 await self._load_model()
+            async with self._lock:
+                await self._load_model()
 
     def initialize_sync(self):
         """Carga síncrona para warmup en hilos (Container)."""
         if self.keep_warm and self._model is None:
-             logger.info("Precargando modelo (Sync)...")
-             self._model = self._create_model()
-             logger.info("Modelo precargado.")
+            _safe_log(logging.INFO, "Precargando modelo (Sync)...")
+            self._model = self._create_model()
+            _safe_log(logging.INFO, "Modelo precargado.")
 
     async def run_inference(self, func, *args, **kwargs):
         """
@@ -61,21 +77,19 @@ class PersistentWhisperWorker:
 
             # Check memory pressure before execution if policy requires (logging only)
             if self._is_memory_critical():
-                 logger.warning("Memoria crítica detectada (>90%), procediendo con inferencia.")
+                logger.warning("Memoria crítica detectada (>90%), procediendo con inferencia.")
 
             loop = asyncio.get_running_loop()
             try:
                 # Ejecutar la función pasando el modelo
-                return await loop.run_in_executor(
-                    self._executor,
-                    lambda: func(self._model, *args, **kwargs)
-                )
+                return await loop.run_in_executor(self._executor, lambda: func(self._model, *args, **kwargs))
             except Exception as e:
                 logger.error(f"Error de inferencia: {e}")
                 raise
 
     async def transcribe(self, audio: Any, **kwargs):
         """Wrapper directo para transcribe."""
+
         def _transcribe_sync(model, audio_data, **opts):
             # faster-whisper transcribe returns a generator.
             # We must convert to list inside the executor to perform the inference there.
@@ -86,15 +100,12 @@ class PersistentWhisperWorker:
 
     async def _load_model(self):
         if self._model is not None:
-             return
+            return
 
         logger.info(f"Cargando modelo Whisper {self.model_size} en {self.device}...")
         loop = asyncio.get_running_loop()
         try:
-            self._model = await loop.run_in_executor(
-                self._executor,
-                self._create_model
-            )
+            self._model = await loop.run_in_executor(self._executor, self._create_model)
             logger.info("Modelo Whisper cargado correctamente.")
         except Exception as e:
             logger.error(f"Fallo al cargar modelo: {e}")
@@ -106,7 +117,7 @@ class PersistentWhisperWorker:
             device=self.device,
             compute_type=self.compute_type,
             device_index=self.device_index,
-            num_workers=self.num_workers_whisper
+            num_workers=self.num_workers_whisper,
         )
 
     def _is_memory_critical(self) -> bool:

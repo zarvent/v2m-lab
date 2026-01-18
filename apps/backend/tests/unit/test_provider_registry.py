@@ -23,12 +23,14 @@ verifica el correcto funcionamiento del ProviderRegistry incluyendo:
 - listado de providers disponibles
 """
 
-import pytest
 from abc import ABC, abstractmethod
+
+import pytest
 
 
 class MockInterface(ABC):
     """interfaz mock para tests"""
+
     @abstractmethod
     def do_something(self) -> str:
         pass
@@ -36,12 +38,14 @@ class MockInterface(ABC):
 
 class MockProviderA(MockInterface):
     """provider mock A"""
+
     def do_something(self) -> str:
         return "A"
 
 
 class MockProviderB(MockInterface):
     """provider mock B"""
+
     def do_something(self) -> str:
         return "B"
 
@@ -65,7 +69,7 @@ class TestProviderRegistry:
 
     def test_get_nonexistent_raises_error(self):
         """test: resolver un provider que no existe lanza ProviderNotFoundError"""
-        from v2m.core.providers.provider_registry import ProviderRegistry, ProviderNotFoundError
+        from v2m.core.providers.provider_registry import ProviderNotFoundError, ProviderRegistry
 
         registry = ProviderRegistry[MockInterface]()
         registry.register("existing", MockProviderA)
@@ -130,14 +134,14 @@ class TestGlobalRegistries:
 
     def test_llm_registry_exists(self):
         """test: llm_registry está disponible y es del tipo correcto"""
-        from v2m.core.providers import llm_registry, ProviderRegistry
+        from v2m.core.providers import ProviderRegistry, llm_registry
 
         assert llm_registry is not None
         assert isinstance(llm_registry, ProviderRegistry)
 
     def test_transcription_registry_exists(self):
         """test: transcription_registry está disponible y es del tipo correcto"""
-        from v2m.core.providers import transcription_registry, ProviderRegistry
+        from v2m.core.providers import ProviderRegistry, transcription_registry
 
         assert transcription_registry is not None
         assert isinstance(transcription_registry, ProviderRegistry)

@@ -14,23 +14,32 @@ el worker persistente de Whisper y el Session Manager para streaming.
 """
 
 import asyncio
+import atexit
+import contextlib
+import logging
+import sys
 from concurrent.futures import ThreadPoolExecutor
 
-from v2m.application.command_handlers import ProcessTextHandler, StartRecordingHandler, StopRecordingHandler, TranscribeFileHandler
+from v2m.application.command_handlers import (
+    ProcessTextHandler,
+    StartRecordingHandler,
+    StopRecordingHandler,
+    TranscribeFileHandler,
+)
 from v2m.application.llm_service import LLMService
 from v2m.application.transcription_service import TranscriptionService
 from v2m.config import config
-from v2m.core.cqrs.command_bus import CommandBus
 from v2m.core.client_session import ClientSessionManager
+from v2m.core.cqrs.command_bus import CommandBus
 from v2m.core.interfaces import ClipboardInterface, NotificationInterface
 from v2m.core.logging import logger
 from v2m.core.providers import ProviderNotFoundError, llm_registry, transcription_registry
+from v2m.infrastructure.file_transcription_service import FileTranscriptionService
 from v2m.infrastructure.gemini_llm_service import GeminiLLMService
 from v2m.infrastructure.linux_adapters import LinuxClipboardAdapter
 from v2m.infrastructure.local_llm_service import LocalLLMService
 from v2m.infrastructure.notification_service import LinuxNotificationService
 from v2m.infrastructure.ollama_llm_service import OllamaLLMService
-from v2m.infrastructure.file_transcription_service import FileTranscriptionService
 from v2m.infrastructure.persistent_model import PersistentWhisperWorker
 
 # --- AUTO-REGISTRO DE PROVEEDORES ---
@@ -72,13 +81,12 @@ class Container:
                 compute_type=whisper_cfg.compute_type,
                 device_index=whisper_cfg.device_index,
                 num_workers=whisper_cfg.num_workers,
-                keep_warm=whisper_cfg.keep_warm
+                keep_warm=whisper_cfg.keep_warm,
             )
 
             # Inyectar worker y session_manager en el servicio
             self.transcription_service: TranscriptionService = WhisperTranscriptionService(
-                self.whisper_worker,
-                self.client_session_manager
+                self.whisper_worker, self.client_session_manager
             )
 
             # Precarga (Warmup)
@@ -87,9 +95,9 @@ class Container:
         else:
             # Fallback para otros backends
             try:
-                TranscriptionClass = transcription_registry.get(transcription_backend)
+                transcription_cls = transcription_registry.get(transcription_backend)
                 # Si otra clase requiere deps extra, aquí fallará si no se adapta
-                self.transcription_service = TranscriptionClass()
+                self.transcription_service = transcription_cls()
                 logger.info(f"backend de transcripción seleccionado: {transcription_backend}")
             except ProviderNotFoundError as e:
                 logger.critical(f"backend de transcripción inválido: {e}")
@@ -98,8 +106,8 @@ class Container:
         # --- Selección de backend LLM ---
         llm_backend = config.llm.backend
         try:
-            LLMClass = llm_registry.get(llm_backend)
-            self.llm_service: LLMService = LLMClass()
+            llm_cls = llm_registry.get(llm_backend)
+            self.llm_service: LLMService = llm_cls()
             logger.info(f"backend llm seleccionado: {llm_backend}")
         except ProviderNotFoundError as e:
             logger.critical(f"backend llm inválido: {e}")
@@ -146,9 +154,18 @@ class Container:
         if self.whisper_worker:
             try:
                 self.whisper_worker.initialize_sync()
-                logger.info("✅ whisper precargado correctamente")
+                self._safe_log(logging.INFO, "✅ whisper precargado correctamente")
             except Exception as e:
-                logger.warning(f"⚠️ no se pudo precargar whisper: {e}")
+                self._safe_log(logging.WARNING, f"⚠️ no se pudo precargar whisper: {e}")
+
+    def _safe_log(self, level: int, msg: str) -> None:
+        """Log safely, suppressing errors during interpreter shutdown."""
+        try:
+            if sys.stderr is None:
+                return
+            logger.log(level, msg)
+        except (ValueError, OSError):
+            pass
 
     async def wait_for_warmup(self, timeout: float = 30.0) -> bool:
         """
@@ -161,9 +178,41 @@ class Container:
         try:
             await asyncio.wait_for(loop.run_in_executor(None, self._warmup_future.result), timeout=timeout)
             return True
-        except asyncio.TimeoutError:
+        except TimeoutError:
             logger.warning(f"timeout de warmup después de {timeout}s")
             return False
 
+    def shutdown(self) -> None:
+        """
+        Gracefully shutdown all background workers and executors.
+
+        This prevents the 'I/O operation on closed file' error that occurs
+        when daemon threads try to log after Python has begun shutdown.
+        """
+        # Wait for warmup to complete (with short timeout) before shutting down
+        if self._warmup_future:
+            with contextlib.suppress(Exception):
+                # Wait up to 1 second for warmup to finish naturally
+                self._warmup_future.result(timeout=1.0)
+            self._warmup_future = None
+
+        # Shutdown warmup executor - wait=True ensures threads finish cleanly
+        if self._warmup_executor:
+            self._warmup_executor.shutdown(wait=True, cancel_futures=True)
+            self._warmup_executor = None
+
+        # Shutdown whisper worker executor
+        if (
+            self.whisper_worker
+            and hasattr(self.whisper_worker, '_executor')
+            and self.whisper_worker._executor
+        ):
+            self.whisper_worker._executor.shutdown(wait=True, cancel_futures=True)
+
+
 # --- Instancia Global del Contenedor ---
 container = Container()
+
+# Register shutdown handler to prevent "I/O operation on closed file" errors
+# during Python interpreter shutdown
+atexit.register(container.shutdown)

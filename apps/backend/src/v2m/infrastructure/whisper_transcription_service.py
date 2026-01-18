@@ -54,6 +54,7 @@ class WhisperTranscriptionService(TranscriptionService):
 
         # Delegar lógica de grabación/transcripción al streamer
         self.streamer = StreamingTranscriber(worker, session_manager, self.recorder)
+        self._streaming_task = None  # Track streaming task reference
 
     def start_recording(self) -> None:
         """
@@ -66,18 +67,18 @@ class WhisperTranscriptionService(TranscriptionService):
             # Lanzar tarea de streaming (async desde contexto sync)
             try:
                 loop = asyncio.get_running_loop()
-                loop.create_task(self.streamer.start())
+                self._streaming_task = loop.create_task(self.streamer.start())
             except RuntimeError:
                 # Si no hay loop (ej. tests sync), no podemos iniciar streaming async
                 # Fallback a grabación normal?
                 # La arquitectura Daemon siempre corre en loop.
                 # Tests deben usar pytest-asyncio.
-                raise RecordingError("No event loop found for streaming start")
+                raise RecordingError("No event loop found for streaming start") from None
 
             logger.info("grabación y streaming iniciados")
         except Exception as e:
             logger.error(f"error iniciando grabación: {e}")
-            raise RecordingError(str(e))
+            raise RecordingError(str(e)) from e
 
     async def stop_and_transcribe(self) -> str:
         """
@@ -95,4 +96,4 @@ class WhisperTranscriptionService(TranscriptionService):
             return text
         except Exception as e:
             logger.error(f"error deteniendo/transcribiendo: {e}")
-            raise RecordingError(str(e))
+            raise RecordingError(str(e)) from e

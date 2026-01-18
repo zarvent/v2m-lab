@@ -255,9 +255,7 @@ class TranslateTextHandler(CommandHandler):
                     self.llm_service.translate_text, command.text, command.target_lang
                 )
 
-            self.notification_service.notify(
-                f"✅ Traducción ({command.target_lang})", f"{translated_text[:80]}..."
-            )
+            self.notification_service.notify(f"✅ Traducción ({command.target_lang})", f"{translated_text[:80]}...")
             return translated_text
 
         except Exception as e:
@@ -417,4 +415,3 @@ class TranscribeFileHandler(CommandHandler):
     def listen_to(self) -> type[Command]:
         """Se suscribe al tipo de comando `TranscribeFileCommand`."""
         return TranscribeFileCommand
-

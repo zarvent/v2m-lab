@@ -1,16 +1,15 @@
-
 import asyncio
-import time
 import logging
+import time
+
 import numpy as np
-from typing import Optional
 
 from v2m.config import config
 from v2m.core.client_session import ClientSessionManager
 from v2m.infrastructure.persistent_model import PersistentWhisperWorker
-from v2m.infrastructure.rust_audio_adapter import RustAudioStream
 
 logger = logging.getLogger(__name__)
+
 
 class StreamingTranscriber:
     """
@@ -22,8 +21,8 @@ class StreamingTranscriber:
     def __init__(self, worker: PersistentWhisperWorker, session_manager: ClientSessionManager, recorder=None):
         self.worker = worker
         self.session_manager = session_manager
-        self.recorder = recorder # Injected AudioRecorder
-        self._streaming_task: Optional[asyncio.Task] = None
+        self.recorder = recorder  # Injected AudioRecorder
+        self._streaming_task: asyncio.Task | None = None
         self._stop_event = asyncio.Event()
         self._audio_buffer = []
         self._buffer_duration = 0.0
@@ -35,10 +34,10 @@ class StreamingTranscriber:
             return
 
         if not self.recorder:
-             logger.error("No recorder provided to StreamingTranscriber")
-             raise RuntimeError("No recorder")
+            logger.error("No recorder provided to StreamingTranscriber")
+            raise RuntimeError("No recorder")
 
-        self.recorder.start() # Ensure recorder is started
+        self.recorder.start()  # Ensure recorder is started
         self._stop_event.clear()
         self._audio_buffer = []
         self._buffer_duration = 0.0
@@ -62,7 +61,7 @@ class StreamingTranscriber:
             logger.error(f"Error stopping stream: {e}")
             return ""
         finally:
-            self.recorder.stop() # Ensure recorder is stopped
+            self.recorder.stop()  # Ensure recorder is stopped
             self._streaming_task = None
 
     async def _loop(self) -> str:
@@ -72,7 +71,7 @@ class StreamingTranscriber:
 
         # Intervalo para "Provisional" feedback (500ms)
         # Menos de 500ms puede saturar la GPU y el worker sin beneficio visible
-        INFERENCE_INTERVAL = 0.5
+        inference_interval = 0.5
 
         try:
             while not self._stop_event.is_set():
@@ -85,30 +84,24 @@ class StreamingTranscriber:
 
                 chunk = self.recorder.read_chunk()
                 if len(chunk) > 0:
-                     self._audio_buffer.append(chunk)
-                     chunk_duration = len(chunk) / 16000
-                     self._buffer_duration += chunk_duration
+                    self._audio_buffer.append(chunk)
+                    chunk_duration = len(chunk) / 16000
+                    self._buffer_duration += chunk_duration
 
                 # Check if we should infer
                 now = time.time()
-                if (now - last_inference_time) > INFERENCE_INTERVAL and self._buffer_duration > 0.5:
+                if (now - last_inference_time) > inference_interval and self._buffer_duration > 0.5:
                     last_inference_time = now
                     # Run provisional inference
                     text = await self._infer_provisional()
                     if text and text != provisional_text:
                         provisional_text = text
-                        await self.session_manager.emit_event(
-                            "transcription_update",
-                            {"text": text, "final": False}
-                        )
+                        await self.session_manager.emit_event("transcription_update", {"text": text, "final": False})
 
             # End of stream (Stop called)
             # Final inference on full buffer
             final_text = await self._infer_final()
-            await self.session_manager.emit_event(
-                "transcription_update",
-                {"text": final_text, "final": True}
-            )
+            await self.session_manager.emit_event("transcription_update", {"text": final_text, "final": True})
             return final_text
 
         except Exception as e:
@@ -137,10 +130,10 @@ class StreamingTranscriber:
                 full_audio,
                 language=whisper_config.language if whisper_config.language != "auto" else None,
                 task="transcribe",
-                beam_size=1, # Faster greedy for provisional
+                beam_size=1,  # Faster greedy for provisional
                 best_of=1,
                 temperature=0.0,
-                vad_filter=True # Use internal VAD to avoid processing silence?
+                vad_filter=True,  # Use internal VAD to avoid processing silence?
             )
             # Materialize
             return list(segments)
@@ -161,7 +154,7 @@ class StreamingTranscriber:
         whisper_config = config.transcription.whisper
 
         def _inference_func(model):
-            segments, info = model.transcribe(
+            segments, _info = model.transcribe(
                 full_audio,
                 language=whisper_config.language if whisper_config.language != "auto" else None,
                 task="transcribe",
@@ -169,7 +162,7 @@ class StreamingTranscriber:
                 best_of=whisper_config.best_of,
                 temperature=whisper_config.temperature,
                 vad_filter=whisper_config.vad_filter,
-                vad_parameters=whisper_config.vad_parameters.model_dump() if whisper_config.vad_filter else None
+                vad_parameters=whisper_config.vad_parameters.model_dump() if whisper_config.vad_filter else None,
             )
             return list(segments)
 
@@ -181,5 +174,3 @@ class StreamingTranscriber:
             return text
         except Exception:
             return ""
-
-

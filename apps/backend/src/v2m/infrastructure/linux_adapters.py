@@ -203,9 +203,7 @@ class LinuxClipboardAdapter(ClipboardInterface):
             return result.stdout.decode("utf-8", errors="ignore")
 
         except FileNotFoundError:
-            logger.error(
-                f"herramienta de portapapeles no encontrada: {paste_cmd[0]}. instale xclip o wl-clipboard."
-            )
+            logger.error(f"herramienta de portapapeles no encontrada: {paste_cmd[0]}. instale xclip o wl-clipboard.")
             return ""
         except subprocess.TimeoutExpired:
             logger.error("operación de pegado agotó el tiempo de espera")

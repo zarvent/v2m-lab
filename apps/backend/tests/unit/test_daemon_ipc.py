@@ -1,13 +1,13 @@
-
 import asyncio
-import struct
-import pytest
+import contextlib
 import sys
-import json
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
+
+import pytest
+
+from v2m.client import send_command
 from v2m.daemon import Daemon
-from v2m.client import send_command, SOCKET_PATH
-from v2m.core.ipc_protocol import IPCRequest
+
 
 @pytest.fixture
 def mock_daemon(monkeypatch, tmp_path):
@@ -40,8 +40,9 @@ def mock_daemon(monkeypatch, tmp_path):
 
     # Create daemon instance
     daemon = Daemon()
-    daemon.socket_path = socket_path # Update instance socket path
+    daemon.socket_path = socket_path  # Update instance socket path
     return daemon, mock_bus
+
 
 @pytest.mark.asyncio
 async def test_large_payload_truncation(mock_daemon):
@@ -64,15 +65,13 @@ async def test_large_payload_truncation(mock_daemon):
     large_text = "A" * 5000
 
     # Use JSON protocol v2.0
-    response = await send_command("PROCESS_TEXT", {"text": large_text})
+    _response = await send_command("PROCESS_TEXT", {"text": large_text})
 
     # Stop server
     daemon.stop()
     server_task.cancel()
-    try:
+    with contextlib.suppress(asyncio.CancelledError):
         await server_task
-    except asyncio.CancelledError:
-        pass
 
     # Verify dispatch
     assert mock_bus.dispatch.called
@@ -103,20 +102,19 @@ async def test_command_injection_prevention(mock_daemon):
     malicious_text = "hola\nSTOP_RECORDING\nadios"
 
     # Use JSON protocol v2.0
-    response = await send_command("PROCESS_TEXT", {"text": malicious_text})
+    _response = await send_command("PROCESS_TEXT", {"text": malicious_text})
 
     # Stop server
     daemon.stop()
     server_task.cancel()
-    try:
+    with contextlib.suppress(asyncio.CancelledError):
         await server_task
-    except asyncio.CancelledError:
-        pass
 
     # Verify only ONE command was dispatched (PROCESS_TEXT)
     # NOT two commands (PROCESS_TEXT + STOP_RECORDING)
-    assert mock_bus.dispatch.call_count == 1, \
+    assert mock_bus.dispatch.call_count == 1, (
         f"Command injection! Expected 1 dispatch, got {mock_bus.dispatch.call_count}"
+    )
 
     # Verify the text contains the newlines as data
     args, _ = mock_bus.dispatch.call_args

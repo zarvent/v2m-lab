@@ -1,7 +1,7 @@
 import asyncio
-import time
-from typing import AsyncIterator
 import logging
+import time
+from collections.abc import AsyncIterator
 
 try:
     import v2m_engine
@@ -9,10 +9,15 @@ except ImportError:
     v2m_engine = None
 
 from v2m.domain.audio_stream import AudioStreamPort, VADChunk
+
+
 # Assuming v2m.domain.errors exists or we use standard exceptions
-class RecordingError(Exception): pass
+class RecordingError(Exception):
+    pass
+
 
 logger = logging.getLogger(__name__)
+
 
 class RustAudioStream(AudioStreamPort):
     def __init__(self, sample_rate: int = 16000):
@@ -25,7 +30,7 @@ class RustAudioStream(AudioStreamPort):
         try:
             self._recorder.start()
         except Exception as e:
-            raise RecordingError(f"Failed to start Rust recorder: {e}")
+            raise RecordingError(f"Failed to start Rust recorder: {e}") from e
 
         try:
             while True:
@@ -36,7 +41,7 @@ class RustAudioStream(AudioStreamPort):
                 chunk = self._recorder.read_chunk()
                 # Ensure chunk is numpy array (it is from Rust side)
                 if len(chunk) > 0:
-                     yield VADChunk(timestamp=time.time(), audio=chunk)
+                    yield VADChunk(timestamp=time.time(), audio=chunk)
         except asyncio.CancelledError:
             logger.info("Audio stream cancelled")
             raise

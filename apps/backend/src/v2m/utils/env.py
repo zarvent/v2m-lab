@@ -1,13 +1,15 @@
+import ctypes
 import os
 import site
-import ctypes
 from pathlib import Path
+
 from v2m.core.logging import logger
+
 
 def configure_gpu_environment() -> None:
     """
     Configura dinámicamente las rutas de librerías NVIDIA (cuDNN, Cublas) en el entorno.
-    
+
     Estrategia SOTA (2026) para entornos aislados (venv):
     1. Identifica rutas de librerías nvidia instaladas vía pip.
     2. Actualiza LD_LIBRARY_PATH (útil para subprocesos).
@@ -18,21 +20,21 @@ def configure_gpu_environment() -> None:
     try:
         site_packages = site.getsitepackages()
         nvidia_paths = []
-        
+
         # Librerías críticas que deben ser precargadas en orden de dependencia
         # cuDNN 9 split libs: engines dependen de ops, ops depende de graph/cnn? No, graph depende de ops.
         # Orden seguro aproximado: cublas -> cudnn_ops -> cudnn_cnn -> cudnn_adv -> cudnn_engines
         libs_to_preload = [
-            "libcublas.so", 
+            "libcublas.so",
             "libcublasLt.so",
-            "libcudnn_engines_precompiled.so", # cuDNN 9
-            "libcudnn_engines_runtime.so",     # cuDNN 9
-            "libcudnn_heuristic.so",           # cuDNN 9
-            "libcudnn_graph.so",               # cuDNN 9
-            "libcudnn_ops.so",                 # cuDNN 9
-            "libcudnn_cnn.so",                 # cuDNN 9
-            "libcudnn_adv.so",                 # cuDNN 9
-            "libcudnn.so"
+            "libcudnn_engines_precompiled.so",  # cuDNN 9
+            "libcudnn_engines_runtime.so",  # cuDNN 9
+            "libcudnn_heuristic.so",  # cuDNN 9
+            "libcudnn_graph.so",  # cuDNN 9
+            "libcudnn_ops.so",  # cuDNN 9
+            "libcudnn_cnn.so",  # cuDNN 9
+            "libcudnn_adv.so",  # cuDNN 9
+            "libcudnn.so",
         ]
 
         # 1. Encontrar rutas
@@ -66,15 +68,15 @@ def configure_gpu_environment() -> None:
                     # Preferir la versión más corta (suele ser el symlink .so o .so.9)
                     # O simplemente tomar el primero
                     target_lib = sorted(candidates, key=lambda x: len(str(x)))[0]
-                    
+
                     try:
                         ctypes.CDLL(str(target_lib), mode=ctypes.RTLD_GLOBAL)
                         loaded_count += 1
                         found = True
                         break
                     except OSError:
-                        continue # Intentar siguiente ruta o ignorar si falla
-            
+                        continue  # Intentar siguiente ruta o ignorar si falla
+
             if not found:
                 # No es crítico fallar aquí, quizás no está instalada o no se necesita
                 pass

@@ -29,9 +29,7 @@ Patrones utilizados:
     - **Generic Typing**: Uso de `TypeVar` y `Generic` para seguridad de tipos estricta.
 """
 
-from typing import Generic, TypeVar
 
-T = TypeVar("T")
 
 
 class ProviderNotFoundError(Exception):
@@ -46,7 +44,7 @@ class ProviderNotFoundError(Exception):
         super().__init__(f"Proveedor '{provider_name}' no encontrado. Disponibles: {available_str}")
 
 
-class ProviderRegistry(Generic[T]):
+class ProviderRegistry[T]:
     """
     Registro Genérico Tipado para Proveedores de Servicios.
 

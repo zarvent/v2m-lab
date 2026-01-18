@@ -96,7 +96,7 @@ class ConfigManager:
                 toml.dumps(current_config)
             except Exception as e:
                 logger.error("configuración actualizada no es toml válido, revirtiendo", exc_info=True)
-                raise ValueError(f"Estructura TOML inválida tras el merge: {e}")
+                raise ValueError(f"Estructura TOML inválida tras el merge: {e}") from e
 
             with open(self.config_path, "w") as f:
                 toml.dump(current_config, f)

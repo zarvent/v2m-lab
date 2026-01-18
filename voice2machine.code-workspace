@@ -2,24 +2,24 @@
   "folders": [
     {
       "name": "book for llms",
-      "path": "../llm-book"
+      "path": "../llm-book",
     },
     {
       "name": "agents skills",
-      "path": "../llm-skills"
+      "path": "../llm-skills",
     },
     {
       "name": "backend",
-      "path": "apps/backend"
+      "path": "apps/backend",
     },
     {
       "name": "frontend",
-      "path": "apps/frontend"
+      "path": "apps/frontend",
     },
     {
       "name": "voice2machine",
-      "path": "."
-    }
+      "path": ".",
+    },
   ],
   "settings": {
     "explorer.fileNesting.enabled": true,
@@ -31,7 +31,7 @@
       "pyproject.toml": "requirements*.txt, .python-version, .ruff.toml, ruff.toml, config.toml",
       "*.tsx": "${capture}.ts, ${capture}.css, ${capture}.module.css, ${capture}.scss, ${capture}.test.tsx, ${capture}.spec.tsx",
       ".env": ".env.*",
-      "README.md": "AGENTS.md, AGENTES.md, LEEME.md, LICENSE, LICENCE, CHANGELOG.md"
-    }
-  }
+      "README.md": "AGENTS.md, AGENTES.md, LEEME.md, LICENSE, LICENCE, CHANGELOG.md",
+    },
+  },
 }

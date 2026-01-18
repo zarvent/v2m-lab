@@ -36,9 +36,11 @@ Ejecución
 
 import unittest
 from unittest.mock import MagicMock, patch
+
 import numpy as np
-from v2m.infrastructure.audio.recorder import AudioRecorder
+
 from v2m.domain.errors import RecordingError
+from v2m.infrastructure.audio.recorder import AudioRecorder
 
 
 class TestAudioRecorder(unittest.TestCase):
@@ -74,7 +76,7 @@ class TestAudioRecorder(unittest.TestCase):
             desde el cual se ejecuta cada prueba.
         """
         # Force Python fallback path for these tests (tests are designed for Python impl)
-        self.patcher = patch('v2m.infrastructure.audio.recorder.HAS_RUST_ENGINE', False)
+        self.patcher = patch("v2m.infrastructure.audio.recorder.HAS_RUST_ENGINE", False)
         self.patcher.start()
         self.recorder = AudioRecorder()
 
@@ -82,7 +84,7 @@ class TestAudioRecorder(unittest.TestCase):
         """Limpia el entorno de prueba después de cada test."""
         self.patcher.stop()
 
-    @patch('v2m.infrastructure.audio.recorder.sd')
+    @patch("v2m.infrastructure.audio.recorder.sd")
     def test_stop_clears_frames(self, mock_sd: MagicMock) -> None:
         """Verifica que stop() libere el buffer interno después de retornar.
 
@@ -208,5 +210,5 @@ class TestAudioRecorder(unittest.TestCase):
             self.recorder.stop()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

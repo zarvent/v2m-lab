@@ -13,21 +13,22 @@ Ejecución:
 
 import unittest
 from unittest.mock import MagicMock, patch
-import numpy as np
-from v2m.infrastructure.audio.recorder import AudioRecorder
+
 from v2m.domain.errors import RecordingError
+from v2m.infrastructure.audio.recorder import AudioRecorder
+
 
 class TestAudioRecorderRegressions(unittest.TestCase):
     def setUp(self):
         # Force Python fallback path for these tests (tests are designed for Python impl)
-        self.patcher = patch('v2m.infrastructure.audio.recorder.HAS_RUST_ENGINE', False)
+        self.patcher = patch("v2m.infrastructure.audio.recorder.HAS_RUST_ENGINE", False)
         self.patcher.start()
         self.recorder = AudioRecorder()
 
     def tearDown(self):
         self.patcher.stop()
 
-    @patch('v2m.infrastructure.audio.recorder.sd')
+    @patch("v2m.infrastructure.audio.recorder.sd")
     def test_start_failure_cleans_up_resources(self, mock_sd):
         """
         Verifica que si stream.start() falla, se limpien los recursos correctamente.
@@ -77,7 +78,7 @@ class TestAudioRecorderRegressions(unittest.TestCase):
 
         # Simular estado de grabación manual para evitar depender de sounddevice real
         recorder._recording = True
-        recorder._stream = MagicMock() # Mock stream to avoid errors in stop()
+        recorder._stream = MagicMock()  # Mock stream to avoid errors in stop()
 
         # Simular datos grabados: [1.0, 1.0, ...]
         with recorder._lock:
@@ -93,11 +94,15 @@ class TestAudioRecorderRegressions(unittest.TestCase):
 
         # Simular nueva grabación sobrescribiendo el buffer
         with recorder._lock:
-            recorder._buffer[:100] = 2.0 # Sobrescribir con 2.0
+            recorder._buffer[:100] = 2.0  # Sobrescribir con 2.0
 
         # Assert final: el audio_data original NO debe haber cambiado
-        self.assertEqual(audio_data[0], 1.0,
-                         "El audio retornado fue corrompido por cambios en el buffer interno. `stop()` debe retornar una copia.")
+        self.assertEqual(
+            audio_data[0],
+            1.0,
+            "El audio retornado fue corrompido por cambios en el buffer interno. `stop()` debe retornar una copia.",
+        )
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

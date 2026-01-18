@@ -36,10 +36,9 @@ Ejemplo de definición:
     ```
 """
 
-from abc import ABC
 
 
-class Command(ABC):
+class Command:
     """
     Clase base abstracta (Marker Interface) para todos los comandos.
 

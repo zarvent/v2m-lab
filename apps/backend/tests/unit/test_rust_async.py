@@ -1,7 +1,10 @@
-import pytest
 import asyncio
+
 import numpy as np
+import pytest
+
 from v2m.infrastructure.rust_audio_adapter import RustAudioStream
+
 
 @pytest.mark.asyncio
 async def test_rust_async_stream_basics():
@@ -25,6 +28,7 @@ async def test_rust_async_stream_basics():
 
     assert chunk_count == 3
 
+
 @pytest.mark.asyncio
 async def test_rust_stream_non_blocking():
     """Test that reading the stream doesn't block the loop."""
@@ -35,13 +39,13 @@ async def test_rust_stream_non_blocking():
 
     async def background_task():
         # A task that should run concurrently
-        for i in range(5):
+        for _i in range(5):
             await asyncio.sleep(0.01)
         return True
 
     task = asyncio.create_task(background_task())
 
-    async for chunk in stream:
+    async for _chunk in stream:
         # Just process one chunk
         break
 

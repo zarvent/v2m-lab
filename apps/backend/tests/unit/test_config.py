@@ -39,7 +39,6 @@ Ejecución
     >>> pytest tests/unit/test_config.py -v
 """
 
-import pytest
 from v2m.config import Settings
 
 
@@ -92,8 +91,7 @@ def test_config_loading() -> None:
     # large-v3-turbo: 6x más rápido que large-v3 con calidad comparable
     # NOTE: Access via transcription.whisper since whisper field is deprecated/default only
     assert config.transcription.whisper.model == "large-v3-turbo", (
-        f"Modelo inesperado: {config.transcription.whisper.model}. "
-        "¿Se modificó config.toml sin actualizar este test?"
+        f"Modelo inesperado: {config.transcription.whisper.model}. ¿Se modificó config.toml sin actualizar este test?"
     )
 
     # Validación del idioma
@@ -129,13 +127,11 @@ def test_ollama_config_defaults() -> None:
     config = Settings()
 
     assert config.llm.ollama.model == "gemma2:2b", (
-        f"Modelo Ollama inesperado: {config.llm.ollama.model}. "
-        "El default debe ser 'gemma2:2b' para grammar correction."
+        f"Modelo Ollama inesperado: {config.llm.ollama.model}. El default debe ser 'gemma2:2b' para grammar correction."
     )
 
     assert config.llm.ollama.keep_alive == "5m", (
-        f"keep_alive inesperado: {config.llm.ollama.keep_alive}. "
-        "El default debe ser '5m' para balance VRAM/latencia."
+        f"keep_alive inesperado: {config.llm.ollama.keep_alive}. El default debe ser '5m' para balance VRAM/latencia."
     )
 
     assert config.llm.ollama.temperature == 0.0, (

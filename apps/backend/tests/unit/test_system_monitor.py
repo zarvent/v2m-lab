@@ -17,7 +17,6 @@ Ejecución
     >>> pytest tests/unit/test_system_monitor.py -v
 """
 
-import pytest
 from v2m.infrastructure.system_monitor import SystemMonitor
 
 

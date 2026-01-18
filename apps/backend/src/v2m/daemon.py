@@ -28,6 +28,7 @@ El demonio es responsable de:
 
 import asyncio
 import atexit
+import contextlib
 import json
 import os
 import signal
@@ -193,7 +194,9 @@ class Daemon:
                         else:
                             result = await self.command_bus.dispatch(StopRecordingCommand())
                             if result:
-                                response = IPCResponse(status="success", data={"state": "idle", "transcription": result})
+                                response = IPCResponse(
+                                    status="success", data={"state": "idle", "transcription": result}
+                                )
                             else:
                                 response = IPCResponse(status="error", error="no se detectó voz")
 
@@ -219,7 +222,6 @@ class Daemon:
                             else:
                                 result = await self.command_bus.dispatch(TranslateTextCommand(text, target_lang))
                                 response = IPCResponse(status="success", data={"refined_text": result, "state": "idle"})
-
 
                     elif cmd_name == IPCCommand.UPDATE_CONFIG:
                         updates = data.get("updates")
@@ -247,7 +249,11 @@ class Daemon:
                         response = IPCResponse(status="success", data={"message": "PONG"})
 
                     elif cmd_name == IPCCommand.GET_STATUS:
-                        state = "paused" if self.paused else ("recording" if config.paths.recording_flag.exists() else "idle")
+                        state = (
+                            "paused"
+                            if self.paused
+                            else ("recording" if config.paths.recording_flag.exists() else "idle")
+                        )
                         metrics = self.system_monitor.get_system_metrics()
                         response = IPCResponse(status="success", data={"state": state, "telemetry": metrics})
 
@@ -266,8 +272,7 @@ class Daemon:
                                 logger.info(f"transcribiendo archivo: {file_path}")
                                 result = await self.command_bus.dispatch(TranscribeFileCommand(file_path))
                                 response = IPCResponse(
-                                    status="success",
-                                    data={"state": "idle", "transcription": result}
+                                    status="success", data={"state": "idle", "transcription": result}
                                 )
 
                     elif cmd_name == IPCCommand.TOGGLE_RECORDING:
@@ -279,7 +284,9 @@ class Daemon:
                             if is_recording:
                                 result = await self.command_bus.dispatch(StopRecordingCommand())
                                 if result:
-                                    response = IPCResponse(status="success", data={"state": "idle", "transcription": result})
+                                    response = IPCResponse(
+                                        status="success", data={"state": "idle", "transcription": result}
+                                    )
                                 else:
                                     response = IPCResponse(status="error", error="no se detectó voz")
                             else:
@@ -310,10 +317,8 @@ class Daemon:
                 await container.client_session_manager.unregister()
 
             writer.close()
-            try:
+            with contextlib.suppress(Exception):
                 await writer.wait_closed()
-            except Exception:
-                pass
 
     async def start_server(self) -> None:
         """
@@ -366,10 +371,8 @@ class Daemon:
 
                     if is_v2m_module or is_v2m_binary:
                         proc.kill()
-                        try:
+                        with contextlib.suppress(psutil.TimeoutExpired):
                             proc.wait(timeout=3)
-                        except psutil.TimeoutExpired:
-                            pass
                         killed_count += 1
 
                 except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):

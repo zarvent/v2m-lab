@@ -41,9 +41,11 @@ from typing import Any
 # SOTA 2026: orjson is 3-10x faster than stdlib json
 try:
     import orjson
+
     _USE_ORJSON = True
 except ImportError:
     import json
+
     _USE_ORJSON = False
 
 # Límite de payload para prevenir ataques de Denegación de Servicio (DoS)
@@ -91,6 +93,7 @@ class IPCCommand(str, Enum):
 # =============================================================================
 # PROTOCOLO JSON SEGURO (v2.0)
 # =============================================================================
+
 
 @dataclass(slots=True)
 class IPCRequest:
@@ -190,6 +193,7 @@ def get_socket_path() -> str:
 SOCKET_PATH = get_socket_path()
 
 HEADER_SIZE = 4
+
 
 async def send_ipc_message(writer, message: IPCResponse) -> None:
     """Helper para enviar mensaje IPC con framing."""
