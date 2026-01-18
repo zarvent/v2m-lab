@@ -8,12 +8,30 @@ Voice2Machine implementa una serie de Hooks personalizados y utilidades para enc
 
 ### `useStudio` (`src/hooks/useStudio.ts`)
 
-Encapsula la lógica de interacción del editor principal.
+Encapsula la lógica de interacción del editor principal y coordina la integración con el sistema de pestañas.
 
 **Funcionalidades:**
-- **Hotkeys**: Detecta pulsaciones de teclas como `Ctrl+S` (Guardar) o `Ctrl+Enter` (Refinar).
-- **Auto-Guardado**: Implementa un debounce para guardar el borrador en `localStorage` cada vez que el usuario deja de escribir por 1 segundo.
-- **Gestión de Sesión**: Orquesta el inicio/fin de grabación comunicándose con el `backendStore`.
+- **Orquestación**: Unifica el estado de grabación (`backendStore`) con el estado del editor (`useNoteTabs`).
+- **Lógica de UI**: Gestiona diálogos de guardado, exportación y copiado al portapapeles.
+- **Sincronización**: Actualiza automáticamente el contenido de la pestaña activa cuando llega nueva transcripción.
+
+### `useNoteTabs` (`src/hooks/useNoteTabs.ts`)
+
+Gestiona el estado de las múltiples pestañas del editor, similar a un navegador web.
+
+- **CRUD de Pestañas**: Crear, cerrar, renombrar y actualizar contenido.
+- **Atajos de Teclado**:
+    - `Ctrl + T`: Nueva pestaña.
+    - `Ctrl + W`: Cerrar pestaña actual.
+    - `Ctrl + Tab`: Siguiente pestaña.
+- **Persistencia**: Guarda el estado de todas las pestañas abiertas en `localStorage` para recuperarlas al recargar.
+
+### `useSnippets` (`src/hooks/useSnippets.ts`)
+
+Hook de acceso a datos para la biblioteca de fragmentos (`SnippetsLibrary`).
+
+- **Almacenamiento**: Mantiene la lista de fragmentos guardados en `localStorage`.
+- **Operaciones**: Provee métodos para agregar (`addSnippet`), eliminar y actualizar fragmentos.
 
 ### `useConfigForm` (`src/hooks/useConfigForm.ts`)
 
