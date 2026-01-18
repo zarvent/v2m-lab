@@ -16,7 +16,7 @@ set -euo pipefail
 
 # --- Navigate to correct directory ---
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-PROJECT_ROOT="$( dirname "$( dirname "${SCRIPT_DIR}" )" )"
+PROJECT_ROOT="$( cd "$( dirname "${SCRIPT_DIR}" )/../.." &> /dev/null && pwd )"
 BACKEND_DIR="${PROJECT_ROOT}/apps/backend"
 FRONTEND_DIR="${PROJECT_ROOT}/apps/frontend"
 

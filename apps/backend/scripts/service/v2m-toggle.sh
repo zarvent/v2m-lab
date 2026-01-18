@@ -29,15 +29,12 @@ readonly HEADER=$'\x00\x00\x00\x20'
 # RUNTIME PATH RESOLUTION (fast, no subshells)
 # ══════════════════════════════════════════════════════════════════════════════
 
-# Resolve XDG_RUNTIME_DIR efficiently
-if [[ -n "${XDG_RUNTIME_DIR:-}" ]]; then
-    RUNTIME_BASE="${XDG_RUNTIME_DIR}/v2m"
-else
-    RUNTIME_BASE="/tmp/v2m_$(id -u)"
-fi
-
+# Resolve XDG_RUNTIME_DIR efficiently using common utils
+RUNTIME_BASE=$(get_runtime_dir)
 readonly SOCKET_PATH="${RUNTIME_BASE}/v2m.sock"
-readonly SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
+
+readonly SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+source "${SCRIPT_DIR}/../utils/common.sh"
 readonly DAEMON_SCRIPT="${SCRIPT_DIR}/v2m-daemon.sh"
 
 # ══════════════════════════════════════════════════════════════════════════════

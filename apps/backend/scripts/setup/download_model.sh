@@ -11,7 +11,7 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-MODEL_DIR="$SCRIPT_DIR/../../apps/backend/models"
+MODEL_DIR="$SCRIPT_DIR/../../models"
 MODEL_FILE="qwen2.5-3b-instruct-q4_k_m.gguf"
 MODEL_URL="https://huggingface.co/Qwen/Qwen2.5-3B-Instruct-GGUF/resolve/main/${MODEL_FILE}"
 

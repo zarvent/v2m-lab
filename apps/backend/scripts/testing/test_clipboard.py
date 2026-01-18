@@ -51,7 +51,7 @@ import sys
 import os
 
 # Añadir src al path para importar los módulos de V2M
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..', 'apps/backend/src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../src'))
 
 from v2m.infrastructure.linux_adapters import LinuxClipboardAdapter
 

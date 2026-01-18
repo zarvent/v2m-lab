@@ -11,7 +11,7 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(dirname "$(dirname "$SCRIPT_DIR")")"
+PROJECT_ROOT="$(cd "$(dirname "$SCRIPT_DIR")/../.." && pwd)"
 VENV_PATH="$PROJECT_ROOT/apps/backend/venv"
 CUDA_VERSION="cu124"  # RTX 3060 con driver 580.x soporta CUDA 12.4+
 

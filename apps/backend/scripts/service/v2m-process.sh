@@ -55,7 +55,7 @@
 
 # --- CONFIGURACIÓN ---
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-PROJECT_DIR="$( dirname "$( dirname "${SCRIPT_DIR}" )" )/apps/backend"
+PROJECT_DIR="$( cd "$( dirname "${SCRIPT_DIR}" )/.." &> /dev/null && pwd )"
 NOTIFY_EXPIRE_TIME=3000
 
 # --- RUTAS DERIVADAS ---

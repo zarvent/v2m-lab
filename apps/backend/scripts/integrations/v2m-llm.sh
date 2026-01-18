@@ -68,10 +68,12 @@
 set -euo pipefail
 
 # --- Configuración ---
-# --- LOAD COMMON UTILS ---
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 source "${SCRIPT_DIR}/../utils/common.sh"
+
 RUNTIME_DIR=$(get_runtime_dir)
-PROJECT_DIR="${PROJECT_ROOT}/apps/backend"
+PROJECT_DIR="${BACKEND_DIR}"
+VENV_PATH="${BACKEND_DIR}/venv"
 NOTIFY_EXPIRE_TIME=3000
 
 # --- Rutas Derivadas ---

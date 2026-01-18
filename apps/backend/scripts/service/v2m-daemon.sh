@@ -67,11 +67,12 @@
 #
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-PROJECT_DIR="$( dirname "$( dirname "${SCRIPT_DIR}" )" )/apps/backend"
+# Source common utils from ../utils/ (one level up from service/)
+source "${SCRIPT_DIR}/../utils/common.sh"
+
+PROJECT_DIR="${BACKEND_DIR}"
 VENV_PYTHON="${PROJECT_DIR}/venv/bin/python"
 
-# --- LOAD COMMON UTILS ---
-source "${SCRIPT_DIR}/../utils/common.sh"
 RUNTIME_DIR=$(get_runtime_dir)
 LOG_FILE="${RUNTIME_DIR}/v2m_daemon.log"
 PID_FILE="${RUNTIME_DIR}/v2m_daemon.pid"

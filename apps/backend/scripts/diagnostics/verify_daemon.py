@@ -79,16 +79,16 @@ import time
 import sys
 import os
 from typing import Tuple
+from pathlib import Path
 
 # Path to python executable
 PYTHON = sys.executable
 """str: ruta al ejecutable de python actual"""
 
-DAEMON_SCRIPT = "src/v2m/daemon.py"
-"""str: ruta al script del daemon"""
-
-CLIENT_SCRIPT = "src/v2m/client.py"
-"""str: ruta al script del cliente"""
+SCRIPT_DIR = Path(__file__).resolve().parent
+BACKEND_DIR = SCRIPT_DIR.parents[1]
+DAEMON_SCRIPT = str(BACKEND_DIR / "src/v2m/daemon.py")
+CLIENT_SCRIPT = str(BACKEND_DIR / "src/v2m/client.py")
 
 
 def run_client(*args: str) -> Tuple[str, str, int]:

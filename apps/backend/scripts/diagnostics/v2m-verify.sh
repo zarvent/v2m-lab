@@ -83,8 +83,9 @@ ISSUES=0
 
 # Detectar directorio del proyecto dinámicamente
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-PROJECT_DIR="$( dirname "$( dirname "${SCRIPT_DIR}" )" )"
-BACKEND_DIR="${PROJECT_DIR}/apps/backend"
+source "${SCRIPT_DIR}/../utils/common.sh"
+
+# BACKEND_DIR y REPO_ROOT vienen de common.sh
 
 # 1. Verificar venv
 echo -n "✓ Entorno virtual: "
@@ -123,7 +124,7 @@ fi
 
 # 5. Verificar script principal
 echo -n "✓ Script v2m-toggle.sh: "
-if [ -x "${SCRIPT_DIR}/v2m-toggle.sh" ]; then
+if [ -x "${BACKEND_DIR}/scripts/service/v2m-toggle.sh" ]; then
     echo -e "${GREEN}OK${NC}"
 else
     echo -e "${RED}FALLO${NC}"
