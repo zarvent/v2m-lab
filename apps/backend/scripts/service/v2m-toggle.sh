@@ -21,20 +21,32 @@ set -euo pipefail
 readonly JSON_CMD='{"cmd":"TOGGLE_RECORDING","data":{}}'
 readonly JSON_LEN=32  # Pre-computed: ${#JSON_CMD}
 
-# Big-endian 4-byte header for length=32 (0x00000020)
-# Pre-computed to avoid runtime printf overhead
-readonly HEADER=$'\x00\x00\x00\x20'
+# NOTE: Length header (0x00000020) is output directly via printf in send_toggle()
+# because bash cannot store null bytes in variables.
 
 # ══════════════════════════════════════════════════════════════════════════════
 # RUNTIME PATH RESOLUTION (fast, no subshells)
 # ══════════════════════════════════════════════════════════════════════════════
 
-# Resolve XDG_RUNTIME_DIR efficiently using common utils
-readonly SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-source "${SCRIPT_DIR}/../utils/common.sh"
+# Resolve script location robustly (works from shortcuts, symlinks, anywhere)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+readonly SCRIPT_DIR
+
+# Source common utilities with explicit error handling
+COMMON_SH="${SCRIPT_DIR}/../utils/common.sh"
+if [[ ! -f "$COMMON_SH" ]]; then
+    echo "ERROR: common.sh not found at $COMMON_SH" >&2
+    notify-send --urgency=critical "v2m Error" "common.sh no encontrado" 2>/dev/null || true
+    exit 1
+fi
+source "$COMMON_SH" || {
+    echo "ERROR: Failed to source common.sh" >&2
+    exit 1
+}
+
 readonly DAEMON_SCRIPT="${SCRIPT_DIR}/v2m-daemon.sh"
 
-# Resolve XDG_RUNTIME_DIR efficiently using common utils
+# Resolve XDG_RUNTIME_DIR using common utils
 RUNTIME_BASE=$(get_runtime_dir)
 readonly SOCKET_PATH="${RUNTIME_BASE}/v2m.sock"
 
@@ -75,48 +87,36 @@ ensure_daemon() {
     exit 1
 }
 
-# ══════════════════════════════════════════════════════════════════════════════
-# IPC ENGINE (priority: nc > socat > python3)
-# ══════════════════════════════════════════════════════════════════════════════
-
 send_toggle() {
-    local payload="${HEADER}${JSON_CMD}"
+    # Python-based IPC: reliable bidirectional binary protocol
+    python3 << PYTHON_SCRIPT
+import socket
+import struct
+import sys
 
-    # OpenBSD netcat (fastest: ~1ms)
-    if command -v nc &>/dev/null; then
-        # Check for Unix socket support (-U flag)
-        if nc -h 2>&1 | grep -q '\-U'; then
-            printf '%s' "$payload" | nc -N -U -w 1 "$SOCKET_PATH" 2>/dev/null
-            return $?
-        fi
-    fi
+SOCKET_PATH = "${SOCKET_PATH}"
+MSG = b'{"cmd":"TOGGLE_RECORDING","data":{}}'
 
-    # socat fallback (~3ms)
-    if command -v socat &>/dev/null; then
-        printf '%s' "$payload" | socat -t 1 - "UNIX-CONNECT:$SOCKET_PATH" 2>/dev/null
-        return $?
-    fi
-
-    # Python fallback (~50ms, universal)
-    python3 -c "
-import socket, struct, sys
-s = socket.socket(socket.AF_UNIX)
-s.settimeout(2)
 try:
-    s.connect('$SOCKET_PATH')
-    msg = b'$JSON_CMD'
-    s.sendall(struct.pack('>I', len(msg)) + msg)
-    # Read response header + body
+    s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    s.settimeout(5)
+    s.connect(SOCKET_PATH)
+
+    # Send: [4-byte length][JSON]
+    s.sendall(struct.pack('>I', len(MSG)) + MSG)
+
+    # Receive: [4-byte length][JSON response]
     hdr = s.recv(4)
     if len(hdr) == 4:
         sz = struct.unpack('>I', hdr)[0]
-        print(s.recv(sz).decode('utf-8', errors='replace'))
-except Exception as e:
-    print(f'{{\"status\":\"error\",\"error\":\"{e}\"}}', file=sys.stderr)
-    sys.exit(1)
-finally:
+        response = s.recv(sz)
+        print(response.decode('utf-8', errors='replace'))
+
     s.close()
-"
+except Exception as e:
+    print(f'{{"status":"error","error":"{e}"}}', file=sys.stderr)
+    sys.exit(1)
+PYTHON_SCRIPT
 }
 
 # ══════════════════════════════════════════════════════════════════════════════
