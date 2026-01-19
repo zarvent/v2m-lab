@@ -83,16 +83,19 @@ class VadParametersConfig(BaseModel):
 
     Atributos:
         threshold: Umbral de probabilidad (0.0 a 1.0) para clasificar un segmento como habla.
-            Defecto: 0.3
+            Defecto: 0.4 (slightly higher to avoid breathing noise)
         min_speech_duration_ms: Duración mínima (ms) para ser considerado habla.
             Defecto: 250ms
         min_silence_duration_ms: Duración mínima de silencio (ms) para considerar que el habla terminó.
-            Defecto: 500ms
+            Defecto: 1000ms (Spanish prosody safe - preserves natural pauses)
+        speech_pad_ms: Relleno aplicado al inicio/fin de segmentos de habla detectados.
+            Defecto: 400ms (keeps the start/end of words)
     """
 
-    threshold: float = 0.3
+    threshold: float = 0.4
     min_speech_duration_ms: int = 250
-    min_silence_duration_ms: int = 500
+    min_silence_duration_ms: int = 1000
+    speech_pad_ms: int = 400
 
 
 class WhisperConfig(BaseModel):

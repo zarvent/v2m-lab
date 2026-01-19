@@ -29,11 +29,12 @@ compute_type = "int8_float16"
 device_index = 0
 num_workers = 2  # 2 workers sufficient for single stream
 
-# VAD parameters (optimized for natural speech)
+# VAD parameters (optimized for Spanish prosody - SOTA 2026)
 [transcription.whisper.vad_parameters]
-threshold = 0.3              # Probability threshold 0.0-1.0 (higher = stricter detection)
+threshold = 0.4              # Probability threshold 0.0-1.0 (0.4 avoids breathing noise)
 min_speech_duration_ms = 250  # Minimum speech segment duration (filters brief noise)
-min_silence_duration_ms = 2000  # Minimum silence for utterance end (2s allows natural pauses)
+min_silence_duration_ms = 1000  # Spanish prosody safe (1s preserves natural pauses)
+speech_pad_ms = 400          # Padding on speech boundaries (keeps word edges)
 
 # ============================================================================
 # LLM SERVICE
