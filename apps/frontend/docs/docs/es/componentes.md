@@ -6,13 +6,13 @@ La interfaz de Voice2Machine se construye a partir de componentes modulares y re
 
 ## 🎙️ Studio (`src/components/studio/`)
 
-El **Studio** es el corazón de la experiencia de usuario. Es donde ocurre la captura de audio, la transcripción en tiempo real y la edición del texto.
+El **Studio** es el corazón de la experiencia de usuario. Es donde ocurre la captura de audio, la transcripción en tiempo real y la edición del texto. Incorpora un sistema de **Pestañas (Tabs)** para gestionar múltiples contextos de escritura simultáneamente.
 
 ### Estructura
 
 El componente `Studio.tsx` actúa como un contenedor (Layout) que orquesta los sub-componentes:
 
-- **`StudioHeader`**: Barra superior con controles de contexto y estado de conexión.
+- **`StudioHeader`**: Barra superior con controles de contexto, **gestión de pestañas** y estado de conexión.
 - **`StudioEditor`**: Área de texto enriquecida (o simple, según configuración) donde se muestra la transcripción. Soporta edición manual inmediata.
 - **`StudioFooter`**: Contiene la visualización de la forma de onda (`RecordingWaveform`) y los controles principales de grabación/pausa.
 - **`StudioEmptyState`**: Pantalla de bienvenida que guía al usuario cuando no hay contenido.
@@ -68,3 +68,14 @@ La barra lateral es persistente y cumple dos funciones críticas:
 ## 📝 Transcriptions (`src/components/Transcriptions.tsx`)
 
 Muestra el historial de sesiones pasadas. Dado que este historial puede crecer indefinidamente, se implementan técnicas de **virtualización** (windowing) si la lista supera los 50 elementos, asegurando que el DOM se mantenga ligero.
+
+---
+
+## 📚 SnippetsLibrary (`src/components/SnippetsLibrary.tsx`)
+
+Biblioteca de fragmentos guardados que permite al usuario persistir sus mejores transcripciones o notas importantes de forma permanente.
+
+### Características
+- **Persistencia Local**: Utiliza `localStorage` para mantener los datos entre sesiones.
+- **Gestión**: Permite crear, editar títulos, buscar y eliminar fragmentos.
+- **Integración**: Los fragmentos pueden volverse a insertar en el editor activo del Studio con un solo clic.

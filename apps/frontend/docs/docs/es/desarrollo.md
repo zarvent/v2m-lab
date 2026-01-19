@@ -40,13 +40,6 @@ Existen dos modos de arrancar la aplicación:
 
 Mantenemos estándares rigurosos "State of the Art".
 
-- **Linting**:
-    ```bash
-    npm run lint
-    # o para auto-corregir:
-    npx eslint . --fix
-    ```
-
 - **Testing (Vitest)**:
     El proyecto utiliza `vitest` con `happy-dom` para una ejecución de pruebas ultrarrápida.
     ```bash
