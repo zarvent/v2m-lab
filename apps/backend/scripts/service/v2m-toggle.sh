@@ -126,9 +126,9 @@ PYTHON_SCRIPT
 handle_response() {
     local resp="$1"
 
-    # Fast success check using bash pattern matching
-    if [[ "$resp" == *'"status":"success"'* ]]; then
-        if [[ "$resp" == *'"state":"recording"'* ]]; then
+    # Handle success responses
+    if [[ "$resp" == *'"status":"success"'* ]] || [[ "$resp" == *'"status": "success"'* ]]; then
+        if [[ "$resp" == *'"state":"recording"'* ]] || [[ "$resp" == *'"state": "recording"'* ]]; then
             notify "🔴 Grabando" "Escuchando..."
         else
             notify "✅ Procesando" "Generando transcripción..."
@@ -136,9 +136,25 @@ handle_response() {
         return 0
     fi
 
+    # Handle streaming event responses (transcription_update)
+    if [[ "$resp" == *'"status":"event"'* ]] || [[ "$resp" == *'"status": "event"'* ]]; then
+        if [[ "$resp" == *'"final": true'* ]] || [[ "$resp" == *'"final":true'* ]]; then
+            # Extract transcribed text if present
+            if [[ "$resp" =~ \"text\":\ ?\"([^\"]+)\" ]]; then
+                local text="${BASH_REMATCH[1]}"
+                notify "✅ Transcrito" "$text"
+            else
+                notify "✅ Listo" "Transcripción completada"
+            fi
+        else
+            notify "🔴 Grabando" "Escuchando..."
+        fi
+        return 0
+    fi
+
     # Error path: extract message if possible
     local err="Error desconocido"
-    if [[ "$resp" =~ \"error\":\"([^\"]+)\" ]]; then
+    if [[ "$resp" =~ \"error\":\ ?\"([^\"]+)\" ]]; then
         err="${BASH_REMATCH[1]}"
     fi
     notify "⚠️ Error" "$err"

@@ -273,3 +273,46 @@ class AudioRecorder:
             return audio_view.copy()
 
         return audio_view
+
+    # =========================================================================
+    # STREAMING METHODS (delegate to Rust engine)
+    # =========================================================================
+
+    async def wait_for_data(self) -> None:
+        """
+        Wait asynchronously for new audio data to be available.
+
+        This method delegates to the Rust engine's wait_for_data() which uses
+        tokio::Notify for efficient async waiting without polling.
+
+        Raises:
+            RuntimeError: If using Python fallback (streaming not supported) or not recording.
+        """
+        if not self._rust_recorder:
+            raise RuntimeError("wait_for_data requires Rust engine (Python fallback does not support streaming)")
+        if not self._recording:
+            raise RuntimeError("not recording")
+
+        # Rust wait_for_data returns an awaitable
+        await self._rust_recorder.wait_for_data()
+
+    def read_chunk(self) -> "np.ndarray":
+        """
+        Read available audio data from the ring buffer.
+
+        Returns all samples currently in the buffer without blocking.
+        Used for streaming transcription where we process audio incrementally.
+
+        Returns:
+            np.ndarray: Audio samples as float32 numpy array.
+
+        Raises:
+            RuntimeError: If using Python fallback (streaming not supported) or not recording.
+        """
+        if not self._rust_recorder:
+            raise RuntimeError("read_chunk requires Rust engine (Python fallback does not support streaming)")
+        if not self._recording:
+            return np.array([], dtype=np.float32)
+
+        return self._rust_recorder.read_chunk()
+
