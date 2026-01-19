@@ -1,32 +1,27 @@
 #!/bin/bash
 # ═══════════════════════════════════════════════════════════════════════════════
-# notify.sh - V2M Desktop Notifications (SOTA 2026)
-# ═══════════════════════════════════════════════════════════════════════════════
-#
-# ZERO DUPLICATES: Uses gdbus with persistent notification ID
-# AUTO-DISMISS: 10 seconds
-# SINGLE NOTIFICATION: Only one v2m notification at any time
-#
+# notify.sh - Robust Notifications with Deduplication (SOTA 2026)
 # ═══════════════════════════════════════════════════════════════════════════════
 
 readonly V2M_TIMEOUT_MS=10000
 readonly V2M_NOTIFY_ID_FILE="${XDG_RUNTIME_DIR:-/tmp}/v2m/notify_id"
+readonly V2M_STACK_TAG="v2m_status"
 
 # ─────────────────────────────────────────────────────────────────────────────
-# GET/SET NOTIFICATION ID (persistent across calls)
+# NOTIFICATION ID MANAGEMENT
 # ─────────────────────────────────────────────────────────────────────────────
 
-_v2m_get_notify_id() {
-    [[ -f "$V2M_NOTIFY_ID_FILE" ]] && cat "$V2M_NOTIFY_ID_FILE" 2>/dev/null || echo "0"
+_v2m_get_id() {
+    [[ -f "$V2M_NOTIFY_ID_FILE" ]] && cat "$V2M_NOTIFY_ID_FILE" || echo "0"
 }
 
-_v2m_set_notify_id() {
+_v2m_set_id() {
     mkdir -p "$(dirname "$V2M_NOTIFY_ID_FILE")" 2>/dev/null
     echo "$1" > "$V2M_NOTIFY_ID_FILE"
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
-# CORE: Send notification via gdbus (ONLY method - no duplicates)
+# NOTIFY VIA GDBUS (Synchronous to ensure ID capture)
 # ─────────────────────────────────────────────────────────────────────────────
 
 v2m_notify() {
@@ -36,57 +31,43 @@ v2m_notify() {
     local icon="${4:-audio-input-microphone}"
 
     local current_id
-    current_id=$(_v2m_get_notify_id)
+    current_id=$(_v2m_get_id)
 
-    # Map urgency to byte value
-    local urgency_byte=1
+    # Map urgency
+    local u_byte=1
     case "$urgency" in
-        low) urgency_byte=0 ;;
-        critical) urgency_byte=2 ;;
+        low) u_byte=0 ;;
+        critical) u_byte=2 ;;
     esac
 
-    # Send via gdbus - replaces_id parameter does the magic
+    # Construct GVariant hint dictionary
+    # Includes BOTH 'replaces_id' logic (via ID param) AND 'x-dunst-stack-tag'
+    local hints="{'urgency': <byte $u_byte>, 'x-dunst-stack-tag': <'$V2M_STACK_TAG'>, 'x-canonical-private-synchronous': <'$V2M_STACK_TAG'>}"
+
+    # GDBUS Call
     local result
     result=$(gdbus call \
         --session \
         --dest=org.freedesktop.Notifications \
         --object-path=/org/freedesktop/Notifications \
         --method=org.freedesktop.Notifications.Notify \
-        "v2m" \
+        "Voice2Machine" \
         "$current_id" \
         "$icon" \
         "$title" \
         "$body" \
         '[]' \
-        "{'urgency': <byte $urgency_byte>}" \
+        "$hints" \
         "$V2M_TIMEOUT_MS" 2>/dev/null)
 
-    # Extract new ID from "(uint32 N,)" and persist
+    # Persist the returned ID for next replacement
     if [[ "$result" =~ \(uint32\ ([0-9]+) ]]; then
-        _v2m_set_notify_id "${BASH_REMATCH[1]}"
+        _v2m_set_id "${BASH_REMATCH[1]}"
     fi
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
-# CLOSE notification explicitly
-# ─────────────────────────────────────────────────────────────────────────────
-
-v2m_notify_close() {
-    local current_id
-    current_id=$(_v2m_get_notify_id)
-
-    [[ "$current_id" -gt 0 ]] && gdbus call \
-        --session \
-        --dest=org.freedesktop.Notifications \
-        --object-path=/org/freedesktop/Notifications \
-        --method=org.freedesktop.Notifications.CloseNotification \
-        "$current_id" &>/dev/null
-
-    _v2m_set_notify_id "0"
-}
-
-# ─────────────────────────────────────────────────────────────────────────────
-# SOUND (async, non-blocking)
+# SOUND FEEDBACK
 # ─────────────────────────────────────────────────────────────────────────────
 
 _v2m_sound() {
@@ -95,7 +76,7 @@ _v2m_sound() {
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
-# SEMANTIC HELPERS
+# PUBLIC HELPERS
 # ─────────────────────────────────────────────────────────────────────────────
 
 v2m_notify_recording() {
@@ -109,20 +90,20 @@ v2m_notify_processing() {
 
 v2m_notify_success() {
     local text="${1:-Texto copiado}"
-    [[ ${#text} -gt 80 ]] && text="${text:0:77}..."
+    [[ ${#text} -gt 100 ]] && text="${text:0:97}..."
     v2m_notify "low" "✅ Copiado" "$text" "edit-copy"
     _v2m_sound "complete"
 }
 
 v2m_notify_error() {
-    v2m_notify "critical" "❌ Error" "${1:-Error desconocido}" "dialog-error"
+    v2m_notify "critical" "❌ Error" "${1:-Fallo}" "dialog-error"
     _v2m_sound "dialog-error"
 }
 
 v2m_notify_no_voice() {
-    v2m_notify "normal" "🔇 Sin voz" "Habla más fuerte" "audio-volume-muted"
+    v2m_notify "normal" "🔇 Sin voz" "No se detectó audio" "audio-volume-muted"
 }
 
 v2m_notify_daemon_required() {
-    v2m_notify "critical" "⚠️ Daemon" "Ejecuta start_daemon.sh" "system-run"
+    v2m_notify "critical" "⚠️ Daemon" "Requiere v2m-daemon" "system-run"
 }
