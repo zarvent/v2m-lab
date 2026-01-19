@@ -1,10 +1,4 @@
 #!/bin/bash
-# This file is part of voice2machine.
-#
-# voice2machine is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
 #
 # descarga Qwen2.5-3B-Instruct GGUF Q4_K_M para uso local
 
