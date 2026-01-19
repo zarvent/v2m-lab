@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# This file is part of voice2machine.
 # Shared utilities for BASH scripts.
 # State-of-the-Art 2026 Scripting Standards
 
