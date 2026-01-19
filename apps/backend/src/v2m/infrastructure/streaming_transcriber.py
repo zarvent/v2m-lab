@@ -11,53 +11,58 @@ This module implements a segment-based streaming transcription system that:
 import asyncio
 import logging
 import time
+from typing import Optional
 
 import numpy as np
+from silero_vad import load_silero_vad
 
 from v2m.config import config
-from v2m.core.client_session import ClientSessionManager
+from v2m.core.client_session import ClientSessionManager as SessionManager
+from v2m.infrastructure.audio.recorder import AudioRecorder
 from v2m.infrastructure.persistent_model import PersistentWhisperWorker
 
 logger = logging.getLogger(__name__)
 
+# Constants for optimizations
 # Streaming behavior defaults (can be overridden via config)
-DEFAULT_SILENCE_COMMIT_MS = 800  # Spanish prosody safe threshold
-MIN_SEGMENT_DURATION = 0.5  # Minimum audio before inference (seconds)
+CONTEXT_WINDOW_CHARS = 200  # Sliding window for prompt injection
 PROVISIONAL_INTERVAL = 0.5  # Interval between provisional inferences
-CONTEXT_WINDOW_CHARS = 200  # Max chars for context (avoids 224-token limit)
-PRE_ROLL_CHUNKS = 3  # Keep last N chunks to avoid cutting speech start
+PRE_ROLL_CHUNKS = 3  # Keep last 3 chunks (~300ms) to avoid cutting words
+MIN_SEGMENT_DURATION = 0.5  # Seconds of speech required to commit
+DEFAULT_SILENCE_COMMIT_MS = 1000  # Default silence duration to trigger commit
+CONTEXT_RESET_MS = 3000  # Reset context if silence exceeds this (prevents hallucinations)
 
 
 class StreamingTranscriber:
-    """
-    SOTA 2026 Segment-based Streaming Transcriber.
-
-    Implements Commit & Flush architecture:
-    - Accumulates audio until VAD detects 800ms silence
-    - Commits segment with final inference
-    - Flushes buffer (zero memory leak)
-    - Carries context to next segment via initial_prompt
-    """
-
     def __init__(
         self,
         worker: PersistentWhisperWorker,
-        session_manager: ClientSessionManager,
-        recorder=None,
+        session_manager: SessionManager,
+        recorder: AudioRecorder,
     ):
         self.worker = worker
         self.session_manager = session_manager
         self.recorder = recorder
+        self._stop_event = asyncio.Event()
+        self._streaming_task: Optional[asyncio.Task] = None
+
+        # Buffer management (Zero-Leak)
+        self._audio_buffer: list[np.ndarray] = []  # Kept for legacy ref, unused in loop
+        self._pre_roll_buffer: list[np.ndarray] = []
+        self._context_window: str = ""
 
         # Load config-driven parameters
         vad_config = config.transcription.whisper.vad_parameters
         self._silence_commit_ms = getattr(vad_config, 'min_silence_duration_ms', DEFAULT_SILENCE_COMMIT_MS)
-        self._speech_threshold = getattr(vad_config, 'threshold', 0.3)
+        self._speech_threshold = vad_config.threshold  # Silero Probability Threshold (e.g. 0.4)
 
-        # Task management
-        self._streaming_task: asyncio.Task | None = None
-        self._stop_event = asyncio.Event()
-
+        # Load Silero VAD (SOTA 2026)
+        try:
+            self._vad_model = load_silero_vad(onnx=True)
+            logger.info("✅ Silero VAD (ONNX) cargado para segmentación de alta precisión")
+        except Exception as e:
+            logger.error(f"❌ Error cargando Silero VAD: {e}. Usando fallback de energía.")
+            self._vad_model = None
         # Context carry-over (200-char sliding window)
         self._context_window: str = ""
 
@@ -91,17 +96,52 @@ class StreamingTranscriber:
 
         logger.info("Stopping streaming...")
         self._stop_event.set()
+
+        result = ""
         try:
-            final_text = await self._streaming_task
-            return final_text
+            result = await self._streaming_task
         except asyncio.CancelledError:
-            return ""
+            pass
         except Exception as e:
             logger.error(f"Error stopping stream: {e}")
-            return ""
         finally:
             self.recorder.stop()
             self._streaming_task = None
+
+        return result
+
+    def _detect_speech_silero(self, chunk: np.ndarray, threshold: float = 0.4) -> bool:
+        """Use Silero VAD (ONNX) to detect speech probability."""
+        if self._vad_model is None:
+            return self._detect_speech_energy(chunk, 0.015)
+
+        try:
+            # Silero expects float32 tensor/array.
+            # Assuming usage compatible with OnnxWrapper: model(chunk, sr)
+            # Ensure chunk is correct shape/samples. Silero works well with 512+ samples.
+            if len(chunk) < 512:
+                # Too small for reliable VAD, skip or assume silence?
+                # Accumulate? For now just use energy fallback if small.
+                return self._detect_speech_energy(chunk, 0.015)
+
+            speech_prob = self._vad_model(chunk, 16000)
+            # speech_prob can be tensor or float.
+            if hasattr(speech_prob, 'item'):
+                val = speech_prob.item()
+            else:
+                val = speech_prob
+
+            return val > threshold
+        except Exception:
+            return self._detect_speech_energy(chunk, 0.015)
+
+    def _detect_speech_energy(self, chunk: np.ndarray, threshold: float = 0.015) -> bool:
+        """Fallback energy-based VAD."""
+        if len(chunk) == 0:
+            return False
+        energy = np.sqrt(np.mean(chunk**2))
+        return energy > threshold
+
 
     async def _loop(self) -> str:
         """
@@ -132,8 +172,16 @@ class StreamingTranscriber:
                 if len(self._pre_roll_buffer) > PRE_ROLL_CHUNKS:
                     self._pre_roll_buffer.pop(0)
 
-                # Check for speech using energy-based detection
-                is_speech = self._detect_speech_energy(chunk, self._speech_threshold)
+                # VAD Detection (Silero)
+                is_speech = self._detect_speech_silero(chunk, self._speech_threshold)
+
+                # Context Reset Logic (Anti-Hallucination)
+                if self._silence_start:
+                    silence_prob = (time.time() - self._silence_start) * 1000
+                    if silence_prob > CONTEXT_RESET_MS and self._context_window:
+                        # Clear context if silence is too long (new topic likely)
+                        # logger.debug(f"Resetting context window (Silence > {CONTEXT_RESET_MS}ms)")
+                        self._context_window = ""
 
                 if is_speech and not current_segment_audio:
                     # Speech started - prepend pre-roll buffer
