@@ -71,6 +71,10 @@ def send_command(cmd: str, data: dict | None = None) -> dict:
     except Exception as e:
         return {"status": "error", "error": str(e)}
     finally:
+        try:
+            sock.shutdown(socket.SHUT_RDWR)
+        except Exception:
+            pass
         sock.close()
 
 

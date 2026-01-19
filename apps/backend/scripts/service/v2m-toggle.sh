@@ -114,29 +114,23 @@ toggle_recording() {
     fi
 
     # Case 2: Streaming event with final transcription
-    if [[ "$response" == *'"final":true'* ]] || [[ "$response" == *'"final": true'* ]]; then
-        # Extract transcribed text
+    if [[ "$response" == *'"text":'* ]]; then
+        # Extract transcribed text (works for both event and command response)
         local text=""
         if [[ "$response" =~ \"text\":\ ?\"([^\"]+)\" ]]; then
             text="${BASH_REMATCH[1]}"
-        fi
-
-        if [[ -n "$text" ]]; then
-            v2m_notify_success "$text"
-        else
-            v2m_notify_no_voice
-        fi
-        exit 0
-    fi
-
-    # Case 3: Success with transcription (non-streaming)
-    if [[ "$response" == *'"transcription":'* ]]; then
-        local text=""
-        if [[ "$response" =~ \"transcription\":\ ?\"([^\"]+)\" ]]; then
+        elif [[ "$response" =~ \"transcription\":\ ?\"([^\"]+)\" ]]; then
             text="${BASH_REMATCH[1]}"
         fi
 
         if [[ -n "$text" ]]; then
+            # COPY TO CLIPBOARD
+            if command -v wl-copy &>/dev/null; then
+                printf "%s" "$text" | wl-copy
+            elif command -v xclip &>/dev/null; then
+                printf "%s" "$text" | xclip -selection clipboard
+            fi
+
             v2m_notify_success "$text"
         else
             v2m_notify_no_voice
