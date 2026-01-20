@@ -1,4 +1,3 @@
-
 """
 Módulo de Configuración de la Aplicación.
 

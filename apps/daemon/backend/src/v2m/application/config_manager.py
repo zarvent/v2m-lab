@@ -1,4 +1,3 @@
-
 """
 Servicio Gestor de Configuración (Config Manager).
 

@@ -1,4 +1,3 @@
-
 """
 Servicio de Monitoreo del Sistema.
 

@@ -1,4 +1,3 @@
-
 """
 Implementación del Servicio LLM utilizando la API de Google Gemini.
 

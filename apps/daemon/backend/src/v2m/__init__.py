@@ -1,4 +1,3 @@
-
 """
 voice2machine (v2m) - Sistema de dictado por voz para Linux.
 

@@ -1,4 +1,3 @@
-
 """
 Demonio Voice2Machine.
 
@@ -18,7 +17,6 @@ import contextlib
 import json
 import os
 import signal
-import sys
 from pathlib import Path
 
 import psutil
@@ -306,8 +304,6 @@ class Daemon:
             with contextlib.suppress(Exception):
                 await writer.wait_closed()
 
-
-
     def _cleanup_orphaned_processes(self) -> None:
         """
         Limpia procesos v2m huérfanos.
@@ -467,10 +463,7 @@ class Daemon:
             serve_task = asyncio.create_task(server.serve_forever())
             shutdown_task = asyncio.create_task(shutdown_event.wait())
 
-            _done, pending = await asyncio.wait(
-                [serve_task, shutdown_task],
-                return_when=asyncio.FIRST_COMPLETED
-            )
+            _done, pending = await asyncio.wait([serve_task, shutdown_task], return_when=asyncio.FIRST_COMPLETED)
 
             # Cancelar tareas pendientes
             for task in pending:

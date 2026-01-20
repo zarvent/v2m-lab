@@ -18,8 +18,7 @@ import numpy as np
 from v2m.domain.audio_stream import AudioStreamPort, VADChunk
 
 warnings.warn(
-    "rust_audio_adapter.RustAudioStream está deprecado. "
-    "Usar AudioRecorder con StreamingTranscriber.",
+    "rust_audio_adapter.RustAudioStream está deprecado. Usar AudioRecorder con StreamingTranscriber.",
     DeprecationWarning,
     stacklevel=2,
 )

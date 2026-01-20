@@ -1,4 +1,3 @@
-
 """
 Protocolo de Servicio de Transcripción.
 

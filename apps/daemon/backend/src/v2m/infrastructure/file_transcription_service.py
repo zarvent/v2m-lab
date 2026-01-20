@@ -1,4 +1,3 @@
-
 """
 Servicio de Transcripción de Archivos (SOTA 2026).
 

@@ -1,4 +1,3 @@
-
 import threading
 import wave
 from pathlib import Path
@@ -301,4 +300,3 @@ class AudioRecorder:
             return np.array([], dtype=np.float32)
 
         return self._rust_recorder.read_chunk()
-

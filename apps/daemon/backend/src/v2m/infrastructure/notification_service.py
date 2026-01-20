@@ -1,4 +1,3 @@
-
 """
 Servicio de Notificaciones de Escritorio para Linux.
 

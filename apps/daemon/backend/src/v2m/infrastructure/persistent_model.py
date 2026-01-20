@@ -65,6 +65,7 @@ class PersistentWhisperWorker:
             if self.device == "cuda":
                 try:
                     import torch
+
                     if not torch.cuda.is_available():
                         _safe_log(logging.WARNING, "CUDA solicitado pero no disponible, usando CPU")
                         self.device = "cpu"
@@ -75,10 +76,7 @@ class PersistentWhisperWorker:
                     _safe_log(logging.DEBUG, "PyTorch no disponible para verificación de CUDA")
 
             self._model = self._create_model()
-            _safe_log(
-                logging.INFO,
-                f"Modelo precargado. [device={self.device}, compute_type={self.compute_type}]"
-            )
+            _safe_log(logging.INFO, f"Modelo precargado. [device={self.device}, compute_type={self.compute_type}]")
 
     async def run_inference(self, func, *args, **kwargs):
         """

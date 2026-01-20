@@ -1,4 +1,3 @@
-
 """
 Configuración de Logging Estructurado (JSON).
 

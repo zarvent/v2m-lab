@@ -1,4 +1,3 @@
-
 """
 Interfaces (Protocolos) para los adaptadores del sistema.
 

@@ -1,4 +1,3 @@
-
 """
 Excepciones Personalizadas del Dominio de Voice2Machine.
 

@@ -1,4 +1,3 @@
-
 """
 Punto de Entrada Principal para Voice2Machine (SOTA 2026).
 
@@ -148,4 +147,3 @@ Ejemplos:
 
 if __name__ == "__main__":
     main()
-

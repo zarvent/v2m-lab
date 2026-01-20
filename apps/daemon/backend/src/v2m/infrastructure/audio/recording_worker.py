@@ -1,4 +1,3 @@
-
 """
 Script worker para grabación de audio en proceso independiente.
 

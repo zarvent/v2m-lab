@@ -1,4 +1,3 @@
-
 """
 Adaptadores de Sistema para Linux.
 

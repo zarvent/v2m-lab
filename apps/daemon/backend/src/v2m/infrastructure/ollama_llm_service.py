@@ -1,4 +1,3 @@
-
 """
 Servicio LLM Ollama con Salidas Estructuradas (State of the Art 2026).
 

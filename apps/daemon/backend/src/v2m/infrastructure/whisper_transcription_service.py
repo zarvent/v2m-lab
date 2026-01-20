@@ -1,4 +1,3 @@
-
 """
 Implementación del Servicio de Transcripción Whisper.
 

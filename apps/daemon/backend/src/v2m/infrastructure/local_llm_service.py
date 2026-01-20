@@ -1,4 +1,3 @@
-
 """
 Servicio LLM Local usando llama-cpp-python.
 

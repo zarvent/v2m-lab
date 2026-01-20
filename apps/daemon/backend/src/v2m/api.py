@@ -138,6 +138,7 @@ _state = DaemonState()
 # Almacenar referencia a tareas background (RUF006)
 _background_tasks: set[asyncio.Task[None]] = set()
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """

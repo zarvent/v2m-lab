@@ -366,9 +366,7 @@ class Orchestrator:
             if asyncio.iscoroutinefunction(self.llm_service.translate_text):
                 translated = await self.llm_service.translate_text(text, target_lang)
             else:
-                translated = await asyncio.to_thread(
-                    self.llm_service.translate_text, text, target_lang
-                )
+                translated = await asyncio.to_thread(self.llm_service.translate_text, text, target_lang)
 
             self.clipboard.copy(translated)
             self.notifications.notify(f"✅ Traducción ({target_lang})", f"{translated[:80]}...")

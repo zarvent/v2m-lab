@@ -86,9 +86,7 @@ class StreamingTranscriber:
 
         # Parámetros de VAD desde config
         vad_config = config.transcription.whisper.vad_parameters
-        self._silence_commit_ms = getattr(
-            vad_config, "min_silence_duration_ms", DEFAULT_SILENCE_COMMIT_MS
-        )
+        self._silence_commit_ms = getattr(vad_config, "min_silence_duration_ms", DEFAULT_SILENCE_COMMIT_MS)
         self._speech_threshold = vad_config.threshold
 
         # Rate limiting para errores de VAD
@@ -127,12 +125,8 @@ class StreamingTranscriber:
                 break
 
         # Lanzar tareas Producer y Consumer en paralelo
-        self._producer_task = asyncio.create_task(
-            self._audio_producer_loop(), name="audio-producer"
-        )
-        self._consumer_task = asyncio.create_task(
-            self._audio_consumer_loop(), name="audio-consumer"
-        )
+        self._producer_task = asyncio.create_task(self._audio_producer_loop(), name="audio-producer")
+        self._consumer_task = asyncio.create_task(self._audio_consumer_loop(), name="audio-consumer")
 
         logger.info("🚀 Streaming iniciado (Arquitectura Producer-Consumer)")
 
@@ -152,7 +146,7 @@ class StreamingTranscriber:
             # Esperar a que Producer termine de encolar
             if self._producer_task:
                 await asyncio.wait_for(self._producer_task, timeout=2.0)
-        except asyncio.TimeoutError:
+        except TimeoutError:
             logger.warning("Timeout esperando Producer, cancelando...")
             if self._producer_task:
                 self._producer_task.cancel()
@@ -165,7 +159,7 @@ class StreamingTranscriber:
             # Esperar a que Consumer procese cola restante y retorne resultado
             if self._consumer_task:
                 result = await asyncio.wait_for(self._consumer_task, timeout=10.0)
-        except asyncio.TimeoutError:
+        except TimeoutError:
             logger.warning("Timeout esperando Consumer, cancelando...")
             if self._consumer_task:
                 self._consumer_task.cancel()
@@ -236,13 +230,11 @@ class StreamingTranscriber:
                 # Obtener chunk con timeout para revisar stop_event
                 try:
                     chunk = await asyncio.wait_for(self._audio_queue.get(), timeout=0.1)
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     # Revisar heartbeat aunque no haya audio
                     now = time.time()
                     if now - last_heartbeat_time > HEARTBEAT_INTERVAL:
-                        await self.session_manager.emit_event(
-                            "heartbeat", {"timestamp": now, "state": "recording"}
-                        )
+                        await self.session_manager.emit_event("heartbeat", {"timestamp": now, "state": "recording"})
                         last_heartbeat_time = now
                     continue
 
@@ -253,9 +245,7 @@ class StreamingTranscriber:
 
                 # Heartbeat
                 if now - last_heartbeat_time > HEARTBEAT_INTERVAL:
-                    await self.session_manager.emit_event(
-                        "heartbeat", {"timestamp": now, "state": "recording"}
-                    )
+                    await self.session_manager.emit_event("heartbeat", {"timestamp": now, "state": "recording"})
                     last_heartbeat_time = now
 
                 # Mantener pre-roll buffer
@@ -307,17 +297,10 @@ class StreamingTranscriber:
                         )
 
                 # COMMIT si silencio > threshold Y tenemos suficiente audio
-                if (
-                    silence_start
-                    and current_segment
-                    and segment_duration > MIN_SEGMENT_DURATION
-                ):
+                if silence_start and current_segment and segment_duration > MIN_SEGMENT_DURATION:
                     silence_ms = (now - silence_start) * 1000
                     if silence_ms > self._silence_commit_ms:
-                        logger.debug(
-                            f"Commit segmento: {segment_duration:.2f}s "
-                            f"(silencio: {silence_ms:.0f}ms)"
-                        )
+                        logger.debug(f"Commit segmento: {segment_duration:.2f}s (silencio: {silence_ms:.0f}ms)")
 
                         final_text = await self._infer_final(current_segment)
                         if final_text:
@@ -436,9 +419,7 @@ class StreamingTranscriber:
         """Append to context window, keeping last 200 chars."""
         clean_text = text.strip()
         if clean_text:
-            self._context_window = (
-                self._context_window + " " + clean_text
-            )[-CONTEXT_WINDOW_CHARS:]
+            self._context_window = (self._context_window + " " + clean_text)[-CONTEXT_WINDOW_CHARS:]
 
     async def _infer_provisional(self, audio_chunks: list[np.ndarray]) -> str:
         """
