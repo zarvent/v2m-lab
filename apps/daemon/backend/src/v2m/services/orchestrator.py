@@ -105,18 +105,14 @@ class Orchestrator:
     def transcriber(self) -> StreamingTranscriber:
         """Obtiene el transcriptor streaming (lazy init)."""
         if self._transcriber is None:
-            from v2m.core.client_session import ClientSessionManager
             from v2m.infrastructure.streaming_transcriber import StreamingTranscriber
 
-            # Session manager que emite eventos a WebSocket
-            session_manager = ClientSessionManager()
-            if self._broadcast_fn:
-                # Conectar el broadcast de WebSocket
-                session_manager.emit_event = self._create_emit_wrapper()
+            # Adapter que conecta eventos del transcriptor → WebSocket broadcast
+            session_adapter = WebSocketSessionAdapter(self._broadcast_fn)
 
             self._transcriber = StreamingTranscriber(
                 worker=self.worker,
-                session_manager=session_manager,
+                session_manager=session_adapter,
                 recorder=self.recorder,
             )
         return self._transcriber
@@ -160,15 +156,6 @@ class Orchestrator:
 
             logger.info(f"LLM backend inicializado: {backend}")
         return self._llm_service
-
-    def _create_emit_wrapper(self) -> Callable:
-        """Crea un wrapper para conectar SessionManager con WebSocket broadcast."""
-
-        async def emit_event(event_type: str, data: dict[str, Any]) -> None:
-            if self._broadcast_fn:
-                await self._broadcast_fn(event_type, data)
-
-        return emit_event
 
     # =========================================================================
     # Métodos Públicos (API Surface - Lo que ve el Junior)
