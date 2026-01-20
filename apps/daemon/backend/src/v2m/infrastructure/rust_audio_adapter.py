@@ -1,16 +1,33 @@
+"""DEPRECATED: Este módulo no se usa en producción.
+
+RustAudioStream fue reemplazado por la arquitectura Producer-Consumer
+en streaming_transcriber.py que usa AudioRecorder directamente.
+
+Se mantiene para compatibilidad con tests existentes.
+Programado para eliminación en v2.0.
+"""
+
 import asyncio
 import logging
 import time
+import warnings
 from collections.abc import AsyncIterator
 
 import numpy as np
+
+from v2m.domain.audio_stream import AudioStreamPort, VADChunk
+
+warnings.warn(
+    "rust_audio_adapter.RustAudioStream está deprecado. "
+    "Usar AudioRecorder con StreamingTranscriber.",
+    DeprecationWarning,
+    stacklevel=2,
+)
 
 try:
     import v2m_engine
 except ImportError:
     v2m_engine = None
-
-from v2m.domain.audio_stream import AudioStreamPort, VADChunk
 
 
 # Assuming v2m.domain.errors exists or we use standard exceptions
@@ -37,7 +54,7 @@ class RustAudioStream(AudioStreamPort):
         # Buffer state
         buffer_list: list[np.ndarray] = []
         buffer_len = 0
-        CHUNK_SIZE = 512  # Required for Silero VAD @ 16kHz
+        chunk_size = 512  # Required for Silero VAD @ 16kHz
 
         try:
             while True:
@@ -52,16 +69,16 @@ class RustAudioStream(AudioStreamPort):
                     buffer_len += len(chunk)
 
                     # Process accumulated data if enough for at least one chunk
-                    if buffer_len >= CHUNK_SIZE:
+                    if buffer_len >= chunk_size:
                         # Merge all pending chunks
                         full_buffer = np.concatenate(buffer_list)
 
                         # Yield all complete chunks
                         start_idx = 0
-                        while start_idx + CHUNK_SIZE <= len(full_buffer):
-                            yield_chunk = full_buffer[start_idx : start_idx + CHUNK_SIZE]
+                        while start_idx + chunk_size <= len(full_buffer):
+                            yield_chunk = full_buffer[start_idx : start_idx + chunk_size]
                             yield VADChunk(timestamp=time.time(), audio=yield_chunk)
-                            start_idx += CHUNK_SIZE
+                            start_idx += chunk_size
 
                         # Keep remainder
                         remainder = full_buffer[start_idx:]
