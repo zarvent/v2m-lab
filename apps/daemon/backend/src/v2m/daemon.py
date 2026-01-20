@@ -306,31 +306,7 @@ class Daemon:
             with contextlib.suppress(Exception):
                 await writer.wait_closed()
 
-    async def start_server(self) -> None:
-        """
-        Inicia el servidor socket Unix.
-        """
-        if self.socket_path.exists():
-            # Verificar si el socket está realmente vivo
-            try:
-                _reader, writer = await asyncio.open_unix_connection(str(self.socket_path))
-                writer.close()
-                await writer.wait_closed()
-                logger.error("el demonio ya está en ejecución")
-                sys.exit(1)
-            except (ConnectionRefusedError, FileNotFoundError):
-                # El socket existe pero nadie escucha, seguro de eliminar
-                self.socket_path.unlink()
 
-        server = await asyncio.start_unix_server(self.handle_client, str(self.socket_path))
-
-        self.pid_file.write_text(str(os.getpid()))
-        logger.info(f"demonio escuchando en {self.socket_path} (pid: {os.getpid()})")
-
-        self.running = True
-
-        async with server:
-            await server.serve_forever()
 
     def _cleanup_orphaned_processes(self) -> None:
         """
@@ -422,10 +398,24 @@ class Daemon:
     def stop(self) -> None:
         """
         Detiene el demonio y libera recursos.
+
+        Nota: No llamar sys.exit() desde signal handlers - causa deadlocks.
+        En su lugar, setear running=False para permitir shutdown graceful.
         """
         logger.info("deteniendo demonio...")
+        self.running = False
+
+    async def _graceful_shutdown(self, server: asyncio.AbstractServer) -> None:
+        """Shutdown graceful del servidor."""
+        logger.info("iniciando shutdown graceful...")
+
+        # Dejar de aceptar nuevas conexiones
+        server.close()
+        await server.wait_closed()
+
+        # Limpiar recursos
         self._cleanup_resources()
-        sys.exit(0)
+        logger.info("✅ shutdown graceful completado")
 
     def run(self) -> None:
         """
@@ -434,19 +424,61 @@ class Daemon:
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
 
+        # Evento para coordinar shutdown
+        shutdown_event = asyncio.Event()
+
         def signal_handler():
-            logger.info("señal recibida, apagando...")
-            self.stop()
+            logger.info("señal recibida, iniciando shutdown graceful...")
+            self.running = False
+            shutdown_event.set()
 
         loop.add_signal_handler(signal.SIGINT, signal_handler)
         loop.add_signal_handler(signal.SIGTERM, signal_handler)
 
         try:
-            loop.run_until_complete(self.start_server())
+            loop.run_until_complete(self._run_server_with_shutdown(shutdown_event))
         except KeyboardInterrupt:
             pass
         finally:
-            self.stop()
+            self._cleanup_resources()
+
+    async def _run_server_with_shutdown(self, shutdown_event: asyncio.Event) -> None:
+        """Ejecuta servidor con soporte para shutdown graceful."""
+        if self.socket_path.exists():
+            # Verificar si el socket está realmente vivo
+            try:
+                _reader, writer = await asyncio.open_unix_connection(str(self.socket_path))
+                writer.close()
+                await writer.wait_closed()
+                logger.error("el demonio ya está en ejecución")
+                return
+            except (ConnectionRefusedError, FileNotFoundError):
+                self.socket_path.unlink()
+
+        server = await asyncio.start_unix_server(self.handle_client, str(self.socket_path))
+
+        self.pid_file.write_text(str(os.getpid()))
+        logger.info(f"demonio escuchando en {self.socket_path} (pid: {os.getpid()})")
+
+        self.running = True
+
+        async with server:
+            # Esperar hasta que se reciba señal de shutdown
+            serve_task = asyncio.create_task(server.serve_forever())
+            shutdown_task = asyncio.create_task(shutdown_event.wait())
+
+            _done, pending = await asyncio.wait(
+                [serve_task, shutdown_task],
+                return_when=asyncio.FIRST_COMPLETED
+            )
+
+            # Cancelar tareas pendientes
+            for task in pending:
+                task.cancel()
+                with contextlib.suppress(asyncio.CancelledError):
+                    await task
+
+            await self._graceful_shutdown(server)
 
 
 if __name__ == "__main__":

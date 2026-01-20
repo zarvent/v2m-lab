@@ -1,83 +1,127 @@
 #!/bin/bash
+# ═══════════════════════════════════════════════════════════════════════════════
+# v2m-process.sh - Procesa texto del portapapeles con LLM
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# DESCRIPCIÓN:
+#   Lee el contenido del portapapeles, lo envía al LLM para limpieza/formato,
+#   y copia el resultado de vuelta al portapapeles.
+#
+# USO:
+#   ./v2m-process.sh        # Procesa texto del clipboard
+#   ./v2m-process.sh --help # Muestra ayuda
+#
+# ATAJOS DE TECLADO (GNOME):
+#   Configurar con: Settings → Keyboard → Custom Shortcuts
+#
+# ═══════════════════════════════════════════════════════════════════════════════
 
-#
-# v2m-process.sh - script para procesar el texto del portapapeles
-#
-# DESCRIPCIÓN
-#   este script lee lo que tengas copiado en el portapapeles y se lo envía
-#   a v2m para procesarlo con inteligencia artificial es ideal para usarlo
-#   con un atajo de teclado
-#
-# USO
-#   ./scripts/v2m-process.sh
-#
-# CÓMO FUNCIONA
-#   1 lee el contenido del portapapeles
-#   2 envía el texto al sistema principal
-#   3 copia el resultado procesado al portapapeles
-#   4 te avisa si todo salió bien o si hubo un error
-#
-# DEPENDENCIAS
-#   - xclip para leer el portapapeles
-#   - notify-send para mostrar notificaciones
-#   - entorno virtual de python en ./venv
-#
-# INTEGRACIÓN CON ATAJOS DE TECLADO
-#   en gnome
-#   gsettings set org.gnome.settings-daemon.plugins.media-keys \
-#     custom-keybindings "['/org/gnome/.../custom0/']"
-#   gsettings set ... command "$HOME/v2m/scripts/v2m-process.sh"
-#
-# NOTAS
-#   - necesitas una sesión gráfica para usar el portapapeles
-#   - te avisará si el portapapeles está vacío
-#
-# AUTOR
-#   equipo voice2machine
-#
-# DESDE
-#   v1.0.0
-#
+set -euo pipefail
 
-# --- CONFIGURACIÓN ---
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-PROJECT_DIR="$( cd "$( dirname "${SCRIPT_DIR}" )/.." &> /dev/null && pwd )"
-NOTIFY_EXPIRE_TIME=3000
+readonly V2M_PORT="${V2M_PORT:-8765}"
+readonly V2M_URL="http://127.0.0.1:${V2M_PORT}"
+readonly NOTIFY_EXPIRE_TIME=3000
 
-# --- RUTAS DERIVADAS ---
-VENV_PATH="${PROJECT_DIR}/venv"
-MAIN_SCRIPT="${PROJECT_DIR}/src/v2m/main.py"
+# ─────────────────────────────────────────────────────────────────────────────
+# HELPERS
+# ─────────────────────────────────────────────────────────────────────────────
 
-# --- FUNCIÓN PRINCIPAL ---
-run_orchestrator() {
-    local text_to_process=$1
+notify() {
+    notify-send --expire-time="${NOTIFY_EXPIRE_TIME}" "$1" "$2" 2>/dev/null || true
+}
 
-    # OPTIMIZATION: Use lightweight IPC client
-    local CLIENT_SCRIPT="${SCRIPT_DIR}/../utils/send_command.py"
-    if [ -f "$CLIENT_SCRIPT" ]; then
-        # send_command.py handles json wrapping if arg is not json
-        python3 "$CLIENT_SCRIPT" "PROCESS_TEXT" "$text_to_process"
-        return $?
+get_clipboard() {
+    if command -v wl-paste &>/dev/null; then
+        wl-paste 2>/dev/null || echo ""
+    elif command -v xclip &>/dev/null; then
+        xclip -o -selection clipboard 2>/dev/null || echo ""
+    else
+        echo ""
     fi
+}
 
-    # Legacy/Fallback method
-    if [ ! -f "${VENV_PATH}/bin/activate" ]; then
-        notify-send --expire-time=${NOTIFY_EXPIRE_TIME} "❌ error de v2m" "no encontré el entorno virtual en ${VENV_PATH}"
+show_help() {
+    cat <<EOF
+v2m-process.sh - Procesa texto del portapapeles con LLM
+
+USAGE:
+    v2m-process.sh          Procesa el texto copiado
+    v2m-process.sh --help   Muestra esta ayuda
+
+WORKFLOW:
+    1. Lee contenido del portapapeles
+    2. Envía al LLM para limpieza (puntuación, formato)
+    3. Copia resultado al portapapeles
+    4. Notifica el resultado
+
+REQUIREMENTS:
+    - V2M daemon corriendo: ./scripts/operations/daemon/start_daemon.sh
+    - xclip o wl-clipboard instalado
+
+ENVIRONMENT:
+    V2M_PORT    Server port (default: 8765)
+
+EOF
+}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# MAIN LOGIC
+# ─────────────────────────────────────────────────────────────────────────────
+
+process_clipboard() {
+    # 1. Obtener texto del portapapeles
+    local text
+    text=$(get_clipboard)
+
+    if [[ -z "$text" ]]; then
+        notify "❌ V2M" "El portapapeles está vacío"
         exit 1
     fi
 
-    source "${VENV_PATH}/bin/activate"
-    export PYTHONPATH="${PROJECT_DIR}/src"
-    # Note: Sending via main.py "process" args might behave differently than IPC command
-    # Assuming intention is to send to daemon
-    python3 -m v2m.client "PROCESS_TEXT" "$text_to_process"
+    notify "⏳ V2M" "Procesando con LLM..."
+
+    # 2. Enviar al servidor via HTTP POST
+    # Escapar el texto para JSON
+    local json_text
+    json_text=$(printf '%s' "$text" | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read()))')
+
+    local response
+    response=$(curl -s -X POST "${V2M_URL}/llm/process" \
+        -H "Content-Type: application/json" \
+        -d "{\"text\": ${json_text}}" 2>/dev/null) || {
+        notify "❌ V2M" "No se pudo conectar al servidor"
+        exit 1
+    }
+
+    # 3. Extraer texto procesado de la respuesta
+    local processed_text
+    if [[ "$response" =~ \"text\":\ ?\"([^\"]+)\" ]]; then
+        processed_text="${BASH_REMATCH[1]}"
+        # Unescape basic JSON escapes
+        processed_text=$(printf '%s' "$processed_text" | sed 's/\\n/\n/g; s/\\t/\t/g; s/\\"/"/g')
+    else
+        notify "❌ V2M" "Error procesando respuesta"
+        exit 1
+    fi
+
+    # 4. Resultado ya está en el clipboard (el servidor lo copia)
+    notify "✅ LLM" "${processed_text:0:50}..."
+    echo "✅ Procesado y copiado al portapapeles"
 }
 
-# --- LÓGICA PRINCIPAL ---
-clipboard_content=$(xclip -o -selection clipboard)
-if [ -n "${clipboard_content}" ]; then
-    run_orchestrator "${clipboard_content}"
-else
-    notify-send --expire-time=${NOTIFY_EXPIRE_TIME} "❌ error" "el portapapeles está vacío"
-    exit 1
-fi
+# ─────────────────────────────────────────────────────────────────────────────
+# MAIN
+# ─────────────────────────────────────────────────────────────────────────────
+
+main() {
+    case "${1:-}" in
+        --help|-h)
+            show_help
+            ;;
+        *)
+            process_clipboard
+            ;;
+    esac
+}
+
+main "$@"
