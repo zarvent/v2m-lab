@@ -32,6 +32,21 @@ theme:
   icon:
     repo: fontawesome/brands/github
 
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [apps/daemon/backend/src]
+  - i18n:
+      docs_structure: suffix
+      languages:
+        - locale: es
+          default: true
+          name: Español
+        - locale: en
+          name: English
+
 markdown_extensions:
   - admonition
   - pymdownx.details
@@ -66,3 +81,10 @@ nav:
       - Changelog: es/changelog.md
   - Gobernanza:
       - Guía de Estilo: es/style_guide.md
+  - Backend:
+      - Inicio: backend/index.md
+      - Tutoriales: backend/tutorials/index.md
+      - Guías (How-to): backend/how-to/index.md
+      - Referencia: backend/reference/index.md
+      - Explicación: backend/explanation/index.md
+      - ADRs: backend/adr/index.md
