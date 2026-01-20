@@ -1,7 +1,7 @@
 {
   "folders": [
     {
-      "name": "book for llms",
+      "name": "prompts book",
       "path": "../llm-book",
     },
     {
@@ -20,14 +20,24 @@
   "settings": {
     "explorer.fileNesting.enabled": true,
     "explorer.fileNesting.expand": false,
+
+    // agrupaciones que usaremos con la funcionalidad fileNesting de VSCode
     "explorer.fileNesting.patterns": {
       "package.json": ".npmrc, .yarnrc, package-lock.json, pnpm-lock.yaml, bun.lockb",
       "tsconfig.json": "tsconfig.*.json, jsconfig.*.json",
       "vite.config.ts": "vitest.config.ts, vitest.setup.ts, postcss.config.js, tailwind.config.js, index.html, env.d.ts, eslint.config.js",
-      "pyproject.toml": "requirements*.txt, .python-version, .ruff.toml, ruff.toml, config.toml",
+      "pyproject.toml": "requirements*.txt, .python-version, .ruff.toml, ruff.toml, config.toml, uv.lock",
       "*.tsx": "${capture}.ts, ${capture}.css, ${capture}.module.css, ${capture}.scss, ${capture}.test.tsx, ${capture}.spec.tsx",
       ".env": ".env.*",
-      "README.md": "AGENTS.md, AGENTES.md, LEEME.md, LICENSE, LICENCE, CHANGELOG.md",
+      "README.md": "LICENSE, .gitignore, .gitattributes, mkdocs.yml, CONTRIBUTING.md, CHANGELOG.md",
+    },
+
+    // ocultar estos archivos que la mayor parte del tiempo estorban
+    "files.exclude": {
+      "**/.pytest_cache": true,
+      "**/.ruff_cache": true,
+      "**/.venv": true,
+      "**/__pycache__": true,
     },
   },
 }
