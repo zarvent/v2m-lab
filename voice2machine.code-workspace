@@ -9,7 +9,7 @@
       "path": "../llm-skills",
     },
     {
-      "name": "backend",
+      "name": "daemon backend",
       "path": "apps/daemon/backend",
     },
     {
