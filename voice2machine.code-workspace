@@ -10,11 +10,7 @@
     },
     {
       "name": "backend",
-      "path": "apps/backend",
-    },
-    {
-      "name": "frontend",
-      "path": "apps/frontend",
+      "path": "apps/daemon/backend",
     },
     {
       "name": "voice2machine",

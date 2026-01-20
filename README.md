@@ -21,12 +21,12 @@ The premise is simple: speaking is faster than typing. This project allows you t
 
 ## how it works
 
-Two global keyboard shortcuts:
+The system runs as a **Background Daemon** that listens for commands via a Unix Socket (IPC).
 
-| script          | function                                                        |
-| --------------- | --------------------------------------------------------------- |
-| `v2m-toggle.sh` | records → transcribes → copies to clipboard                     |
-| `v2m-llm.sh`    | takes text from clipboard → refines it with LLM → replaces it   |
+| component | role |
+| --- | --- |
+| `daemon` | Handles audio recording, Whisper transcription, and LLM processing. |
+| `shortcuts` | Global keyboard shortcuts that send commands to the daemon. |
 
 ---
 

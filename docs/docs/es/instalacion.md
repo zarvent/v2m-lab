@@ -1,8 +1,8 @@
 # 🛠️ Instalación y Configuración
 
 !!! note "Prerrequisito"
-    Este proyecto está optimizado para **Linux (Debian/Ubuntu)**.
-    **Estado del Arte 2026**: Utilizamos aceleración por hardware (CUDA) y un enfoque modular para garantizar privacidad y rendimiento.
+Este proyecto está optimizado para **Linux (Debian/Ubuntu)**.
+**Estado del Arte 2026**: Utilizamos aceleración por hardware (CUDA) y un enfoque modular para garantizar privacidad y rendimiento.
 
 Esta guía te llevará desde cero hasta un sistema de dictado completamente funcional en tu máquina local.
 
@@ -14,7 +14,7 @@ Hemos creado un script que maneja todo el "trabajo sucio" por ti: verifica tu si
 
 ```bash
 # Ejecutar desde la raíz del proyecto
-./scripts/install.sh
+./apps/daemon/backend/scripts/setup/install.sh
 ```
 
 **Lo que hace este script:**
@@ -45,6 +45,9 @@ sudo apt install ffmpeg xclip pulseaudio-utils python3-venv build-essential pyth
 Aislamos las librerías para evitar conflictos.
 
 ```bash
+# Navegar al directorio del backend
+cd apps/daemon/backend
+
 # Crear entorno virtual
 python3 -m venv venv
 
@@ -52,7 +55,7 @@ python3 -m venv venv
 source venv/bin/activate
 
 # Instalar dependencias
-pip install -r requirements.txt
+pip install -e .
 ```
 
 ### 3. Configuración de IA (Opcional)
@@ -77,7 +80,7 @@ Asegúrate de que todo funciona antes de continuar.
 Esto confirma que Whisper puede usar tu tarjeta gráfica (esencial para velocidad).
 
 ```bash
-python scripts/test_whisper_gpu.py
+python apps/daemon/backend/scripts/diagnostics/check_cuda.py
 ```
 
 ### 2. Diagnóstico del Sistema
@@ -85,7 +88,7 @@ python scripts/test_whisper_gpu.py
 Verifica que el demonio y los servicios de audio estén listos.
 
 ```bash
-python scripts/verify_daemon.py
+python apps/daemon/backend/scripts/diagnostics/health_check.py
 ```
 
 ---

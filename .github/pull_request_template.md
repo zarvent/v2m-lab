@@ -8,26 +8,28 @@
 
 ## 🔧 Cambios Técnicos
 
-### Backend
-<!-- Lista de cambios en apps/backend -->
-- [ ]
+### Backend (Daemon)
 
-### Frontend
-<!-- Lista de cambios en apps/frontend -->
+<!-- Lista de cambios en apps/daemon/backend -->
+
 - [ ]
 
 ### Documentación
+
 <!-- Lista de cambios en docs/ -->
+
 - [ ]
 
 ### Infraestructura
+
 <!-- Cambios en scripts, configuración, CI/CD -->
+
 - [ ]
 
 ## 📊 Métricas de Impacto
 
 <!-- Si aplica, incluye métricas relevantes -->
-- **Tamaño del bundle**:
+
 - **Rendimiento**:
 - **Cobertura de tests**:
 - **Archivos modificados**:
@@ -35,12 +37,14 @@
 ## 🧪 Testing
 
 <!-- Describe cómo se probaron los cambios -->
+
 - [ ] Tests unitarios
 - [ ] Tests de integración
 - [ ] Pruebas manuales
 - [ ] Tests de regresión
 
 ### Casos de prueba ejecutados:
+
 1.
 2.
 3.
@@ -52,6 +56,7 @@
 ## 🚨 Breaking Changes
 
 <!-- ¿Este PR introduce cambios incompatibles con versiones anteriores? -->
+
 - [ ] Sí
 - [ ] No
 
@@ -70,6 +75,7 @@
 ## 🔗 Issues Relacionados
 
 <!-- Referencia a issues relacionados usando #número -->
+
 Closes #
 Related to #
 

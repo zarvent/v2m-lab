@@ -47,23 +47,22 @@ markdown_extensions:
 
 nav:
   - Exploración:
-    - Inicio: es/index.md
-    - Guía Rápida: es/guia_rapida.md
-    - Glosario: es/glosario.md
+      - Inicio: es/index.md
+      - Guía Rápida: es/guia_rapida.md
+      - Glosario: es/glosario.md
   - Procedimientos:
-    - Instalación: es/instalacion.md
-    - Contribución: es/contribucion.md
+      - Instalación: es/instalacion.md
+      - Contribución: es/contribucion.md
   - Referencia:
-    - Configuración: es/configuracion.md
-    - Atajos de Teclado: es/atajos_teclado.md
-    - API: es/referencia_api.md
+      - Configuración: es/configuracion.md
+      - Atajos de Teclado: es/atajos_teclado.md
+      - API: es/referencia_api.md
   - Conceptos:
-    - Arquitectura: es/arquitectura.md
-    - Frontend: es/frontend.md
-    - Decisiones (ADR): es/adr/index.md
+      - Arquitectura: es/arquitectura.md
+      - Decisiones (ADR): es/adr/index.md
   - Diagnóstico:
-    - Troubleshooting: es/troubleshooting.md
+      - Troubleshooting: es/troubleshooting.md
   - Mantenimiento:
-    - Changelog: es/changelog.md
+      - Changelog: es/changelog.md
   - Gobernanza:
-    - Guía de Estilo: es/style_guide.md
+      - Guía de Estilo: es/style_guide.md

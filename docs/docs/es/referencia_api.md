@@ -1,9 +1,9 @@
 # Referencia de API (IPC)
 
-Esta sección documenta el protocolo de comunicación interna entre el Frontend (Cliente) y el Daemon (Servidor).
+Esta sección documenta el protocolo de comunicación interna entre los Clientes (Scripts, CLI, etc.) y el Daemon (Servidor).
 
 !!! info "Nota de Arquitectura"
-    Voice2Machine utiliza una arquitectura basada en sockets Unix para la comunicación local de baja latencia. No es una API REST pública.
+Voice2Machine utiliza una arquitectura basada en sockets Unix para la comunicación local de baja latencia. No es una API REST pública.
 
 ## Protocolo de Mensajes
 
@@ -33,24 +33,32 @@ El payload JSON debe tener la siguiente estructura:
 ### Comandos Comunes
 
 #### `start_recording`
+
 Inicia la grabación de audio.
+
 - **Payload**: `{}`
 
 #### `stop_recording`
+
 Detiene la grabación y dispara la transcripción.
+
 - **Payload**: `{}`
 
 #### `get_config`
+
 Obtiene la configuración actual.
+
 - **Payload**: `{}`
 
 #### `update_config`
+
 Actualiza valores de configuración.
+
 - **Payload**: Objeto parcial de configuración (ej. `{"transcription": {"model": "distil-large-v3"}}`).
 
 ## Estructura de Respuestas (Response)
 
-El payload JSON de respuesta siempre incluye un campo `state` para sincronización con el Frontend.
+El payload JSON de respuesta siempre incluye un campo `state` para sincronización con el Cliente.
 
 ```json
 {
