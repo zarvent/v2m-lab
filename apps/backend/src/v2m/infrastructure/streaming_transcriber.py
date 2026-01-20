@@ -111,32 +111,39 @@ class StreamingTranscriber:
         return result
 
     def _detect_speech_silero(self, chunk: np.ndarray, threshold: float = 0.4) -> bool:
-        """Use Silero VAD (ONNX) to detect speech probability."""
+        """Use Silero VAD (ONNX) to detect speech probability.
+
+        ONNX backend expects 1D float32 numpy array (N,), not batched tensors.
+        """
         if self._vad_model is None:
             return self._detect_speech_energy(chunk, 0.015)
 
         try:
-            # Silero ONNX expects (Batch, Time) -> (1, N)
-            if chunk.ndim == 1:
-                chunk = chunk[np.newaxis, :]
+            # Silero ONNX expects 1D float32 numpy array (N,)
+            # Flatten if multi-dimensional (e.g., from stereo or accidental batch dim)
+            if chunk.ndim > 1:
+                chunk = chunk.flatten()
 
-            if chunk.shape[1] < 512:
-                # Too small for reliable VAD, skip or assume silence?
-                # Accumulate? For now just use energy fallback if small.
-                return self._detect_speech_energy(chunk.flatten(), 0.015)
+            # Minimum 512 samples for reliable VAD detection
+            if len(chunk) < 512:
+                return self._detect_speech_energy(chunk, 0.015)
+
+            # Ensure float32 dtype for ONNX compatibility
+            if chunk.dtype != np.float32:
+                chunk = chunk.astype(np.float32)
 
             speech_prob = self._vad_model(chunk, 16000)
-            # speech_prob can be tensor or float.
+
+            # Handle both tensor (Torch fallback) and scalar (ONNX) returns
             if hasattr(speech_prob, 'item'):
                 val = speech_prob.item()
             else:
-                val = speech_prob
+                val = float(speech_prob)
 
-            # logger.debug(f"VAD Prob: {val:.3f}")
             return val > threshold
         except Exception as e:
             logger.warning(f"Silero VAD error: {e}")
-            return self._detect_speech_energy(chunk.flatten(), 0.015)
+            return self._detect_speech_energy(chunk, 0.015)
 
     def _detect_speech_energy(self, chunk: np.ndarray, threshold: float = 0.015) -> bool:
         """Fallback energy-based VAD."""

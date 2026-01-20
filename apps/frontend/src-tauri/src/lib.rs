@@ -225,39 +225,47 @@ fn send_json_request(command: &str, data: Option<Value>) -> Result<Value, IpcErr
     guard.as_mut().unwrap().write_all(&json_payload)
         .map_err(|e| IpcError::from(format!("Write payload failed: {}", e)))?;
 
-    // 4. Read Response
-    let mut len_buf = [0u8; 4];
-    if let Err(e) = guard.as_mut().unwrap().read_exact(&mut len_buf) {
-        *guard = None; // Invalidate connection
-        return Err(IpcError::from(format!("Read header failed: {}", e)));
-    }
+    // 4. Read Response (skip event frames from streaming)
+    loop {
+        let mut len_buf = [0u8; 4];
+        if let Err(e) = guard.as_mut().unwrap().read_exact(&mut len_buf) {
+            *guard = None; // Invalidate connection
+            return Err(IpcError::from(format!("Read header failed: {}", e)));
+        }
 
-    let response_len = u32::from_be_bytes(len_buf) as usize;
-    if response_len > MAX_RESPONSE_SIZE {
-        *guard = None;
-        return Err(IpcError {
-            code: "PAYLOAD_TOO_LARGE".to_string(),
-            message: format!("Response exceeds {} MB limit", MAX_RESPONSE_SIZE >> 20),
-        });
-    }
+        let response_len = u32::from_be_bytes(len_buf) as usize;
+        if response_len > MAX_RESPONSE_SIZE {
+            *guard = None;
+            return Err(IpcError {
+                code: "PAYLOAD_TOO_LARGE".to_string(),
+                message: format!("Response exceeds {} MB limit", MAX_RESPONSE_SIZE >> 20),
+            });
+        }
 
-    let mut response_buf = vec![0u8; response_len];
-    if let Err(e) = guard.as_mut().unwrap().read_exact(&mut response_buf) {
-        *guard = None;
-        return Err(IpcError::from(format!("Read body failed: {}", e)));
-    }
+        let mut response_buf = vec![0u8; response_len];
+        if let Err(e) = guard.as_mut().unwrap().read_exact(&mut response_buf) {
+            *guard = None;
+            return Err(IpcError::from(format!("Read body failed: {}", e)));
+        }
 
-    // 5. Deserialize
-    let response: RawDaemonResponse = serde_json::from_slice(&response_buf)
-        .map_err(|e| IpcError::from(format!("Invalid JSON response: {}", e)))?;
+        // 5. Deserialize
+        let response: RawDaemonResponse = serde_json::from_slice(&response_buf)
+            .map_err(|e| IpcError::from(format!("Invalid JSON response: {}", e)))?;
 
-    if response.status == "success" {
-        Ok(response.data.unwrap_or(Value::Null))
-    } else {
-        Err(IpcError {
-            code: "DAEMON_ERROR".to_string(),
-            message: response.error.unwrap_or_else(|| "Unknown daemon error".to_string()),
-        })
+        // Skip event frames - these are streaming notifications from transcription
+        // Events have status="event" and should not interrupt request/response flow
+        if response.status == "event" {
+            continue;  // Read next frame
+        }
+
+        if response.status == "success" {
+            return Ok(response.data.unwrap_or(Value::Null));
+        } else {
+            return Err(IpcError {
+                code: "DAEMON_ERROR".to_string(),
+                message: response.error.unwrap_or_else(|| "Unknown daemon error".to_string()),
+            });
+        }
     }
 }
 
@@ -374,12 +382,11 @@ fn get_config() -> Result<Value, IpcError> {
 
 /// Helper: Resolve path to daemon script.
 fn resolve_daemon_script(app: &tauri::AppHandle) -> Result<std::path::PathBuf, IpcError> {
-    // Try dev path first (relative to project)
+    // Try backend scripts path (relative to src-tauri)
     let dev_path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .parent()
         .and_then(|p| p.parent())
-        .and_then(|p| p.parent())
-        .map(|p| p.join("scripts/v2m-daemon.sh"));
+        .map(|p| p.join("backend/scripts/service/v2m-daemon.sh"));
 
     if let Some(path) = dev_path.filter(|p| p.exists()) {
         Ok(path)

@@ -8,3 +8,6 @@ google-genai
 pyyaml
 requests
 coloredlogs
+psutil
+uvloop
+aiofiles
