@@ -59,9 +59,26 @@ class PersistentWhisperWorker:
     def initialize_sync(self):
         """Carga síncrona para warmup en hilos (Container)."""
         if self.keep_warm and self._model is None:
-            _safe_log(logging.INFO, "Precargando modelo (Sync)...")
+            _safe_log(logging.INFO, f"Precargando modelo {self.model_size} en {self.device}...")
+
+            # Verify CUDA availability if requested
+            if self.device == "cuda":
+                try:
+                    import torch
+                    if not torch.cuda.is_available():
+                        _safe_log(logging.WARNING, "CUDA solicitado pero no disponible, usando CPU")
+                        self.device = "cpu"
+                    else:
+                        gpu_name = torch.cuda.get_device_name(self.device_index)
+                        _safe_log(logging.INFO, f"GPU detectada: {gpu_name}")
+                except ImportError:
+                    _safe_log(logging.DEBUG, "PyTorch no disponible para verificación de CUDA")
+
             self._model = self._create_model()
-            _safe_log(logging.INFO, "Modelo precargado.")
+            _safe_log(
+                logging.INFO,
+                f"Modelo precargado. [device={self.device}, compute_type={self.compute_type}]"
+            )
 
     async def run_inference(self, func, *args, **kwargs):
         """
@@ -106,7 +123,11 @@ class PersistentWhisperWorker:
         loop = asyncio.get_running_loop()
         try:
             self._model = await loop.run_in_executor(self._executor, self._create_model)
-            logger.info("Modelo Whisper cargado correctamente.")
+            logger.info(
+                f"Modelo Whisper cargado correctamente. "
+                f"[device={self.device}, compute_type={self.compute_type}, "
+                f"model={self.model_size}]"
+            )
         except Exception as e:
             logger.error(f"Fallo al cargar modelo: {e}")
             raise

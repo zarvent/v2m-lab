@@ -3,7 +3,7 @@
 # notify.sh - Robust Notifications with Deduplication (SOTA 2026)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-readonly V2M_TIMEOUT_MS=10000
+readonly V2M_TIMEOUT_MS=3000  # Synced with config.toml notifications.expire_time_ms
 readonly V2M_NOTIFY_ID_FILE="${XDG_RUNTIME_DIR:-/tmp}/v2m/notify_id"
 readonly V2M_STACK_TAG="v2m_status"
 
@@ -64,6 +64,26 @@ v2m_notify() {
     if [[ "$result" =~ \(uint32\ ([0-9]+) ]]; then
         _v2m_set_id "${BASH_REMATCH[1]}"
     fi
+}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CLOSE NOTIFICATION (for explicit cleanup)
+# ─────────────────────────────────────────────────────────────────────────────
+
+v2m_notify_close() {
+    local id
+    id=$(_v2m_get_id)
+    [[ "$id" == "0" ]] && return 0
+
+    gdbus call \
+        --session \
+        --dest=org.freedesktop.Notifications \
+        --object-path=/org/freedesktop/Notifications \
+        --method=org.freedesktop.Notifications.CloseNotification \
+        "$id" 2>/dev/null || true
+
+    # Reset ID after closing
+    _v2m_set_id "0"
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
