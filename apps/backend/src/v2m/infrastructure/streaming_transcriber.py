@@ -11,7 +11,6 @@ This module implements a segment-based streaming transcription system that:
 import asyncio
 import logging
 import time
-from typing import Optional
 
 import numpy as np
 from silero_vad import load_silero_vad
@@ -44,7 +43,7 @@ class StreamingTranscriber:
         self.session_manager = session_manager
         self.recorder = recorder
         self._stop_event = asyncio.Event()
-        self._streaming_task: Optional[asyncio.Task] = None
+        self._streaming_task: asyncio.Task | None = None
 
         # Buffer management (Zero-Leak)
         self._audio_buffer: list[np.ndarray] = []  # Kept for legacy ref, unused in loop
@@ -55,6 +54,9 @@ class StreamingTranscriber:
         vad_config = config.transcription.whisper.vad_parameters
         self._silence_commit_ms = getattr(vad_config, 'min_silence_duration_ms', DEFAULT_SILENCE_COMMIT_MS)
         self._speech_threshold = vad_config.threshold  # Silero Probability Threshold (e.g. 0.4)
+
+        # Rate limiting for VAD errors
+        self._last_vad_error_time = 0.0
 
         # Load Silero VAD (SOTA 2026)
         try:
@@ -153,7 +155,10 @@ class StreamingTranscriber:
 
             return val > threshold
         except Exception as e:
-            logger.warning(f"Silero VAD error: {e}")
+            now = time.time()
+            if now - self._last_vad_error_time > 5.0:
+                logger.warning(f"Silero VAD error: {e} (throttled)")
+                self._last_vad_error_time = now
             return self._detect_speech_energy(chunk, 0.015)
 
     def _detect_speech_energy(self, chunk: np.ndarray, threshold: float = 0.015) -> bool:
@@ -179,11 +184,24 @@ class StreamingTranscriber:
         last_provisional_time = time.time()
         provisional_text = ""
 
+        # Heartbeat tracking
+        last_heartbeat_time = time.time()
+        HEARTBEAT_INTERVAL = 2.0
+
         try:
             while not self._stop_event.is_set():
                 # Non-blocking wait for data
                 await self.recorder.wait_for_data()
                 chunk = self.recorder.read_chunk()
+
+                # Heartbeat check
+                now = time.time()
+                if now - last_heartbeat_time > HEARTBEAT_INTERVAL:
+                    await self.session_manager.emit_event(
+                        "heartbeat",
+                        {"timestamp": now, "state": "recording"}
+                    )
+                    last_heartbeat_time = now
 
                 if len(chunk) == 0:
                     continue

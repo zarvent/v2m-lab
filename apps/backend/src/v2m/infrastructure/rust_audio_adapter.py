@@ -3,6 +3,8 @@ import logging
 import time
 from collections.abc import AsyncIterator
 
+import numpy as np
+
 try:
     import v2m_engine
 except ImportError:
@@ -32,6 +34,11 @@ class RustAudioStream(AudioStreamPort):
         except Exception as e:
             raise RecordingError(f"Failed to start Rust recorder: {e}") from e
 
+        # Buffer state
+        buffer_list: list[np.ndarray] = []
+        buffer_len = 0
+        CHUNK_SIZE = 512  # Required for Silero VAD @ 16kHz
+
         try:
             while True:
                 # Wait for data without blocking event loop
@@ -39,9 +46,28 @@ class RustAudioStream(AudioStreamPort):
 
                 # Retrieve all available data
                 chunk = self._recorder.read_chunk()
-                # Ensure chunk is numpy array (it is from Rust side)
+
                 if len(chunk) > 0:
-                    yield VADChunk(timestamp=time.time(), audio=chunk)
+                    buffer_list.append(chunk)
+                    buffer_len += len(chunk)
+
+                    # Process accumulated data if enough for at least one chunk
+                    if buffer_len >= CHUNK_SIZE:
+                        # Merge all pending chunks
+                        full_buffer = np.concatenate(buffer_list)
+
+                        # Yield all complete chunks
+                        start_idx = 0
+                        while start_idx + CHUNK_SIZE <= len(full_buffer):
+                            yield_chunk = full_buffer[start_idx : start_idx + CHUNK_SIZE]
+                            yield VADChunk(timestamp=time.time(), audio=yield_chunk)
+                            start_idx += CHUNK_SIZE
+
+                        # Keep remainder
+                        remainder = full_buffer[start_idx:]
+                        buffer_list = [remainder] if len(remainder) > 0 else []
+                        buffer_len = len(remainder)
+
         except asyncio.CancelledError:
             logger.info("Audio stream cancelled")
             raise

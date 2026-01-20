@@ -202,3 +202,22 @@ venv/bin/pytest tests/unit/ --cov=src/v2m --cov-report=term-missing
 | CUDA context | Prefer `faster-whisper` abstractions over raw PyTorch |
 | Sync in async | Offload blocking calls to `asyncio.to_thread` |
 | MagicMock for async | Use `AsyncMock` for async methods |
+
+---
+
+## 📚 Official Documentation References
+
+When in doubt, consult the official documentation (SOTA 2026 standards require referencing the latest stable docs).
+
+| Technology | Documentation URL | Notes |
+|------------|-------------------|-------|
+| **Python** | [docs.python.org/3.12](https://docs.python.org/3.12/) | Target version 3.12+ |
+| **Pydantic** | [docs.pydantic.dev](https://docs.pydantic.dev/latest/) | Use V2 syntax exclusively |
+| **Ruff** | [docs.astral.sh/ruff](https://docs.astral.sh/ruff/) | Linter & Formatter rules |
+| **Pytest** | [docs.pytest.org](https://docs.pytest.org/) | Testing framework |
+| **uvloop** | [uvloop.readthedocs.io](https://uvloop.readthedocs.io/) | High-performance event loop |
+| **faster-whisper** | [github.com/SYSTRAN/faster-whisper](https://github.com/SYSTRAN/faster-whisper) | Optimized Whisper inference |
+| **Google GenAI** | [ai.google.dev/api/python](https://ai.google.dev/api/python/google/generativeai) | Gemini API SDK |
+| **SoundDevice** | [python-sounddevice.readthedocs.io](https://python-sounddevice.readthedocs.io/) | Audio I/O fallback |
+| **orjson** | [github.com/ijl/orjson](https://github.com/ijl/orjson) | Fast JSON serialization |
+| **Typer** | [typer.tiangolo.com](https://typer.tiangolo.com/) | CLI building |
