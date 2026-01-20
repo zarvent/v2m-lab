@@ -1,5 +1,5 @@
-# Guías Prácticas (How-to)
+# Guías How-To
 
-Recetas para resolver problemas específicos.
+Soluciones rápidas a problemas comunes.
 
-* *Próximamente: Cómo añadir un nuevo proveedor de LLM.*
+* *Próximamente: Cómo configurar un nuevo proveedor de LLM local.*

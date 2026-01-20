@@ -1,5 +1,5 @@
-# How-to Guides
+# How-To Guides
 
-Recipes for solving specific problems.
+Quick solutions to common problems.
 
-* *Coming soon: How to add a new LLM provider.*
+* *Coming soon: How to configure a new local LLM provider.*

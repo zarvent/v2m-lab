@@ -1,5 +1,5 @@
 # Tutoriales
 
-Guías paso a paso para aprender a usar y modificar el Backend.
+Guías paso a paso para desarrolladores nuevos en el proyecto.
 
-* *Próximamente: Tu primera transcripción con el daemon.*
+* *Próximamente: Flujo de vida de una transcripción.*

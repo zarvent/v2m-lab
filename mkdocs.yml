@@ -38,14 +38,18 @@ plugins:
       handlers:
         python:
           paths: [apps/daemon/backend/src]
+          import:
+            - https://docs.python.org/3/objects.inv
   - i18n:
       docs_structure: suffix
       languages:
         - locale: es
           default: true
           name: Español
+          build: true
         - locale: en
           name: English
+          build: true
 
 markdown_extensions:
   - admonition
@@ -81,10 +85,10 @@ nav:
       - Changelog: es/changelog.md
   - Gobernanza:
       - Guía de Estilo: es/style_guide.md
-  - Backend:
+  - Core (Daemon):
       - Inicio: backend/index.md
-      - Tutoriales: backend/tutorials/index.md
-      - Guías (How-to): backend/how-to/index.md
-      - Referencia: backend/reference/index.md
-      - Explicación: backend/explanation/index.md
-      - ADRs: backend/adr/index.md
+      - 🎓 Tutoriales: backend/tutorials/index.md
+      - 🛠️ How-To: backend/how-to/index.md
+      - 📚 Referencia API: backend/reference/index.md
+      - 🧠 Explicación: backend/explanation/index.md
+      - 🏛️ Arquitectura (ADR): backend/adr/index.md

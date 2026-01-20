@@ -1,5 +1,5 @@
-# Explicación
+# Explicación de Conceptos
 
-Profundización en la arquitectura y decisiones de diseño.
+Profundización en la arquitectura y diseño.
 
-* *Próximamente: Arquitectura Hexagonal en V2M.*
+* *Próximamente: Por qué usamos Rust para el buffer de audio.*

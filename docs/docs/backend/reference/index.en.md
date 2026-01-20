@@ -1,7 +1,15 @@
 # API Reference
 
-Technical documentation generated automatically.
+This section is automatically generated from source code docstrings in `apps/daemon/backend/src`.
 
-## REST API
+## Core Services
 
-::: v2m.api
+::: v2m.services.orchestrator
+    options:
+      heading_level: 3
+
+## Domain and Ports
+
+::: v2m.domain.ports
+    options:
+      heading_level: 3

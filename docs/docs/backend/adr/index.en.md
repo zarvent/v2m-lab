@@ -2,4 +2,4 @@
 
 Architecture decision records for the Backend.
 
-* [0001. Record architecture decisions](0001-record-architecture-decisions.md)
+* [1. Adoption of Diátaxis and Docs-as-Code](0001-estructura-diataxis.md)

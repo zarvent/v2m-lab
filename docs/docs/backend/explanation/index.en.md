@@ -1,5 +1,5 @@
-# Explanation
+# Concept Explanation
 
-Deep dive into architecture and design decisions.
+Deep dive into architecture and design.
 
-* *Coming soon: Hexagonal Architecture in V2M.*
+* *Coming soon: Why we use Rust for the audio buffer.*

@@ -1,5 +1,5 @@
 # Tutorials
 
-Step-by-step guides to learn how to use and modify the Backend.
+Step-by-step guides for developers new to the project.
 
-* *Coming soon: Your first transcription with the daemon.*
+* *Coming soon: Lifecycle of a transcription.*
