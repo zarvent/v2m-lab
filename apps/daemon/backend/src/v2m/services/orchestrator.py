@@ -33,6 +33,18 @@ if TYPE_CHECKING:
 BroadcastFn = Callable[[str, dict[str, Any]], Coroutine[Any, Any, None]]
 
 
+class WebSocketSessionAdapter:
+    """Adapter que conecta StreamingTranscriber con WebSocket broadcast."""
+
+    def __init__(self, broadcast_fn: BroadcastFn | None = None) -> None:
+        self._broadcast_fn = broadcast_fn
+
+    async def emit_event(self, event_type: str, data: dict[str, Any]) -> None:
+        """Emite evento a clientes WebSocket."""
+        if self._broadcast_fn:
+            await self._broadcast_fn(event_type, data)
+
+
 class Orchestrator:
     """
     Orquestador central de V2M.

@@ -9,9 +9,30 @@ estas interfaces, permitiendo un tipado estructural flexible y desacoplado.
 Interfaces definidas:
     - ``ClipboardInterface``: Operaciones del portapapeles.
     - ``NotificationInterface``: Envío de notificaciones al escritorio.
+    - ``SessionManagerInterface``: Emisión de eventos a clientes conectados.
 """
 
-from typing import Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
+
+
+@runtime_checkable
+class SessionManagerInterface(Protocol):
+    """
+    Protocolo para emisión de eventos a clientes conectados.
+
+    Define el contrato para cualquier adaptador que envíe eventos streaming
+    (WebSocket, IPC, etc.) durante la transcripción en tiempo real.
+    """
+
+    async def emit_event(self, event_type: str, data: dict[str, Any]) -> None:
+        """
+        Emite un evento a los clientes conectados.
+
+        Args:
+            event_type: Tipo de evento (ej. "transcription_update", "heartbeat").
+            data: Payload del evento como diccionario.
+        """
+        ...
 
 
 @runtime_checkable

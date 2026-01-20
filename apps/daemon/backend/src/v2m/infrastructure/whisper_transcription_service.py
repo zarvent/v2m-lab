@@ -10,7 +10,7 @@ import asyncio
 
 from v2m.application.transcription_service import TranscriptionService
 from v2m.config import config
-from v2m.core.client_session import ClientSessionManager
+from v2m.core.interfaces import SessionManagerInterface
 from v2m.core.logging import logger
 from v2m.domain.errors import RecordingError
 from v2m.infrastructure.audio.recorder import AudioRecorder
@@ -24,7 +24,7 @@ class WhisperTranscriptionService(TranscriptionService):
     gestionado por un worker persistente. Soporta streaming.
     """
 
-    def __init__(self, worker: PersistentWhisperWorker, session_manager: ClientSessionManager) -> None:
+    def __init__(self, worker: PersistentWhisperWorker, session_manager: SessionManagerInterface) -> None:
         """
         Inicializa el servicio de transcripción.
 

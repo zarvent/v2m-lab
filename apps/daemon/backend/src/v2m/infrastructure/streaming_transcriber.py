@@ -34,7 +34,7 @@ except ImportError:
     _SILERO_AVAILABLE = False
 
 from v2m.config import config
-from v2m.core.client_session import ClientSessionManager as SessionManager
+from v2m.core.interfaces import SessionManagerInterface as SessionManager
 from v2m.infrastructure.audio.recorder import AudioRecorder
 from v2m.infrastructure.persistent_model import PersistentWhisperWorker
 
