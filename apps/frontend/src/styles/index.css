@@ -1,7 +1,0 @@
-@import "tailwindcss";
-@import "./tokens.css";
-@import "./base.css";
-@import "./layout.css";
-@import "./utilities.css";
-
-@layer base, layout, components, utilities;
