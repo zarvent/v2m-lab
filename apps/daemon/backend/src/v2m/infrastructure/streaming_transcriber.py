@@ -152,7 +152,7 @@ class StreamingTranscriber:
             # Esperar a que Producer termine de encolar
             if self._producer_task:
                 await asyncio.wait_for(self._producer_task, timeout=2.0)
-        except TimeoutError:
+        except asyncio.TimeoutError:
             logger.warning("Timeout esperando Producer, cancelando...")
             if self._producer_task:
                 self._producer_task.cancel()
@@ -165,7 +165,7 @@ class StreamingTranscriber:
             # Esperar a que Consumer procese cola restante y retorne resultado
             if self._consumer_task:
                 result = await asyncio.wait_for(self._consumer_task, timeout=10.0)
-        except TimeoutError:
+        except asyncio.TimeoutError:
             logger.warning("Timeout esperando Consumer, cancelando...")
             if self._consumer_task:
                 self._consumer_task.cancel()
@@ -236,7 +236,7 @@ class StreamingTranscriber:
                 # Obtener chunk con timeout para revisar stop_event
                 try:
                     chunk = await asyncio.wait_for(self._audio_queue.get(), timeout=0.1)
-                except TimeoutError:
+                except asyncio.TimeoutError:
                     # Revisar heartbeat aunque no haya audio
                     now = time.time()
                     if now - last_heartbeat_time > HEARTBEAT_INTERVAL:
@@ -422,13 +422,18 @@ class StreamingTranscriber:
     # =========================================================================
 
     def _build_context_prompt(self) -> str:
-        """Construye prompt de contexto desde ventana deslizante."""
+        """
+        Build context prompt from sliding window.
+
+        Uses last 200 chars to avoid Whisper's 224-token limit
+        which can cause looping hallucinations.
+        """
         if not self._context_window:
             return ""
         return self._context_window[-CONTEXT_WINDOW_CHARS:]
 
     def _update_context_window(self, text: str) -> None:
-        """Actualiza ventana de contexto con nuevo texto."""
+        """Append to context window, keeping last 200 chars."""
         clean_text = text.strip()
         if clean_text:
             self._context_window = (
@@ -437,9 +442,9 @@ class StreamingTranscriber:
 
     async def _infer_provisional(self, audio_chunks: list[np.ndarray]) -> str:
         """
-        Inferencia provisional rápida para feedback en tiempo real.
+        Fast provisional inference for real-time feedback.
 
-        Usa decodificación greedy (beam_size=1) para velocidad.
+        Uses greedy decoding (beam_size=1) for speed.
         """
         if not audio_chunks:
             return ""
@@ -453,27 +458,28 @@ class StreamingTranscriber:
                 full_audio,
                 language=whisper_config.language if whisper_config.language != "auto" else None,
                 task="transcribe",
-                beam_size=1,  # Greedy para velocidad
+                beam_size=1,  # Greedy for speed
                 best_of=1,
                 temperature=0.0,
                 initial_prompt=context_prompt if context_prompt else None,
-                condition_on_previous_text=False,
+                condition_on_previous_text=False,  # Avoid conflict with manual prompt
                 vad_filter=True,
             )
             return list(segments)
 
         try:
             segments = await self.worker.run_inference(_inference_func)
-            return " ".join(s.text.strip() for s in segments if s.text)
+            text = " ".join(s.text.strip() for s in segments if s.text)
+            return text
         except Exception as e:
             logger.debug(f"Provisional inference error: {e}")
             return ""
 
     async def _infer_final(self, audio_chunks: list[np.ndarray]) -> str:
         """
-        Inferencia final de alta calidad para segmentos commiteados.
+        High-quality final inference for committed segments.
 
-        Usa búsqueda de haz configurada y parámetros VAD.
+        Uses configured beam search and VAD parameters.
         """
         if not audio_chunks:
             return ""
@@ -495,7 +501,7 @@ class StreamingTranscriber:
                 best_of=whisper_config.best_of,
                 temperature=whisper_config.temperature,
                 initial_prompt=context_prompt if context_prompt else None,
-                condition_on_previous_text=False,
+                condition_on_previous_text=False,  # Avoid conflict with manual prompt
                 vad_filter=whisper_config.vad_filter,
                 vad_parameters=vad_params,
             )
@@ -505,7 +511,7 @@ class StreamingTranscriber:
             segments = await self.worker.run_inference(_inference_func)
             text = " ".join(s.text.strip() for s in segments if s.text)
             if not text:
-                logger.debug("Inferencia final vacía (VAD filtró o silencio)")
+                logger.debug("Final inference empty (VAD filtered or silence)")
             return text
         except Exception as e:
             logger.error(f"Final inference error: {e}")

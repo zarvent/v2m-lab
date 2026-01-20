@@ -1,5 +1,6 @@
 #!/bin/bash
 # scripts/development/start_daemon.sh
+set -euo pipefail
 
 # Obtener la ruta absoluta del directorio del proyecto (apps/backend)
 # Asume que este script está en apps/backend/scripts/operations/daemon/
@@ -17,6 +18,9 @@ fi
 echo "🔌 Activando entorno virtual..."
 source venv/bin/activate
 
+# Asegurar que el código en src/ sea visible
+export PYTHONPATH="src:${PYTHONPATH:-}"
+
 echo "🚀 Iniciando Demonio Voice2Machine..."
 # Usamos exec para que el proceso python reemplace al shell y reciba las señales (Ctrl+C) directamente
-exec python -m v2m.main --daemon
+exec python3 -m v2m.main --daemon
