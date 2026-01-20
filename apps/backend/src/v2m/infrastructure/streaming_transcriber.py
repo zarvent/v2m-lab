@@ -132,7 +132,18 @@ class StreamingTranscriber:
             if chunk.dtype != np.float32:
                 chunk = chunk.astype(np.float32)
 
-            speech_prob = self._vad_model(chunk, 16000)
+            # Silero VAD wrapper expects Tensor even in ONNX mode
+            # See: https://github.com/snakers4/silero-vad/issues/ (or similar)
+            try:
+                import torch
+                chunk_tensor = torch.from_numpy(chunk)
+                if chunk_tensor.ndim > 1: # Ensure 1D for safety if not flattened earlier
+                    chunk_tensor = chunk_tensor.flatten()
+            except ImportError:
+                logger.warning("Torch not found, skipping Silero VAD (should not happen in this env)")
+                return self._detect_speech_energy(chunk, 0.015)
+
+            speech_prob = self._vad_model(chunk_tensor, 16000)
 
             # Handle both tensor (Torch fallback) and scalar (ONNX) returns
             if hasattr(speech_prob, 'item'):
