@@ -1,39 +1,137 @@
+# =============================================================================
+# Voice2Machine Documentation Configuration
+# https://squidfunk.github.io/mkdocs-material/
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Site Metadata
+# -----------------------------------------------------------------------------
 site_name: Voice2Machine
-site_description: Documentación oficial de Voice2Machine
-site_url: https://voice2machine.local/
+site_description: >-
+  Sistema de dictado por voz local con Whisper - Convierte tu voz en texto
+  con privacidad absoluta usando IA local en tu GPU.
+site_author: zarvent
+site_url: https://zarvent.github.io/v2m-lab/
 repo_url: https://github.com/zarvent/v2m-lab
+repo_name: zarvent/v2m-lab
 edit_uri: edit/main/docs/docs/
+copyright: Copyright &copy; 2024-2026 Voice2Machine Contributors
 
 # Configuration relative to mkdocs.yml location (root)
 docs_dir: docs/docs
 
+# -----------------------------------------------------------------------------
+# Theme Configuration
+# -----------------------------------------------------------------------------
 theme:
   name: material
   language: es
+  logo: assets/logo.svg
+  favicon: assets/favicon.ico
+  custom_dir: docs/overrides
+
+  # Premium Typography
+  font:
+    text: Inter
+    code: JetBrains Mono
+
+  # Color Palette with Auto Dark Mode
   palette:
-    - scheme: default
+    # Light Mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
       primary: teal
-      accent: purple
+      accent: deep purple
       toggle:
         icon: material/brightness-7
         name: Cambiar a modo oscuro
-    - scheme: slate
+    # Dark Mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
       primary: teal
-      accent: purple
+      accent: deep purple
       toggle:
         icon: material/brightness-4
         name: Cambiar a modo claro
+
+  # Feature Flags - All Premium Features Enabled
   features:
+    # Instant Navigation (SPA-like experience)
     - navigation.instant
+    - navigation.instant.prefetch
+    - navigation.instant.progress
     - navigation.tracking
+
+    # Navigation Structure
+    - navigation.tabs
+    - navigation.tabs.sticky
     - navigation.sections
-    - navigation.expand
+    - navigation.top
+    - navigation.indexes
+    - navigation.path
+    - navigation.footer
+
+    # Content Enhancement
     - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+    - content.tooltips
+
+    # Search
+    - search.highlight
+    - search.share
+    - search.suggest
+
+    # Table of Contents
+    - toc.follow
+
+  # Icons
   icon:
     repo: fontawesome/brands/github
+    edit: material/pencil
+    view: material/eye
 
+# -----------------------------------------------------------------------------
+# Extra Configuration
+# -----------------------------------------------------------------------------
+extra:
+  # Social Links (Footer)
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/zarvent/v2m-lab
+      name: Voice2Machine en GitHub
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/voice2machine/
+      name: Voice2Machine en PyPI
+
+  # Hide generator notice
+  generator: false
+
+  # Page Status Indicators
+  status:
+    new: Recién añadido
+    deprecated: Obsoleto
+
+  # Analytics (uncomment when ready)
+  # analytics:
+  #   provider: google
+  #   property: G-XXXXXXXXXX
+
+# Extra CSS
+extra_css:
+  - assets/stylesheets/extra.css
+
+# -----------------------------------------------------------------------------
+# Plugins
+# -----------------------------------------------------------------------------
 plugins:
-  - search
+  # Search with multi-language support
+  - search:
+      lang:
+        - es
+        - en
+
+  # Internationalization
   - i18n:
       docs_structure: folder
       languages:
@@ -43,32 +141,41 @@ plugins:
         - locale: en
           name: English
           nav_translations:
-            Exploración: Exploration
+            # Tabs principales
             Inicio: Home
-            Guía Rápida: Quick Start
-            Glosario: Glossary
-            Procedimientos: Procedures
-            Instalación: Installation
-            Contribución: Contributing
-            Referencia: Reference
-            Configuración: Configuration
-            Atajos de Teclado: Keyboard Shortcuts
-            API REST: REST API
-            API Python: Python API
-            Backend: Backend
-            Índice: Index
-            Interfaces: Interfaces
-            Dominio: Domain
-            Servicios: Services
-            Conceptos: Concepts
+            Guías: Guides
+            API: API
             Arquitectura: Architecture
-            Decisiones (ADR): Decisions (ADR)
+            Comunidad: Community
+            # Getting Started
+            Bienvenido: Welcome
+            Guía Rápida: Quick Start
+            Instalación: Installation
+            Configuración: Configuration
+            Glosario: Glossary
+            # User Guide
+            Atajos de Teclado: Keyboard Shortcuts
+            Solución de Problemas: Troubleshooting
+            Uso Diario: Daily Use
             Diagnóstico: Diagnostics
-            Troubleshooting: Troubleshooting
-            Mantenimiento: Maintenance
-            Changelog: Changelog
-            Gobernanza: Governance
+            # API Reference
+            REST API: REST API
+            Python SDK: Python SDK
+            Backend: Backend
+            "Backend (Python)": "Backend (Python)"
+            Orchestrator: Orchestrator
+            Endpoints: Endpoints
+            Transcripción: Transcription
+            Servicios LLM: LLM Services
+            # Architecture
+            Visión General: Overview
+            Decisiones (ADR): Decisions (ADR)
+            # Community
+            Contribuir: Contributing
             Guía de Estilo: Style Guide
+            Changelog: Changelog
+
+  # Python API Documentation
   - mkdocstrings:
       default_handler: python
       handlers:
@@ -83,57 +190,178 @@ plugins:
             merge_init_into_class: true
             show_if_no_docstring: false
             heading_level: 2
+            members_order: source
 
+  # Git Revision Date
+  - git-revision-date-localized:
+      enable_creation_date: true
+      type: timeago
+      fallback_to_build_date: true
+
+  # Social Cards (OG Images)
+  - social:
+      cards_layout_options:
+        font_family: Inter
+        background_color: "#009688"
+        color: "#ffffff"
+
+  # Privacy (GDPR - Self-host external assets)
+  - privacy:
+      assets_fetch: true
+
+  # Minification (Production optimization)
+  - minify:
+      minify_html: true
+      minify_js: true
+      minify_css: true
+      htmlmin_opts:
+        remove_comments: true
+
+# -----------------------------------------------------------------------------
+# Markdown Extensions
+# -----------------------------------------------------------------------------
 markdown_extensions:
+  # Admonitions (callouts)
   - admonition
   - pymdownx.details
+
+  # Code blocks with Mermaid support
   - pymdownx.superfences:
       custom_fences:
         - name: mermaid
           class: mermaid
-          format: !!python/name:pymdownx.superfences.fence_code_format
+          format:
+            !!python/name:pymdownx.superfences.fence_code_format # Tabbed content
+
   - pymdownx.tabbed:
       alternate_style: true
+      slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
+
+  # Code highlighting
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+      auto_title: true
+  - pymdownx.inlinehilite
+
+  # Snippets (include files)
+  - pymdownx.snippets:
+      auto_append:
+        - docs/docs/includes/abbreviations.md
+      check_paths: true
+
+  # Table of Contents
   - toc:
       permalink: true
+      permalink_title: Enlace permanente
+      toc_depth: 3
 
+  # Attributes and HTML
+  - attr_list
+  - md_in_html
+
+  # Tables
+  - tables
+
+  # Definition lists
+  - def_list
+
+  # Footnotes
+  - footnotes
+
+  # Abbreviations
+  - abbr
+
+  # Smart symbols
+  - pymdownx.smartsymbols
+
+  # Emoji support
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator:
+        !!python/name:material.extensions.emoji.to_svg # Task lists
+
+  - pymdownx.tasklist:
+      custom_checkbox: true
+
+  # Keys (keyboard shortcuts)
+  - pymdownx.keys
+
+  # Mark (highlighting)
+  - pymdownx.mark
+
+  # Caret, tilde (superscript, subscript)
+  - pymdownx.caret
+  - pymdownx.tilde
+
+# -----------------------------------------------------------------------------
+# Navigation Structure (Scalable Multi-App Architecture)
+# -----------------------------------------------------------------------------
 nav:
-  - Exploración:
-      - Inicio: index.md
+  # ─────────────────────────────────────────────────────────────────────────
+  # TAB 1: Getting Started
+  # ─────────────────────────────────────────────────────────────────────────
+  - Inicio:
+      - index.md
       - Guía Rápida: guia_rapida.md
-      - Glosario: glosario.md
-  - Procedimientos:
       - Instalación: instalacion.md
-      - Contribución: contribucion.md
-  - Referencia:
       - Configuración: configuracion.md
-      - Atajos de Teclado: atajos_teclado.md
-      - API REST: referencia_api.md
-      - API Python:
-          - Índice: api/index.md
-          - Backend:
-              - Índice: api/backend/index.md
-              - Orchestrator: api/backend/orchestrator.md
-              - API REST: api/backend/api.md
-              - Configuración: api/backend/config.md
-              - Transcripción: api/backend/transcription.md
-              - Servicios LLM: api/backend/llm.md
-          - Interfaces: api/interfaces.md
-          - Dominio: api/domain.md
-          - Servicios: api/services.md
-  - Conceptos:
-      - Arquitectura: arquitectura.md
+      - Glosario: glosario.md
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # TAB 2: User Guide
+  # ─────────────────────────────────────────────────────────────────────────
+  - Guías:
+      - Uso Diario:
+          - Atajos de Teclado: atajos_teclado.md
+      - Diagnóstico:
+          - Solución de Problemas: troubleshooting.md
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # TAB 3: API Reference (Multi-App Ready)
+  # ─────────────────────────────────────────────────────────────────────────
+  - API:
+      - api/index.md
+      - REST API: referencia_api.md
+      - "Backend (Python)":
+          - api/backend/index.md
+          - Orchestrator: api/backend/orchestrator.md
+          - Endpoints: api/backend/api.md
+          - Configuración: api/backend/config.md
+          - Transcripción: api/backend/transcription.md
+          - LLM: api/backend/llm.md
+      # ─── Future Apps ─────────────────────────────────────────────────────
+      # - Frontend (Tauri):
+      #     - api/frontend/index.md
+      #     - Components: api/frontend/components.md
+      #     - State: api/frontend/state.md
+      # - CLI:
+      #     - api/cli/index.md
+      #     - Commands: api/cli/commands.md
+      # - Mobile:
+      #     - api/mobile/index.md
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # TAB 4: Architecture
+  # ─────────────────────────────────────────────────────────────────────────
+  - Arquitectura:
+      - arquitectura.md
       - Decisiones (ADR):
-          - Índice: adr/index.md
-          - "ADR-001: FastAPI Migration": adr/001-fastapi-migration.md
-          - "ADR-002: Orchestrator Pattern": adr/002-orchestrator-pattern.md
+          - adr/index.md
+          - "ADR-001: FastAPI REST": adr/001-fastapi-migration.md
+          - "ADR-002: Orchestrator": adr/002-orchestrator-pattern.md
           - "ADR-003: faster-whisper": adr/003-faster-whisper.md
-          - "ADR-004: Hexagonal Architecture": adr/004-hexagonal-architecture.md
-          - "ADR-005: Rust Audio Engine": adr/005-rust-audio-engine.md
+          - "ADR-004: Hexagonal": adr/004-hexagonal-architecture.md
+          - "ADR-005: Rust Audio": adr/005-rust-audio-engine.md
           - "ADR-006: Local-first": adr/006-local-first.md
-  - Diagnóstico:
-      - Troubleshooting: troubleshooting.md
-  - Mantenimiento:
-      - Changelog: changelog.md
-  - Gobernanza:
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # TAB 5: Community
+  # ─────────────────────────────────────────────────────────────────────────
+  - Comunidad:
+      - Contribuir: contribucion.md
       - Guía de Estilo: style_guide.md
+      - Changelog: changelog.md

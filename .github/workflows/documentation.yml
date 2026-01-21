@@ -1,54 +1,125 @@
-name: Publicar Documentación
+name: Documentation
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
     paths:
       - "docs/**"
       - "mkdocs.yml"
-      - "apps/daemon/backend/src/**/*.py" # Rebuild on Python code changes
+      - "apps/daemon/backend/src/**/*.py"
       - ".github/workflows/documentation.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - "mkdocs.yml"
   workflow_dispatch:
 
 permissions:
   contents: write
 
+# Prevent concurrent deployments
+concurrency:
+  group: docs-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.12"
+
 jobs:
-  deploy:
+  # ─────────────────────────────────────────────────────────────────────────
+  # Build Job - Runs on all triggers
+  # ─────────────────────────────────────────────────────────────────────────
+  build:
+    name: Build Documentation
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout del código
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Full history for git-revision-date
 
-      - name: Configurar Python
+      - name: Setup Python ${{ env.PYTHON_VERSION }}
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
-          cache: "pip"
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: docs/requirements.txt
 
-      - name: Instalar dependencias de documentación
+      - name: Cache MkDocs build assets
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+            .cache
+          key: mkdocs-${{ runner.os }}-${{ hashFiles('docs/requirements.txt') }}
+          restore-keys: |
+            mkdocs-${{ runner.os }}-
+
+      - name: Install system dependencies (for social cards)
         run: |
-          pip install -r docs/requirements.txt
+          sudo apt-get update
+          sudo apt-get install -y libcairo2-dev libfreetype6-dev libffi-dev libjpeg-dev libpng-dev libz-dev
 
-      - name: Instalar backend para mkdocstrings
-        run: |
-          pip install -e apps/daemon/backend
+      - name: Install documentation dependencies
+        run: pip install -r docs/requirements.txt
 
-      - name: Verificar docstrings con ruff
+      - name: Install backend for mkdocstrings
+        run: pip install -e apps/daemon/backend
+
+      - name: Lint docstrings (non-blocking)
+        continue-on-error: true
         run: |
           pip install ruff
-          ruff check apps/daemon/backend/src --select D --ignore D100,D104 || true
+          ruff check apps/daemon/backend/src --select D --ignore D100,D104
 
-      - name: Configurar Git
+      - name: Build documentation (strict mode)
+        run: mkdocs build --strict
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: documentation-site
+          path: site/
+          retention-days: 7
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Deploy Job - Only on main branch push
+  # ─────────────────────────────────────────────────────────────────────────
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: docs/requirements.txt
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libcairo2-dev libfreetype6-dev libffi-dev libjpeg-dev libpng-dev libz-dev
+          pip install -r docs/requirements.txt
+          pip install -e apps/daemon/backend
+
+      - name: Configure Git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Build documentación (verificación)
-        run: mkdocs build
-
-      - name: Desplegar documentación
+      - name: Deploy to GitHub Pages
+        id: deployment
         run: mkdocs gh-deploy --force
