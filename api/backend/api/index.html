@@ -2487,9 +2487,9 @@ Esto permite que el servidor arranque rápido y cargue el modelo en background.<
 
                   <details class="mkdocstrings-source">
                     <summary>Source code in <code>apps/daemon/backend/src/v2m/api.py</code></summary>
-                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">97</span>
-<span class="normal">98</span>
-<span class="normal">99</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">95</span>
+<span class="normal">96</span>
+<span class="normal">97</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_orchestrator</span><span class="p">:</span> <span class="n">Orchestrator</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_websocket_clients</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">WebSocket</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 </code></pre></div></td></tr></table></div>
@@ -2550,7 +2550,9 @@ Esto permite que el servidor arranque rápido y cargue el modelo en background.<
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>apps/daemon/backend/src/v2m/api.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">110</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
 <span class="normal">111</span>
 <span class="normal">112</span>
 <span class="normal">113</span>
@@ -2564,9 +2566,7 @@ Esto permite que el servidor arranque rápido y cargue el modelo en background.<
 <span class="normal">121</span>
 <span class="normal">122</span>
 <span class="normal">123</span>
-<span class="normal">124</span>
-<span class="normal">125</span>
-<span class="normal">126</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">broadcast_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">124</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">broadcast_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Envía evento a todos los clientes WebSocket conectados.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_websocket_clients</span><span class="p">:</span>
         <span class="k">return</span>
@@ -2625,20 +2625,18 @@ Si está grabando → detiene y transcribe.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>apps/daemon/backend/src/v2m/api.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">195</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
 <span class="normal">196</span>
 <span class="normal">197</span>
 <span class="normal">198</span>
 <span class="normal">199</span>
 <span class="normal">200</span>
-<span class="normal">201</span>
-<span class="normal">202</span>
-<span class="normal">203</span>
-<span class="normal">204</span>
-<span class="normal">205</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/toggle&quot;</span><span class="p">,</span> <span class="n">response_model</span><span class="o">=</span><span class="n">ToggleResponse</span><span class="p">)</span>
+<span class="normal">201</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/toggle&quot;</span><span class="p">,</span> <span class="n">response_model</span><span class="o">=</span><span class="n">ToggleResponse</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">toggle_recording</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">ToggleResponse</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Toggle de grabación (iniciar/detener).</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Toggle de grabación (iniciar/detener).</span>
 
 <span class="sd">    Si no está grabando → inicia grabación.</span>
 <span class="sd">    Si está grabando → detiene y transcribe.</span>
@@ -2674,10 +2672,10 @@ show_source: true</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>apps/daemon/backend/src/v2m/api.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">208</span>
-<span class="normal">209</span>
-<span class="normal">210</span>
-<span class="normal">211</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/start&quot;</span><span class="p">,</span> <span class="n">response_model</span><span class="o">=</span><span class="n">ToggleResponse</span><span class="p">)</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/start&quot;</span><span class="p">,</span> <span class="n">response_model</span><span class="o">=</span><span class="n">ToggleResponse</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">start_recording</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">ToggleResponse</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Inicia grabación explícitamente.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="k">await</span> <span class="n">_state</span><span class="o">.</span><span class="n">orchestrator</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
@@ -2709,10 +2707,10 @@ show_source: true</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>apps/daemon/backend/src/v2m/api.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">214</span>
-<span class="normal">215</span>
-<span class="normal">216</span>
-<span class="normal">217</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/stop&quot;</span><span class="p">,</span> <span class="n">response_model</span><span class="o">=</span><span class="n">ToggleResponse</span><span class="p">)</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/stop&quot;</span><span class="p">,</span> <span class="n">response_model</span><span class="o">=</span><span class="n">ToggleResponse</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">stop_recording</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">ToggleResponse</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Detiene grabación y transcribe.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="k">await</span> <span class="n">_state</span><span class="o">.</span><span class="n">orchestrator</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
@@ -2744,10 +2742,10 @@ show_source: true</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>apps/daemon/backend/src/v2m/api.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">236</span>
-<span class="normal">237</span>
-<span class="normal">238</span>
-<span class="normal">239</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/status&quot;</span><span class="p">,</span> <span class="n">response_model</span><span class="o">=</span><span class="n">StatusResponse</span><span class="p">)</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/status&quot;</span><span class="p">,</span> <span class="n">response_model</span><span class="o">=</span><span class="n">StatusResponse</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_status</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">StatusResponse</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Retorna estado actual del daemon.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_state</span><span class="o">.</span><span class="n">orchestrator</span><span class="o">.</span><span class="n">get_status</span><span class="p">()</span>
@@ -2779,10 +2777,10 @@ show_source: true</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>apps/daemon/backend/src/v2m/api.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">242</span>
-<span class="normal">243</span>
-<span class="normal">244</span>
-<span class="normal">245</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/health&quot;</span><span class="p">,</span> <span class="n">response_model</span><span class="o">=</span><span class="n">HealthResponse</span><span class="p">)</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/health&quot;</span><span class="p">,</span> <span class="n">response_model</span><span class="o">=</span><span class="n">HealthResponse</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">health_check</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">HealthResponse</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Health check para systemd/scripts.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">HealthResponse</span><span class="p">()</span>
@@ -2815,17 +2813,15 @@ show_source: true</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>apps/daemon/backend/src/v2m/api.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">220</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
 <span class="normal">221</span>
-<span class="normal">222</span>
-<span class="normal">223</span>
-<span class="normal">224</span>
-<span class="normal">225</span>
-<span class="normal">226</span>
-<span class="normal">227</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/llm/process&quot;</span><span class="p">,</span> <span class="n">response_model</span><span class="o">=</span><span class="n">LLMResponse</span><span class="p">)</span>
+<span class="normal">222</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/llm/process&quot;</span><span class="p">,</span> <span class="n">response_model</span><span class="o">=</span><span class="n">LLMResponse</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">process_text</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">ProcessTextRequest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LLMResponse</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Procesa texto con LLM (limpieza, puntuación, formato).</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Procesa texto con LLM (limpieza, puntuación, formato).</span>
 
 <span class="sd">    El backend se selecciona según config.toml (gemini/ollama/local).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -2858,10 +2854,10 @@ show_source: true</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>apps/daemon/backend/src/v2m/api.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">230</span>
-<span class="normal">231</span>
-<span class="normal">232</span>
-<span class="normal">233</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/llm/translate&quot;</span><span class="p">,</span> <span class="n">response_model</span><span class="o">=</span><span class="n">LLMResponse</span><span class="p">)</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/llm/translate&quot;</span><span class="p">,</span> <span class="n">response_model</span><span class="o">=</span><span class="n">LLMResponse</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">translate_text</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">TranslateTextRequest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LLMResponse</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Traduce texto con LLM.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="k">await</span> <span class="n">_state</span><span class="o">.</span><span class="n">orchestrator</span><span class="o">.</span><span class="n">translate_text</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">target_lang</span><span class="p">)</span>
