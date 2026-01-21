@@ -1,5 +1,4 @@
-"""
-Configuración de Logging Estructurado (JSON).
+"""Configuración de Logging Estructurado (JSON).
 
 Este módulo configura un sistema de logging que emite registros en formato JSON,
 facilitando el análisis automatizado, la búsqueda y la agregación de logs en
@@ -23,8 +22,7 @@ from pythonjsonlogger import json
 
 
 def setup_logging() -> _logging.Logger:
-    """
-    Configura y retorna un logger estructurado en formato JSON.
+    """Configura y retorna un logger estructurado en formato JSON.
 
     Crea un logger llamado 'v2m' configurado para emitir mensajes de nivel
     INFO o superior a stdout.

@@ -1,5 +1,4 @@
-"""
-voice2machine (v2m) - Sistema de dictado por voz para Linux.
+"""voice2machine (v2m) - Sistema de dictado por voz para Linux.
 
 Este paquete proporciona una solución completa de dictado por voz que convierte
 audio en texto utilizando el modelo Whisper de OpenAI ejecutándose localmente en GPU.

@@ -1,5 +1,4 @@
-"""
-Implementación del Servicio de Transcripción Whisper.
+"""Implementación del Servicio de Transcripción Whisper.
 
 Este módulo implementa la interfaz `TranscriptionService` utilizando
 `persistent_model` para gestionar el ciclo de vida del modelo de forma eficiente
@@ -19,14 +18,12 @@ from v2m.infrastructure.streaming_transcriber import StreamingTranscriber
 
 
 class WhisperTranscriptionService(TranscriptionService):
-    """
-    Implementación concreta de `TranscriptionService` utilizando `faster-whisper`
+    """Implementación concreta de `TranscriptionService` utilizando `faster-whisper`
     gestionado por un worker persistente. Soporta streaming.
     """
 
     def __init__(self, worker: PersistentWhisperWorker, session_manager: SessionManagerInterface) -> None:
-        """
-        Inicializa el servicio de transcripción.
+        """Inicializa el servicio de transcripción.
 
         Args:
             worker: Worker persistente que gestiona el modelo Whisper.
@@ -42,8 +39,7 @@ class WhisperTranscriptionService(TranscriptionService):
         self._streaming_task = None  # Track streaming task reference
 
     def start_recording(self) -> None:
-        """
-        Inicia la grabación de audio y el streaming.
+        """Inicia la grabación de audio y el streaming.
 
         Raises:
             RecordingError: Si falla el inicio de la grabación.
@@ -66,8 +62,7 @@ class WhisperTranscriptionService(TranscriptionService):
             raise RecordingError(str(e)) from e
 
     async def stop_and_transcribe(self) -> str:
-        """
-        Detiene la grabación y devuelve el resultado final.
+        """Detiene la grabación y devuelve el resultado final.
 
         Returns:
             str: El texto transcrito.

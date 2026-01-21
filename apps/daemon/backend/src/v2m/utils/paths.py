@@ -1,5 +1,4 @@
-"""
-Utilidad de Rutas Seguras.
+"""Utilidad de Rutas Seguras.
 
 Gestiona las rutas de archivos temporales y de ejecución, garantizando
 la seguridad y el cumplimiento de los estándares XDG (XDG_RUNTIME_DIR).
@@ -12,8 +11,7 @@ from pathlib import Path
 
 
 def get_secure_runtime_dir(app_name: str = "v2m") -> Path:
-    """
-    Retorna un directorio de ejecución seguro para la aplicación.
+    """Retorna un directorio de ejecución seguro para la aplicación.
 
     Prioriza `XDG_RUNTIME_DIR` (estándar en Linux para archivos temporales
     específicos del usuario), luego recurre a un subdirectorio en `/tmp`

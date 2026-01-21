@@ -7,8 +7,7 @@ from v2m.core.logging import logger
 
 
 def configure_gpu_environment() -> None:
-    """
-    Configura dinámicamente las rutas de librerías NVIDIA (cuDNN, Cublas) en el entorno.
+    """Configura dinámicamente las rutas de librerías NVIDIA (cuDNN, Cublas) en el entorno.
 
     Estrategia SOTA (2026) para entornos aislados (venv):
     1. Identifica rutas de librerías nvidia instaladas vía pip.

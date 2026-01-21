@@ -1,5 +1,4 @@
-"""
-Implementación del Servicio LLM utilizando la API de Google Gemini.
+"""Implementación del Servicio LLM utilizando la API de Google Gemini.
 
 Esta es una implementación concreta de la interfaz `LLMService`. Es responsable
 de toda la lógica de comunicación con el servicio de Google Gemini, incluyendo
@@ -20,16 +19,14 @@ from v2m.domain.errors import LLMError
 
 
 class GeminiLLMService(LLMService):
-    """
-    Implementación del `LLMService` que se conecta con Google Gemini.
+    """Implementación del `LLMService` que se conecta con Google Gemini.
 
     Gestiona la configuración del cliente de la API, la formulación de las
     peticiones y la lógica de reintentos para asegurar una comunicación robusta.
     """
 
     def __init__(self) -> None:
-        """
-        Inicializa el servicio de Google Gemini.
+        """Inicializa el servicio de Google Gemini.
 
         Acciones del constructor:
         1. Obtiene la configuración y la API Key desde `config.py` (Pydantic Settings).
@@ -76,8 +73,7 @@ class GeminiLLMService(LLMService):
         reraise=True,  # Re-lanzar la excepción si se agotan los intentos
     )
     async def process_text(self, text: str) -> str:
-        """
-        Procesa un texto utilizando el modelo de Google Gemini.
+        """Procesa un texto utilizando el modelo de Google Gemini.
 
         Implementa una estrategia de reintentos con `tenacity` para manejar
         errores transitorios de red o de la API de forma resiliente.
@@ -130,8 +126,7 @@ class GeminiLLMService(LLMService):
         reraise=True,
     )
     async def translate_text(self, text: str, target_lang: str) -> str:
-        """
-        Traduce un texto utilizando el modelo de Google Gemini.
+        """Traduce un texto utilizando el modelo de Google Gemini.
 
         Args:
             text: El texto a traducir.

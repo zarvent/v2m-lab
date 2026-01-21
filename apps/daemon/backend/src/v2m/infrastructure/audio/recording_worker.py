@@ -1,5 +1,4 @@
-"""
-Script worker para grabación de audio en proceso independiente.
+"""Script worker para grabación de audio en proceso independiente.
 
 Este script se utiliza para ejecutar la grabación de audio en un proceso
 separado, aislando la captura de audio del proceso principal de la aplicación.
@@ -23,9 +22,7 @@ stop_requested = False
 
 
 def signal_handler(sig, frame):
-    """
-    Manejador de señales para detener la grabación limpiamente.
-    """
+    """Manejador de señales para detener la grabación limpiamente."""
     global stop_requested
     stop_requested = True
 
@@ -35,8 +32,7 @@ signal.signal(signal.SIGTERM, signal_handler)
 
 
 def main():
-    """
-    Punto de entrada para el worker de grabación independiente.
+    """Punto de entrada para el worker de grabación independiente.
 
     Este script se ejecuta como un proceso separado para aislar la grabación de audio
     del proceso principal.

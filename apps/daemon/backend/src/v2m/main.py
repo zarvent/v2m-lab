@@ -1,5 +1,4 @@
-"""
-Punto de Entrada Principal para Voice2Machine (SOTA 2026).
+"""Punto de Entrada Principal para Voice2Machine (SOTA 2026).
 
 Este módulo inicia el servidor FastAPI con Uvicorn, reemplazando el sistema
 IPC manual basado en sockets Unix.
@@ -28,8 +27,7 @@ DEFAULT_HOST = "127.0.0.1"
 
 
 def _setup_uvloop() -> None:
-    """
-    Configura uvloop como el bucle de eventos si está disponible.
+    """Configura uvloop como el bucle de eventos si está disponible.
     Optimiza el rendimiento de I/O asíncrono en sistemas *nix.
     """
     try:

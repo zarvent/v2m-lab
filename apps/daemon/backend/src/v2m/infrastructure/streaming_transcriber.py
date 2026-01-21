@@ -1,5 +1,4 @@
-"""
-SOTA 2026 Streaming Transcriber con arquitectura Producer-Consumer.
+"""SOTA 2026 Streaming Transcriber con arquitectura Producer-Consumer.
 
 Este módulo implementa un sistema de transcripción streaming basado en segmentos que:
 1. Desacopla la ingesta de audio (Producer) del procesamiento VAD/Whisper (Consumer)
@@ -51,8 +50,7 @@ HEARTBEAT_INTERVAL = 2.0  # Intervalo de heartbeat en segundos
 
 
 class StreamingTranscriber:
-    """
-    Transcriptor de streaming con arquitectura Producer-Consumer.
+    """Transcriptor de streaming con arquitectura Producer-Consumer.
 
     El Producer (ingesta de audio) corre en una tarea separada del Consumer
     (VAD + Whisper), permitiendo que el audio se acumule en una cola si
@@ -178,8 +176,7 @@ class StreamingTranscriber:
     # =========================================================================
 
     async def _audio_producer_loop(self) -> None:
-        """
-        Tarea Producer (Alta Prioridad).
+        """Tarea Producer (Alta Prioridad).
 
         Su única misión es sacar datos de Rust y meterlos en la cola.
         Operación O(1) - instantánea. Nunca se bloquea en inferencia.
@@ -211,8 +208,7 @@ class StreamingTranscriber:
     # =========================================================================
 
     async def _audio_consumer_loop(self) -> str:
-        """
-        Tarea Consumer (Prioridad IA).
+        """Tarea Consumer (Prioridad IA).
 
         Procesa VAD y Whisper a su propio ritmo. Si se atrasa,
         la cola crece pero el audio NO se pierde.
@@ -351,8 +347,7 @@ class StreamingTranscriber:
     # =========================================================================
 
     def _detect_speech(self, chunk: np.ndarray) -> bool:
-        """
-        Detecta habla usando Silero VAD con fallback a energía.
+        """Detecta habla usando Silero VAD con fallback a energía.
 
         Silero VAD es SOTA 2026 - ignora respiraciones, tecleo, etc.
         El fallback de energía es menos preciso pero funciona sin torch.
@@ -405,8 +400,7 @@ class StreamingTranscriber:
     # =========================================================================
 
     def _build_context_prompt(self) -> str:
-        """
-        Build context prompt from sliding window.
+        """Build context prompt from sliding window.
 
         Uses last 200 chars to avoid Whisper's 224-token limit
         which can cause looping hallucinations.
@@ -422,8 +416,7 @@ class StreamingTranscriber:
             self._context_window = (self._context_window + " " + clean_text)[-CONTEXT_WINDOW_CHARS:]
 
     async def _infer_provisional(self, audio_chunks: list[np.ndarray]) -> str:
-        """
-        Fast provisional inference for real-time feedback.
+        """Fast provisional inference for real-time feedback.
 
         Uses greedy decoding (beam_size=1) for speed.
         """
@@ -457,8 +450,7 @@ class StreamingTranscriber:
             return ""
 
     async def _infer_final(self, audio_chunks: list[np.ndarray]) -> str:
-        """
-        High-quality final inference for committed segments.
+        """High-quality final inference for committed segments.
 
         Uses configured beam search and VAD parameters.
         """

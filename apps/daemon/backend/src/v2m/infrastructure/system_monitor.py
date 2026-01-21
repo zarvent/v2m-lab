@@ -1,5 +1,4 @@
-"""
-Servicio de Monitoreo del Sistema.
+"""Servicio de Monitoreo del Sistema.
 
 Este servicio se encarga de recolectar métricas del sistema en tiempo real.
 Utiliza `v2m_engine` (Rust) para métricas de CPU/RAM con bajo overhead, con fallback
@@ -30,8 +29,7 @@ except ImportError:
 
 
 class SystemMonitor:
-    """
-    Monitor de recursos del sistema para observabilidad en tiempo real.
+    """Monitor de recursos del sistema para observabilidad en tiempo real.
 
     Provee métricas de RAM, CPU y GPU (si está disponible).
     Optimizado para minimizar overhead mediante el uso de Rust y caché de metadatos estáticos.
@@ -91,8 +89,7 @@ class SystemMonitor:
             return False
 
     def get_system_metrics(self) -> dict[str, Any]:
-        """
-        Obtiene una instantánea de las métricas actuales del sistema.
+        """Obtiene una instantánea de las métricas actuales del sistema.
 
         Returns:
             dict[str, Any]: Diccionario con claves 'ram', 'cpu', 'gpu' (opcional).
@@ -132,8 +129,7 @@ class SystemMonitor:
         return {"percent": psutil.cpu_percent(interval=None)}
 
     def _get_gpu_usage(self) -> dict[str, Any]:
-        """
-        Retorna uso real de GPU usando torch.cuda.
+        """Retorna uso real de GPU usando torch.cuda.
 
         Returns:
             dict[str, Any]: Métricas de GPU: name, vram_used_mb, vram_total_mb, temp_c.

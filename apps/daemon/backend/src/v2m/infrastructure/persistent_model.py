@@ -24,8 +24,7 @@ def _safe_log(level: int, msg: str) -> None:
 
 
 class PersistentWhisperWorker:
-    """
-    Gestiona una instancia persistente del modelo Whisper en un hilo dedicado.
+    """Gestiona una instancia persistente del modelo Whisper en un hilo dedicado.
     Implementa política de 'keep-warm' por defecto, liberando recursos solo bajo presión de memoria.
     """
 
@@ -79,8 +78,7 @@ class PersistentWhisperWorker:
             _safe_log(logging.INFO, f"Modelo precargado. [device={self.device}, compute_type={self.compute_type}]")
 
     async def run_inference(self, func, *args, **kwargs):
-        """
-        Ejecuta una función de inferencia (que usa el modelo) en el executor dedicado.
+        """Ejecuta una función de inferencia (que usa el modelo) en el executor dedicado.
         La función `func` debe aceptar `model` como primer argumento.
         """
         async with self._lock:

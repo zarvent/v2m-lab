@@ -1,5 +1,4 @@
-"""
-Excepciones Personalizadas del Dominio de Voice2Machine.
+"""Excepciones Personalizadas del Dominio de Voice2Machine.
 
 Este módulo define la jerarquía de excepciones específicas de la aplicación.
 Estas excepciones representan errores de negocio semánticos que permiten un
@@ -24,8 +23,7 @@ Beneficios:
 
 
 class ApplicationError(Exception):
-    """
-    Clase base para todas las excepciones de dominio de la aplicación.
+    """Clase base para todas las excepciones de dominio de la aplicación.
 
     Heredar de una clase base común permite capturar todos los errores de
     negocio conocidos con un solo bloque `except ApplicationError`, diferenciándolos
@@ -36,8 +34,7 @@ class ApplicationError(Exception):
 
 
 class MicrophoneNotFoundError(ApplicationError):
-    """
-    Excepción lanzada cuando no se detecta ningún micrófono funcional.
+    """Excepción lanzada cuando no se detecta ningún micrófono funcional.
 
     Indica que el dispositivo de entrada de audio predeterminado no está
     disponible o accesible.
@@ -52,8 +49,7 @@ class MicrophoneNotFoundError(ApplicationError):
 
 
 class RecordingError(ApplicationError):
-    """
-    Excepción lanzada cuando ocurre un error durante el proceso de grabación.
+    """Excepción lanzada cuando ocurre un error durante el proceso de grabación.
 
     Cubre el ciclo de vida de la captura: inicio, flujo de datos y detención.
 
@@ -67,8 +63,7 @@ class RecordingError(ApplicationError):
 
 
 class TranscriptionError(ApplicationError):
-    """
-    Excepción lanzada cuando falla el proceso de transcripción (Whisper).
+    """Excepción lanzada cuando falla el proceso de transcripción (Whisper).
 
     Indica que el audio fue capturado pero la inferencia falló.
 
@@ -82,8 +77,7 @@ class TranscriptionError(ApplicationError):
 
 
 class LLMError(ApplicationError):
-    """
-    Excepción lanzada cuando falla la comunicación o inferencia con el LLM.
+    """Excepción lanzada cuando falla la comunicación o inferencia con el LLM.
 
     Encapsula errores de proveedores externos (Gemini) o locales (Ollama/Llama).
 

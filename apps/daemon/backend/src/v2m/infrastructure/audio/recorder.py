@@ -24,8 +24,7 @@ except ImportError:
 
 
 class AudioRecorder:
-    """
-    Clase responsable de la grabación de audio.
+    """Clase responsable de la grabación de audio.
 
     Implementa el patrón de fachada ("Strangler Fig") para modernizar el stack de audio,
     seleccionando automáticamente entre dos motores para garantizar estabilidad y rendimiento.
@@ -52,8 +51,7 @@ class AudioRecorder:
     def __init__(
         self, sample_rate: int = 16000, channels: int = 1, max_duration_sec: int = 600, device_index: int | None = None
     ):
-        """
-        Inicializa el grabador de audio.
+        """Inicializa el grabador de audio.
 
         Args:
             sample_rate: Frecuencia de muestreo en Hz.
@@ -118,8 +116,7 @@ class AudioRecorder:
         return self._buffer[:num_samples]
 
     def start(self):
-        """
-        Inicia la grabación de audio.
+        """Inicia la grabación de audio.
 
         Raises:
             RecordingError: Si la grabación ya está en progreso o falla al iniciar el stream.
@@ -191,8 +188,7 @@ class AudioRecorder:
             raise RecordingError(f"falló al iniciar la grabación {e}") from e
 
     def stop(self, save_path: Path | None = None, return_data: bool = True, copy_data: bool = True) -> np.ndarray:
-        """
-        Detiene la grabación y devuelve el audio capturado.
+        """Detiene la grabación y devuelve el audio capturado.
 
         Args:
             save_path: Ruta opcional para guardar el audio como archivo WAV.
@@ -264,8 +260,7 @@ class AudioRecorder:
     # =========================================================================
 
     async def wait_for_data(self) -> None:
-        """
-        Wait asynchronously for new audio data to be available.
+        """Wait asynchronously for new audio data to be available.
 
         This method delegates to the Rust engine's wait_for_data() which uses
         tokio::Notify for efficient async waiting without polling.
@@ -282,8 +277,7 @@ class AudioRecorder:
         await self._rust_recorder.wait_for_data()
 
     def read_chunk(self) -> "np.ndarray":
-        """
-        Read available audio data from the ring buffer.
+        """Read available audio data from the ring buffer.
 
         Returns all samples currently in the buffer without blocking.
         Used for streaming transcription where we process audio incrementally.

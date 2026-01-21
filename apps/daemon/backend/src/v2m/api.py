@@ -1,5 +1,4 @@
-"""
-API REST para Voice2Machine (SOTA 2026).
+"""API REST para Voice2Machine (SOTA 2026).
 
 Reemplaza el sistema IPC manual (sockets Unix + framing binario) por endpoints HTTP
 estándar. Un Junior puede probar con `curl`, un Senior puede extender con WebSockets.
@@ -87,8 +86,7 @@ class HealthResponse(BaseModel):
 
 
 class DaemonState:
-    """
-    Estado global del daemon.
+    """Estado global del daemon.
 
     Lazy initialization: los servicios se crean cuando se necesitan por primera vez.
     Esto permite que el servidor arranque rápido y cargue el modelo en background.
@@ -141,8 +139,7 @@ _background_tasks: set[asyncio.Task[None]] = set()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """
-    Gestión del ciclo de vida de la aplicación.
+    """Gestión del ciclo de vida de la aplicación.
 
     Startup: Carga el modelo Whisper en VRAM (warmup).
     Shutdown: Libera recursos GPU.
@@ -194,8 +191,7 @@ app = FastAPI(
 
 @app.post("/toggle", response_model=ToggleResponse)
 async def toggle_recording() -> ToggleResponse:
-    """
-    Toggle de grabación (iniciar/detener).
+    """Toggle de grabación (iniciar/detener).
 
     Si no está grabando → inicia grabación.
     Si está grabando → detiene y transcribe.
@@ -219,8 +215,7 @@ async def stop_recording() -> ToggleResponse:
 
 @app.post("/llm/process", response_model=LLMResponse)
 async def process_text(request: ProcessTextRequest) -> LLMResponse:
-    """
-    Procesa texto con LLM (limpieza, puntuación, formato).
+    """Procesa texto con LLM (limpieza, puntuación, formato).
 
     El backend se selecciona según config.toml (gemini/ollama/local).
     """
@@ -252,8 +247,7 @@ async def health_check() -> HealthResponse:
 
 @app.websocket("/ws/events")
 async def websocket_events(websocket: WebSocket) -> None:
-    """
-    Stream de eventos en tiempo real.
+    """Stream de eventos en tiempo real.
 
     Eventos emitidos:
     - transcription_update: {text: str, final: bool}

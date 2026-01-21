@@ -1,5 +1,4 @@
-"""
-Puertos del Dominio (Modelos de Datos).
+"""Puertos del Dominio (Modelos de Datos).
 
 Este módulo define modelos Pydantic utilizados para estructurar las salidas
 de los proveedores de LLM que soportan restricciones de esquema JSON (ej. Ollama).
@@ -10,8 +9,7 @@ from pydantic import BaseModel, Field
 
 
 class CorrectionResult(BaseModel):
-    """
-    Modelo de salida estructurada para refinamiento de texto.
+    """Modelo de salida estructurada para refinamiento de texto.
 
     Este modelo fuerza a los LLMs a responder en un formato JSON predecible,
     facilitando el parsing y reduciendo alucinaciones de formato.

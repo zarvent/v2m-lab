@@ -1,5 +1,4 @@
-"""
-Servicio de Transcripción de Archivos (SOTA 2026).
+"""Servicio de Transcripción de Archivos (SOTA 2026).
 
 Este módulo maneja la extracción y transcripción de audio desde diversos formatos
 de archivo. Optimizado para rendimiento extremo siguiendo filosofía "do more with less".
@@ -50,8 +49,7 @@ FFMPEG_TIMEOUT_AUDIO = 120  # 2 min para audio
 
 
 class FileTranscriptionService:
-    """
-    Servicio para transcripción de archivos de audio/video.
+    """Servicio para transcripción de archivos de audio/video.
 
     Utiliza FFmpeg para normalizar/extraer audio y el modelo Whisper existente
     para la transcripción. Diseñado para reutilizar el modelo ya cargado en memoria.
@@ -60,8 +58,7 @@ class FileTranscriptionService:
     __slots__ = ("_ffmpeg_available", "_ffmpeg_version", "worker")
 
     def __init__(self, worker: PersistentWhisperWorker) -> None:
-        """
-        Inicializa el servicio.
+        """Inicializa el servicio.
 
         Args:
             worker: Worker persistente que contiene el modelo Whisper.
@@ -92,9 +89,7 @@ class FileTranscriptionService:
             return False, ""
 
     def transcribe_file(self, file_path: str) -> str:
-        """
-        Transcribe audio desde un archivo (sync wrapper para async).
-        """
+        """Transcribe audio desde un archivo (sync wrapper para async)."""
         # Ejecutar versión async
         try:
             loop = asyncio.get_running_loop()
@@ -103,9 +98,7 @@ class FileTranscriptionService:
             return asyncio.run(self._transcribe_file_async(file_path))
 
     async def _transcribe_file_async(self, file_path: str) -> str:
-        """
-        Transcribe audio desde un archivo (async implementation).
-        """
+        """Transcribe audio desde un archivo (async implementation)."""
         total_start = time.perf_counter()
         path = Path(file_path)
 
@@ -203,9 +196,7 @@ class FileTranscriptionService:
         return audio_data
 
     async def _transcribe_audio_data_async(self, audio_data: np.ndarray) -> str:
-        """
-        Transcribe datos de audio usando el modelo Whisper via PersistentWorker.
-        """
+        """Transcribe datos de audio usando el modelo Whisper via PersistentWorker."""
         duration = len(audio_data) / 16000
         whisper_config = config.transcription.whisper
 

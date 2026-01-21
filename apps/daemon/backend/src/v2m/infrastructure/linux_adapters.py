@@ -1,5 +1,4 @@
-"""
-Adaptadores de Sistema para Linux.
+"""Adaptadores de Sistema para Linux.
 
 Implementaciones concretas de interfaces de sistema para entornos Linux,
 incluyendo detección automática de servidor de pantalla (X11 vs Wayland)
@@ -17,8 +16,7 @@ from v2m.core.logging import logger
 
 
 class LinuxClipboardAdapter(ClipboardInterface):
-    """
-    Adaptador de portapapeles para Linux usando xclip o wl-clipboard.
+    """Adaptador de portapapeles para Linux usando xclip o wl-clipboard.
 
     Detecta automáticamente el entorno gráfico (X11 vs Wayland) y selecciona
     la herramienta de línea de comandos apropiada. Prioriza variables de
@@ -32,8 +30,7 @@ class LinuxClipboardAdapter(ClipboardInterface):
         self._detect_environment()
 
     def _find_xauthority(self) -> str | None:
-        """
-        Localiza el archivo .Xauthority necesario para X11.
+        """Localiza el archivo .Xauthority necesario para X11.
 
         Busca en ubicaciones estándar ($XAUTHORITY, home, /run/user).
 
@@ -61,8 +58,7 @@ class LinuxClipboardAdapter(ClipboardInterface):
         return None
 
     def _detect_environment(self) -> None:
-        """
-        Detecta el entorno gráfico (Wayland vs X11).
+        """Detecta el entorno gráfico (Wayland vs X11).
 
         Estrategia:
         1. Variables de Entorno (Prioridad más alta).
@@ -167,8 +163,7 @@ class LinuxClipboardAdapter(ClipboardInterface):
             logger.error(f"fallo al copiar al portapapeles: {e}")
 
     def paste(self) -> str:
-        """
-        Recupera texto del portapapeles.
+        """Recupera texto del portapapeles.
 
         Returns:
             str: Contenido del portapapeles o cadena vacía si falla.
@@ -199,8 +194,7 @@ class LinuxClipboardAdapter(ClipboardInterface):
 
 
 class LinuxNotificationAdapter(NotificationInterface):
-    """
-    Adaptador de notificaciones para Linux.
+    """Adaptador de notificaciones para Linux.
 
     Wrapper obsoleto para compatibilidad hacia atrás.
     Use `v2m.infrastructure.notification_service.LinuxNotificationService` directamente.

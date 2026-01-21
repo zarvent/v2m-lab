@@ -1,5 +1,4 @@
-"""
-Servicio Gestor de Configuración (Config Manager).
+"""Servicio Gestor de Configuración (Config Manager).
 
 Gestiona la lectura y escritura del archivo de configuración global `config.toml`.
 Permite actualizaciones en tiempo real asegurando la integridad del formato TOML.
@@ -19,14 +18,12 @@ logger = logging.getLogger(__name__)
 
 
 class ConfigManager:
-    """
-    Gestor de configuración para `config.toml`.
+    """Gestor de configuración para `config.toml`.
     Actúa como una fachada para las operaciones de E/S de configuración.
     """
 
     def __init__(self, config_path: str = "config.toml") -> None:
-        """
-        Inicializa el gestor de configuración.
+        """Inicializa el gestor de configuración.
 
         Args:
             config_path: Ruta relativa o absoluta al archivo de configuración.
@@ -41,8 +38,7 @@ class ConfigManager:
         logger.info("gestor de configuración inicializado", extra={"ruta": str(self.config_path)})
 
     def load_config(self) -> dict[str, Any]:
-        """
-        Lee la configuración actual del disco.
+        """Lee la configuración actual del disco.
 
         Returns:
             dict: Diccionario con la configuración cargada.
@@ -54,8 +50,7 @@ class ConfigManager:
             raise
 
     def update_config(self, new_config: dict[str, Any]) -> None:
-        """
-        Actualiza el archivo de configuración con nuevos valores.
+        """Actualiza el archivo de configuración con nuevos valores.
         Realiza un merge profundo simple (sobrescribe claves existentes).
 
         Args:

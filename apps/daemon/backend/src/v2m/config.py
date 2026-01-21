@@ -1,5 +1,4 @@
-"""
-Módulo de Configuración de la Aplicación.
+"""Módulo de Configuración de la Aplicación.
 
 Provee un sistema de configuración robusto y tipado utilizando Pydantic Settings.
 Soporta múltiples fuentes de configuración con la siguiente prioridad (de mayor a menor):
@@ -57,8 +56,7 @@ RUNTIME_DIR = get_secure_runtime_dir()
 
 
 class PathsConfig(BaseModel):
-    """
-    Configuración para rutas de archivos y directorios.
+    """Configuración para rutas de archivos y directorios.
 
     Atributos:
         recording_flag: Ruta al archivo PID que indica grabación activa.
@@ -74,8 +72,7 @@ class PathsConfig(BaseModel):
 
 
 class VadParametersConfig(BaseModel):
-    """
-    Parámetros para la Detección de Actividad de Voz (VAD).
+    """Parámetros para la Detección de Actividad de Voz (VAD).
 
     El VAD filtra segmentos de silencio antes de la transcripción para mejorar la eficiencia
     y reducir alucinaciones del modelo.
@@ -98,8 +95,7 @@ class VadParametersConfig(BaseModel):
 
 
 class WhisperConfig(BaseModel):
-    """
-    Configuración del modelo de transcripción Whisper.
+    """Configuración del modelo de transcripción Whisper.
 
     Atributos:
         model: Nombre o ruta del modelo Whisper (ej. 'tiny', 'base', 'large-v3').
@@ -137,8 +133,7 @@ class WhisperConfig(BaseModel):
 
 
 class GeminiConfig(BaseModel):
-    """
-    Configuración del servicio LLM Google Gemini.
+    """Configuración del servicio LLM Google Gemini.
 
     Atributos:
         model: Identificador del modelo Gemini (ej. 'models/gemini-1.5-flash-latest').
@@ -165,8 +160,7 @@ class GeminiConfig(BaseModel):
 
 
 class NotificationsConfig(BaseModel):
-    """
-    Configuración de notificaciones de escritorio.
+    """Configuración de notificaciones de escritorio.
 
     Atributos:
         expire_time_ms: Tiempo en ms antes del cierre automático. Defecto: 3000
@@ -178,8 +172,7 @@ class NotificationsConfig(BaseModel):
 
 
 class LocalLLMConfig(BaseModel):
-    """
-    Configuración para LLM local usando llama.cpp.
+    """Configuración para LLM local usando llama.cpp.
 
     Atributos:
         model_path: Ruta al archivo del modelo GGUF.
@@ -198,8 +191,7 @@ class LocalLLMConfig(BaseModel):
 
 
 class OllamaConfig(BaseModel):
-    """
-    Configuración para backend LLM Ollama (SOTA 2026).
+    """Configuración para backend LLM Ollama (SOTA 2026).
 
     Atributos:
         host: URL del servidor Ollama. Defecto: http://localhost:11434
@@ -217,8 +209,7 @@ class OllamaConfig(BaseModel):
 
 
 class LLMConfig(BaseModel):
-    """
-    Configuración del Servicio LLM.
+    """Configuración del Servicio LLM.
 
     Atributos:
         backend: Selector de backend ("local", "gemini" u "ollama"). Defecto: "local"
@@ -232,8 +223,7 @@ class LLMConfig(BaseModel):
 
 
 class TranscriptionConfig(BaseModel):
-    """
-    Configuración del Servicio de Transcripción.
+    """Configuración del Servicio de Transcripción.
 
     Atributos:
         backend: Selector de backend ("whisper"). Defecto: "whisper"
@@ -245,8 +235,7 @@ class TranscriptionConfig(BaseModel):
 
 
 class Settings(BaseSettings):
-    """
-    Configuración Principal de la Aplicación.
+    """Configuración Principal de la Aplicación.
 
     Agrega todas las secciones de configuración utilizando Pydantic Settings.
 
@@ -282,9 +271,7 @@ class Settings(BaseSettings):
         dotenv_settings: PydanticBaseSettingsSource,
         file_secret_settings: PydanticBaseSettingsSource,
     ) -> tuple[PydanticBaseSettingsSource, ...]:
-        """
-        Personaliza la prioridad de las fuentes de configuración.
-        """
+        """Personaliza la prioridad de las fuentes de configuración."""
         return (
             init_settings,
             env_settings,

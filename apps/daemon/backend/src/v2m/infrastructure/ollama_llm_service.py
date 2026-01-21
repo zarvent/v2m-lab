@@ -1,5 +1,4 @@
-"""
-Servicio LLM Ollama con Salidas Estructuradas (State of the Art 2026).
+"""Servicio LLM Ollama con Salidas Estructuradas (State of the Art 2026).
 
 Este módulo implementa la interfaz `LLMService` utilizando Ollama como backend.
 Aprovecha las salidas estructuradas mediante JSON schema para garantizar
@@ -26,8 +25,7 @@ from v2m.domain.ports import CorrectionResult
 
 
 class OllamaLLMService(LLMService):
-    """
-    Servicio LLM utilizando Ollama con Salidas Estructuradas.
+    """Servicio LLM utilizando Ollama con Salidas Estructuradas.
 
     Implementa la interfaz `LLMService` para el refinamiento de texto utilizando
     modelos locales de Ollama. Utiliza restricciones de JSON schema (parámetro `format`)
@@ -57,8 +55,7 @@ class OllamaLLMService(LLMService):
         reraise=True,
     )
     async def process_text(self, text: str) -> str:
-        """
-        Procesa texto utilizando Ollama con Salidas Estructuradas.
+        """Procesa texto utilizando Ollama con Salidas Estructuradas.
 
         Utiliza el parámetro `format` con un esquema JSON derivado del modelo
         Pydantic `CorrectionResult` para forzar respuestas estructuradas válidas.
@@ -107,8 +104,7 @@ class OllamaLLMService(LLMService):
         reraise=True,
     )
     async def translate_text(self, text: str, target_lang: str) -> str:
-        """
-        Traduce texto utilizando Ollama.
+        """Traduce texto utilizando Ollama.
 
         Args:
             text: El texto a traducir.

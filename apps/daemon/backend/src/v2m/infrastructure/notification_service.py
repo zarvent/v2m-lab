@@ -1,5 +1,4 @@
-"""
-Servicio de Notificaciones de Escritorio para Linux.
+"""Servicio de Notificaciones de Escritorio para Linux.
 
 Este módulo implementa un servicio de notificaciones robusto que soporta
 auto-dismiss (cierre automático) programático vía DBus, resolviendo la limitación
@@ -33,8 +32,7 @@ if TYPE_CHECKING:
 
 @dataclass(frozen=True, slots=True)
 class NotificationResult:
-    """
-    Resultado inmutable de enviar una notificación.
+    """Resultado inmutable de enviar una notificación.
 
     Atributos:
         success: True si la notificación se envió correctamente.
@@ -48,8 +46,7 @@ class NotificationResult:
 
 
 class LinuxNotificationService(NotificationInterface):
-    """
-    Servicio de notificaciones para Linux con Auto-Dismiss vía DBus.
+    """Servicio de notificaciones para Linux con Auto-Dismiss vía DBus.
 
     Implementa el patrón Singleton para el ThreadPoolExecutor compartido
     entre todas las instancias, garantizando eficiencia de recursos y
@@ -72,8 +69,7 @@ class LinuxNotificationService(NotificationInterface):
     _DBUS_IFACE: ClassVar[str] = "org.freedesktop.Notifications"
 
     def __init__(self, config: NotificationsConfig | None = None) -> None:
-        """
-        Inicializa el servicio con configuración opcional.
+        """Inicializa el servicio con configuración opcional.
 
         Args:
             config: Configuración de notificaciones. Si es None, se carga
@@ -97,8 +93,7 @@ class LinuxNotificationService(NotificationInterface):
 
     @classmethod
     def _ensure_executor(cls) -> None:
-        """
-        Inicializa el ThreadPoolExecutor Singleton de forma segura (Thread-Safe).
+        """Inicializa el ThreadPoolExecutor Singleton de forma segura (Thread-Safe).
 
         Usa patrón Double-Checked Locking para evitar contención innecesaria.
         """
@@ -114,8 +109,7 @@ class LinuxNotificationService(NotificationInterface):
 
     @classmethod
     def _shutdown_executor(cls) -> None:
-        """
-        Cierra el executor limpiamente esperando tareas pendientes.
+        """Cierra el executor limpiamente esperando tareas pendientes.
 
         Llamado automáticamente por atexit o manualmente vía shutdown.
         """
@@ -126,8 +120,7 @@ class LinuxNotificationService(NotificationInterface):
             logger.debug("cierre del executor de notificaciones completado")
 
     def notify(self, title: str, message: str) -> None:
-        """
-        Envía una notificación al escritorio con auto-dismiss opcional.
+        """Envía una notificación al escritorio con auto-dismiss opcional.
 
         El método es no bloqueante: el envío y el cierre programado ocurren
         sin detener el flujo principal.
@@ -145,8 +138,7 @@ class LinuxNotificationService(NotificationInterface):
             self._send_fallback(title, message)
 
     def _send_notification(self, title: str, message: str) -> NotificationResult:
-        """
-        Envía notificación vía DBus y retorna el ID asignado.
+        """Envía notificación vía DBus y retorna el ID asignado.
 
         Usa `gdbus` para evitar dependencias de Python adicionales.
 
@@ -200,8 +192,7 @@ class LinuxNotificationService(NotificationInterface):
             return NotificationResult(success=False, error=str(e))
 
     def _schedule_dismiss(self, notification_id: int) -> None:
-        """
-        Programa el cierre de una notificación en el Thread Pool.
+        """Programa el cierre de una notificación en el Thread Pool.
 
         Args:
             notification_id: ID de la notificación a cerrar.
@@ -246,8 +237,7 @@ class LinuxNotificationService(NotificationInterface):
         self._executor.submit(dismiss_task)
 
     def _send_fallback(self, title: str, message: str) -> None:
-        """
-        Envía notificación usando `notify-send` como fallback.
+        """Envía notificación usando `notify-send` como fallback.
 
         Se usa cuando DBus no está disponible o falla. No soporta auto-dismiss
         programático preciso, pero asegura que el usuario vea el mensaje.
@@ -266,8 +256,7 @@ class LinuxNotificationService(NotificationInterface):
 
     @property
     def pending_dismissals(self) -> int:
-        """
-        Retorna el número de tareas de cierre pendientes.
+        """Retorna el número de tareas de cierre pendientes.
 
         Returns:
             int: Cantidad de tareas en cola o ejecución.
@@ -276,8 +265,7 @@ class LinuxNotificationService(NotificationInterface):
             return self._pending_count
 
     def shutdown(self, wait: bool = True) -> None:
-        """
-        Cierra esta instancia y opcionalmente espera tareas pendientes.
+        """Cierra esta instancia y opcionalmente espera tareas pendientes.
 
         Args:
             wait: Si True, bloquea hasta que terminen los cierres pendientes
@@ -289,8 +277,7 @@ class LinuxNotificationService(NotificationInterface):
 
     @classmethod
     def shutdown_all(cls) -> None:
-        """
-        Cierra el Executor Singleton y todas las instancias.
+        """Cierra el Executor Singleton y todas las instancias.
 
         Usar solo al finalizar la aplicación o en pruebas unitarias.
         """
