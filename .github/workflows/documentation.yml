@@ -8,6 +8,7 @@ on:
       - "docs/**" # Solo se ejecuta si cambias algo en docs
       - "mkdocs.yml" # O en la configuración
       - ".github/workflows/documentation.yml"
+  workflow_dispatch:
 
 permissions:
   contents: write
