@@ -1,7 +1,7 @@
 site_name: Voice2Machine
-site_description: Documentación oficial de Voice2Machine - Dictado por voz local-first.
+site_description: Documentación oficial de Voice2Machine
 site_url: https://voice2machine.local/
-repo_url: https://github.com/v2m-lab/voice2machine
+repo_url: https://github.com/zarvent/v2m-lab
 edit_uri: edit/main/docs/docs/
 
 # Configuration relative to mkdocs.yml location (root)

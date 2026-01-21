@@ -46,8 +46,15 @@ select = [
     "N",   # pep8-naming
     "SIM", # flake8-simplify
     "RUF", # reglas específicas de ruff
+    "D",   # pydocstyle (Google Style docstrings)
 ]
-ignore = []
+ignore = [
+    "D100",  # Missing docstring in public module (demasiado estricto)
+    "D104",  # Missing docstring in public package
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
 
 [tool.ruff.format]
 quote-style = "double"
