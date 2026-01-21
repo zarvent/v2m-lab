@@ -1,0 +1,42 @@
+name: Publicar Documentación
+
+on:
+  push:
+    branches:
+      - main # O 'master', asegúrate de cómo se llama tu rama principal
+    paths:
+      - "docs/**" # Solo se ejecuta si cambias algo en docs
+      - "mkdocs.yml" # O en la configuración
+      - ".github/workflows/documentation.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11" # Ajusta a la versión que use v2m-lab
+          cache: "pip"
+
+      - name: Instalar dependencias
+        run: |
+          pip install -r docs/requirements.txt
+          # Si tu código fuente es necesario para generar docs de la API, instálalo también:
+          # pip install -e .
+          # O si tienes un requirements.txt del backend:
+          # pip install -r apps/daemon/backend/requirements.txt
+
+      - name: Configurar Git (para el plugin i18n y git-revision-date)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Desplegar documentación
+        run: mkdocs gh-deploy --force
