@@ -211,13 +211,6 @@
         <xhtml:link rel="alternate" hreflang="en" href="https://zarvent.github.io/v2m-lab/en/api/backend/transcription/"/>
     </url>
     <url>
-        <loc>https://zarvent.github.io/v2m-lab/includes/abbreviations/</loc>
-        <lastmod>2026-01-21</lastmod>
-        <changefreq>daily</changefreq>
-        <xhtml:link rel="alternate" hreflang="es" href="https://zarvent.github.io/v2m-lab/includes/abbreviations/"/>
-        <xhtml:link rel="alternate" hreflang="en" href="https://zarvent.github.io/v2m-lab/en/includes/abbreviations/"/>
-    </url>
-    <url>
         <loc>https://zarvent.github.io/v2m-lab/en/</loc>
         <lastmod>2026-01-21</lastmod>
         <changefreq>daily</changefreq>
@@ -474,12 +467,5 @@
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://zarvent.github.io/v2m-lab/en/referencia_api/"/>
         <xhtml:link rel="alternate" hreflang="es" href="https://zarvent.github.io/v2m-lab/referencia_api/"/>
-    </url>
-    <url>
-        <loc>https://zarvent.github.io/v2m-lab/en/includes/abbreviations/</loc>
-        <lastmod>2026-01-21</lastmod>
-        <changefreq>daily</changefreq>
-        <xhtml:link rel="alternate" hreflang="en" href="https://zarvent.github.io/v2m-lab/en/includes/abbreviations/"/>
-        <xhtml:link rel="alternate" hreflang="es" href="https://zarvent.github.io/v2m-lab/includes/abbreviations/"/>
     </url>
 </urlset>

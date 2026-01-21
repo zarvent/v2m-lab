@@ -1,40 +1,14 @@
 # Voice2Machine Documentation Dependencies
-# Install with: pip install -r docs/requirements.txt
-#
-# This file configures all dependencies needed to build the documentation.
-# For local development: pip install -r docs/requirements.txt
+# pip install -r docs/requirements.txt
 
-# =============================================================================
-# Core Framework
-# =============================================================================
-mkdocs>=1.6.0
-mkdocs-material>=9.5.0
+# Core
+mkdocs>=1.6
+mkdocs-material>=9.5
 
-# =============================================================================
-# Material for MkDocs - Extended Features
-# =============================================================================
-# Includes: social cards (Pillow, CairoSVG) and privacy plugin
-mkdocs-material[imaging]
+# Plugins
+mkdocs-static-i18n>=1.2
+mkdocstrings[python]>=0.25
+mkdocs-git-revision-date-localized-plugin>=1.2
 
-# =============================================================================
-# Plugins - Content Generation
-# =============================================================================
-# Internationalization (i18n) - Multi-language support
-mkdocs-static-i18n>=1.2.0
-
-# API Documentation - Auto-generate from docstrings
-mkdocstrings[python]>=0.25.0
-
-# Git Information - Last updated dates
-mkdocs-git-revision-date-localized-plugin>=1.2.0
-
-# =============================================================================
-# Plugins - Optimization
-# =============================================================================
-# Minification - Smaller builds
-mkdocs-minify-plugin>=0.8.0
-
-# =============================================================================
-# Markdown Extensions
-# =============================================================================
+# Extensions
 pymdown-extensions>=10.0

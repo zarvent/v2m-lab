@@ -1,128 +1,149 @@
 # Voice2Machine Documentation
 
-> 📚 This directory contains the documentation source files for Voice2Machine.
+> 📚 Documentación del proyecto Voice2Machine
 
-## Directory Structure
+## Principios
+
+Esta documentación sigue tres principios fundamentales:
+
+1. **Simple** - Solo lo esencial, sin sobre-ingeniería
+2. **Sólida** - Estructura clara y mantenible
+3. **Sostenible** - Fácil de escalar y mantener
+
+## Estructura
 
 ```
 docs/
-├── docs/               # Documentation source files
-│   ├── assets/         # Static assets (CSS, JS, images)
-│   │   ├── stylesheets/
-│   │   │   └── extra.css       # Custom styling
-│   │   ├── javascripts/        # Custom JS (if needed)
-│   │   ├── images/             # Documentation images
-│   │   ├── logo.svg            # Site logo
-│   │   └── favicon.ico         # Browser favicon
-│   ├── includes/       # Reusable content
-│   │   └── abbreviations.md    # Automatic tooltips
-│   ├── en/             # English translations
-│   └── es/             # Spanish (default)
-├── overrides/          # Theme overrides
-│   └── partials/       # Custom template partials
-├── requirements.txt    # Python dependencies
-└── README.md          # This file
+├── docs/                   # Contenido fuente
+│   ├── assets/             # Recursos estáticos
+│   │   ├── stylesheets/    # CSS personalizado (mínimo)
+│   │   ├── logo.svg        # Logo del proyecto
+│   │   └── favicon.ico     # Favicon
+│   ├── includes/           # Contenido reutilizable
+│   ├── es/                 # Español (idioma por defecto)
+│   └── en/                 # Inglés
+├── overrides/              # Overrides del tema
+├── requirements.txt        # Dependencias Python
+└── README.md               # Este archivo
 ```
 
-## Quick Start
-
-### Prerequisites
-
-- Python 3.10+
-- pip
-
-### Local Development
+## Desarrollo Local
 
 ```bash
-# Install dependencies
+# Instalar dependencias
 pip install -r docs/requirements.txt
-
-# Install backend (for API docs)
 pip install -e apps/daemon/backend
 
-# Start development server
+# Servidor de desarrollo
 mkdocs serve
 
-# Build static site
+# Build de producción
 mkdocs build
 ```
 
-The documentation will be available at `http://localhost:8000`
+## Guía de Contenido
 
-## Writing Documentation
+### Agregar una Página
 
-### Adding a New Page
+1. Crear archivo `.md` en `docs/es/` y `docs/en/`
+2. Agregar a `nav` en `mkdocs.yml`
+3. Probar con `mkdocs serve`
 
-1. Create a new `.md` file in the appropriate language folder (`es/` or `en/`)
-2. Add the page to `nav` in `mkdocs.yml`
-3. Ensure translations exist in both languages
+### Navegación Multi-App
 
-### Using Features
+La estructura está preparada para múltiples apps:
 
-#### Admonitions (Callouts)
+```yaml
+nav:
+  - Referencia:
+      - API Python:
+          - Daemon: # ← App actual
+              - api/backend/...
+          # - Frontend:       # ← Futuras apps
+          #     - api/frontend/...
+          # - CLI:
+          #     - api/cli/...
+```
+
+### Usar Markdown
 
 ```markdown
-!!! note "Title"
-Content here.
+# Título Principal
+
+## Sección
+
+Texto normal con **negrita** y `código`.
+
+!!! note "Nota"
+Contenido de la nota.
 
 !!! warning
-Warning content.
+Contenido de advertencia.
 
-??? tip "Collapsible"
-Click to expand.
+=== "Tab 1"
+Contenido tab 1.
+
+=== "Tab 2"
+Contenido tab 2.
 ```
 
-#### Code Blocks
+### Documentar Código Python
 
-````markdown
-````python title="example.py" hl_lines="2 3"
-def hello():
-    print("Hello")
-    return True
-```​
-````
-````
-
-#### Tabs
-
-````markdown
-=== "Python"
-`python
-    print("Hello")
-    `
-
-=== "Bash"
-`bash
-    echo "Hello"
-    `
-````
-
-#### Keyboard Shortcuts
+El plugin `mkdocstrings` extrae automáticamente docstrings:
 
 ```markdown
-Press ++ctrl+shift+p++ to open the command palette.
+::: v2m.orchestrator.Orchestrator
 ```
 
-### Internationalization (i18n)
+Formato de docstrings (Google style):
 
-- Default language: Spanish (`es/`)
-- English translations in `en/`
-- Navigation translations in `mkdocs.yml` under `plugins.i18n.languages`
+```python
+def transcribir(audio: bytes) -> str:
+    """Transcribe audio a texto.
 
-## Deployment
+    Args:
+        audio: Bytes de audio en formato WAV.
 
-Documentation is automatically deployed to GitHub Pages when changes are pushed to `main`.
+    Returns:
+        Texto transcrito.
 
-- **Trigger paths**: `docs/**`, `mkdocs.yml`, `apps/daemon/backend/src/**/*.py`
-- **Output**: https://zarvent.github.io/v2m-lab/
+    Raises:
+        TranscriptionError: Si falla la transcripción.
+    """
+```
 
-## Contributing
+## Internacionalización
 
-1. Follow the [Style Guide](docs/es/style_guide.md)
-2. Ensure all pages have both Spanish and English versions
-3. Test locally with `mkdocs serve`
-4. Submit a PR with your changes
+- **Idioma por defecto**: Español (`es/`)
+- **Traducciones**: Inglés (`en/`)
+- **Navegación**: Traducciones en `mkdocs.yml` bajo `plugins.i18n`
 
-## License
+Cada página debe existir en ambos idiomas con el mismo nombre de archivo.
 
-This documentation is part of Voice2Machine, licensed under GPL-3.0.
+## CI/CD
+
+El workflow `.github/workflows/documentation.yml`:
+
+- **Trigger**: Push a `main` que modifique `docs/`, `mkdocs.yml`, o código Python
+- **Deploy**: Automático a GitHub Pages
+- **URL**: https://zarvent.github.io/v2m-lab/
+
+## Plugins Utilizados
+
+| Plugin                        | Propósito                          |
+| ----------------------------- | ---------------------------------- |
+| `mkdocs-material`             | Tema principal                     |
+| `mkdocs-static-i18n`          | Internacionalización               |
+| `mkdocstrings`                | Documentación automática de Python |
+| `git-revision-date-localized` | Fecha de última actualización      |
+
+## Qué NO Hacer
+
+- ❌ Agregar plugins innecesarios
+- ❌ CSS excesivo que override el tema
+- ❌ Páginas sin traducción
+- ❌ Documentación duplicada
+
+## Licencia
+
+Esta documentación es parte de Voice2Machine, licenciada bajo GPL-3.0.
