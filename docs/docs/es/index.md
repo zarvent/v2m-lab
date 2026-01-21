@@ -19,7 +19,7 @@ La documentación está organizada para servir a diferentes necesidades:
 ### 🚀 Exploración
 
 - [**Guía Rápida**](guia_rapida.md): Comienza a dictar en minutos.
-- [**Glosario**](glosario.md): Define términos clave como _Daemon_, _Whisper_ e _IPC_.
+- [**Glosario**](glosario.md): Define términos clave como _Daemon_, _Whisper_ y _API REST_.
 
 ### 🛠️ Procedimientos
 
@@ -30,7 +30,8 @@ La documentación está organizada para servir a diferentes necesidades:
 
 - [**Configuración**](configuracion.md): Ajusta modelos, dispositivos y comportamientos.
 - [**Atajos de Teclado**](atajos_teclado.md): Referencia de comandos globales.
-- [**API (IPC)**](referencia_api.md): Protocolo de comunicación interna.
+- [**API REST**](referencia_api.md): Documentación de endpoints HTTP y WebSocket.
+- [**API Python**](api/index.md): Referencia de clases y métodos del backend.
 
 ### 🧠 Conceptos
 

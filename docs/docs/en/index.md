@@ -31,6 +31,7 @@ The documentation is organized to serve different needs:
 - [**Configuration**](configuration.md): Adjust models, devices, and behaviors.
 - [**Keyboard Shortcuts**](keyboard_shortcuts.md): Reference for global commands.
 - [**REST API**](api_reference.md): HTTP endpoints documentation.
+- [**Python API**](api/index.md): Backend classes and methods reference.
 
 ### 🧠 Concepts
 

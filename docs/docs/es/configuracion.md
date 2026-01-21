@@ -1,7 +1,7 @@
 # ⚙️ Guía de Configuración
 
 !!! info "Gestión de Configuración"
-    La configuración se gestiona principalmente a través de la interfaz gráfica del Frontend (Icono de engranaje ⚙️). Sin embargo, los usuarios avanzados pueden editar directamente el archivo `config.toml`.
+La configuración se gestiona principalmente a través de la interfaz gráfica del Frontend (Icono de engranaje ⚙️). Sin embargo, los usuarios avanzados pueden editar directamente el archivo `config.toml`.
 
 > **Ubicación del archivo**: `$XDG_CONFIG_HOME/v2m/config.toml` (usualmente `~/.config/v2m/config.toml`).
 
@@ -11,12 +11,12 @@
 
 El corazón del sistema. Estos parámetros controlan el motor **Faster-Whisper**.
 
-| Parámetro | Tipo | Default | Descripción y "Best Practice" 2026 |
-| :--- | :--- | :--- | :--- |
-| `model` | `str` | `distil-large-v3` | Modelo a cargar. `distil-large-v3` ofrece velocidad extrema con precisión SOTA. Opciones: `large-v3-turbo`, `medium`. |
-| `device` | `str` | `cuda` | `cuda` (GPU NVIDIA) es mandatorio para experiencia en tiempo real. `cpu` es funcional pero no recomendado. |
-| `compute_type` | `str` | `float16` | Precisión de tensores. `float16` o `int8_float16` optimizan VRAM y throughput en GPUs modernas. |
-| `use_faster_whisper` | `bool` | `true` | Habilita el backend optimizado CTranslate2. |
+| Parámetro            | Tipo   | Default           | Descripción y "Best Practice" 2026                                                                                    |
+| :------------------- | :----- | :---------------- | :-------------------------------------------------------------------------------------------------------------------- |
+| `model`              | `str`  | `distil-large-v3` | Modelo a cargar. `distil-large-v3` ofrece velocidad extrema con precisión SOTA. Opciones: `large-v3-turbo`, `medium`. |
+| `device`             | `str`  | `cuda`            | `cuda` (GPU NVIDIA) es mandatorio para experiencia en tiempo real. `cpu` es funcional pero no recomendado.            |
+| `compute_type`       | `str`  | `float16`         | Precisión de tensores. `float16` o `int8_float16` optimizan VRAM y throughput en GPUs modernas.                       |
+| `use_faster_whisper` | `bool` | `true`            | Habilita el backend optimizado CTranslate2.                                                                           |
 
 ### Detección de Voz (VAD)
 
@@ -32,20 +32,25 @@ El sistema utiliza **Silero VAD** (versión Rust en `v2m_engine`) para filtrar s
 Voice2Machine implementa un patrón de **Proveedor** para soportar múltiples backends de IA para el refinado de texto.
 
 ### Configuración Global
-| Parámetro | Descripción |
-| :--- | :--- |
-| `provider` | Proveedor activo: `gemini` (Nube) u `ollama` (Local). |
-| `model` | Nombre del modelo específico (ej. `gemini-1.5-flash` o `llama3:8b`). |
+
+| Parámetro  | Descripción                                                          |
+| :--------- | :------------------------------------------------------------------- |
+| `provider` | Proveedor activo: `gemini` (Nube) u `ollama` (Local).                |
+| `model`    | Nombre del modelo específico (ej. `gemini-1.5-flash` o `llama3:8b`). |
 
 ### Proveedores Específicos
 
 #### Google Gemini (`provider = "gemini"`)
+
 Requiere API Key. Ideal para usuarios sin GPU potente (VRAM < 8GB).
+
 - **Modelo recomendado**: `gemini-1.5-flash-latest` (latencia mínima).
 - **Temperatura**: `0.3` (conservador) para corrección gramatical.
 
 #### Ollama (`provider = "ollama"`)
+
 Privacidad total. Requiere correr el servidor de Ollama (`ollama serve`).
+
 - **Endpoint**: `http://localhost:11434`
 - **Modelo recomendado**: `qwen2.5:7b` o `llama3.1:8b`.
 
@@ -61,13 +66,13 @@ Controla la captura de audio mediante `SoundDevice` y `v2m_engine`.
 
 ---
 
-## 4. Sistema e IPC (`[system]`)
+## 4. Sistema (`[system]`)
 
-Configuración de bajo nivel para el Demonio y comunicación.
+Configuración de bajo nivel para el Daemon y comunicación.
 
-- **`socket_path`**: Ruta al socket Unix (`/tmp/v2m.sock` o en `$XDG_RUNTIME_DIR`).
+- **`host`**: Host del servidor (`127.0.0.1` para acceso solo local).
+- **`port`**: Puerto HTTP (`8765` por defecto).
 - **`log_level`**: `INFO` por defecto. Cambiar a `DEBUG` para diagnósticos profundos.
-- **`max_retries`**: Intentos de reconexión del frontend al backend.
 
 ---
 
@@ -81,4 +86,4 @@ export GEMINI_API_KEY="AIzaSy_TU_CLAVE_AQUI"
 ```
 
 !!! warning "Importante"
-    Reinicia el demonio (`python -m v2m.main --daemon`) después de editar manualmente el archivo de configuración para aplicar los cambios.
+Reinicia el demonio (`python -m v2m.main`) después de editar manualmente el archivo de configuración para aplicar los cambios.
