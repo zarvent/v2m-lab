@@ -169,6 +169,48 @@
         <xhtml:link rel="alternate" hreflang="en" href="https://voice2machine.local/en/api/services/"/>
     </url>
     <url>
+        <loc>https://voice2machine.local/api/backend/</loc>
+        <lastmod>2026-01-21</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="es" href="https://voice2machine.local/api/backend/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://voice2machine.local/en/api/backend/"/>
+    </url>
+    <url>
+        <loc>https://voice2machine.local/api/backend/api/</loc>
+        <lastmod>2026-01-21</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="es" href="https://voice2machine.local/api/backend/api/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://voice2machine.local/en/api/backend/api/"/>
+    </url>
+    <url>
+        <loc>https://voice2machine.local/api/backend/config/</loc>
+        <lastmod>2026-01-21</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="es" href="https://voice2machine.local/api/backend/config/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://voice2machine.local/en/api/backend/config/"/>
+    </url>
+    <url>
+        <loc>https://voice2machine.local/api/backend/llm/</loc>
+        <lastmod>2026-01-21</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="es" href="https://voice2machine.local/api/backend/llm/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://voice2machine.local/en/api/backend/llm/"/>
+    </url>
+    <url>
+        <loc>https://voice2machine.local/api/backend/orchestrator/</loc>
+        <lastmod>2026-01-21</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="es" href="https://voice2machine.local/api/backend/orchestrator/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://voice2machine.local/en/api/backend/orchestrator/"/>
+    </url>
+    <url>
+        <loc>https://voice2machine.local/api/backend/transcription/</loc>
+        <lastmod>2026-01-21</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="es" href="https://voice2machine.local/api/backend/transcription/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://voice2machine.local/en/api/backend/transcription/"/>
+    </url>
+    <url>
         <loc>https://voice2machine.local/en/</loc>
         <lastmod>2026-01-21</lastmod>
         <changefreq>daily</changefreq>
@@ -327,6 +369,48 @@
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://voice2machine.local/en/api/services/"/>
         <xhtml:link rel="alternate" hreflang="es" href="https://voice2machine.local/api/services/"/>
+    </url>
+    <url>
+        <loc>https://voice2machine.local/en/api/backend/</loc>
+        <lastmod>2026-01-21</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://voice2machine.local/en/api/backend/"/>
+        <xhtml:link rel="alternate" hreflang="es" href="https://voice2machine.local/api/backend/"/>
+    </url>
+    <url>
+        <loc>https://voice2machine.local/en/api/backend/api/</loc>
+        <lastmod>2026-01-21</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://voice2machine.local/en/api/backend/api/"/>
+        <xhtml:link rel="alternate" hreflang="es" href="https://voice2machine.local/api/backend/api/"/>
+    </url>
+    <url>
+        <loc>https://voice2machine.local/en/api/backend/config/</loc>
+        <lastmod>2026-01-21</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://voice2machine.local/en/api/backend/config/"/>
+        <xhtml:link rel="alternate" hreflang="es" href="https://voice2machine.local/api/backend/config/"/>
+    </url>
+    <url>
+        <loc>https://voice2machine.local/en/api/backend/llm/</loc>
+        <lastmod>2026-01-21</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://voice2machine.local/en/api/backend/llm/"/>
+        <xhtml:link rel="alternate" hreflang="es" href="https://voice2machine.local/api/backend/llm/"/>
+    </url>
+    <url>
+        <loc>https://voice2machine.local/en/api/backend/orchestrator/</loc>
+        <lastmod>2026-01-21</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://voice2machine.local/en/api/backend/orchestrator/"/>
+        <xhtml:link rel="alternate" hreflang="es" href="https://voice2machine.local/api/backend/orchestrator/"/>
+    </url>
+    <url>
+        <loc>https://voice2machine.local/en/api/backend/transcription/</loc>
+        <lastmod>2026-01-21</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://voice2machine.local/en/api/backend/transcription/"/>
+        <xhtml:link rel="alternate" hreflang="es" href="https://voice2machine.local/api/backend/transcription/"/>
     </url>
     <url>
         <loc>https://voice2machine.local/en/arquitectura/</loc>

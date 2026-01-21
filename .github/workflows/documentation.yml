@@ -3,10 +3,11 @@ name: Publicar Documentación
 on:
   push:
     branches:
-      - main # O 'master', asegúrate de cómo se llama tu rama principal
+      - main
     paths:
-      - "docs/**" # Solo se ejecuta si cambias algo en docs
-      - "mkdocs.yml" # O en la configuración
+      - "docs/**"
+      - "mkdocs.yml"
+      - "apps/daemon/backend/src/**/*.py" # Rebuild on Python code changes
       - ".github/workflows/documentation.yml"
   workflow_dispatch:
 
@@ -19,25 +20,35 @@ jobs:
     steps:
       - name: Checkout del código
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Full history for git-revision-date
 
       - name: Configurar Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11" # Ajusta a la versión que use v2m-lab
+          python-version: "3.12"
           cache: "pip"
 
-      - name: Instalar dependencias
+      - name: Instalar dependencias de documentación
         run: |
           pip install -r docs/requirements.txt
-          # Si tu código fuente es necesario para generar docs de la API, instálalo también:
-          # pip install -e .
-          # O si tienes un requirements.txt del backend:
-          # pip install -r apps/daemon/backend/requirements.txt
 
-      - name: Configurar Git (para el plugin i18n y git-revision-date)
+      - name: Instalar backend para mkdocstrings
+        run: |
+          pip install -e apps/daemon/backend
+
+      - name: Verificar docstrings con ruff
+        run: |
+          pip install ruff
+          ruff check apps/daemon/backend/src --select D --ignore D100,D104 || true
+
+      - name: Configurar Git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Build documentación (verificación)
+        run: mkdocs build
 
       - name: Desplegar documentación
         run: mkdocs gh-deploy --force

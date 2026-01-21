@@ -35,7 +35,6 @@ theme:
 plugins:
   - search
   - i18n:
-      default_language: es
       docs_structure: folder
       languages:
         - locale: es
@@ -56,6 +55,7 @@ plugins:
             Atajos de Teclado: Keyboard Shortcuts
             API REST: REST API
             API Python: Python API
+            Backend: Backend
             Índice: Index
             Interfaces: Interfaces
             Dominio: Domain
@@ -69,6 +69,20 @@ plugins:
             Changelog: Changelog
             Gobernanza: Governance
             Guía de Estilo: Style Guide
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          paths:
+            - apps/daemon/backend/src
+          options:
+            docstring_style: google
+            show_source: true
+            show_root_heading: true
+            show_signature_annotations: true
+            merge_init_into_class: true
+            show_if_no_docstring: false
+            heading_level: 2
 
 markdown_extensions:
   - admonition
@@ -97,6 +111,13 @@ nav:
       - API REST: referencia_api.md
       - API Python:
           - Índice: api/index.md
+          - Backend:
+              - Índice: api/backend/index.md
+              - Orchestrator: api/backend/orchestrator.md
+              - API REST: api/backend/api.md
+              - Configuración: api/backend/config.md
+              - Transcripción: api/backend/transcription.md
+              - Servicios LLM: api/backend/llm.md
           - Interfaces: api/interfaces.md
           - Dominio: api/domain.md
           - Servicios: api/services.md
