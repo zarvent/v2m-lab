@@ -28,7 +28,12 @@ DEFAULT_HOST = "127.0.0.1"
 
 def _setup_uvloop() -> None:
     """Configura uvloop como el bucle de eventos si está disponible.
-    Optimiza el rendimiento de I/O asíncrono en sistemas *nix.
+
+    Optimiza el rendimiento de I/O asíncrono en sistemas *nix, proporcionando
+    hasta 2-4x mejor throughput en operaciones de networking.
+
+    Note:
+        Solo tiene efecto en Linux/macOS. En Windows se ignora silenciosamente.
     """
     try:
         import uvloop
@@ -40,7 +45,16 @@ def _setup_uvloop() -> None:
 
 
 def _run_server(host: str, port: int) -> None:
-    """Inicia el servidor FastAPI con Uvicorn."""
+    """Inicia el servidor FastAPI con Uvicorn.
+
+    Args:
+        host: Dirección IP o hostname para bind (ej. '127.0.0.1', '0.0.0.0').
+        port: Puerto TCP para escuchar (ej. 8765).
+
+    Note:
+        El servidor se ejecuta en modo síncrono (blocking). Para desarrollo,
+        use uvicorn directamente con --reload.
+    """
     import uvicorn
 
     logger.info(f"🚀 Iniciando V2M Server en http://{host}:{port}")
@@ -56,7 +70,15 @@ def _run_server(host: str, port: int) -> None:
 
 
 def _send_http_command(command: str, port: int) -> None:
-    """Envía un comando HTTP al servidor."""
+    """Envía un comando HTTP al servidor V2M.
+
+    Args:
+        command: Nombre del comando (toggle, start, stop, status, health).
+        port: Puerto donde el servidor está escuchando.
+
+    Raises:
+        SystemExit: Si el comando es desconocido o el servidor no responde.
+    """
     import requests
 
     base_url = f"http://127.0.0.1:{port}"
@@ -94,7 +116,12 @@ def _send_http_command(command: str, port: int) -> None:
 
 
 def main() -> None:
-    """Función principal que procesa argumentos y ejecuta el modo apropiado."""
+    """Función principal que procesa argumentos y ejecuta el modo apropiado.
+
+    Determina si actuar como servidor (sin argumentos) o como cliente CLI
+    (con comando). El modo servidor inicia FastAPI; el modo cliente envía
+    requests HTTP al servidor existente.
+    """
     parser = argparse.ArgumentParser(
         description="Voice2Machine - Transcripción de voz local con Whisper",
         formatter_class=argparse.RawDescriptionHelpFormatter,

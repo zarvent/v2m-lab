@@ -92,7 +92,12 @@ class DaemonState:
     Esto permite que el servidor arranque rápido y cargue el modelo en background.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
+        """Inicializa el estado global con servicios diferidos.
+
+        Los servicios pesados (Orchestrator, modelo Whisper) no se crean aquí.
+        Se instancian lazy la primera vez que se acceden.
+        """
         self._orchestrator: Orchestrator | None = None
         self._websocket_clients: set[WebSocket] = set()
 
@@ -106,7 +111,15 @@ class DaemonState:
         return self._orchestrator
 
     async def broadcast_event(self, event_type: str, data: dict[str, Any]) -> None:
-        """Envía evento a todos los clientes WebSocket conectados."""
+        """Envía evento a todos los clientes WebSocket conectados.
+
+        Args:
+            event_type: Tipo de evento (ej. 'transcription_update', 'heartbeat').
+            data: Payload del evento como diccionario JSON-serializable.
+
+        Note:
+            Las conexiones muertas se limpian automáticamente.
+        """
         if not self._websocket_clients:
             return
 
