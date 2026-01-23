@@ -115,6 +115,9 @@ plugins:
             Solución de Problemas: Troubleshooting
             API REST: REST API
             API Python: Python API
+            Flujos (Workflows): Workflows
+            Endpoints (FastAPI): Endpoints (FastAPI)
+            Transcripción: Transcription
             Daemon: Daemon
             Decisiones (ADR): Decisions (ADR)
             Contribuir: Contributing
@@ -192,11 +195,11 @@ nav:
           - api/index.md
           - Daemon:
               - api/backend/index.md
-              - api/backend/orchestrator.md
-              - api/backend/api.md
-              - api/backend/config.md
-              - api/backend/transcription.md
-              - api/backend/llm.md
+              - Flujos (Workflows): api/backend/workflows.md
+              - Endpoints (FastAPI): api/backend/api.md
+              - Configuración: api/backend/config.md
+              - Transcripción: api/backend/transcription.md
+              - LLM: api/backend/llm.md
           # Future apps go here:
           # - Frontend:
           #     - api/frontend/index.md

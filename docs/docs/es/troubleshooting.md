@@ -1,3 +1,11 @@
+---
+title: Solución de Problemas
+description: Guía de diagnóstico y resolución de errores comunes en Voice2Machine.
+ai_context: "Troubleshooting, Logs, Errores Comunes, CUDA, Audio"
+depends_on: []
+status: stable
+---
+
 # 🔧 Solución de Problemas (Troubleshooting)
 
 !!! danger "Regla de Oro"

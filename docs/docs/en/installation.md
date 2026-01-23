@@ -1,3 +1,11 @@
+---
+title: Installation and Setup
+description: Step-by-step guide to installing Voice2Machine and its dependencies on Linux.
+ai_context: "Installation, Linux, CUDA, Python 3.12, Rust"
+depends_on: []
+status: stable
+---
+
 # 🛠️ Installation and Setup
 
 !!! note "Prerequisite"

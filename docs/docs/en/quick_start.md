@@ -1,3 +1,11 @@
+---
+title: Quick Start
+description: Executive summary of dictation and refinement flows in Voice2Machine.
+ai_context: "Quick Start, Dictation, Refinement, UX"
+depends_on: []
+status: stable
+---
+
 # 🕹️ Quick Start
 
 !!! abstract "Executive Summary"

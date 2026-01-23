@@ -1,3 +1,11 @@
+---
+title: Contributing Guide
+description: Instructions and standards for collaborating on Voice2Machine.
+status: stable
+last_update: 2026-01-23
+language: US English
+---
+
 # ❤️ Contributing Guide
 
 Thank you for your interest in contributing to **Voice2Machine**! This project is built on collaboration and quality code.

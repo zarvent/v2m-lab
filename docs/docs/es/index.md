@@ -1,3 +1,11 @@
+---
+title: Voice2Machine
+description: Dictado por voz local de alta precisión impulsado por IA.
+status: stable
+last_update: 2026-01-23
+language: Native Latin American Spanish
+---
+
 # 🗣️ Voice2Machine: Dictado por Voz Local
 
 ## 🎯 Propósito

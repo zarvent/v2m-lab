@@ -1,3 +1,11 @@
+---
+title: Style Guide
+description: Documentation and governance standards "State of the Art 2026".
+status: stable
+last_update: 2026-01-23
+language: US English
+---
+
 # Style Guide and Governance
 
 This guide defines the standards for Voice2Machine documentation, aligned with "State of the Art 2026".

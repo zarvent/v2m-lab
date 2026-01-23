@@ -1,3 +1,11 @@
+---
+title: Arquitectura del Sistema
+description: Descripción de la arquitectura basada en Workflows y Features de Voice2Machine.
+ai_context: "Arquitectura Hexagonal, Workflows, Domain Driven Design, FastAPI, SOTA 2026"
+depends_on: []
+status: stable
+---
+
 # 🧩 Arquitectura del Sistema
 
 !!! abstract "Filosofía Técnica"
@@ -26,7 +34,7 @@ graph TD
             TranscFeat["Transcription Service"]
             LLMFeat["LLM Service"]
         end
-        
+
         subgraph Shared ["⚙️ Shared (Foundation)"]
             Config["Config"]
             Errors["Errors"]
@@ -60,7 +68,7 @@ Ubicado en `apps/daemon/backend/src/v2m/api/`.
 - **Documentación automática**: Swagger UI en `/docs`
 
 !!! info "Estructura Moderna"
-    A partir de la v0.3.0, la API se organiza como un paquete completo, separando rutas y esquemas para mayor mantenibilidad.
+A partir de la v0.3.0, la API se organiza como un paquete completo, separando rutas y esquemas para mayor mantenibilidad.
 
 ### 2. Workflows (Orquestación)
 
@@ -79,11 +87,11 @@ Ubicado en `apps/daemon/backend/src/v2m/features/`.
 
 Cada carpeta en `features/` representa un dominio de conocimiento autocontenido que incluye sus propios servicios y lógica:
 
-| Feature            | Responsabilidad                                                    |
-| ------------------ | ------------------------------------------------------------------ |
-| **transcription**  | Implementaciones de Whisper (`faster-whisper`).                    |
-| **audio**          | Captura de audio y manejo del motor Rust (`v2m_engine`).           |
-| **llm**            | Integraciones con Gemini, Ollama y otros proveedores.              |
+| Feature           | Responsabilidad                                          |
+| ----------------- | -------------------------------------------------------- |
+| **transcription** | Implementaciones de Whisper (`faster-whisper`).          |
+| **audio**         | Captura de audio y manejo del motor Rust (`v2m_engine`). |
+| **llm**           | Integraciones con Gemini, Ollama y otros proveedores.    |
 
 ### 4. Shared (Base Común)
 

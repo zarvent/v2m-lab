@@ -1,3 +1,11 @@
+---
+title: Guía de Estilo
+description: Estándares de documentación y gobernanza "State of the Art 2026".
+status: stable
+last_update: 2026-01-23
+language: Native Latin American Spanish
+---
+
 # Guía de Estilo y Gobernanza
 
 Esta guía define los estándares para la documentación de Voice2Machine, alineados con el "Estado del Arte 2026".
@@ -30,16 +38,16 @@ Usa bloques de admonition para resaltar información:
 
 ```markdown
 !!! note "Nota"
-    Información neutral.
+Información neutral.
 
 !!! tip "Consejo"
-    Ayuda para optimizar.
+Ayuda para optimizar.
 
 !!! warning "Advertencia"
-    Cuidado con esto.
+Cuidado con esto.
 
 !!! danger "Peligro"
-    Riesgo de pérdida de datos.
+Riesgo de pérdida de datos.
 ```
 
 ### Código

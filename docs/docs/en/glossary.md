@@ -1,3 +1,11 @@
+---
+title: Glossary
+description: Domain and technical terms definitions for Voice2Machine.
+status: stable
+last_update: 2026-01-23
+language: US English
+---
+
 # Glossary
 
 This glossary defines technical and domain terms used in Voice2Machine.
@@ -22,9 +30,13 @@ Communication mechanism between the Daemon (Python) and clients (scripts, fronte
 
 Speech recognition model (ASR) developed by OpenAI. Voice2Machine uses `faster-whisper`, an optimized implementation with CTranslate2.
 
-### Orchestrator
+### Workflows
 
-Central coordination component that manages the complete workflow lifecycle: recording → transcription → post-processing. Replaces the previous CQRS/CommandBus pattern with a simpler direct approach.
+Specialized coordination components that manage the complete lifecycle of a specific task (e.g., `RecordingWorkflow`, `LLMWorkflow`). They replace the old monolithic "Orchestrator" for better traceability and maintainability.
+
+### Features
+
+Self-contained modules that group domain logic and its infrastructure adapters (audio, llm, transcription). They represent the system's core capabilities.
 
 ### BackendProvider
 
@@ -34,6 +46,6 @@ Frontend component (React Context) that manages connection with the Daemon and d
 
 Sub-context in React optimized for high-frequency updates (GPU metrics, audio levels) to avoid unnecessary re-renders of the main UI.
 
-### Hexagonal Architecture
+### Modular Architecture
 
-Also known as "Ports and Adapters". Design pattern where the core business logic (the hexagon) is isolated from external concerns (databases, APIs, UI) through well-defined interfaces (ports) and implementations (adapters).
+Evolution of Hexagonal Architecture that organizes code around business modules (Features) and execution flows (Workflows), minimizing coupling and maximizing clarity.

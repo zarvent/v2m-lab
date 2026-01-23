@@ -72,7 +72,7 @@ apps/daemon/backend/
 
 ## 🔌 Socket API (DEPRECATED)
 
-> **IMPORTANT**: The Unix Socket IPC has been replaced by **FastAPI** (REST/WebSocket). 
+> **IMPORTANT**: The Unix Socket IPC has been replaced by **FastAPI** (REST/WebSocket).
 > This section is kept for historical reference during the migration period.
 
 The backend exposes a Unix Socket at `$XDG_RUNTIME_DIR/v2m/v2m.sock` (typically `/run/user/<uid>/v2m/v2m.sock`).

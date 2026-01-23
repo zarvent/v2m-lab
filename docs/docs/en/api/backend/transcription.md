@@ -1,3 +1,12 @@
+---
+title: Transcription
+description: Audio to text transcription services using faster-whisper.
+status: stable
+last_update: 2026-01-23
+language: US English
+ai_context: "Whisper, transcription, streaming, faster-whisper"
+---
+
 # Transcription
 
 Audio to text transcription services using faster-whisper.
@@ -8,7 +17,7 @@ Audio to text transcription services using faster-whisper.
 
 Persistent worker that keeps the Whisper model loaded in VRAM between sessions.
 
-**Location:** `v2m/infrastructure/persistent_model.py`
+**Location:** `v2m/features/transcription/persistent_model.py`
 
 ### Features
 
@@ -36,7 +45,7 @@ class PersistentWhisperWorker:
 
 Real-time transcriber providing provisional feedback while the user speaks.
 
-**Location:** `v2m/infrastructure/streaming_transcriber.py`
+**Location:** `v2m/features/audio/streaming_transcriber.py`
 
 ### Data Flow
 

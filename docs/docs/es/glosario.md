@@ -1,3 +1,11 @@
+---
+title: Glosario
+description: Definiciones de términos técnicos y de dominio de Voice2Machine.
+status: stable
+last_update: 2026-01-23
+language: Native Latin American Spanish
+---
+
 # Glosario
 
 Este glosario define términos técnicos y de dominio utilizados en Voice2Machine.
@@ -22,9 +30,13 @@ Mecanismo de comunicación entre el Daemon (Python) y los clientes (scripts, fro
 
 Modelo de reconocimiento de voz (ASR) desarrollado por OpenAI. Voice2Machine utiliza `faster-whisper`, una implementación optimizada con CTranslate2.
 
-### Orchestrator
+### Workflows (Flujos de Trabajo)
 
-Componente central de coordinación que gestiona el ciclo de vida completo del flujo de trabajo: grabación → transcripción → post-procesamiento. Reemplaza el patrón anterior CQRS/CommandBus con un enfoque más directo y simple.
+Componentes especializados de coordinación que gestionan el ciclo de vida completo de una tarea específica (ej: `RecordingWorkflow`, `LLMWorkflow`). Reemplazan al antiguo "Orchestrator" monolítico para una mejor trazabilidad y mantenibilidad.
+
+### Features (Características)
+
+Módulos autocontenidos que agrupan la lógica de dominio y sus adaptadores de infraestructura (audio, llm, transcripción). Representan las capacidades core del sistema.
 
 ### BackendProvider
 
@@ -34,6 +46,6 @@ Componente del frontend (React Context) que gestiona la conexión con el Daemon 
 
 Sub-contexto de React optimizado para actualizaciones de alta frecuencia (métricas de GPU, niveles de audio) para evitar re-renderizados innecesarios de la UI principal.
 
-### Arquitectura Hexagonal
+### Arquitectura Modular
 
-También conocida como "Puertos y Adaptadores". Patrón de diseño donde la lógica de negocio central (el hexágono) está aislada de las preocupaciones externas (bases de datos, APIs, UI) a través de interfaces bien definidas (puertos) e implementaciones (adaptadores).
+Evolución de la Arquitectura Hexagonal que organiza el código en torno a módulos de negocio (Features) y flujos de ejecución (Workflows), minimizando el acoplamiento y maximizando la claridad.

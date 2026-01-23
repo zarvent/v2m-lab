@@ -1,3 +1,11 @@
+---
+title: Configuration Guide
+description: Detailed instructions for configuring transcription and LLM services.
+ai_context: "Configuration, TOML, Whisper, Gemini, Ollama"
+depends_on: []
+status: stable
+---
+
 # ⚙️ Configuration Guide
 
 !!! info "Configuration Management"
@@ -86,4 +94,4 @@ export GEMINI_API_KEY="AIzaSy_YOUR_KEY_HERE"
 ```
 
 !!! warning "Important"
-Restart the daemon (`python -m v2m.main`) after manually editing the configuration file to apply changes.
+Restart the daemon (using `scripts/operations/daemon/restart_daemon.sh`) after manually editing the configuration file to apply changes.

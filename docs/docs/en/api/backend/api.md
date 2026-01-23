@@ -1,28 +1,37 @@
-# REST API
+---
+title: REST API (Backend)
+description: Documentation for FastAPI endpoints and data models.
+status: stable
+last_update: 2026-01-23
+language: US English
+ai_context: "FastAPI, REST, Endpoints, Schemas, JSON"
+---
 
-FastAPI endpoints and data models documentation.
+# REST API (Backend)
+
+Documentation for FastAPI endpoints and data models.
 
 ---
 
-## Request/Response Models
+## Request/Response Models (Schemas)
 
-::: v2m.api.ToggleResponse
+::: v2m.api.schemas.ToggleResponse
 options:
 show_source: false
 
-::: v2m.api.StatusResponse
+::: v2m.api.schemas.StatusResponse
 options:
 show_source: false
 
-::: v2m.api.LLMResponse
+::: v2m.api.schemas.LLMResponse
 options:
 show_source: false
 
-::: v2m.api.ProcessTextRequest
+::: v2m.api.schemas.ProcessTextRequest
 options:
 show_source: false
 
-::: v2m.api.TranslateTextRequest
+::: v2m.api.schemas.TranslateTextRequest
 options:
 show_source: false
 
@@ -30,39 +39,45 @@ show_source: false
 
 ## Global State
 
-::: v2m.api.DaemonState
+::: v2m.api.app.DaemonState
 options:
 show_source: true
-members: - **init** - orchestrator - broadcast_event
+members: - **init** - recording_workflow - llm_workflow - broadcast_event
 
 ---
 
 ## Endpoints
 
-::: v2m.api.toggle_recording
+### Recording
+
+::: v2m.api.routes.recording.toggle_recording
 options:
 show_source: true
 
-::: v2m.api.start_recording
+::: v2m.api.routes.recording.start_recording
 options:
 show_source: true
 
-::: v2m.api.stop_recording
+::: v2m.api.routes.recording.stop_recording
 options:
 show_source: true
 
-::: v2m.api.get_status
+### Status
+
+::: v2m.api.routes.status.get_status
 options:
 show_source: true
 
-::: v2m.api.health_check
+::: v2m.api.routes.status.health_check
 options:
 show_source: true
 
-::: v2m.api.process_text
+### LLM
+
+::: v2m.api.routes.llm.process_text
 options:
 show_source: true
 
-::: v2m.api.translate_text
+::: v2m.api.routes.llm.translate_text
 options:
 show_source: true

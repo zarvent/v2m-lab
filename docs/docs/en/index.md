@@ -1,3 +1,11 @@
+---
+title: Voice2Machine
+description: High-precision local AI-powered voice dictation.
+status: stable
+last_update: 2026-01-23
+language: US English
+---
+
 # 🗣️ Voice2Machine: Local Voice Dictation
 
 ## 🎯 Purpose

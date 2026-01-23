@@ -1,3 +1,11 @@
+---
+title: Referencia de API REST
+description: Documentación de los endpoints HTTP y el protocolo WebSocket de Voice2Machine.
+ai_context: "FastAPI, REST API, WebSocket, Endpoints"
+depends_on: []
+status: stable
+---
+
 # Referencia de API REST
 
 Esta sección documenta la API REST del Daemon Voice2Machine (v0.2.0+).
@@ -183,7 +191,8 @@ Health check para systemd/scripts de monitoreo.
 Stream de eventos en tiempo real. Útil para mostrar transcripción provisional mientras el usuario habla.
 
 === "Conexión (JavaScript)"
-```javascript
+
+````javascript
 const ws = new WebSocket('ws://localhost:8765/ws/events');
 
     ws.onmessage = (event) => {
@@ -223,7 +232,7 @@ class ToggleResponse(BaseModel):
     status: str      # 'recording' | 'idle'
     message: str     # Mensaje descriptivo
     text: str | None # Texto transcrito (solo en stop)
-```
+````
 
 ### StatusResponse
 

@@ -1,7 +1,15 @@
+---
+title: Guía Rápida
+description: Resumen ejecutivo de los flujos de dictado y refinado en Voice2Machine.
+ai_context: "Guía Rápida, Dictado, Refinado, UX"
+depends_on: []
+status: stable
+---
+
 # 🕹️ Guía Rápida
 
 !!! abstract "Resumen Ejecutivo"
-    Voice2Machine tiene dos superpoderes: **Dictado** (Voz → Texto) y **Refinado** (Texto → Mejor Texto).
+Voice2Machine tiene dos superpoderes: **Dictado** (Voz → Texto) y **Refinado** (Texto → Mejor Texto).
 
 Esta guía visual te ayuda a entender los flujos de trabajo principales para que seas productivo en minutos.
 
@@ -9,7 +17,7 @@ Esta guía visual te ayuda a entender los flujos de trabajo principales para que
 
 ## 1. Flujo de Dictado (Voz → Texto)
 
-*Ideal para: Escribir correos, código o mensajes rápidos sin tocar el teclado.*
+_Ideal para: Escribir correos, código o mensajes rápidos sin tocar el teclado._
 
 1.  **Foco**: Haz clic en el campo de texto donde quieres escribir.
 2.  **Activa el atajo** (Configurable, por defecto ejecutando `v2m-toggle.sh`). Escucharás un sonido de inicio 🔔.
@@ -31,7 +39,7 @@ flowchart LR
 
 ## 2. Flujo de Refinado (Texto → IA → Texto)
 
-*Ideal para: Corregir gramática, traducir o dar formato profesional a un borrador sucio.*
+_Ideal para: Corregir gramática, traducir o dar formato profesional a un borrador sucio._
 
 1.  **Selecciona y Copia** (`Ctrl + C`) el texto que quieres mejorar.
 2.  **Activa el atajo de IA** (ejecutando `v2m-llm.sh`).
@@ -55,10 +63,7 @@ flowchart LR
 
 ## 💡 Consejos Pro
 
-!!! tip "Mejora tu Precisión"
-    - **Habla fluido**: Whisper entiende mejor el contexto de frases completas que palabras sueltas.
-    - **Hardware**: Un micrófono con cancelación de ruido mejora drásticamente los resultados.
-    - **Configuración**: Puedes ajustar la "temperatura" del LLM en la configuración para hacerlo más creativo o más literal.
+!!! tip "Mejora tu Precisión" - **Habla fluido**: Whisper entiende mejor el contexto de frases completas que palabras sueltas. - **Hardware**: Un micrófono con cancelación de ruido mejora drásticamente los resultados. - **Configuración**: Puedes ajustar la "temperatura" del LLM en la configuración para hacerlo más creativo o más literal.
 
 !!! success "Privacidad Garantizada"
-    El **Dictado** es 100% local (ejecutado en tu GPU). El **Refinado** puede ser local (Ollama) o nube (Gemini), tú tienes el control total en la configuración.
+El **Dictado** es 100% local (ejecutado en tu GPU). El **Refinado** puede ser local (Ollama) o nube (Gemini), tú tienes el control total en la configuración.

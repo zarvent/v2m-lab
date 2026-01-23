@@ -1,3 +1,11 @@
+---
+title: Guía de Contribución
+description: Instrucciones y estándares para colaborar en Voice2Machine.
+status: stable
+last_update: 2026-01-23
+language: Native Latin American Spanish
+---
+
 # ❤️ Guía de Contribución
 
 ¡Gracias por tu interés en contribuir a **Voice2Machine**! Este proyecto se construye sobre la colaboración y el código de calidad.
@@ -19,17 +27,19 @@ Para mantener nuestros estándares "State of the Art 2026", seguimos reglas estr
 ## 📏 Estándares de Calidad
 
 ### Código
+
 - **Backend (Python)**:
-    - Tipado estático estricto (100% Type Hints).
-    - Linter: `ruff check src/ --fix`.
-    - Formateador: `ruff format src/`.
-    - Tests: `pytest` debe pasar al 100%.
+  - Tipado estático estricto (100% Type Hints).
+  - Linter: `ruff check src/ --fix`.
+  - Formateador: `ruff format src/`.
+  - Tests: `pytest` debe pasar al 100%.
 - **Frontend (Tauri/React)**:
-    - TypeScript estricto (no `any`).
-    - Linter: `npm run lint`.
-    - Componentes funcionales y Hooks.
+  - TypeScript estricto (no `any`).
+  - Linter: `npm run lint`.
+  - Componentes funcionales y Hooks.
 
 ### Commits
+
 Usamos **Conventional Commits**. Tu mensaje de commit debe seguir este formato:
 
 ```text
@@ -39,6 +49,7 @@ Usamos **Conventional Commits**. Tu mensaje de commit debe seguir este formato:
 ```
 
 **Tipos permitidos:**
+
 - `feat`: Nueva funcionalidad.
 - `fix`: Corrección de bug.
 - `docs`: Solo documentación.
@@ -47,10 +58,13 @@ Usamos **Conventional Commits**. Tu mensaje de commit debe seguir este formato:
 - `chore`: Mantenimiento, dependencias.
 
 **Ejemplo:**
+
 > `feat(whisper): upgrade to faster-whisper 1.0.0 for 20% speedup`
 
 ### Documentación (Docs as Code)
+
 Si cambias funcionalidad, **debes** actualizar la documentación en `docs/docs/es/`.
+
 - Verifica que `mkdocs serve` funcione localmente.
 - Sigue la [Guía de Estilo](style_guide.md).
 
@@ -67,4 +81,4 @@ Antes de enviar tu PR:
 - [ ] Mi código sigue la Arquitectura Hexagonal (sin imports cruzados prohibidos).
 
 !!! tip "Ayuda"
-    Si tienes dudas sobre arquitectura o diseño, consulta los documentos en `docs/docs/es/adr/` o pregunta en el Issue correspondiente.
+Si tienes dudas sobre arquitectura o diseño, consulta los documentos en `docs/docs/es/adr/` o pregunta en el Issue correspondiente.

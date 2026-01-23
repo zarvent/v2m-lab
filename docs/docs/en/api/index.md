@@ -1,3 +1,11 @@
+---
+title: Python API Reference
+description: Technical documentation index for the Voice2Machine backend.
+status: stable
+last_update: 2026-01-23
+language: US English
+---
+
 # Python API - Index
 
 This section provides auto-generated documentation of Python classes and functions from the Voice2Machine backend.

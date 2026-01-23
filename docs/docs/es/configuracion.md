@@ -1,3 +1,11 @@
+---
+title: Guía de Configuración
+description: Instrucciones detalladas para configurar los servicios de transcripción y LLM.
+ai_context: "Configuración, TOML, Whisper, Gemini, Ollama"
+depends_on: []
+status: stable
+---
+
 # ⚙️ Guía de Configuración
 
 !!! info "Gestión de Configuración"
@@ -86,4 +94,4 @@ export GEMINI_API_KEY="AIzaSy_TU_CLAVE_AQUI"
 ```
 
 !!! warning "Importante"
-    Reinicia el demonio (usando `scripts/operations/daemon/restart_daemon.sh`) después de editar manualmente el archivo de configuración para aplicar los cambios.
+Reinicia el demonio (usando `scripts/operations/daemon/restart_daemon.sh`) después de editar manualmente el archivo de configuración para aplicar los cambios.

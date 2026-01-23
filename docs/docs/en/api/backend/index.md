@@ -1,3 +1,11 @@
+---
+title: Backend API (Python)
+description: Index of automatically generated documentation for the Python backend.
+ai_context: "API, Backend, Python, mkdocstrings"
+depends_on: []
+status: stable
+---
+
 # Backend API (Python)
 
 This section contains documentation automatically generated from the Voice2Machine backend source code.
@@ -10,19 +18,19 @@ Source of truth: `apps/daemon/backend/src/v2m/`
 
 ## Main Modules
 
-### Coordination Service
+### Orchestration
 
-- [**Orchestrator**](orchestrator.md) - Central system coordinator
-- [**REST API**](api.md) - FastAPI endpoints and data models
+- [**Workflows**](workflows.md) - Business workflow coordinators (Recording, LLM)
+- [**REST API**](api.md) - FastAPI endpoints and data models (`api/` package)
 
-### Configuration
+### Foundation
 
-- [**Config**](config.md) - Typed configuration system
+- [**Config**](config.md) - Typed configuration system (`shared/config/`)
 
-### Infrastructure
+### Features
 
-- [**Transcription**](transcription.md) - Whisper and streaming
-- [**LLM Services**](llm.md) - Gemini, Ollama, Local
+- [**Transcription**](transcription.md) - Whisper and inference engines
+- [**LLM Services**](llm.md) - Gemini, Ollama, and Local Providers
 
 ---
 
@@ -30,22 +38,22 @@ Source of truth: `apps/daemon/backend/src/v2m/`
 
 ```mermaid
 graph TD
-    A[REST API] --> B[Orchestrator]
-    B --> C[Infrastructure]
-    C --> D[Whisper]
-    C --> E[Audio Recorder]
-    C --> F[LLM Providers]
+    A[REST API] --> B[Workflows]
+    B --> C[Features]
+    C --> D[Audio]
+    C --> E[Transcription]
+    C --> F[LLM]
 
     style A fill:#e3f2fd
     style B fill:#fff3e0
     style C fill:#f3e5f5
 ```
 
-| Layer              | Responsibility                            |
-| ------------------ | ----------------------------------------- |
-| **API**            | HTTP endpoints, validation, serialization |
-| **Services**       | Workflow coordination                     |
-| **Infrastructure** | External service adapters                 |
+| Layer             | Responsibility                             |
+| ----------------- | ------------------------------------------ |
+| **API**           | HTTP endpoints, validation, serialization  |
+| **Orchestration** | Business workflow coordination (Workflows) |
+| **Features**      | Domain logic and specialized adapters      |
 
 ---
 

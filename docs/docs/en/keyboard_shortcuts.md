@@ -1,3 +1,11 @@
+---
+title: Keyboard Shortcuts and Scripts
+description: How to bind Voice2Machine scripts to global keyboard shortcuts in Linux.
+ai_context: "Keyboard shortcuts, scripts, Bash, CLI"
+depends_on: []
+status: stable
+---
+
 # ⌨️ Keyboard Shortcuts and Scripts
 
 !!! abstract "Integration Philosophy"

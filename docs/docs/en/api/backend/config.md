@@ -1,3 +1,12 @@
+---
+title: Configuration
+description: Typed configuration system documentation using Pydantic Settings.
+status: stable
+last_update: 2026-01-23
+language: US English
+ai_context: "Configuration, Pydantic Settings, TOML"
+---
+
 # Configuration
 
 Typed configuration system using Pydantic Settings.
@@ -6,16 +15,16 @@ Typed configuration system using Pydantic Settings.
 
 ## Main Settings
 
-::: v2m.config.Settings
+::: v2m.shared.config.Settings
 options:
 show_source: false
-members: - paths - transcription - llm - gemini - notifications
+members: - paths - transcription - llm - notifications
 
 ---
 
 ## Paths Configuration
 
-::: v2m.config.PathsConfig
+::: v2m.shared.config.PathsConfig
 options:
 show_source: false
 
@@ -23,15 +32,15 @@ show_source: false
 
 ## Transcription Configuration
 
-::: v2m.config.TranscriptionConfig
+::: v2m.shared.config.TranscriptionConfig
 options:
 show_source: false
 
-::: v2m.config.WhisperConfig
+::: v2m.shared.config.WhisperConfig
 options:
 show_source: false
 
-::: v2m.config.VadParametersConfig
+::: v2m.shared.config.VadParametersConfig
 options:
 show_source: false
 
@@ -39,19 +48,19 @@ show_source: false
 
 ## LLM Configuration
 
-::: v2m.config.LLMConfig
+::: v2m.shared.config.LLMConfig
 options:
 show_source: false
 
-::: v2m.config.GeminiConfig
+::: v2m.shared.config.GeminiConfig
 options:
 show_source: false
 
-::: v2m.config.OllamaConfig
+::: v2m.shared.config.OllamaConfig
 options:
 show_source: false
 
-::: v2m.config.LocalLLMConfig
+::: v2m.shared.config.LocalLLMConfig
 options:
 show_source: false
 
@@ -59,6 +68,6 @@ show_source: false
 
 ## Notifications Configuration
 
-::: v2m.config.NotificationsConfig
+::: v2m.shared.config.NotificationsConfig
 options:
 show_source: false

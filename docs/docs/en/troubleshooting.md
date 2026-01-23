@@ -1,3 +1,11 @@
+---
+title: Troubleshooting
+description: Diagnostic and resolution guide for common errors in Voice2Machine.
+ai_context: "Troubleshooting, Logs, Common Errors, CUDA, Audio"
+depends_on: []
+status: stable
+---
+
 # 🔧 Troubleshooting
 
 !!! danger "Golden Rule"

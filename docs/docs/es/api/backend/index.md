@@ -1,3 +1,11 @@
+---
+title: API Backend (Python)
+description: Índice de la documentación generada automáticamente para el backend en Python.
+ai_context: "API, Backend, Python, mkdocstrings"
+depends_on: []
+status: stable
+---
+
 # API Backend (Python)
 
 Esta sección contiene documentación generada automáticamente desde el código fuente del backend de Voice2Machine.
@@ -41,10 +49,10 @@ graph TD
     style C fill:#f3e5f5
 ```
 
-| Capa              | Responsabilidad                                 |
-| ----------------- | ----------------------------------------------- |
-| **API**           | Endpoints HTTP, validación, serialización       |
-| **Orchestration** | Coordinación de flujos de trabajo (Workflows)   |
+| Capa              | Responsabilidad                                |
+| ----------------- | ---------------------------------------------- |
+| **API**           | Endpoints HTTP, validación, serialización      |
+| **Orchestration** | Coordinación de flujos de trabajo (Workflows)  |
 | **Features**      | Lógica de dominio y adaptadores especializados |
 
 ---

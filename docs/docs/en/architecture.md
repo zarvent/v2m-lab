@@ -1,7 +1,15 @@
+---
+title: System Architecture
+description: Description of Voice2Machine's Workflow-based and Feature-based architecture.
+ai_context: "Hexagonal Architecture, Workflows, Domain Driven Design, FastAPI, SOTA 2026"
+depends_on: []
+status: stable
+---
+
 # 🧩 System Architecture
 
 !!! abstract "Technical Philosophy"
-**Voice2Machine** implements a strict **Hexagonal Architecture (Ports & Adapters)**, prioritizing decoupling, testability, and technological independence. The system adheres to SOTA 2026 standards like static typing in Python (Protocol) and Frontend/Backend separation via REST API.
+**Voice2Machine** implements a **strict Architecture based on Workflows and Features**, prioritizing decoupling, testability, and technological independence. The system adheres to SOTA 2026 standards like static typing in Python (Protocol) and Frontend/Backend separation via REST API.
 
 ---
 
@@ -14,31 +22,36 @@ graph TD
     end
 
     subgraph Backend ["🐍 Backend Daemon (Python + FastAPI)"]
-        API["FastAPI Server<br>(api.py)"]
+        API["FastAPI Package<br>(api/)"]
 
-        subgraph Hexagon ["Hexagon (Core)"]
-            Orchestrator["Orchestrator<br>(Coordination)"]
-            Domain["Domain<br>(Interfaces/Models)"]
+        subgraph Workflows ["🧠 Workflows (Orchestration)"]
+            RecWF["RecordingWorkflow"]
+            LLMWF["LLMWorkflow"]
         end
 
-        subgraph Infra ["Infrastructure (Adapters)"]
-            Whisper["Whisper Adapter<br>(faster-whisper)"]
-            Audio["Audio Engine<br>(Rust v2m_engine)"]
-            LLM["LLM Providers<br>(Gemini/Ollama)"]
+        subgraph Features ["🧩 Features (Domain + Logic)"]
+            AudioFeat["Audio Service"]
+            TranscFeat["Transcription Service"]
+            LLMFeat["LLM Service"]
+        end
+
+        subgraph Shared ["⚙️ Shared (Foundation)"]
+            Config["Config"]
+            Errors["Errors"]
+            Interfaces["Interfaces"]
         end
     end
 
     ClientApp <-->|REST + WebSocket| API
-    API --> Orchestrator
-    Orchestrator --> Domain
-    Whisper -.->|Implements| Domain
-    Audio -.->|Implements| Domain
-    LLM -.->|Implements| Domain
+    API --> Workflows
+    Workflows --> Features
+    Features --> Shared
 
     style Clients fill:#e3f2fd,stroke:#1565c0
     style Backend fill:#e8f5e9,stroke:#2e7d32
-    style Hexagon fill:#fff3e0,stroke:#ef6c00
-    style Infra fill:#f3e5f5,stroke:#7b1fa2
+    style Workflows fill:#fff3e0,stroke:#ef6c00
+    style Features fill:#f3e5f5,stroke:#7b1fa2
+    style Shared fill:#eceff1,stroke:#455a64
 ```
 
 ---
@@ -47,52 +60,46 @@ graph TD
 
 ### 1. API Layer (FastAPI)
 
-Located in `apps/daemon/backend/src/v2m/api.py`.
+Located in `apps/daemon/backend/src/v2m/api/`.
 
+- **Modules**: `app.py`, `routes/`, `schemas.py`
 - **REST Endpoints**: `/toggle`, `/start`, `/stop`, `/status`, `/health`
 - **WebSocket**: `/ws/events` for real-time transcription streaming
 - **Auto-documentation**: Swagger UI at `/docs`
 
-!!! info "Migration Complete"
-The previous system used Unix Domain Sockets with custom binary protocol. Since v0.2.0, we use FastAPI for simplicity and compatibility with any HTTP client.
+!!! info "Modern Structure"
+Starting from v0.3.0, the API is organized as a complete package, separating routes and schemas for better maintainability.
 
-### 2. Orchestrator (Coordination)
+### 2. Workflows (Orchestration)
 
-Located in `apps/daemon/backend/src/v2m/services/orchestrator.py`.
+Located in `apps/daemon/backend/src/v2m/orchestration/`.
 
-The Orchestrator is the central coordination point that:
+Instead of a monolithic Orchestrator, the system uses specialized Workflows for each business flow:
 
-- Manages the complete lifecycle: recording → transcription → post-processing
-- Maintains system state (idle, recording, processing)
-- Coordinates communication between adapters without coupling them directly
-- Emits events to connected WebSocket clients
+- **RecordingWorkflow**: Manages the complete capture and transcription lifecycle.
+- **LLMWorkflow**: Coordinates text processing and translation.
 
-```python
-class Orchestrator:
-    async def toggle(self) -> ToggleResponse: ...
-    async def start(self) -> ToggleResponse: ...
-    async def stop(self) -> ToggleResponse: ...
-    async def warmup(self) -> None: ...
-```
+This approach allows each flow to evolve independently without affecting the rest of the system.
 
-### 3. Core (The Hexagon)
+### 3. Features (Domains)
 
-Located in `apps/daemon/backend/src/v2m/core/` and `domain/`.
+Located in `apps/daemon/backend/src/v2m/features/`.
 
-- **Ports (Interfaces)**: Defined using `typing.Protocol` + `@runtime_checkable` for structural checking at runtime
-- **Domain Models**: DTOs with Pydantic V2 for automatic validation
-- **Strict Contracts**: Adapters implement interfaces, not concrete classes
+Each folder in `features/` represents a self-contained domain of knowledge including its own services and logic:
 
-### 4. Infrastructure (Adapters)
+| Feature           | Responsibility                                                  |
+| ----------------- | --------------------------------------------------------------- |
+| **transcription** | Whisper implementations (`faster-whisper`).                     |
+| **audio**         | Audio capture and management of the Rust engine (`v2m_engine`). |
+| **llm**           | Integrations with Gemini, Ollama, and other providers.          |
 
-Located in `apps/daemon/backend/src/v2m/infrastructure/`.
+### 4. Shared (Common Foundation)
 
-| Adapter            | Responsibility                                                 |
-| ------------------ | -------------------------------------------------------------- |
-| **WhisperAdapter** | Transcription with `faster-whisper`. Lazy loading to save VRAM |
-| **AudioRecorder**  | Audio capture using Rust extension (`v2m_engine`)              |
-| **LLMProviders**   | Factory for Gemini/Ollama based on configuration               |
-| **SystemMonitor**  | Real-time GPU/CPU telemetry                                    |
+Located in `apps/daemon/backend/src/v2m/shared/`.
+
+- **Interfaces**: Global definitions via `typing.Protocol`.
+- **Config**: `config.toml` management via Pydantic Settings.
+- **Errors**: Shared exception hierarchies.
 
 ---
 
@@ -143,24 +150,24 @@ sequenceDiagram
     participant User
     participant Client as HTTP Client
     participant API as FastAPI
-    participant Orch as Orchestrator
-    participant Audio as AudioRecorder
-    participant Whisper as WhisperAdapter
+    participant WF as Workflows
+    participant Audio as AudioService
+    participant Whisper as TranscriptionService
 
     User->>Client: Press shortcut
     Client->>API: POST /toggle
-    API->>Orch: toggle()
+    API->>WF: toggle() (RecordingWorkflow)
 
     alt Not recording
-        Orch->>Audio: start_recording()
-        Audio-->>Orch: OK
-        Orch-->>API: status=recording
+        WF->>Audio: start_recording()
+        Audio-->>WF: OK
+        WF-->>API: status=recording
     else Recording
-        Orch->>Audio: stop_recording()
-        Audio-->>Orch: audio_buffer
-        Orch->>Whisper: transcribe(buffer)
-        Whisper-->>Orch: text
-        Orch-->>API: status=idle, text=...
+        WF->>Audio: stop_recording()
+        Audio-->>WF: audio_buffer
+        WF->>Whisper: transcribe(buffer)
+        Whisper-->>WF: text
+        WF-->>API: status=idle, text=...
     end
 
     API-->>Client: ToggleResponse
