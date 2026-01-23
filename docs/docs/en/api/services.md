@@ -1,40 +1,32 @@
-# Services
-
-This page documents backend application services.
-
+---
+title: Services and Application Logic
+description: Overview of Workflows and Features.
+status: stable
+last_update: 2026-01-23
+language: US English
 ---
 
-## Orchestrator
+# Services and Application Logic
 
-The Orchestrator is the central service that coordinates the entire Voice2Machine workflow.
+In the 2026 model, application logic is divided into **Workflows** and **Features**.
 
-### Responsibilities
+## Workflows
 
-- Manages complete lifecycle: recording → transcription → post-processing
-- Maintains system state (idle, recording, processing)
-- Coordinates communication between adapters without coupling them directly
-- Emits events to connected WebSocket clients
+Located in `v2m.orchestration`. They are the high-level coordinators.
+
+- **RecordingWorkflow**: Manages the audio -> VAD -> transcription -> paste cycle.
+- **LLMWorkflow**: Manages the text -> refinement/translation -> paste cycle.
+
+## Features
+
+Located in `v2m.features`. They are the functional building blocks of the system.
+
+| Feature | Purpose | Main Implementation |
+|---------|---------|---------------------|
+| **Audio** | Capture and pre-processing | `v2m_engine` (Rust) |
+| **Transcription** | Audio-to-text conversion | `faster-whisper` |
+| **LLM** | Intelligent processing | `gemini` / `ollama` |
 
 ### Lazy Initialization
 
-All sub-services are created when first needed:
-
-```python
-@property
-def worker(self) -> WhisperWorker:
-    """Gets the Whisper worker (lazy init)."""
-    if self._worker is None:
-        self._worker = WhisperWorker()
-    return self._worker
-```
-
-### Coordinated Services
-
-| Service                | Description                       |
-| ---------------------- | --------------------------------- |
-| `WhisperWorker`        | Transcription with faster-whisper |
-| `AudioRecorder`        | Audio capture (Rust extension)    |
-| `StreamingTranscriber` | Real-time transcription           |
-| `ClipboardService`     | System clipboard access           |
-| `NotificationService`  | Desktop notifications             |
-| `LLMService`           | Processing with Gemini/Ollama     |
+To minimize resource consumption (especially VRAM), heavy services are initialized only when first required.

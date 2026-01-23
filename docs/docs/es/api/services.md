@@ -1,40 +1,32 @@
-# Servicios
-
-Esta página documenta los servicios de aplicación del backend.
-
+---
+title: Servicios y Lógica de Aplicación
+description: Resumen de flujos de trabajo (Workflows) y características (Features).
+status: stable
+last_update: 2026-01-23
+language: Native Latin American Spanish
 ---
 
-## Orchestrator
+# Servicios y Lógica de Aplicación
 
-El Orchestrator es el servicio central que coordina todo el flujo de trabajo de Voice2Machine.
+En el modelo 2026, la lógica de aplicación se divide en **Flujos de Trabajo (Workflows)** y **Características (Features)**.
 
-### Responsabilidades
+## Flujos de Trabajo (Workflows)
 
-- Gestiona el ciclo de vida completo: grabación → transcripción → post-procesamiento
-- Mantiene el estado del sistema (idle, recording, processing)
-- Coordina la comunicación entre adaptadores sin acoplarlos directamente
-- Emite eventos a clientes WebSocket conectados
+Ubicados en `v2m.orchestration`. Son los coordinadores de alto nivel.
 
-### Lazy Initialization
+- **RecordingWorkflow**: Gestiona el ciclo audio -> VAD -> transcripción -> pegado.
+- **LLMWorkflow**: Gestiona el ciclo texto -> refinamiento/traducción -> pegado.
 
-Todos los sub-servicios se crean cuando se necesitan por primera vez:
+## Características (Features)
 
-```python
-@property
-def worker(self) -> WhisperWorker:
-    """Obtiene el worker de Whisper (lazy init)."""
-    if self._worker is None:
-        self._worker = WhisperWorker()
-    return self._worker
-```
+Ubicados en `v2m.features`. Son los bloques de construcción funcionales del sistema.
 
-### Servicios Coordinados
+| Característica | Propósito | Implementación Principal |
+|----------------|-----------|---------------------------|
+| **Audio** | Captura y pre-procesamiento | `v2m_engine` (Rust) |
+| **Transcription** | Conversión audio-a-texto | `faster-whisper` |
+| **LLM** | Procesamiento inteligente | `gemini` / `ollama` |
 
-| Servicio               | Descripción                        |
-| ---------------------- | ---------------------------------- |
-| `WhisperWorker`        | Transcripción con faster-whisper   |
-| `AudioRecorder`        | Captura de audio (Rust extension)  |
-| `StreamingTranscriber` | Transcripción en tiempo real       |
-| `ClipboardService`     | Acceso al portapapeles del sistema |
-| `NotificationService`  | Notificaciones de escritorio       |
-| `LLMService`           | Procesamiento con Gemini/Ollama    |
+### Inicialización Lazy
+
+Para minimizar el consumo de recursos (especialmente VRAM), los servicios pesados se inicializan solo al ser requeridos por primera vez.

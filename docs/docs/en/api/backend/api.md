@@ -42,7 +42,7 @@ show_source: false
 ::: v2m.api.app.DaemonState
 options:
 show_source: true
-members: - **init** - recording_workflow - llm_workflow - broadcast_event
+members: - **init** - recording - llm - broadcast_event
 
 ---
 

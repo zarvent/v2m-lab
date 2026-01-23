@@ -54,7 +54,6 @@ theme:
 
   features:
     # Navigation - Essential only
-    - navigation.instant
     - navigation.instant.progress
     - navigation.tabs
     - navigation.tabs.sticky
@@ -115,11 +114,15 @@ plugins:
             Solución de Problemas: Troubleshooting
             API REST: REST API
             API Python: Python API
+            Dominios: Domain
+            Interfaces: Interfaces
+            Servicios: Services
             Flujos (Workflows): Workflows
             Endpoints (FastAPI): Endpoints (FastAPI)
             Transcripción: Transcription
             Daemon: Daemon
             Decisiones (ADR): Decisions (ADR)
+            Plantilla: Template
             Contribuir: Contributing
             Guía de Estilo: Style Guide
 
@@ -193,6 +196,9 @@ nav:
       - API REST: referencia_api.md
       - API Python:
           - api/index.md
+          - Dominios: api/domain.md
+          - Interfaces: api/interfaces.md
+          - Servicios: api/services.md
           - Daemon:
               - api/backend/index.md
               - Flujos (Workflows): api/backend/workflows.md
@@ -210,6 +216,7 @@ nav:
       - arquitectura.md
       - Decisiones (ADR):
           - adr/index.md
+          - Plantilla: adr/template.md
           - adr/001-fastapi-migration.md
           - adr/002-orchestrator-pattern.md
           - adr/003-faster-whisper.md
