@@ -1,9 +1,11 @@
 ---
 title: API Backend (Python)
 description: Índice de la documentación generada automáticamente para el backend en Python.
-ai_context: "API, Backend, Python, mkdocstrings"
-depends_on: []
 status: stable
+last_update: 2026-01-23
+language: es
+ai_context: API, Backend, Python, mkdocstrings
+depends_on: []
 ---
 
 # API Backend (Python)

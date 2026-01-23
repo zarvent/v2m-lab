@@ -3,7 +3,7 @@ title: Referencia de API Python
 description: Índice de documentación técnica del backend Voice2Machine.
 status: stable
 last_update: 2026-01-23
-language: Native Latin American Spanish
+language: es
 ---
 
 # API Python - Índice

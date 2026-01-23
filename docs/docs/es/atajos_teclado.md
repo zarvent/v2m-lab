@@ -1,9 +1,11 @@
 ---
 title: Atajos de Teclado y Scripts
 description: Cómo vincular los scripts de Voice2Machine a atajos de teclado globales en Linux.
-ai_context: "Atajos de teclado, scripts, Bash, CLI"
-depends_on: []
 status: stable
+last_update: 2026-01-23
+language: es
+ai_context: Atajos de teclado, scripts, Bash, CLI
+depends_on: []
 ---
 
 # ⌨️ Atajos de Teclado y Scripts

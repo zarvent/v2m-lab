@@ -1,3 +1,10 @@
+---
+title: 'ADR-005: Motor de Audio en Rust (v2m_engine)'
+description: 'ADR-005: Motor de Audio en Rust (v2m_engine)'
+status: accepted
+last_update: 2026-01-23
+language: es
+---
 # ADR-005: Motor de Audio en Rust (v2m_engine)
 
 ## Estado

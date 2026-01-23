@@ -3,8 +3,8 @@ title: LLM Services
 description: Language model providers for text processing.
 status: stable
 last_update: 2026-01-23
-language: US English
-ai_context: "LLM, Gemini, Ollama, local_service"
+language: en
+ai_context: LLM, Gemini, Ollama, local_service
 ---
 
 # LLM Services

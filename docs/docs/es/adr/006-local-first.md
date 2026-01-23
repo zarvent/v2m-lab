@@ -1,3 +1,10 @@
+---
+title: 'ADR-006: Local-first: Procesamiento sin Cloud'
+description: 'ADR-006: Local-first: Procesamiento sin Cloud'
+status: accepted
+last_update: 2026-01-23
+language: es
+---
 # ADR-006: Local-first: Procesamiento sin Cloud
 
 ## Estado

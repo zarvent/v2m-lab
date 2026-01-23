@@ -3,7 +3,7 @@ title: Python API Reference
 description: Technical documentation index for the Voice2Machine backend.
 status: stable
 last_update: 2026-01-23
-language: US English
+language: en
 ---
 
 # Python API - Index

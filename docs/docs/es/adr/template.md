@@ -1,3 +1,10 @@
+---
+title: 'ADR-XXX: Título Corto de la Decisión'
+description: 'ADR-XXX: Título Corto de la Decisión'
+status: proposed
+last_update: 2026-01-23
+language: es
+---
 # ADR-XXX: Título Corto de la Decisión
 
 ## Estado

@@ -3,7 +3,7 @@ title: Style Guide
 description: Documentation and governance standards "State of the Art 2026".
 status: stable
 last_update: 2026-01-23
-language: US English
+language: en
 ---
 
 # Style Guide and Governance

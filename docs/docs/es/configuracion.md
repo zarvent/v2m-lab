@@ -1,9 +1,11 @@
 ---
 title: Guía de Configuración
 description: Instrucciones detalladas para configurar los servicios de transcripción y LLM.
-ai_context: "Configuración, TOML, Whisper, Gemini, Ollama"
-depends_on: []
 status: stable
+last_update: 2026-01-23
+language: es
+ai_context: Configuración, TOML, Whisper, Gemini, Ollama
+depends_on: []
 ---
 
 # ⚙️ Guía de Configuración

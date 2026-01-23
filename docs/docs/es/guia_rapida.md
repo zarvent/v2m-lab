@@ -1,9 +1,11 @@
 ---
 title: Guía Rápida
 description: Resumen ejecutivo de los flujos de dictado y refinado en Voice2Machine.
-ai_context: "Guía Rápida, Dictado, Refinado, UX"
-depends_on: []
 status: stable
+last_update: 2026-01-23
+language: es
+ai_context: Guía Rápida, Dictado, Refinado, UX
+depends_on: []
 ---
 
 # 🕹️ Guía Rápida

@@ -1,9 +1,11 @@
 ---
 title: Arquitectura del Sistema
 description: Descripción de la arquitectura basada en Workflows y Features de Voice2Machine.
-ai_context: "Arquitectura Hexagonal, Workflows, Domain Driven Design, FastAPI, SOTA 2026"
-depends_on: []
 status: stable
+last_update: 2026-01-23
+language: es
+ai_context: Arquitectura Hexagonal, Workflows, Domain Driven Design, FastAPI, SOTA 2026
+depends_on: []
 ---
 
 # 🧩 Arquitectura del Sistema

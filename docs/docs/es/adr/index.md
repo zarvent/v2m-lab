@@ -1,3 +1,10 @@
+---
+title: Architecture Decision Records (ADRs)
+description: Architecture Decision Records (ADRs)
+status: stable
+last_update: 2026-01-23
+language: es
+---
 # Architecture Decision Records (ADRs)
 
 Un Registro de Decisiones de Arquitectura (ADR) es un documento que captura una decisión de arquitectura importante, junto con su contexto y consecuencias.

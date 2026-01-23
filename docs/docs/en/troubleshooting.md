@@ -1,9 +1,11 @@
 ---
 title: Troubleshooting
 description: Diagnostic and resolution guide for common errors in Voice2Machine.
-ai_context: "Troubleshooting, Logs, Common Errors, CUDA, Audio"
-depends_on: []
 status: stable
+last_update: 2026-01-23
+language: en
+ai_context: Troubleshooting, Logs, Common Errors, CUDA, Audio
+depends_on: []
 ---
 
 # 🔧 Troubleshooting

@@ -1,9 +1,11 @@
 ---
 title: Changelog
 description: Registro de cambios del proyecto Voice2Machine.
-ai_context: "Versiones, Historial de Cambios, SemVer"
-depends_on: []
 status: stable
+last_update: 2026-01-23
+language: es
+ai_context: Versiones, Historial de Cambios, SemVer
+depends_on: []
 ---
 
 # Changelog

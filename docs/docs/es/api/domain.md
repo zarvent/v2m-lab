@@ -3,7 +3,7 @@ title: Dominio
 description: Modelos de datos y lógica de negocio principal.
 status: stable
 last_update: 2026-01-23
-language: Native Latin American Spanish
+language: es
 ---
 
 # Dominio

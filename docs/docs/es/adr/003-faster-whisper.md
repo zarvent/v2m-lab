@@ -1,3 +1,10 @@
+---
+title: 'ADR-003: Selección de faster-whisper sobre whisper.cpp'
+description: 'ADR-003: Selección de faster-whisper sobre whisper.cpp'
+status: accepted
+last_update: 2026-01-23
+language: es
+---
 # ADR-003: Selección de faster-whisper sobre whisper.cpp
 
 ## Estado

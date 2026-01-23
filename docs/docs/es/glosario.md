@@ -3,7 +3,7 @@ title: Glosario
 description: Definiciones de términos técnicos y de dominio de Voice2Machine.
 status: stable
 last_update: 2026-01-23
-language: Native Latin American Spanish
+language: es
 ---
 
 # Glosario
