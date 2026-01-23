@@ -8,7 +8,7 @@ Servicios de transcripción de audio a texto usando faster-whisper.
 
 Worker persistente que mantiene el modelo Whisper cargado en VRAM entre sesiones.
 
-**Ubicación:** `v2m/infrastructure/persistent_model.py`
+**Ubicación:** `v2m/features/transcription/persistent_model.py`
 
 ### Características
 
@@ -36,7 +36,7 @@ class PersistentWhisperWorker:
 
 Transcriptor en tiempo real que proporciona feedback provisional mientras el usuario habla.
 
-**Ubicación:** `v2m/infrastructure/streaming_transcriber.py`
+**Ubicación:** `v2m/features/audio/streaming_transcriber.py`
 
 ### Flujo de Datos
 

@@ -9,21 +9,22 @@
 
 ### Docs as Code
 
-- **Source of Truth**: Technical documentation lives in `docs/docs/es/`. `mkdocs.yml` defines the site structure.
+- **Source of Truth**: Technical documentation lives in [docs/docs/es/](docs/docs/es/). [mkdocs.yml](mkdocs.yml) defines the site structure.
+- **Detailed Instructions**: Specialized documentation rules for agents are in [docs/AGENTS.md](docs/AGENTS.md).
 - **Sync**: Any PR that changes functionality (code) **MUST** include the corresponding update in the documentation.
 - **README**: `README.md` (English) and `LEEME.md` (Spanish) must stay synchronized and point to the detailed documentation.
 
-### Quality Standards
+### Quality Standards (Diátaxis)
 
-1.  **Accessibility (WCAG 2.1 AA)**:
+1.  **Accessibility (WCAG 2.2+)**:
     - Use descriptive `alt text` for all images.
     - Maintain strict heading hierarchy (H1 > H2 > H3).
-    - Use code blocks with language specification.
+    - Minimum target size of 24x24px for interactive instructions.
 2.  **Structure**:
-    - **Exploration**: What it is and why use it.
-    - **Procedures**: Step-by-step guides (How-to).
-    - **Reference**: APIs, Configuration, Commands.
-    - **Concepts**: Architecture, design decisions (ADRs).
+    - **Tutorials**: Learning-oriented.
+    - **How-to Guides**: Task-oriented.
+    - **Reference**: Information-oriented (API/CLI).
+    - **Explanation**: Understanding-oriented (Concepts/ADRs).
 3.  **Language**:
     - Detailed documentation (`docs/`): **Native Latin American Spanish**.
     - Code comments: **Native Latin American Spanish**.
@@ -67,10 +68,10 @@
 
 ```
 apps/daemon/backend/src/v2m/
-├── core/           # DI Container, Event Bus (CQRS), IPC
-├── domain/         # Entities, Ports (Protocols), Errors
-├── application/    # Command Handlers (Use Cases), Config Manager
-└── infrastructure/ # Concrete Implementations (Whisper, Gemini, SoundDevice)
+├── api/            # FastAPI (app, routes, schemas)
+├── shared/         # Foundation (config, errors, interfaces)
+├── orchestration/  # Business Workflows (Recording, LLM)
+└── features/       # Domain logic and specialized adapters (audio, llm, transcription)
 ```
 
 ### Backend Rules

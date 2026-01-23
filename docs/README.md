@@ -1,6 +1,11 @@
-# Voice2Machine Documentation
+## 🤖 AI & Automatización
 
-> 📚 Documentación del proyecto Voice2Machine
+Para instrucciones detalladas sobre cómo los agentes de IA deben manejar esta documentación, consulta [AGENTS.md](AGENTS.md).
+
+Este proyecto utiliza:
+- **Diátaxis**: Para la organización del contenido.
+- **SOTA 2026**: Estándares modernos de accesibilidad y "Docs as Code".
+- **i18n**: Flujo de sincronización mandatorio entre español e inglés.
 
 ## Principios
 

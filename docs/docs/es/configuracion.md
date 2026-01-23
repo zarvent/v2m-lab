@@ -86,4 +86,4 @@ export GEMINI_API_KEY="AIzaSy_TU_CLAVE_AQUI"
 ```
 
 !!! warning "Importante"
-Reinicia el demonio (`python -m v2m.main`) después de editar manualmente el archivo de configuración para aplicar los cambios.
+    Reinicia el demonio (usando `scripts/operations/daemon/restart_daemon.sh`) después de editar manualmente el archivo de configuración para aplicar los cambios.

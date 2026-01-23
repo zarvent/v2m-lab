@@ -10,19 +10,19 @@ La fuente de verdad es: `apps/daemon/backend/src/v2m/`
 
 ## Módulos Principales
 
-### Servicio de Coordinación
+### Orquestación
 
-- [**Orchestrator**](orchestrator.md) - Coordinador central del sistema
-- [**API REST**](api.md) - Endpoints FastAPI y modelos de datos
+- [**Workflows**](workflows.md) - Coordinadores de flujos de negocio (Recording, LLM)
+- [**API REST**](api.md) - Endpoints FastAPI y modelos de datos (Paquete `api/`)
 
-### Configuración
+### Cimientos
 
-- [**Config**](config.md) - Sistema de configuración tipada
+- [**Config**](config.md) - Sistema de configuración tipada (`shared/config/`)
 
-### Infraestructura
+### Funcionalidades (Features)
 
-- [**Transcripción**](transcription.md) - Whisper y streaming
-- [**LLM Services**](llm.md) - Gemini, Ollama, Local
+- [**Transcripción**](transcription.md) - Whisper y motores de inferencia
+- [**LLM Services**](llm.md) - Gemini, Ollama y Providers locales
 
 ---
 
@@ -30,22 +30,22 @@ La fuente de verdad es: `apps/daemon/backend/src/v2m/`
 
 ```mermaid
 graph TD
-    A[API REST] --> B[Orchestrator]
-    B --> C[Infrastructure]
-    C --> D[Whisper]
-    C --> E[Audio Recorder]
-    C --> F[LLM Providers]
+    A[API REST] --> B[Workflows]
+    B --> C[Features]
+    C --> D[Audio]
+    C --> E[Transcription]
+    C --> F[LLM]
 
     style A fill:#e3f2fd
     style B fill:#fff3e0
     style C fill:#f3e5f5
 ```
 
-| Capa               | Responsabilidad                           |
-| ------------------ | ----------------------------------------- |
-| **API**            | Endpoints HTTP, validación, serialización |
-| **Services**       | Coordinación de flujo de trabajo          |
-| **Infrastructure** | Adaptadores a servicios externos          |
+| Capa              | Responsabilidad                                 |
+| ----------------- | ----------------------------------------------- |
+| **API**           | Endpoints HTTP, validación, serialización       |
+| **Orchestration** | Coordinación de flujos de trabajo (Workflows)   |
+| **Features**      | Lógica de dominio y adaptadores especializados |
 
 ---
 

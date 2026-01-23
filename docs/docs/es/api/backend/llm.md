@@ -8,7 +8,7 @@ Proveedores de modelos de lenguaje para procesamiento de texto.
 
 Servicio LLM que conecta con la API de Google Gemini para procesamiento de texto y traducciones.
 
-**Ubicación:** `v2m/infrastructure/gemini_llm_service.py`
+**Ubicación:** `v2m/features/llm/gemini_service.py`
 
 **Métodos principales:**
 
@@ -21,7 +21,7 @@ Servicio LLM que conecta con la API de Google Gemini para procesamiento de texto
 
 Servicio LLM local que conecta con el servidor Ollama para privacidad total.
 
-**Ubicación:** `v2m/infrastructure/ollama_llm_service.py`
+**Ubicación:** `v2m/features/llm/ollama_service.py`
 
 **Configuración:** `http://localhost:11434`
 
@@ -31,26 +31,26 @@ Servicio LLM local que conecta con el servidor Ollama para privacidad total.
 
 Servicio LLM embebido usando llama-cpp-python directamente.
 
-**Ubicación:** `v2m/infrastructure/local_llm_service.py`
+**Ubicación:** `v2m/features/llm/local_service.py`
 
 ---
 
 ## Patrón de Diseño
 
-Todos los servicios LLM implementan una interfaz común:
+Todos los servicios LLM implementan una interfaz común (Protocolo):
 
 ```python
-class LLMService(Protocol):
-    def process_text(self, text: str) -> str:
+class ILLMService(Protocol):
+    async def process_text(self, text: str) -> str:
         """Refina texto con gramática y puntuación."""
         ...
 
-    def translate_text(self, text: str, target_lang: str) -> str:
+    async def translate_text(self, text: str, target_lang: str) -> str:
         """Traduce texto al idioma especificado."""
         ...
 ```
 
-El `Orchestrator` selecciona el backend según `config.llm.backend`:
+El `LLMWorkflow` selecciona el backend según `config.llm.provider`:
 
 - `"gemini"` → GeminiLLMService
 - `"ollama"` → OllamaLLMService

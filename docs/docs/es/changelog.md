@@ -34,6 +34,23 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Latencia de arranque: El servidor inicia en ~100ms, modelo carga en background
 - Memory leaks en WebSocket connections
 
+## [0.3.0] - 2026-01-23
+
+### Added
+- **Arquitectura Basada en Features**: Reestructuración total hacia módulos autocontenidos en `features/` (audio, llm, transcription).
+- **Orquestación mediante Workflows**: Introducción de `RecordingWorkflow` y `LLMWorkflow` para desacoplar la lógica de negocio del antiguo Orchestrator monolítico.
+- **Protocolos Estrictos**: Implementación de `typing.Protocol` para todos los servicios internos, permitiendo swapping fácil de proveedores.
+- **API Modular**: Estructura de paquetes en `api/` con rutas y esquemas separados.
+
+### Changed
+- **Eliminación de Orchestrator**: `services/orchestrator.py` ha sido descompuesto y eliminado.
+- **Refactorización de Infraestructura**: La carpeta `infrastructure/` ha sido integrada dentro de cada `feature` correspondiente.
+- **Core y Domain**: Simplificados y movidos a `shared/` e interfaces locales.
+
+### Removed
+- **Test de Audio Legacy**: Eliminación de pruebas obsoletas de la extensión Rust.
+- **System Monitor**: Telemetría de sistema eliminada por simplificación del core.
+
 ## [Unreleased]
 
 ### Planned

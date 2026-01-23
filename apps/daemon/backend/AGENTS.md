@@ -64,31 +64,20 @@ python -m v2m.main toggle       # Send toggle command
 
 ```
 src/v2m/
-├── api.py               # FastAPI endpoints (Junior-friendly)
+├── api/                 # FastAPI (app, routes, schemas)
 ├── main.py              # Entry point (uvicorn runner)
-├── config.py            # Pydantic Settings
-├── services/
-│   └── orchestrator.py  # Business logic (replaces 10 handlers)
-├── infrastructure/      # Adapters: Whisper, Audio, LLM
-│   ├── audio/recorder.py           # Rust/Python hybrid
-│   ├── persistent_model.py         # Whisper "always warm"
-│   ├── streaming_transcriber.py    # Real-time inference
-│   ├── gemini_llm_service.py       # Gemini backend
-│   ├── linux_adapters.py           # Clipboard (X11/Wayland)
-│   └── notification_service.py     # D-Bus notifications
-├── core/
-│   ├── interfaces.py    # Protocols (typing.Protocol)
-│   ├── logging.py       # Logger config
-│   └── client_session.py # WebSocket event broadcast
-└── domain/              # Entities (Pydantic models)
+├── orchestration/       # Business Workflows (Recording, LLM)
+├── features/            # Domain logic (audio, llm, transcription)
+├── shared/              # Foundation (config, errors, interfaces)
+└── core/                # Logging and low-level utilities
 ```
 
-**Eliminated (CQRS → Direct Calls):**
+**Eliminated (Refactor SOTA 2026):**
 
-- ~~core/cqrs/~~ → `services/orchestrator.py`
-- ~~core/di/container.py~~ → Lazy singletons in orchestrator
-- ~~daemon.py, client.py~~ → `api.py` (FastAPI)
-- ~~ipc_protocol.py~~ → HTTP REST
+- ~~services/orchestrator.py~~ → `orchestration/` Workflows
+- ~~infrastructure/~~ → Integrated into `features/`
+- ~~api.py monolítico~~ → `api/` package
+- ~~config.py~~ → `shared/config/`
 
 ---
 
@@ -141,11 +130,11 @@ src/v2m/
 ### Junior-Friendly Patterns
 
 ```python
-# ✅ Direct method calls (easy to trace)
-text = await orchestrator.toggle()
+# ✅ Workflows especializados (fácil de trazar)
+text = await recording_workflow.toggle()
 
-# ❌ CQRS indirection (removed)
-# bus.dispatch(ToggleRecordingCommand())
+# ❌ Orchestrator monolítico (eliminado)
+# text = await orchestrator.toggle()
 ```
 
 ### Async Non-Blocking

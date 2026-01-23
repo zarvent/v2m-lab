@@ -61,16 +61,19 @@ ruff format src/
 ```
 apps/daemon/backend/
 ├── src/v2m/
-│   ├── application/    # Use cases (Commands/Handlers)
-│   ├── core/           # Command bus and global configuration
-│   ├── domain/         # Pure entities and exceptions
-│   ├── infrastructure/ # Real implementations (Whisper, Gemini, Audio)
+│   ├── api/            # FastAPI (Routes, App, Schemas)
+│   ├── features/       # Modular features (audio, llm, processing)
+│   ├── orchestration/  # Business workflows (Recording, LLM)
+│   ├── shared/         # Common logic (config, errors, interfaces)
 │   └── main.py         # Entrypoint
 ├── config.toml         # Default configuration
 └── pyproject.toml      # Build and tooling configuration
 ```
 
-## 🔌 Socket API
+## 🔌 Socket API (DEPRECATED)
+
+> **IMPORTANT**: The Unix Socket IPC has been replaced by **FastAPI** (REST/WebSocket). 
+> This section is kept for historical reference during the migration period.
 
 The backend exposes a Unix Socket at `$XDG_RUNTIME_DIR/v2m/v2m.sock` (typically `/run/user/<uid>/v2m/v2m.sock`).
 
