@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Sistema de dictado por voz local con Whisper">
+        <meta name="description" content="Definiciones de protocolos (interfaces) y contratos de middleware.">
       
       
         <meta name="author" content="zarvent">
@@ -29,7 +29,7 @@
     
     
       
-        <title>Interfaces (Protocolos) - Voice2Machine</title>
+        <title>Protocolos y Contratos - Voice2Machine</title>
       
     
     
@@ -86,7 +86,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#interfaces-protocolos" class="md-skip">
+        <a href="#protocolos-y-contratos" class="md-skip">
           Saltar a contenido
         </a>
       
@@ -121,7 +121,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Interfaces (Protocolos)
+              Protocolos y Contratos
             
           </span>
         </div>
@@ -1777,50 +1777,33 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#orchestrator" class="md-nav__link">
+  <a href="#workflows-protocolo" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Orchestrator
+        Workflows (Protocolo)
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Orchestrator">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#metodos-principales" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Métodos Principales
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#response-models" class="md-nav__link">
+  <a href="#adaptadores-de-caracteristicas" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Response Models
+        Adaptadores de Características
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Response Models">
+    <nav class="md-nav" aria-label="Adaptadores de Características">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#toggleresponse" class="md-nav__link">
+  <a href="#llmprovider" class="md-nav__link">
     <span class="md-ellipsis">
       
-        ToggleResponse
+        LLMProvider
       
     </span>
   </a>
@@ -1828,21 +1811,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#statusresponse" class="md-nav__link">
+  <a href="#audiosource" class="md-nav__link">
     <span class="md-ellipsis">
       
-        StatusResponse
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#llmresponse" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        LLMResponse
+        AudioSource
       
     </span>
   </a>
@@ -1874,55 +1846,29 @@
   
 
 
-<h1 id="interfaces-protocolos">Interfaces (Protocolos)<a class="headerlink" href="#interfaces-protocolos" title="Permanent link">&para;</a></h1>
-<p>Esta página documenta los protocolos (interfaces) que definen los contratos del sistema.</p>
-<hr />
-<h2 id="orchestrator">Orchestrator<a class="headerlink" href="#orchestrator" title="Permanent link">&para;</a></h2>
-<p>El Orchestrator es el componente central que coordina todo el flujo de trabajo.</p>
-<h3 id="metodos-principales">Métodos Principales<a class="headerlink" href="#metodos-principales" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">Orchestrator</span><span class="p">:</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">toggle</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ToggleResponse</span><span class="p">:</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Toggle de grabación (iniciar/detener).&quot;&quot;&quot;</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ToggleResponse</span><span class="p">:</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Inicia la grabación de audio.&quot;&quot;&quot;</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ToggleResponse</span><span class="p">:</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Detiene la grabación y transcribe el audio.&quot;&quot;&quot;</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">warmup</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Pre-carga el modelo Whisper en VRAM.&quot;&quot;&quot;</span>
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">shutdown</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Libera recursos al apagar el servidor.&quot;&quot;&quot;</span>
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>
-<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_status</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StatusResponse</span><span class="p">:</span>
-<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna estado actual del daemon.&quot;&quot;&quot;</span>
-<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>
-<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">process_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LLMResponse</span><span class="p">:</span>
-<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Procesa texto con LLM (limpieza, puntuación).&quot;&quot;&quot;</span>
-<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>
-<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">translate_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">target_lang</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LLMResponse</span><span class="p">:</span>
-<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Traduce texto con LLM.&quot;&quot;&quot;</span>
+<h1 id="protocolos-y-contratos">Protocolos y Contratos<a class="headerlink" href="#protocolos-y-contratos" title="Permanent link">&para;</a></h1>
+<p>Esta página documenta los protocolos (interfaces) que definen los contratos del sistema en el "Estado del Arte 2026".</p>
+<h2 id="workflows-protocolo">Workflows (Protocolo)<a class="headerlink" href="#workflows-protocolo" title="Permanent link">&para;</a></h2>
+<p>Los flujos de trabajo siguen un protocolo estándar para asegurar que la API pueda interactuar con ellos de forma genérica.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Protocol</span><span class="p">,</span> <span class="n">runtime_checkable</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nd">@runtime_checkable</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="k">class</span><span class="w"> </span><span class="nc">Workflow</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Punto de entrada principal para la ejecución del flujo.&quot;&quot;&quot;</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>        <span class="o">...</span>
 </code></pre></div>
-<hr />
-<h2 id="response-models">Response Models<a class="headerlink" href="#response-models" title="Permanent link">&para;</a></h2>
-<h3 id="toggleresponse">ToggleResponse<a class="headerlink" href="#toggleresponse" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ToggleResponse</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="n">status</span><span class="p">:</span> <span class="nb">str</span>      <span class="c1"># &#39;recording&#39; | &#39;idle&#39;</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="n">message</span><span class="p">:</span> <span class="nb">str</span>     <span class="c1"># Mensaje descriptivo</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="n">text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="c1"># Texto transcrito (solo en stop)</span>
+<h2 id="adaptadores-de-caracteristicas">Adaptadores de Características<a class="headerlink" href="#adaptadores-de-caracteristicas" title="Permanent link">&para;</a></h2>
+<p>Cada característica (<code>Feature</code>) define su propia interfaz mediante protocolos de Python para permitir el intercambio de implementaciones (ej: cambiar <code>Gemini</code> por <code>Ollama</code>).</p>
+<h3 id="llmprovider">LLMProvider<a class="headerlink" href="#llmprovider" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">LLMProvider</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">system_prompt</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Procesa texto usando un modelo de lenguaje.&quot;&quot;&quot;</span>
 </code></pre></div>
-<h3 id="statusresponse">StatusResponse<a class="headerlink" href="#statusresponse" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">StatusResponse</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="n">state</span><span class="p">:</span> <span class="nb">str</span>        <span class="c1"># &#39;idle&#39; | &#39;recording&#39; | &#39;processing&#39;</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="n">recording</span><span class="p">:</span> <span class="nb">bool</span>   <span class="c1"># True si está grabando</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="n">model_loaded</span><span class="p">:</span> <span class="nb">bool</span> <span class="c1"># True si Whisper está en VRAM</span>
-</code></pre></div>
-<h3 id="llmresponse">LLMResponse<a class="headerlink" href="#llmresponse" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">LLMResponse</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="n">text</span><span class="p">:</span> <span class="nb">str</span>    <span class="c1"># Texto procesado/traducido</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="n">backend</span><span class="p">:</span> <span class="nb">str</span> <span class="c1"># &#39;gemini&#39; | &#39;ollama&#39; | &#39;local&#39;</span>
+<h3 id="audiosource">AudioSource<a class="headerlink" href="#audiosource" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">AudioSource</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frames</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Lee frames de audio del buffer.&quot;&quot;&quot;</span>
 </code></pre></div>
 
 
@@ -1944,7 +1890,7 @@
     <span class="md-icon" title="Última actualización">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="21 de enero de 2026 01:24:37 UTC"><span class="timeago" datetime="2026-01-21T01:24:37+00:00" locale="es"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="21 de enero de 2026 01:24:37 UTC">2026-01-21</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="23 de enero de 2026 10:33:21 UTC"><span class="timeago" datetime="2026-01-23T10:33:21+00:00" locale="es"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="23 de enero de 2026 10:33:21 UTC">2026-01-23</span>
   </span>
 
     
