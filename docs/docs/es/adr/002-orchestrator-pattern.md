@@ -1,3 +1,10 @@
+---
+title: 'ADR-002: Reemplazo de CQRS/CommandBus por Orchestrator'
+description: 'ADR-002: Reemplazo de CQRS/CommandBus por Orchestrator'
+status: accepted
+last_update: 2026-01-23
+language: es
+---
 # ADR-002: Reemplazo de CQRS/CommandBus por Orchestrator
 
 ## Estado

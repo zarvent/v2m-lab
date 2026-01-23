@@ -3,8 +3,8 @@ title: Transcription
 description: Audio to text transcription services using faster-whisper.
 status: stable
 last_update: 2026-01-23
-language: US English
-ai_context: "Whisper, transcription, streaming, faster-whisper"
+language: en
+ai_context: Whisper, transcription, streaming, faster-whisper
 ---
 
 # Transcription

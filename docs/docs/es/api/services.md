@@ -3,7 +3,7 @@ title: Servicios y Lógica de Aplicación
 description: Resumen de flujos de trabajo (Workflows) y características (Features).
 status: stable
 last_update: 2026-01-23
-language: Native Latin American Spanish
+language: es
 ---
 
 # Servicios y Lógica de Aplicación

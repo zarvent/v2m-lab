@@ -1,3 +1,10 @@
+---
+title: 'ADR-001: Migración de IPC Unix Sockets a FastAPI REST'
+description: 'ADR-001: Migración de IPC Unix Sockets a FastAPI REST'
+status: accepted
+last_update: 2026-01-23
+language: es
+---
 # ADR-001: Migración de IPC Unix Sockets a FastAPI REST
 
 ## Estado

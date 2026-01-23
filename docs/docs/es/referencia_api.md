@@ -1,9 +1,11 @@
 ---
 title: Referencia de API REST
 description: Documentación de los endpoints HTTP y el protocolo WebSocket de Voice2Machine.
-ai_context: "FastAPI, REST API, WebSocket, Endpoints"
-depends_on: []
 status: stable
+last_update: 2026-01-23
+language: es
+ai_context: FastAPI, REST API, WebSocket, Endpoints
+depends_on: []
 ---
 
 # Referencia de API REST

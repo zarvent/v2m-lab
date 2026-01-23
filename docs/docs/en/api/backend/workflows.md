@@ -1,9 +1,11 @@
 ---
 title: Workflows (Orchestration)
 description: Documentation of the business workflows that coordinate system features.
-ai_context: "Workflows, Orchestration, Recording, LLM"
-depends_on: []
 status: stable
+last_update: 2026-01-23
+language: en
+ai_context: Workflows, Orchestration, Recording, LLM
+depends_on: []
 ---
 
 # Workflows (Orchestration)

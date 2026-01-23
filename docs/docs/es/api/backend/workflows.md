@@ -1,9 +1,11 @@
 ---
 title: Workflows (Orquestación)
 description: Documentación de los flujos de negocio que coordinan las funcionalidades del sistema.
-ai_context: "Workflows, Orquestación, Recording, LLM"
-depends_on: []
 status: stable
+last_update: 2026-01-23
+language: es
+ai_context: Workflows, Orquestación, Recording, LLM
+depends_on: []
 ---
 
 # Workflows (Orquestación)

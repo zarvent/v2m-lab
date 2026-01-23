@@ -3,8 +3,8 @@ title: Transcripción
 description: Servicios de transcripción de audio a texto usando faster-whisper.
 status: stable
 last_update: 2026-01-23
-language: Native Latin American Spanish
-ai_context: "Whisper, transcripción, streaming, faster-whisper"
+language: es
+ai_context: Whisper, transcripción, streaming, faster-whisper
 ---
 
 # Transcripción

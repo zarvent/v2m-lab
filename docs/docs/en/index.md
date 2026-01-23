@@ -3,7 +3,7 @@ title: Voice2Machine
 description: High-precision local AI-powered voice dictation.
 status: stable
 last_update: 2026-01-23
-language: US English
+language: en
 ---
 
 # 🗣️ Voice2Machine: Local Voice Dictation
@@ -26,24 +26,24 @@ The documentation is organized to serve different needs:
 
 ### 🚀 Exploration
 
-- [**Quick Start**](quick_start.md): Start dictating in minutes.
-- [**Glossary**](glossary.md): Defines key terms like _Daemon_, _Whisper_, and _REST API_.
+- [**Quick Start**](guia_rapida.md): Start dictating in minutes.
+- [**Glossary**](glosario.md): Defines key terms like _Daemon_, _Whisper_, and _REST API_.
 
 ### 🛠️ Procedures
 
-- [**Installation**](installation.md): Step-by-step guide for Ubuntu/Debian.
-- [**Contributing**](contributing.md): How to collaborate on the project.
+- [**Installation**](instalacion.md): Step-by-step guide for Ubuntu/Debian.
+- [**Contributing**](contribucion.md): How to collaborate on the project.
 
 ### ⚙️ Reference
 
-- [**Configuration**](configuration.md): Adjust models, devices, and behaviors.
-- [**Keyboard Shortcuts**](keyboard_shortcuts.md): Reference for global commands.
-- [**REST API**](api_reference.md): HTTP endpoints documentation.
+- [**Configuration**](configuracion.md): Adjust models, devices, and behaviors.
+- [**Keyboard Shortcuts**](atajos_teclado.md): Reference for global commands.
+- [**REST API**](referencia_api.md): HTTP endpoints documentation.
 - [**Python API**](api/index.md): Backend classes and methods reference.
 
 ### 🧠 Concepts
 
-- [**Architecture**](architecture.md): Hexagonal Design and system components.
+- [**Architecture**](arquitectura.md): Hexagonal Design and system components.
 - [**Decisions (ADR)**](adr/index.md): Record of important technical decisions.
 
 ### 🔧 Maintenance

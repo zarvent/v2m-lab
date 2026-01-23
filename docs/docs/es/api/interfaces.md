@@ -3,7 +3,7 @@ title: Protocolos y Contratos
 description: Definiciones de protocolos (interfaces) y contratos de middleware.
 status: stable
 last_update: 2026-01-23
-language: Native Latin American Spanish
+language: es
 ---
 
 # Protocolos y Contratos

@@ -3,8 +3,8 @@ title: Configuración (API)
 description: Documentación del sistema de configuración tipada usando Pydantic Settings.
 status: stable
 last_update: 2026-01-23
-language: Native Latin American Spanish
-ai_context: "Configuración, Pydantic Settings, TOML"
+language: es
+ai_context: Configuración, Pydantic Settings, TOML
 ---
 
 # Configuración

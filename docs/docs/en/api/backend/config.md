@@ -3,8 +3,8 @@ title: Configuration
 description: Typed configuration system documentation using Pydantic Settings.
 status: stable
 last_update: 2026-01-23
-language: US English
-ai_context: "Configuration, Pydantic Settings, TOML"
+language: en
+ai_context: Configuration, Pydantic Settings, TOML
 ---
 
 # Configuration

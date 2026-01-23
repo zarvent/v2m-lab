@@ -3,7 +3,7 @@ title: Guía de Estilo
 description: Estándares de documentación y gobernanza "State of the Art 2026".
 status: stable
 last_update: 2026-01-23
-language: Native Latin American Spanish
+language: es
 ---
 
 # Guía de Estilo y Gobernanza

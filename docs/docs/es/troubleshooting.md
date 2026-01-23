@@ -1,9 +1,11 @@
 ---
 title: Solución de Problemas
 description: Guía de diagnóstico y resolución de errores comunes en Voice2Machine.
-ai_context: "Troubleshooting, Logs, Errores Comunes, CUDA, Audio"
-depends_on: []
 status: stable
+last_update: 2026-01-23
+language: es
+ai_context: Troubleshooting, Logs, Errores Comunes, CUDA, Audio
+depends_on: []
 ---
 
 # 🔧 Solución de Problemas (Troubleshooting)

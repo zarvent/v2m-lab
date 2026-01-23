@@ -3,8 +3,8 @@ title: API REST (Backend)
 description: Documentación de los endpoints FastAPI y modelos de datos.
 status: stable
 last_update: 2026-01-23
-language: Native Latin American Spanish
-ai_context: "FastAPI, REST, Endpoints, Schemas, JSON"
+language: es
+ai_context: FastAPI, REST, Endpoints, Schemas, JSON
 ---
 
 # API REST (Backend)

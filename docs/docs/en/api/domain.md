@@ -3,7 +3,7 @@ title: Domain
 description: Data models and core business logic.
 status: stable
 last_update: 2026-01-23
-language: US English
+language: en
 ---
 
 # Domain

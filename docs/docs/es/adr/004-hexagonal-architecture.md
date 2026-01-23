@@ -1,3 +1,10 @@
+---
+title: 'ADR-004: Arquitectura Hexagonal (Puertos y Adaptadores)'
+description: 'ADR-004: Arquitectura Hexagonal (Puertos y Adaptadores)'
+status: accepted
+last_update: 2026-01-23
+language: es
+---
 # ADR-004: Arquitectura Hexagonal (Puertos y Adaptadores)
 
 ## Estado

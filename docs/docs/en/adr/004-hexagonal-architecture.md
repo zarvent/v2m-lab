@@ -1,3 +1,10 @@
+---
+title: 'ADR-004: Hexagonal Architecture (Ports and Adapters)'
+description: 'ADR-004: Hexagonal Architecture (Ports and Adapters)'
+status: accepted
+last_update: 2026-01-23
+language: en
+---
 # ADR-004: Hexagonal Architecture (Ports and Adapters)
 
 ## Status

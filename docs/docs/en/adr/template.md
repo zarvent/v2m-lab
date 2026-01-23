@@ -1,3 +1,10 @@
+---
+title: 'ADR-XXX: Short Decision Title'
+description: 'ADR-XXX: Short Decision Title'
+status: accepted
+last_update: 2026-01-23
+language: en
+---
 # ADR-XXX: Short Decision Title
 
 ## Status

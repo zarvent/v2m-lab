@@ -3,7 +3,7 @@ title: Guía de Contribución
 description: Instrucciones y estándares para colaborar en Voice2Machine.
 status: stable
 last_update: 2026-01-23
-language: Native Latin American Spanish
+language: es
 ---
 
 # ❤️ Guía de Contribución

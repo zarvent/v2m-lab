@@ -3,7 +3,7 @@ title: Protocols and Contracts
 description: Protocol (interfaces) and middleware contract definitions.
 status: stable
 last_update: 2026-01-23
-language: US English
+language: en
 ---
 
 # Protocols and Contracts
