@@ -39,7 +39,7 @@ Ejecución
     >>> pytest tests/unit/test_config.py -v
 """
 
-from v2m.config import Settings
+from v2m.shared.config import Settings
 
 
 def test_config_loading() -> None:

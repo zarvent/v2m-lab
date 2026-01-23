@@ -11,7 +11,7 @@ import subprocess
 import time
 from pathlib import Path
 
-from v2m.core.interfaces import ClipboardInterface, NotificationInterface
+from v2m.features.desktop.interfaces import ClipboardInterface, NotificationInterface
 from v2m.shared.logging import logger
 
 

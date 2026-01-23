@@ -33,7 +33,7 @@ from unittest.mock import MagicMock, patch
 
 import numpy as np
 
-from v2m.infrastructure.audio.recorder import AudioRecorder
+from v2m.features.audio.recorder import AudioRecorder
 
 
 class TestAudioRecorderZeroCopy(unittest.TestCase):
@@ -42,7 +42,7 @@ class TestAudioRecorderZeroCopy(unittest.TestCase):
     def setUp(self) -> None:
         """Inicializa el entorno de prueba."""
         # Force Python fallback path for these tests (tests are designed for Python impl)
-        self.patcher = patch("v2m.infrastructure.audio.recorder.HAS_RUST_ENGINE", False)
+        self.patcher = patch("v2m.features.audio.recorder.HAS_RUST_ENGINE", False)
         self.patcher.start()
         self.recorder = AudioRecorder()
 
@@ -50,7 +50,7 @@ class TestAudioRecorderZeroCopy(unittest.TestCase):
         """Limpia el entorno de prueba después de cada test."""
         self.patcher.stop()
 
-    @patch("v2m.infrastructure.audio.recorder.sd")
+    @patch("v2m.features.audio.recorder.sd")
     def test_stop_with_copy_data_false_returns_view(self, mock_sd: MagicMock) -> None:
         """Verifica que copy_data=False retorna una vista, no una copia.
 
@@ -82,7 +82,7 @@ class TestAudioRecorderZeroCopy(unittest.TestCase):
         # Restaurar para no afectar otros tests
         audio_view[0] = original_value
 
-    @patch("v2m.infrastructure.audio.recorder.sd")
+    @patch("v2m.features.audio.recorder.sd")
     def test_stop_with_copy_data_true_returns_copy(self, mock_sd: MagicMock) -> None:
         """Verifica que copy_data=True (default) retorna una copia independiente.
 
@@ -109,7 +109,7 @@ class TestAudioRecorderZeroCopy(unittest.TestCase):
         self.assertNotEqual(self.recorder._buffer[0], 999.0)
         self.assertEqual(self.recorder._buffer[0], 1.0)
 
-    @patch("v2m.infrastructure.audio.recorder.sd")
+    @patch("v2m.features.audio.recorder.sd")
     def test_zero_copy_view_contains_correct_data(self, mock_sd: MagicMock) -> None:
         """Verifica que la vista retornada contiene los datos correctos.
 
@@ -134,7 +134,7 @@ class TestAudioRecorderZeroCopy(unittest.TestCase):
         np.testing.assert_array_equal(audio_view, expected_data)
         self.assertEqual(len(audio_view), 16000)
 
-    @patch("v2m.infrastructure.audio.recorder.sd")
+    @patch("v2m.features.audio.recorder.sd")
     def test_zero_copy_unsafe_behavior_documented(self, mock_sd: MagicMock) -> None:
         """Documenta el comportamiento unsafe de copy_data=False si se reutiliza.
 
@@ -173,7 +173,7 @@ class TestAudioRecorderZeroCopy(unittest.TestCase):
         self.assertTrue(np.all(first_view == 20.0))
         self.assertTrue(np.all(second_view == 20.0))
 
-    @patch("v2m.infrastructure.audio.recorder.sd")
+    @patch("v2m.features.audio.recorder.sd")
     def test_copy_data_default_is_true(self, mock_sd: MagicMock) -> None:
         """Verifica que el comportamiento default es copy_data=True (seguro).
 
@@ -195,7 +195,7 @@ class TestAudioRecorderZeroCopy(unittest.TestCase):
         audio[0] = 999.0
         self.assertEqual(self.recorder._buffer[0], 1.0)  # Buffer no modificado
 
-    @patch("v2m.infrastructure.audio.recorder.sd")
+    @patch("v2m.features.audio.recorder.sd")
     def test_zero_copy_with_multichannel_audio(self, mock_sd: MagicMock) -> None:
         """Verifica que zero-copy funciona correctamente con audio multicanal."""
         # ARRANGE: Crear recorder estéreo
@@ -224,7 +224,7 @@ class TestAudioRecorderZeroCopy(unittest.TestCase):
         audio_view[0, 0] = 999.0
         self.assertEqual(recorder_stereo._buffer[0, 0], 999.0)
 
-    @patch("v2m.infrastructure.audio.recorder.sd")
+    @patch("v2m.features.audio.recorder.sd")
     def test_zero_copy_with_empty_recording(self, mock_sd: MagicMock) -> None:
         """Verifica que zero-copy maneja correctamente grabaciones vacías."""
         # ARRANGE
@@ -242,7 +242,7 @@ class TestAudioRecorderZeroCopy(unittest.TestCase):
         self.assertEqual(len(audio_view), 0)
         self.assertEqual(audio_view.dtype, np.float32)
 
-    @patch("v2m.infrastructure.audio.recorder.sd")
+    @patch("v2m.features.audio.recorder.sd")
     def test_zero_copy_partial_buffer_usage(self, mock_sd: MagicMock) -> None:
         """Verifica que zero-copy retorna solo la porción usada del buffer.
 

@@ -1,9 +1,4 @@
-"""Puertos del Dominio (Modelos de Datos).
-
-Este módulo define modelos Pydantic utilizados para estructurar las salidas
-de los proveedores de LLM que soportan restricciones de esquema JSON (ej. Ollama).
-Asegura que la interacción con el dominio sea tipada y predecible.
-"""
+"""Esquemas para el dominio LLM."""
 
 from pydantic import BaseModel, Field
 

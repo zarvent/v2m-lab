@@ -30,7 +30,7 @@ class TestNotificationResult:
 
     def test_success_result(self):
         """NotificationResult con success=True debe tener notification_id"""
-        from v2m.infrastructure.notification_service import NotificationResult
+        from v2m.features.desktop.notification_service import NotificationResult
 
         result = NotificationResult(success=True, notification_id=42)
 
@@ -40,7 +40,7 @@ class TestNotificationResult:
 
     def test_failure_result(self):
         """NotificationResult con success=False debe tener error"""
-        from v2m.infrastructure.notification_service import NotificationResult
+        from v2m.features.desktop.notification_service import NotificationResult
 
         result = NotificationResult(success=False, error="test error")
 
@@ -50,7 +50,7 @@ class TestNotificationResult:
 
     def test_immutable(self):
         """NotificationResult debe ser inmutable (frozen=True)"""
-        from v2m.infrastructure.notification_service import NotificationResult
+        from v2m.features.desktop.notification_service import NotificationResult
 
         result = NotificationResult(success=True, notification_id=1)
 
@@ -64,7 +64,7 @@ class TestLinuxNotificationService:
     @pytest.fixture(autouse=True)
     def reset_executor(self):
         """resetea el executor singleton entre tests"""
-        from v2m.infrastructure.notification_service import LinuxNotificationService
+        from v2m.features.desktop.notification_service import LinuxNotificationService
 
         # forzar reset del executor singleton
         LinuxNotificationService._executor = None
@@ -74,7 +74,7 @@ class TestLinuxNotificationService:
 
     def test_init_with_custom_config(self):
         """debe inicializar con configuración personalizada"""
-        from v2m.infrastructure.notification_service import LinuxNotificationService
+        from v2m.features.desktop.notification_service import LinuxNotificationService
 
         config = MockNotificationsConfig(expire_time_ms=5000, auto_dismiss=False)
         service = LinuxNotificationService(config=config)
@@ -84,7 +84,7 @@ class TestLinuxNotificationService:
 
     def test_init_creates_executor(self):
         """debe crear el thread pool executor al inicializar"""
-        from v2m.infrastructure.notification_service import LinuxNotificationService
+        from v2m.features.desktop.notification_service import LinuxNotificationService
 
         config = MockNotificationsConfig()
         _service = LinuxNotificationService(config=config)
@@ -93,7 +93,7 @@ class TestLinuxNotificationService:
 
     def test_executor_is_singleton(self):
         """el executor debe ser compartido entre instancias"""
-        from v2m.infrastructure.notification_service import LinuxNotificationService
+        from v2m.features.desktop.notification_service import LinuxNotificationService
 
         config = MockNotificationsConfig()
         service1 = LinuxNotificationService(config=config)
@@ -104,7 +104,7 @@ class TestLinuxNotificationService:
     @patch("subprocess.run")
     def test_send_notification_success(self, mock_run):
         """debe enviar notificación via dbus exitosamente"""
-        from v2m.infrastructure.notification_service import LinuxNotificationService
+        from v2m.features.desktop.notification_service import LinuxNotificationService
 
         # configurar mock para retornar id de notificación
         mock_run.return_value = MagicMock(returncode=0, stdout="(uint32 123,)", stderr="")
@@ -124,7 +124,7 @@ class TestLinuxNotificationService:
     @patch("subprocess.run")
     def test_fallback_to_notify_send(self, mock_run):
         """debe usar notify-send como fallback si dbus falla"""
-        from v2m.infrastructure.notification_service import LinuxNotificationService
+        from v2m.features.desktop.notification_service import LinuxNotificationService
 
         # primera llamada (gdbus) falla, segunda (notify-send) ok
         mock_run.side_effect = [
@@ -145,7 +145,7 @@ class TestLinuxNotificationService:
     @patch("subprocess.run")
     def test_schedule_dismiss_called_when_auto_dismiss_enabled(self, mock_run):
         """debe programar dismiss cuando auto_dismiss está habilitado"""
-        from v2m.infrastructure.notification_service import LinuxNotificationService
+        from v2m.features.desktop.notification_service import LinuxNotificationService
 
         # gdbus retorna id de notificación
         mock_run.return_value = MagicMock(returncode=0, stdout="(uint32 99,)", stderr="")
@@ -162,7 +162,7 @@ class TestLinuxNotificationService:
 
     def test_pending_dismissals_property(self):
         """pending_dismissals debe retornar conteo correcto"""
-        from v2m.infrastructure.notification_service import LinuxNotificationService
+        from v2m.features.desktop.notification_service import LinuxNotificationService
 
         config = MockNotificationsConfig()
         service = LinuxNotificationService(config=config)
@@ -173,7 +173,7 @@ class TestLinuxNotificationService:
     @patch("subprocess.run")
     def test_gdbus_not_found(self, mock_run):
         """debe manejar FileNotFoundError gracefully"""
-        from v2m.infrastructure.notification_service import LinuxNotificationService
+        from v2m.features.desktop.notification_service import LinuxNotificationService
 
         mock_run.side_effect = FileNotFoundError("gdbus not found")
 
@@ -186,7 +186,7 @@ class TestLinuxNotificationService:
     @patch("subprocess.run")
     def test_timeout_handling(self, mock_run):
         """debe manejar timeouts de subprocess"""
-        from v2m.infrastructure.notification_service import LinuxNotificationService
+        from v2m.features.desktop.notification_service import LinuxNotificationService
 
         mock_run.side_effect = subprocess.TimeoutExpired("gdbus", 2)
 
@@ -198,7 +198,7 @@ class TestLinuxNotificationService:
 
     def test_shutdown_all_closes_executor(self):
         """shutdown_all debe cerrar el executor singleton"""
-        from v2m.infrastructure.notification_service import LinuxNotificationService
+        from v2m.features.desktop.notification_service import LinuxNotificationService
 
         config = MockNotificationsConfig()
         _service = LinuxNotificationService(config=config)
@@ -216,16 +216,16 @@ class TestLinuxNotificationAdapter:
     @pytest.fixture(autouse=True)
     def reset_state(self):
         """resetea estado entre tests"""
-        from v2m.infrastructure.notification_service import LinuxNotificationService
+        from v2m.features.desktop.notification_service import LinuxNotificationService
 
         LinuxNotificationService._executor = None
         yield
         LinuxNotificationService.shutdown_all()
 
-    @patch("v2m.infrastructure.notification_service.LinuxNotificationService.notify")
+    @patch("v2m.features.desktop.notification_service.LinuxNotificationService.notify")
     def test_delegates_to_service(self, mock_notify):
         """adapter debe delegar al servicio de notificaciones"""
-        from v2m.infrastructure.linux_adapters import LinuxNotificationAdapter
+        from v2m.features.desktop.linux_adapters import LinuxNotificationAdapter
 
         adapter = LinuxNotificationAdapter()
         adapter.notify("Title", "Message")
@@ -234,8 +234,8 @@ class TestLinuxNotificationAdapter:
 
     def test_implements_interface(self):
         """adapter debe implementar NotificationInterface"""
-        from v2m.core.interfaces import NotificationInterface
-        from v2m.infrastructure.linux_adapters import LinuxNotificationAdapter
+        from v2m.features.desktop.interfaces import NotificationInterface
+        from v2m.features.desktop.linux_adapters import LinuxNotificationAdapter
 
         adapter = LinuxNotificationAdapter()
 

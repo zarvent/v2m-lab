@@ -23,7 +23,7 @@ from time import sleep
 from typing import TYPE_CHECKING, ClassVar
 from weakref import WeakSet
 
-from v2m.core.interfaces import NotificationInterface
+from v2m.features.desktop.interfaces import NotificationInterface
 from v2m.shared.logging import logger
 
 if TYPE_CHECKING:

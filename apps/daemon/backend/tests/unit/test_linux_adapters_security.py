@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 import pytest
 
-from v2m.infrastructure.linux_adapters import LinuxClipboardAdapter
+from v2m.features.desktop.linux_adapters import LinuxClipboardAdapter
 
 
 class TestLinuxClipboardAdapterSecurity:

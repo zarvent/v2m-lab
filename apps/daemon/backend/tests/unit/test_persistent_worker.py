@@ -2,12 +2,12 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from v2m.infrastructure.persistent_model import PersistentWhisperWorker
+from v2m.features.transcription.persistent_model import PersistentWhisperWorker
 
 
 @pytest.fixture
 def mock_whisper_model():
-    with patch("v2m.infrastructure.persistent_model.WhisperModel") as mock_class:
+    with patch("v2m.features.transcription.persistent_model.WhisperModel") as mock_class:
         mock_instance = MagicMock()
         mock_class.return_value = mock_instance
         yield mock_class, mock_instance

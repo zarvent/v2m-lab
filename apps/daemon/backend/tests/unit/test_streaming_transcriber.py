@@ -11,7 +11,7 @@ from unittest.mock import AsyncMock, MagicMock
 import numpy as np
 import pytest
 
-from v2m.infrastructure.streaming_transcriber import StreamingTranscriber
+from v2m.features.audio.streaming_transcriber import StreamingTranscriber
 
 
 def _generate_speech_chunk(duration_samples: int = 16000) -> np.ndarray:

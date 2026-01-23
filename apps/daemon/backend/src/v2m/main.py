@@ -12,7 +12,7 @@ El servidor expone endpoints REST que cualquier Junior puede probar con curl:
     curl http://localhost:8765/status
 
 Para desarrollo:
-    uvicorn v2m.api:app --reload --host 127.0.0.1 --port 8765
+    uvicorn v2m.api.app:app --reload --host 127.0.0.1 --port 8765
 """
 
 import argparse
@@ -61,7 +61,7 @@ def _run_server(host: str, port: int) -> None:
     logger.info(f"📚 Documentación disponible en http://{host}:{port}/docs")
 
     uvicorn.run(
-        "v2m.api:app",
+        "v2m.api.app:app",
         host=host,
         port=port,
         log_level="info",

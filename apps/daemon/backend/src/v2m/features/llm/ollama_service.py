@@ -21,7 +21,7 @@ from v2m.features.llm.service import LLMService
 from v2m.shared.config import BASE_DIR, config
 from v2m.shared.logging import logger
 from v2m.shared.errors import LLMError
-from v2m.domain.ports import CorrectionResult
+from v2m.features.llm.schemas import CorrectionResult
 
 
 class OllamaLLMService(LLMService):
