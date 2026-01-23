@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Instrucciones detalladas para configurar los servicios de transcripción y LLM.">
+        <meta name="description" content="Detailed instructions for configuring transcription and LLM services.">
       
       
         <meta name="author" content="zarvent">
@@ -33,7 +33,7 @@
     
     
       
-        <title>Guía de Configuración - Voice2Machine</title>
+        <title>Configuration Guide - Voice2Machine</title>
       
     
     
@@ -94,7 +94,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#guia-de-configuracion" class="md-skip">
+        <a href="#configuration-guide" class="md-skip">
           Skip to content
         </a>
       
@@ -129,7 +129,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Guía de Configuración
+              Configuration Guide
             
           </span>
         </div>
@@ -656,22 +656,22 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#1-transcripcion-local-transcription" class="md-nav__link">
+  <a href="#1-local-transcription-transcription" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1. Transcripción Local ([transcription])
+        1. Local Transcription ([transcription])
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="1. Transcripción Local ([transcription])">
+    <nav class="md-nav" aria-label="1. Local Transcription ([transcription])">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#deteccion-de-voz-vad" class="md-nav__link">
+  <a href="#voice-activity-detection-vad" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Detección de Voz (VAD)
+        Voice Activity Detection (VAD)
       
     </span>
   </a>
@@ -684,22 +684,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#2-servicios-llm-llm" class="md-nav__link">
+  <a href="#2-llm-services-llm" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Servicios LLM ([llm])
+        2. LLM Services ([llm])
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="2. Servicios LLM ([llm])">
+    <nav class="md-nav" aria-label="2. LLM Services ([llm])">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#configuracion-global" class="md-nav__link">
+  <a href="#global-configuration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Configuración Global
+        Global Configuration
       
     </span>
   </a>
@@ -707,15 +707,15 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#proveedores-especificos" class="md-nav__link">
+  <a href="#specific-providers" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Proveedores Específicos
+        Specific Providers
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Proveedores Específicos">
+    <nav class="md-nav" aria-label="Specific Providers">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -751,10 +751,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#3-grabacion-recording" class="md-nav__link">
+  <a href="#3-recording-recording" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. Grabación ([recording])
+        3. Recording ([recording])
       
     </span>
   </a>
@@ -762,10 +762,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#4-sistema-system" class="md-nav__link">
+  <a href="#4-system-system" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4. Sistema ([system])
+        4. System ([system])
       
     </span>
   </a>
@@ -773,10 +773,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#secretos-y-seguridad" class="md-nav__link">
+  <a href="#secrets-and-security" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Secretos y Seguridad
+        Secrets and Security
       
     </span>
   </a>
@@ -1603,7 +1603,7 @@
   <span class="md-ellipsis">
     
   
-    Arquitectura del Sistema
+    System Architecture
   
 
     
@@ -1682,6 +1682,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
+  
 
             </a>
             
@@ -1726,6 +1733,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--accepted"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1753,6 +1767,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--accepted"></span>
+  
+
   
 
       </a>
@@ -1782,6 +1803,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--accepted"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1809,6 +1837,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--accepted"></span>
+  
+
   
 
       </a>
@@ -1838,6 +1873,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--accepted"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1866,6 +1908,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--accepted"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1893,6 +1942,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--accepted"></span>
+  
+
   
 
       </a>
@@ -2115,22 +2171,22 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#1-transcripcion-local-transcription" class="md-nav__link">
+  <a href="#1-local-transcription-transcription" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1. Transcripción Local ([transcription])
+        1. Local Transcription ([transcription])
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="1. Transcripción Local ([transcription])">
+    <nav class="md-nav" aria-label="1. Local Transcription ([transcription])">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#deteccion-de-voz-vad" class="md-nav__link">
+  <a href="#voice-activity-detection-vad" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Detección de Voz (VAD)
+        Voice Activity Detection (VAD)
       
     </span>
   </a>
@@ -2143,22 +2199,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#2-servicios-llm-llm" class="md-nav__link">
+  <a href="#2-llm-services-llm" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Servicios LLM ([llm])
+        2. LLM Services ([llm])
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="2. Servicios LLM ([llm])">
+    <nav class="md-nav" aria-label="2. LLM Services ([llm])">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#configuracion-global" class="md-nav__link">
+  <a href="#global-configuration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Configuración Global
+        Global Configuration
       
     </span>
   </a>
@@ -2166,15 +2222,15 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#proveedores-especificos" class="md-nav__link">
+  <a href="#specific-providers" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Proveedores Específicos
+        Specific Providers
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Proveedores Específicos">
+    <nav class="md-nav" aria-label="Specific Providers">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -2210,10 +2266,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#3-grabacion-recording" class="md-nav__link">
+  <a href="#3-recording-recording" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. Grabación ([recording])
+        3. Recording ([recording])
       
     </span>
   </a>
@@ -2221,10 +2277,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#4-sistema-system" class="md-nav__link">
+  <a href="#4-system-system" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4. Sistema ([system])
+        4. System ([system])
       
     </span>
   </a>
@@ -2232,10 +2288,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#secretos-y-seguridad" class="md-nav__link">
+  <a href="#secrets-and-security" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Secretos y Seguridad
+        Secrets and Security
       
     </span>
   </a>
@@ -2262,24 +2318,24 @@
   
 
 
-<h1 id="guia-de-configuracion">⚙️ Guía de Configuración<a class="headerlink" href="#guia-de-configuracion" title="Permanent link">&para;</a></h1>
+<h1 id="configuration-guide">⚙️ Configuration Guide<a class="headerlink" href="#configuration-guide" title="Permanent link">&para;</a></h1>
 <div class="admonition info">
-<p class="admonition-title">Gestión de Configuración</p>
+<p class="admonition-title">Configuration Management</p>
 </div>
-<p>La configuración se gestiona principalmente a través de la interfaz gráfica del Frontend (Icono de engranaje ⚙️). Sin embargo, los usuarios avanzados pueden editar directamente el archivo <code>config.toml</code>.</p>
+<p>Configuration is primarily managed through the Frontend GUI (Gear icon ⚙️). However, advanced users can directly edit the <code>config.toml</code> file.</p>
 <blockquote>
-<p><strong>Ubicación del archivo</strong>: <code>$XDG_CONFIG_HOME/v2m/config.toml</code> (usualmente <code>~/.config/v2m/config.toml</code>).</p>
+<p><strong>File location</strong>: <code>$XDG_CONFIG_HOME/v2m/config.toml</code> (usually <code>~/.config/v2m/config.toml</code>).</p>
 </blockquote>
 <hr />
-<h2 id="1-transcripcion-local-transcription">1. Transcripción Local (<code>[transcription]</code>)<a class="headerlink" href="#1-transcripcion-local-transcription" title="Permanent link">&para;</a></h2>
-<p>El corazón del sistema. Estos parámetros controlan el motor <strong>Faster-Whisper</strong>.</p>
+<h2 id="1-local-transcription-transcription">1. Local Transcription (<code>[transcription]</code>)<a class="headerlink" href="#1-local-transcription-transcription" title="Permanent link">&para;</a></h2>
+<p>The heart of the system. These parameters control the <strong>Faster-Whisper</strong> engine.</p>
 <table>
 <thead>
 <tr>
-<th style="text-align: left;">Parámetro</th>
-<th style="text-align: left;">Tipo</th>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
 <th style="text-align: left;">Default</th>
-<th style="text-align: left;">Descripción y "Best Practice" 2026</th>
+<th style="text-align: left;">Description and Best Practice 2026</th>
 </tr>
 </thead>
 <tbody>
@@ -2287,95 +2343,95 @@
 <td style="text-align: left;"><code>model</code></td>
 <td style="text-align: left;"><code>str</code></td>
 <td style="text-align: left;"><code>distil-large-v3</code></td>
-<td style="text-align: left;">Modelo a cargar. <code>distil-large-v3</code> ofrece velocidad extrema con precisión SOTA. Opciones: <code>large-v3-turbo</code>, <code>medium</code>.</td>
+<td style="text-align: left;">Model to load. <code>distil-large-v3</code> offers extreme speed with SOTA accuracy. Options: <code>large-v3-turbo</code>, <code>medium</code>.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>device</code></td>
 <td style="text-align: left;"><code>str</code></td>
 <td style="text-align: left;"><code>cuda</code></td>
-<td style="text-align: left;"><code>cuda</code> (GPU NVIDIA) es mandatorio para experiencia en tiempo real. <code>cpu</code> es funcional pero no recomendado.</td>
+<td style="text-align: left;"><code>cuda</code> (NVIDIA GPU) is mandatory for real-time experience. <code>cpu</code> is functional but not recommended.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>compute_type</code></td>
 <td style="text-align: left;"><code>str</code></td>
 <td style="text-align: left;"><code>float16</code></td>
-<td style="text-align: left;">Precisión de tensores. <code>float16</code> o <code>int8_float16</code> optimizan VRAM y throughput en GPUs modernas.</td>
+<td style="text-align: left;">Tensor precision. <code>float16</code> or <code>int8_float16</code> optimize VRAM and throughput on modern GPUs.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>use_faster_whisper</code></td>
 <td style="text-align: left;"><code>bool</code></td>
 <td style="text-align: left;"><code>true</code></td>
-<td style="text-align: left;">Habilita el backend optimizado CTranslate2.</td>
+<td style="text-align: left;">Enables the optimized CTranslate2 backend.</td>
 </tr>
 </tbody>
 </table>
-<h3 id="deteccion-de-voz-vad">Detección de Voz (VAD)<a class="headerlink" href="#deteccion-de-voz-vad" title="Permanent link">&para;</a></h3>
-<p>El sistema utiliza <strong>Silero VAD</strong> (versión Rust en <code>v2m_engine</code>) para filtrar silencio antes de invocar a Whisper, ahorrando GPU.</p>
+<h3 id="voice-activity-detection-vad">Voice Activity Detection (VAD)<a class="headerlink" href="#voice-activity-detection-vad" title="Permanent link">&para;</a></h3>
+<p>The system uses <strong>Silero VAD</strong> (Rust version in <code>v2m_engine</code>) to filter silence before invoking Whisper, saving GPU cycles.</p>
 <ul>
-<li><strong><code>vad_filter</code></strong> (<code>true</code>): Activa el pre-filtrado.</li>
-<li><strong><code>vad_parameters</code></strong>: Ajuste fino de sensibilidad (umbral de silencio, duración mínima de voz).</li>
+<li><strong><code>vad_filter</code></strong> (<code>true</code>): Activates pre-filtering.</li>
+<li><strong><code>vad_parameters</code></strong>: Fine-tune sensitivity (silence threshold, minimum voice duration).</li>
 </ul>
 <hr />
-<h2 id="2-servicios-llm-llm">2. Servicios LLM (<code>[llm]</code>)<a class="headerlink" href="#2-servicios-llm-llm" title="Permanent link">&para;</a></h2>
-<p>Voice2Machine implementa un patrón de <strong>Proveedor</strong> para soportar múltiples backends de IA para el refinado de texto.</p>
-<h3 id="configuracion-global">Configuración Global<a class="headerlink" href="#configuracion-global" title="Permanent link">&para;</a></h3>
+<h2 id="2-llm-services-llm">2. LLM Services (<code>[llm]</code>)<a class="headerlink" href="#2-llm-services-llm" title="Permanent link">&para;</a></h2>
+<p>Voice2Machine implements a <strong>Provider</strong> pattern to support multiple AI backends for text refinement.</p>
+<h3 id="global-configuration">Global Configuration<a class="headerlink" href="#global-configuration" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
 <tr>
-<th style="text-align: left;">Parámetro</th>
-<th style="text-align: left;">Descripción</th>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td style="text-align: left;"><code>provider</code></td>
-<td style="text-align: left;">Proveedor activo: <code>gemini</code> (Nube) u <code>ollama</code> (Local).</td>
+<td style="text-align: left;">Active provider: <code>gemini</code> (Cloud) or <code>ollama</code> (Local).</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>model</code></td>
-<td style="text-align: left;">Nombre del modelo específico (ej. <code>gemini-1.5-flash</code> o <code>llama3:8b</code>).</td>
+<td style="text-align: left;">Specific model name (e.g., <code>gemini-1.5-flash</code> or <code>llama3:8b</code>).</td>
 </tr>
 </tbody>
 </table>
-<h3 id="proveedores-especificos">Proveedores Específicos<a class="headerlink" href="#proveedores-especificos" title="Permanent link">&para;</a></h3>
+<h3 id="specific-providers">Specific Providers<a class="headerlink" href="#specific-providers" title="Permanent link">&para;</a></h3>
 <h4 id="google-gemini-provider-gemini">Google Gemini (<code>provider = "gemini"</code>)<a class="headerlink" href="#google-gemini-provider-gemini" title="Permanent link">&para;</a></h4>
-<p>Requiere API Key. Ideal para usuarios sin GPU potente (VRAM &lt; 8GB).</p>
+<p>Requires API Key. Ideal for users without powerful GPU (VRAM &lt; 8GB).</p>
 <ul>
-<li><strong>Modelo recomendado</strong>: <code>gemini-1.5-flash-latest</code> (latencia mínima).</li>
-<li><strong>Temperatura</strong>: <code>0.3</code> (conservador) para corrección gramatical.</li>
+<li><strong>Recommended model</strong>: <code>gemini-1.5-flash-latest</code> (minimum latency).</li>
+<li><strong>Temperature</strong>: <code>0.3</code> (conservative) for grammar correction.</li>
 </ul>
 <h4 id="ollama-provider-ollama">Ollama (<code>provider = "ollama"</code>)<a class="headerlink" href="#ollama-provider-ollama" title="Permanent link">&para;</a></h4>
-<p>Privacidad total. Requiere correr el servidor de Ollama (<code>ollama serve</code>).</p>
+<p>Total privacy. Requires running the Ollama server (<code>ollama serve</code>).</p>
 <ul>
 <li><strong>Endpoint</strong>: <code>http://localhost:11434</code></li>
-<li><strong>Modelo recomendado</strong>: <code>qwen2.5:7b</code> o <code>llama3.1:8b</code>.</li>
+<li><strong>Recommended model</strong>: <code>qwen2.5:7b</code> or <code>llama3.1:8b</code>.</li>
 </ul>
 <hr />
-<h2 id="3-grabacion-recording">3. Grabación (<code>[recording]</code>)<a class="headerlink" href="#3-grabacion-recording" title="Permanent link">&para;</a></h2>
-<p>Controla la captura de audio mediante <code>SoundDevice</code> y <code>v2m_engine</code>.</p>
+<h2 id="3-recording-recording">3. Recording (<code>[recording]</code>)<a class="headerlink" href="#3-recording-recording" title="Permanent link">&para;</a></h2>
+<p>Controls audio capture via <code>SoundDevice</code> and <code>v2m_engine</code>.</p>
 <ul>
-<li><strong><code>sample_rate</code></strong>: <code>16000</code> (Fijo, requerido por Whisper).</li>
+<li><strong><code>sample_rate</code></strong>: <code>16000</code> (Fixed, required by Whisper).</li>
 <li><strong><code>channels</code></strong>: <code>1</code> (Mono).</li>
-<li><strong><code>device_index</code></strong>: ID del micrófono. Si es <code>null</code>, usa el default del sistema (PulseAudio/PipeWire).</li>
+<li><strong><code>device_index</code></strong>: Microphone ID. If <code>null</code>, uses system default (PulseAudio/PipeWire).</li>
 </ul>
 <hr />
-<h2 id="4-sistema-system">4. Sistema (<code>[system]</code>)<a class="headerlink" href="#4-sistema-system" title="Permanent link">&para;</a></h2>
-<p>Configuración de bajo nivel para el Daemon y comunicación.</p>
+<h2 id="4-system-system">4. System (<code>[system]</code>)<a class="headerlink" href="#4-system-system" title="Permanent link">&para;</a></h2>
+<p>Low-level configuration for the Daemon and communication.</p>
 <ul>
-<li><strong><code>host</code></strong>: Host del servidor (<code>127.0.0.1</code> para acceso solo local).</li>
-<li><strong><code>port</code></strong>: Puerto HTTP (<code>8765</code> por defecto).</li>
-<li><strong><code>log_level</code></strong>: <code>INFO</code> por defecto. Cambiar a <code>DEBUG</code> para diagnósticos profundos.</li>
+<li><strong><code>host</code></strong>: Server host (<code>127.0.0.1</code> for local-only access).</li>
+<li><strong><code>port</code></strong>: HTTP port (<code>8765</code> by default).</li>
+<li><strong><code>log_level</code></strong>: <code>INFO</code> by default. Change to <code>DEBUG</code> for deep diagnostics.</li>
 </ul>
 <hr />
-<h2 id="secretos-y-seguridad">Secretos y Seguridad<a class="headerlink" href="#secretos-y-seguridad" title="Permanent link">&para;</a></h2>
-<p>Las claves de API se gestionan mediante variables de entorno o almacenamiento seguro, nunca en texto plano dentro de <code>config.toml</code> si es posible.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Definir en .env o entorno del sistema</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nb">export</span><span class="w"> </span><span class="nv">GEMINI_API_KEY</span><span class="o">=</span><span class="s2">&quot;AIzaSy_TU_CLAVE_AQUI&quot;</span>
+<h2 id="secrets-and-security">Secrets and Security<a class="headerlink" href="#secrets-and-security" title="Permanent link">&para;</a></h2>
+<p>API keys are managed via environment variables or secure storage, never in plain text inside <code>config.toml</code> if possible.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Define in .env or system environment</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nb">export</span><span class="w"> </span><span class="nv">GEMINI_API_KEY</span><span class="o">=</span><span class="s2">&quot;AIzaSy_YOUR_KEY_HERE&quot;</span>
 </code></pre></div>
 <div class="admonition warning">
-<p class="admonition-title">Importante</p>
+<p class="admonition-title">Important</p>
 </div>
-<p>Reinicia el demonio (usando <code>scripts/operations/daemon/restart_daemon.sh</code>) después de editar manualmente el archivo de configuración para aplicar los cambios.</p>
+<p>Restart the daemon (using <code>scripts/operations/daemon/restart_daemon.sh</code>) after manually editing the configuration file to apply changes.</p>
 
 
 
@@ -2396,7 +2452,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="23 de enero de 2026 10:29:46 UTC"><span class="timeago" datetime="2026-01-23T10:29:46+00:00" locale="es"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="23 de enero de 2026 10:29:46 UTC">2026-01-23</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="January 23, 2026 10:29:46 UTC"><span class="timeago" datetime="2026-01-23T10:29:46+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="January 23, 2026 10:29:46 UTC">2026-01-23</span>
   </span>
 
     

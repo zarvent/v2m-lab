@@ -218,16 +218,18 @@
         <xhtml:link rel="alternate" hreflang="es" href="https://zarvent.github.io/v2m-lab/"/>
     </url>
     <url>
-        <loc>https://zarvent.github.io/v2m-lab/en/api_reference/</loc>
+        <loc>https://zarvent.github.io/v2m-lab/en/arquitectura/</loc>
         <lastmod>2026-01-23</lastmod>
         <changefreq>daily</changefreq>
-        <xhtml:link rel="alternate" hreflang="en" href="https://zarvent.github.io/v2m-lab/en/api_reference/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://zarvent.github.io/v2m-lab/en/arquitectura/"/>
+        <xhtml:link rel="alternate" hreflang="es" href="https://zarvent.github.io/v2m-lab/arquitectura/"/>
     </url>
     <url>
-        <loc>https://zarvent.github.io/v2m-lab/en/architecture/</loc>
+        <loc>https://zarvent.github.io/v2m-lab/en/atajos_teclado/</loc>
         <lastmod>2026-01-23</lastmod>
         <changefreq>daily</changefreq>
-        <xhtml:link rel="alternate" hreflang="en" href="https://zarvent.github.io/v2m-lab/en/architecture/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://zarvent.github.io/v2m-lab/en/atajos_teclado/"/>
+        <xhtml:link rel="alternate" hreflang="es" href="https://zarvent.github.io/v2m-lab/atajos_teclado/"/>
     </url>
     <url>
         <loc>https://zarvent.github.io/v2m-lab/en/changelog/</loc>
@@ -237,40 +239,46 @@
         <xhtml:link rel="alternate" hreflang="es" href="https://zarvent.github.io/v2m-lab/changelog/"/>
     </url>
     <url>
-        <loc>https://zarvent.github.io/v2m-lab/en/configuration/</loc>
+        <loc>https://zarvent.github.io/v2m-lab/en/configuracion/</loc>
         <lastmod>2026-01-23</lastmod>
         <changefreq>daily</changefreq>
-        <xhtml:link rel="alternate" hreflang="en" href="https://zarvent.github.io/v2m-lab/en/configuration/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://zarvent.github.io/v2m-lab/en/configuracion/"/>
+        <xhtml:link rel="alternate" hreflang="es" href="https://zarvent.github.io/v2m-lab/configuracion/"/>
     </url>
     <url>
-        <loc>https://zarvent.github.io/v2m-lab/en/contributing/</loc>
+        <loc>https://zarvent.github.io/v2m-lab/en/contribucion/</loc>
         <lastmod>2026-01-23</lastmod>
         <changefreq>daily</changefreq>
-        <xhtml:link rel="alternate" hreflang="en" href="https://zarvent.github.io/v2m-lab/en/contributing/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://zarvent.github.io/v2m-lab/en/contribucion/"/>
+        <xhtml:link rel="alternate" hreflang="es" href="https://zarvent.github.io/v2m-lab/contribucion/"/>
     </url>
     <url>
-        <loc>https://zarvent.github.io/v2m-lab/en/glossary/</loc>
+        <loc>https://zarvent.github.io/v2m-lab/en/glosario/</loc>
         <lastmod>2026-01-23</lastmod>
         <changefreq>daily</changefreq>
-        <xhtml:link rel="alternate" hreflang="en" href="https://zarvent.github.io/v2m-lab/en/glossary/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://zarvent.github.io/v2m-lab/en/glosario/"/>
+        <xhtml:link rel="alternate" hreflang="es" href="https://zarvent.github.io/v2m-lab/glosario/"/>
     </url>
     <url>
-        <loc>https://zarvent.github.io/v2m-lab/en/installation/</loc>
+        <loc>https://zarvent.github.io/v2m-lab/en/guia_rapida/</loc>
         <lastmod>2026-01-23</lastmod>
         <changefreq>daily</changefreq>
-        <xhtml:link rel="alternate" hreflang="en" href="https://zarvent.github.io/v2m-lab/en/installation/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://zarvent.github.io/v2m-lab/en/guia_rapida/"/>
+        <xhtml:link rel="alternate" hreflang="es" href="https://zarvent.github.io/v2m-lab/guia_rapida/"/>
     </url>
     <url>
-        <loc>https://zarvent.github.io/v2m-lab/en/keyboard_shortcuts/</loc>
+        <loc>https://zarvent.github.io/v2m-lab/en/instalacion/</loc>
         <lastmod>2026-01-23</lastmod>
         <changefreq>daily</changefreq>
-        <xhtml:link rel="alternate" hreflang="en" href="https://zarvent.github.io/v2m-lab/en/keyboard_shortcuts/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://zarvent.github.io/v2m-lab/en/instalacion/"/>
+        <xhtml:link rel="alternate" hreflang="es" href="https://zarvent.github.io/v2m-lab/instalacion/"/>
     </url>
     <url>
-        <loc>https://zarvent.github.io/v2m-lab/en/quick_start/</loc>
+        <loc>https://zarvent.github.io/v2m-lab/en/referencia_api/</loc>
         <lastmod>2026-01-23</lastmod>
         <changefreq>daily</changefreq>
-        <xhtml:link rel="alternate" hreflang="en" href="https://zarvent.github.io/v2m-lab/en/quick_start/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://zarvent.github.io/v2m-lab/en/referencia_api/"/>
+        <xhtml:link rel="alternate" hreflang="es" href="https://zarvent.github.io/v2m-lab/referencia_api/"/>
     </url>
     <url>
         <loc>https://zarvent.github.io/v2m-lab/en/style_guide/</loc>
@@ -411,61 +419,5 @@
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://zarvent.github.io/v2m-lab/en/api/backend/workflows/"/>
         <xhtml:link rel="alternate" hreflang="es" href="https://zarvent.github.io/v2m-lab/api/backend/workflows/"/>
-    </url>
-    <url>
-        <loc>https://zarvent.github.io/v2m-lab/en/arquitectura/</loc>
-        <lastmod>2026-01-23</lastmod>
-        <changefreq>daily</changefreq>
-        <xhtml:link rel="alternate" hreflang="en" href="https://zarvent.github.io/v2m-lab/en/arquitectura/"/>
-        <xhtml:link rel="alternate" hreflang="es" href="https://zarvent.github.io/v2m-lab/arquitectura/"/>
-    </url>
-    <url>
-        <loc>https://zarvent.github.io/v2m-lab/en/atajos_teclado/</loc>
-        <lastmod>2026-01-23</lastmod>
-        <changefreq>daily</changefreq>
-        <xhtml:link rel="alternate" hreflang="en" href="https://zarvent.github.io/v2m-lab/en/atajos_teclado/"/>
-        <xhtml:link rel="alternate" hreflang="es" href="https://zarvent.github.io/v2m-lab/atajos_teclado/"/>
-    </url>
-    <url>
-        <loc>https://zarvent.github.io/v2m-lab/en/configuracion/</loc>
-        <lastmod>2026-01-23</lastmod>
-        <changefreq>daily</changefreq>
-        <xhtml:link rel="alternate" hreflang="en" href="https://zarvent.github.io/v2m-lab/en/configuracion/"/>
-        <xhtml:link rel="alternate" hreflang="es" href="https://zarvent.github.io/v2m-lab/configuracion/"/>
-    </url>
-    <url>
-        <loc>https://zarvent.github.io/v2m-lab/en/contribucion/</loc>
-        <lastmod>2026-01-23</lastmod>
-        <changefreq>daily</changefreq>
-        <xhtml:link rel="alternate" hreflang="en" href="https://zarvent.github.io/v2m-lab/en/contribucion/"/>
-        <xhtml:link rel="alternate" hreflang="es" href="https://zarvent.github.io/v2m-lab/contribucion/"/>
-    </url>
-    <url>
-        <loc>https://zarvent.github.io/v2m-lab/en/glosario/</loc>
-        <lastmod>2026-01-23</lastmod>
-        <changefreq>daily</changefreq>
-        <xhtml:link rel="alternate" hreflang="en" href="https://zarvent.github.io/v2m-lab/en/glosario/"/>
-        <xhtml:link rel="alternate" hreflang="es" href="https://zarvent.github.io/v2m-lab/glosario/"/>
-    </url>
-    <url>
-        <loc>https://zarvent.github.io/v2m-lab/en/guia_rapida/</loc>
-        <lastmod>2026-01-23</lastmod>
-        <changefreq>daily</changefreq>
-        <xhtml:link rel="alternate" hreflang="en" href="https://zarvent.github.io/v2m-lab/en/guia_rapida/"/>
-        <xhtml:link rel="alternate" hreflang="es" href="https://zarvent.github.io/v2m-lab/guia_rapida/"/>
-    </url>
-    <url>
-        <loc>https://zarvent.github.io/v2m-lab/en/instalacion/</loc>
-        <lastmod>2026-01-23</lastmod>
-        <changefreq>daily</changefreq>
-        <xhtml:link rel="alternate" hreflang="en" href="https://zarvent.github.io/v2m-lab/en/instalacion/"/>
-        <xhtml:link rel="alternate" hreflang="es" href="https://zarvent.github.io/v2m-lab/instalacion/"/>
-    </url>
-    <url>
-        <loc>https://zarvent.github.io/v2m-lab/en/referencia_api/</loc>
-        <lastmod>2026-01-23</lastmod>
-        <changefreq>daily</changefreq>
-        <xhtml:link rel="alternate" hreflang="en" href="https://zarvent.github.io/v2m-lab/en/referencia_api/"/>
-        <xhtml:link rel="alternate" hreflang="es" href="https://zarvent.github.io/v2m-lab/referencia_api/"/>
     </url>
 </urlset>

@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Descripción de la arquitectura basada en Workflows y Features de Voice2Machine.">
+        <meta name="description" content="Description of Voice2Machine's Workflow-based and Feature-based architecture.">
       
       
         <meta name="author" content="zarvent">
@@ -33,7 +33,7 @@
     
     
       
-        <title>Arquitectura del Sistema - Voice2Machine</title>
+        <title>System Architecture - Voice2Machine</title>
       
     
     
@@ -94,7 +94,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#arquitectura-del-sistema" class="md-skip">
+        <a href="#system-architecture" class="md-skip">
           Skip to content
         </a>
       
@@ -129,7 +129,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Arquitectura del Sistema
+              System Architecture
             
           </span>
         </div>
@@ -1430,7 +1430,7 @@
   <span class="md-ellipsis">
     
   
-    Arquitectura del Sistema
+    System Architecture
   
 
     
@@ -1455,7 +1455,7 @@
   <span class="md-ellipsis">
     
   
-    Arquitectura del Sistema
+    System Architecture
   
 
     
@@ -1488,10 +1488,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#diagrama-de-alto-nivel" class="md-nav__link">
+  <a href="#high-level-diagram" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🏗️ Diagrama de Alto Nivel
+        🏗️ High-Level Diagram
       
     </span>
   </a>
@@ -1499,15 +1499,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#componentes-del-backend" class="md-nav__link">
+  <a href="#backend-components" class="md-nav__link">
     <span class="md-ellipsis">
       
-        📦 Componentes del Backend
+        📦 Backend Components
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="📦 Componentes del Backend">
+    <nav class="md-nav" aria-label="📦 Backend Components">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1522,10 +1522,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-workflows-orquestacion" class="md-nav__link">
+  <a href="#2-workflows-orchestration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Workflows (Orquestación)
+        2. Workflows (Orchestration)
       
     </span>
   </a>
@@ -1533,10 +1533,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-features-dominios" class="md-nav__link">
+  <a href="#3-features-domains" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. Features (Dominios)
+        3. Features (Domains)
       
     </span>
   </a>
@@ -1544,10 +1544,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#4-shared-base-comun" class="md-nav__link">
+  <a href="#4-shared-common-foundation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4. Shared (Base Común)
+        4. Shared (Common Foundation)
       
     </span>
   </a>
@@ -1560,22 +1560,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#comunicacion-cliente-backend" class="md-nav__link">
+  <a href="#client-backend-communication" class="md-nav__link">
     <span class="md-ellipsis">
       
-        ⚡ Comunicación Cliente-Backend
+        ⚡ Client-Backend Communication
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="⚡ Comunicación Cliente-Backend">
+    <nav class="md-nav" aria-label="⚡ Client-Backend Communication">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#rest-sincrono" class="md-nav__link">
+  <a href="#rest-synchronous" class="md-nav__link">
     <span class="md-ellipsis">
       
-        REST (Síncrono)
+        REST (Synchronous)
       
     </span>
   </a>
@@ -1599,10 +1599,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#extensiones-nativas-rust" class="md-nav__link">
+  <a href="#native-extensions-rust" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🦀 Extensiones Nativas (Rust)
+        🦀 Native Extensions (Rust)
       
     </span>
   </a>
@@ -1610,10 +1610,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#flujo-de-datos" class="md-nav__link">
+  <a href="#data-flow" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🔄 Flujo de Datos
+        🔄 Data Flow
       
     </span>
   </a>
@@ -1621,10 +1621,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#principios-de-diseno-2026" class="md-nav__link">
+  <a href="#2026-design-principles" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🛡️ Principios de Diseño 2026
+        🛡️ 2026 Design Principles
       
     </span>
   </a>
@@ -1701,6 +1701,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
+  
 
             </a>
             
@@ -1745,6 +1752,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--accepted"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1772,6 +1786,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--accepted"></span>
+  
+
   
 
       </a>
@@ -1801,6 +1822,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--accepted"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1828,6 +1856,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--accepted"></span>
+  
+
   
 
       </a>
@@ -1857,6 +1892,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--accepted"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1885,6 +1927,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--accepted"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1912,6 +1961,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--accepted"></span>
+  
+
   
 
       </a>
@@ -2134,10 +2190,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#diagrama-de-alto-nivel" class="md-nav__link">
+  <a href="#high-level-diagram" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🏗️ Diagrama de Alto Nivel
+        🏗️ High-Level Diagram
       
     </span>
   </a>
@@ -2145,15 +2201,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#componentes-del-backend" class="md-nav__link">
+  <a href="#backend-components" class="md-nav__link">
     <span class="md-ellipsis">
       
-        📦 Componentes del Backend
+        📦 Backend Components
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="📦 Componentes del Backend">
+    <nav class="md-nav" aria-label="📦 Backend Components">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -2168,10 +2224,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-workflows-orquestacion" class="md-nav__link">
+  <a href="#2-workflows-orchestration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Workflows (Orquestación)
+        2. Workflows (Orchestration)
       
     </span>
   </a>
@@ -2179,10 +2235,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-features-dominios" class="md-nav__link">
+  <a href="#3-features-domains" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. Features (Dominios)
+        3. Features (Domains)
       
     </span>
   </a>
@@ -2190,10 +2246,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#4-shared-base-comun" class="md-nav__link">
+  <a href="#4-shared-common-foundation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4. Shared (Base Común)
+        4. Shared (Common Foundation)
       
     </span>
   </a>
@@ -2206,22 +2262,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#comunicacion-cliente-backend" class="md-nav__link">
+  <a href="#client-backend-communication" class="md-nav__link">
     <span class="md-ellipsis">
       
-        ⚡ Comunicación Cliente-Backend
+        ⚡ Client-Backend Communication
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="⚡ Comunicación Cliente-Backend">
+    <nav class="md-nav" aria-label="⚡ Client-Backend Communication">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#rest-sincrono" class="md-nav__link">
+  <a href="#rest-synchronous" class="md-nav__link">
     <span class="md-ellipsis">
       
-        REST (Síncrono)
+        REST (Synchronous)
       
     </span>
   </a>
@@ -2245,10 +2301,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#extensiones-nativas-rust" class="md-nav__link">
+  <a href="#native-extensions-rust" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🦀 Extensiones Nativas (Rust)
+        🦀 Native Extensions (Rust)
       
     </span>
   </a>
@@ -2256,10 +2312,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#flujo-de-datos" class="md-nav__link">
+  <a href="#data-flow" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🔄 Flujo de Datos
+        🔄 Data Flow
       
     </span>
   </a>
@@ -2267,10 +2323,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#principios-de-diseno-2026" class="md-nav__link">
+  <a href="#2026-design-principles" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🛡️ Principios de Diseño 2026
+        🛡️ 2026 Design Principles
       
     </span>
   </a>
@@ -2297,16 +2353,16 @@
   
 
 
-<h1 id="arquitectura-del-sistema">🧩 Arquitectura del Sistema<a class="headerlink" href="#arquitectura-del-sistema" title="Permanent link">&para;</a></h1>
+<h1 id="system-architecture">🧩 System Architecture<a class="headerlink" href="#system-architecture" title="Permanent link">&para;</a></h1>
 <div class="admonition abstract">
-<p class="admonition-title">Filosofía Técnica</p>
+<p class="admonition-title">Technical Philosophy</p>
 </div>
-<p><strong>Voice2Machine</strong> implementa una <strong>Arquitectura Hexagonal (Ports &amp; Adapters)</strong> estricta, priorizando el desacoplamiento, la testabilidad y la independencia tecnológica. El sistema se adhiere a estándares SOTA 2026 como tipos estáticos en Python (Protocol) y separación Frontend/Backend mediante API REST.</p>
+<p><strong>Voice2Machine</strong> implements a <strong>strict Architecture based on Workflows and Features</strong>, prioritizing decoupling, testability, and technological independence. The system adheres to SOTA 2026 standards like static typing in Python (Protocol) and Frontend/Backend separation via REST API.</p>
 <hr />
-<h2 id="diagrama-de-alto-nivel">🏗️ Diagrama de Alto Nivel<a class="headerlink" href="#diagrama-de-alto-nivel" title="Permanent link">&para;</a></h2>
+<h2 id="high-level-diagram">🏗️ High-Level Diagram<a class="headerlink" href="#high-level-diagram" title="Permanent link">&para;</a></h2>
 <pre class="mermaid"><code>graph TD
-    subgraph Clients ["🔌 Clientes (CLI / Scripts / GUI / Tauri)"]
-        ClientApp["Cualquier cliente HTTP"]
+    subgraph Clients ["🔌 Clients (CLI / Scripts / GUI / Tauri)"]
+        ClientApp["Any HTTP Client"]
     end
 
     subgraph Backend ["🐍 Backend Daemon (Python + FastAPI)"]
@@ -2341,67 +2397,67 @@
     style Features fill:#f3e5f5,stroke:#7b1fa2
     style Shared fill:#eceff1,stroke:#455a64</code></pre>
 <hr />
-<h2 id="componentes-del-backend">📦 Componentes del Backend<a class="headerlink" href="#componentes-del-backend" title="Permanent link">&para;</a></h2>
+<h2 id="backend-components">📦 Backend Components<a class="headerlink" href="#backend-components" title="Permanent link">&para;</a></h2>
 <h3 id="1-api-layer-fastapi">1. API Layer (FastAPI)<a class="headerlink" href="#1-api-layer-fastapi" title="Permanent link">&para;</a></h3>
-<p>Ubicado en <code>apps/daemon/backend/src/v2m/api/</code>.</p>
+<p>Located in <code>apps/daemon/backend/src/v2m/api/</code>.</p>
 <ul>
-<li><strong>Módulos</strong>: <code>app.py</code>, <code>routes/</code>, <code>schemas.py</code></li>
-<li><strong>Endpoints REST</strong>: <code>/toggle</code>, <code>/start</code>, <code>/stop</code>, <code>/status</code>, <code>/health</code></li>
-<li><strong>WebSocket</strong>: <code>/ws/events</code> para streaming de transcripción en tiempo real</li>
-<li><strong>Documentación automática</strong>: Swagger UI en <code>/docs</code></li>
+<li><strong>Modules</strong>: <code>app.py</code>, <code>routes/</code>, <code>schemas.py</code></li>
+<li><strong>REST Endpoints</strong>: <code>/toggle</code>, <code>/start</code>, <code>/stop</code>, <code>/status</code>, <code>/health</code></li>
+<li><strong>WebSocket</strong>: <code>/ws/events</code> for real-time transcription streaming</li>
+<li><strong>Auto-documentation</strong>: Swagger UI at <code>/docs</code></li>
 </ul>
 <div class="admonition info">
-<p class="admonition-title">Estructura Moderna</p>
+<p class="admonition-title">Modern Structure</p>
 </div>
-<p>A partir de la v0.3.0, la API se organiza como un paquete completo, separando rutas y esquemas para mayor mantenibilidad.</p>
-<h3 id="2-workflows-orquestacion">2. Workflows (Orquestación)<a class="headerlink" href="#2-workflows-orquestacion" title="Permanent link">&para;</a></h3>
-<p>Ubicado en <code>apps/daemon/backend/src/v2m/orchestration/</code>.</p>
-<p>En lugar de un Orchestrator monolítico, el sistema utiliza Workflows especializados para cada flujo de negocio:</p>
+<p>Starting from v0.3.0, the API is organized as a complete package, separating routes and schemas for better maintainability.</p>
+<h3 id="2-workflows-orchestration">2. Workflows (Orchestration)<a class="headerlink" href="#2-workflows-orchestration" title="Permanent link">&para;</a></h3>
+<p>Located in <code>apps/daemon/backend/src/v2m/orchestration/</code>.</p>
+<p>Instead of a monolithic Orchestrator, the system uses specialized Workflows for each business flow:</p>
 <ul>
-<li><strong>RecordingWorkflow</strong>: Gestiona el ciclo de vida de captura y transcripción.</li>
-<li><strong>LLMWorkflow</strong>: Coordina el procesamiento de texto y traducción.</li>
+<li><strong>RecordingWorkflow</strong>: Manages the complete capture and transcription lifecycle.</li>
+<li><strong>LLMWorkflow</strong>: Coordinates text processing and translation.</li>
 </ul>
-<p>Este enfoque permite que cada flujo evolucione de forma independiente sin afectar al resto del sistema.</p>
-<h3 id="3-features-dominios">3. Features (Dominios)<a class="headerlink" href="#3-features-dominios" title="Permanent link">&para;</a></h3>
-<p>Ubicado en <code>apps/daemon/backend/src/v2m/features/</code>.</p>
-<p>Cada carpeta en <code>features/</code> representa un dominio de conocimiento autocontenido que incluye sus propios servicios y lógica:</p>
+<p>This approach allows each flow to evolve independently without affecting the rest of the system.</p>
+<h3 id="3-features-domains">3. Features (Domains)<a class="headerlink" href="#3-features-domains" title="Permanent link">&para;</a></h3>
+<p>Located in <code>apps/daemon/backend/src/v2m/features/</code>.</p>
+<p>Each folder in <code>features/</code> represents a self-contained domain of knowledge including its own services and logic:</p>
 <table>
 <thead>
 <tr>
 <th>Feature</th>
-<th>Responsabilidad</th>
+<th>Responsibility</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><strong>transcription</strong></td>
-<td>Implementaciones de Whisper (<code>faster-whisper</code>).</td>
+<td>Whisper implementations (<code>faster-whisper</code>).</td>
 </tr>
 <tr>
 <td><strong>audio</strong></td>
-<td>Captura de audio y manejo del motor Rust (<code>v2m_engine</code>).</td>
+<td>Audio capture and management of the Rust engine (<code>v2m_engine</code>).</td>
 </tr>
 <tr>
 <td><strong>llm</strong></td>
-<td>Integraciones con Gemini, Ollama y otros proveedores.</td>
+<td>Integrations with Gemini, Ollama, and other providers.</td>
 </tr>
 </tbody>
 </table>
-<h3 id="4-shared-base-comun">4. Shared (Base Común)<a class="headerlink" href="#4-shared-base-comun" title="Permanent link">&para;</a></h3>
-<p>Ubicado en <code>apps/daemon/backend/src/v2m/shared/</code>.</p>
+<h3 id="4-shared-common-foundation">4. Shared (Common Foundation)<a class="headerlink" href="#4-shared-common-foundation" title="Permanent link">&para;</a></h3>
+<p>Located in <code>apps/daemon/backend/src/v2m/shared/</code>.</p>
 <ul>
-<li><strong>Interfaces</strong>: Definiciones globales mediante <code>typing.Protocol</code>.</li>
-<li><strong>Config</strong>: Gestión de <code>config.toml</code> mediante Pydantic Settings.</li>
-<li><strong>Errors</strong>: Jerarquías de excepciones compartidas.</li>
+<li><strong>Interfaces</strong>: Global definitions via <code>typing.Protocol</code>.</li>
+<li><strong>Config</strong>: <code>config.toml</code> management via Pydantic Settings.</li>
+<li><strong>Errors</strong>: Shared exception hierarchies.</li>
 </ul>
 <hr />
-<h2 id="comunicacion-cliente-backend">⚡ Comunicación Cliente-Backend<a class="headerlink" href="#comunicacion-cliente-backend" title="Permanent link">&para;</a></h2>
-<p>Voice2Machine utiliza <strong>FastAPI REST + WebSocket</strong> para la comunicación:</p>
-<h3 id="rest-sincrono">REST (Síncrono)<a class="headerlink" href="#rest-sincrono" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Toggle grabación</span>
+<h2 id="client-backend-communication">⚡ Client-Backend Communication<a class="headerlink" href="#client-backend-communication" title="Permanent link">&para;</a></h2>
+<p>Voice2Machine uses <strong>FastAPI REST + WebSocket</strong> for communication:</p>
+<h3 id="rest-synchronous">REST (Synchronous)<a class="headerlink" href="#rest-synchronous" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Toggle recording</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8765/toggle<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Verificar estado</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Check status</span>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>curl<span class="w"> </span>http://localhost:8765/status<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq
 </code></pre></div>
 <h3 id="websocket-streaming">WebSocket (Streaming)<a class="headerlink" href="#websocket-streaming" title="Permanent link">&para;</a></h3>
@@ -2414,87 +2470,87 @@
 <a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="p">};</span>
 </code></pre></div>
 <hr />
-<h2 id="extensiones-nativas-rust">🦀 Extensiones Nativas (Rust)<a class="headerlink" href="#extensiones-nativas-rust" title="Permanent link">&para;</a></h2>
-<p>Para tareas críticas donde el GIL de Python es un cuello de botella, utilizamos extensiones nativas compiladas en Rust (<code>v2m_engine</code>):</p>
+<h2 id="native-extensions-rust">🦀 Native Extensions (Rust)<a class="headerlink" href="#native-extensions-rust" title="Permanent link">&para;</a></h2>
+<p>For critical tasks where Python's GIL is a bottleneck, we use native extensions compiled in Rust (<code>v2m_engine</code>):</p>
 <table>
 <thead>
 <tr>
-<th>Componente</th>
-<th>Función</th>
+<th>Component</th>
+<th>Function</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><strong>Audio I/O</strong></td>
-<td>Escritura de WAVs directa a disco (zero-copy)</td>
+<td>Direct WAV writing to disk (zero-copy)</td>
 </tr>
 <tr>
 <td><strong>VAD</strong></td>
-<td>Detección de voz de ultra-baja latencia (Silero ONNX)</td>
+<td>Ultra-low latency voice detection (Silero ONNX)</td>
 </tr>
 <tr>
-<td><strong>Buffer Ring</strong></td>
-<td>Buffer circular lock-free para audio en tiempo real</td>
+<td><strong>Ring Buffer</strong></td>
+<td>Lock-free circular buffer for real-time audio</td>
 </tr>
 </tbody>
 </table>
 <hr />
-<h2 id="flujo-de-datos">🔄 Flujo de Datos<a class="headerlink" href="#flujo-de-datos" title="Permanent link">&para;</a></h2>
+<h2 id="data-flow">🔄 Data Flow<a class="headerlink" href="#data-flow" title="Permanent link">&para;</a></h2>
 <pre class="mermaid"><code>sequenceDiagram
     participant User
-    participant Client as Cliente HTTP
+    participant Client as HTTP Client
     participant API as FastAPI
     participant WF as Workflows
     participant Audio as AudioService
     participant Whisper as TranscriptionService
 
-    User-&gt;&gt;Client: Presiona atajo
+    User-&gt;&gt;Client: Press shortcut
     Client-&gt;&gt;API: POST /toggle
     API-&gt;&gt;WF: toggle() (RecordingWorkflow)
 
-    alt No grabando
+    alt Not recording
         WF-&gt;&gt;Audio: start_recording()
         Audio--&gt;&gt;WF: OK
         WF--&gt;&gt;API: status=recording
-    else Grabando
+    else Recording
         WF-&gt;&gt;Audio: stop_recording()
         Audio--&gt;&gt;WF: audio_buffer
         WF-&gt;&gt;Whisper: transcribe(buffer)
-        Whisper--&gt;&gt;WF: texto
+        Whisper--&gt;&gt;WF: text
         WF--&gt;&gt;API: status=idle, text=...
     end
 
     API--&gt;&gt;Client: ToggleResponse
-    Client-&gt;&gt;User: Copia al clipboard</code></pre>
+    Client-&gt;&gt;User: Copy to clipboard</code></pre>
 <hr />
-<h2 id="principios-de-diseno-2026">🛡️ Principios de Diseño 2026<a class="headerlink" href="#principios-de-diseno-2026" title="Permanent link">&para;</a></h2>
+<h2 id="2026-design-principles">🛡️ 2026 Design Principles<a class="headerlink" href="#2026-design-principles" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
-<th>Principio</th>
-<th>Implementación</th>
+<th>Principle</th>
+<th>Implementation</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><strong>Local-First</strong></td>
-<td>Ningún dato sale de la máquina a menos que se configure explícitamente un proveedor cloud</td>
+<td>No data leaves the machine unless a cloud provider is explicitly configured</td>
 </tr>
 <tr>
 <td><strong>Privacy-By-Design</strong></td>
-<td>Audio procesado en memoria, archivos temporales eliminados después de transcripción</td>
+<td>Audio processed in memory, temp files deleted after transcription</td>
 </tr>
 <tr>
-<td><strong>Resiliencia</strong></td>
-<td>Recuperación automática de errores, reinicio de subsistemas si fallan</td>
+<td><strong>Resilience</strong></td>
+<td>Automatic error recovery, subsystem restart if they fail</td>
 </tr>
 <tr>
-<td><strong>Observabilidad</strong></td>
-<td>Logging estructurado (OpenTelemetry), métricas en tiempo real</td>
+<td><strong>Observability</strong></td>
+<td>Structured logging (OpenTelemetry), real-time metrics</td>
 </tr>
 <tr>
 <td><strong>Performance is Design</strong></td>
-<td>FastAPI async, Rust para hot paths, modelo warm en VRAM</td>
+<td>Async FastAPI, Rust for hot paths, warm model in VRAM</td>
 </tr>
 </tbody>
 </table>
@@ -2518,7 +2574,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="23 de enero de 2026 10:29:46 UTC"><span class="timeago" datetime="2026-01-23T10:29:46+00:00" locale="es"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="23 de enero de 2026 10:29:46 UTC">2026-01-23</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="January 23, 2026 10:29:46 UTC"><span class="timeago" datetime="2026-01-23T10:29:46+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="January 23, 2026 10:29:46 UTC">2026-01-23</span>
   </span>
 
     

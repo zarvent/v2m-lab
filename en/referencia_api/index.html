@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Documentación de los endpoints HTTP y el protocolo WebSocket de Voice2Machine.">
+        <meta name="description" content="Documentation of HTTP endpoints and WebSocket protocol for Voice2Machine.">
       
       
         <meta name="author" content="zarvent">
@@ -33,7 +33,7 @@
     
     
       
-        <title>Referencia de API REST - Voice2Machine</title>
+        <title>REST API Reference - Voice2Machine</title>
       
     
     
@@ -94,7 +94,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#referencia-de-api-rest" class="md-skip">
+        <a href="#rest-api-reference" class="md-skip">
           Skip to content
         </a>
       
@@ -129,7 +129,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Referencia de API REST
+              REST API Reference
             
           </span>
         </div>
@@ -926,10 +926,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#informacion-general" class="md-nav__link">
+  <a href="#general-information" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Información General
+        General Information
       
     </span>
   </a>
@@ -937,15 +937,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#endpoints-rest" class="md-nav__link">
+  <a href="#rest-endpoints" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Endpoints REST
+        REST Endpoints
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Endpoints REST">
+    <nav class="md-nav" aria-label="REST Endpoints">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1081,10 +1081,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#codigos-de-error" class="md-nav__link">
+  <a href="#error-codes" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Códigos de Error
+        Error Codes
       
     </span>
   </a>
@@ -1644,7 +1644,7 @@
   <span class="md-ellipsis">
     
   
-    Arquitectura del Sistema
+    System Architecture
   
 
     
@@ -1723,6 +1723,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
+  
 
             </a>
             
@@ -1767,6 +1774,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--accepted"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1794,6 +1808,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--accepted"></span>
+  
+
   
 
       </a>
@@ -1823,6 +1844,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--accepted"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1850,6 +1878,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--accepted"></span>
+  
+
   
 
       </a>
@@ -1879,6 +1914,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--accepted"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1907,6 +1949,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--accepted"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1934,6 +1983,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--accepted"></span>
+  
+
   
 
       </a>
@@ -2156,10 +2212,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#informacion-general" class="md-nav__link">
+  <a href="#general-information" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Información General
+        General Information
       
     </span>
   </a>
@@ -2167,15 +2223,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#endpoints-rest" class="md-nav__link">
+  <a href="#rest-endpoints" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Endpoints REST
+        REST Endpoints
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Endpoints REST">
+    <nav class="md-nav" aria-label="REST Endpoints">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -2311,10 +2367,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#codigos-de-error" class="md-nav__link">
+  <a href="#error-codes" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Códigos de Error
+        Error Codes
       
     </span>
   </a>
@@ -2341,18 +2397,18 @@
   
 
 
-<h1 id="referencia-de-api-rest">Referencia de API REST<a class="headerlink" href="#referencia-de-api-rest" title="Permanent link">&para;</a></h1>
-<p>Esta sección documenta la API REST del Daemon Voice2Machine (v0.2.0+).</p>
+<h1 id="rest-api-reference">REST API Reference<a class="headerlink" href="#rest-api-reference" title="Permanent link">&para;</a></h1>
+<p>This section documents the Voice2Machine Daemon REST API (v0.2.0+).</p>
 <div class="admonition info">
-<p class="admonition-title">Arquitectura Actualizada</p>
+<p class="admonition-title">Updated Architecture</p>
 </div>
-<p>Voice2Machine utiliza <strong>FastAPI</strong> para la comunicación cliente-servidor, reemplazando el sistema anterior basado en Unix Sockets IPC. Esto permite probar endpoints directamente con <code>curl</code> o cualquier cliente HTTP.</p>
-<h2 id="informacion-general">Información General<a class="headerlink" href="#informacion-general" title="Permanent link">&para;</a></h2>
+<p>Voice2Machine uses <strong>FastAPI</strong> for client-server communication, replacing the previous Unix Sockets IPC system. This allows testing endpoints directly with <code>curl</code> or any HTTP client.</p>
+<h2 id="general-information">General Information<a class="headerlink" href="#general-information" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
-<th>Propiedad</th>
-<th>Valor</th>
+<th>Property</th>
+<th>Value</th>
 </tr>
 </thead>
 <tbody>
@@ -2361,23 +2417,23 @@
 <td><code>http://localhost:8765</code></td>
 </tr>
 <tr>
-<td><strong>Protocolo</strong></td>
+<td><strong>Protocol</strong></td>
 <td>HTTP/1.1 + WebSocket</td>
 </tr>
 <tr>
-<td><strong>Formato</strong></td>
+<td><strong>Format</strong></td>
 <td>JSON (UTF-8)</td>
 </tr>
 <tr>
-<td><strong>Documentación Interactiva</strong></td>
+<td><strong>Interactive Docs</strong></td>
 <td><code>http://localhost:8765/docs</code> (Swagger UI)</td>
 </tr>
 </tbody>
 </table>
 <hr />
-<h2 id="endpoints-rest">Endpoints REST<a class="headerlink" href="#endpoints-rest" title="Permanent link">&para;</a></h2>
+<h2 id="rest-endpoints">REST Endpoints<a class="headerlink" href="#rest-endpoints" title="Permanent link">&para;</a></h2>
 <h3 id="post-toggle">POST <code>/toggle</code><a class="headerlink" href="#post-toggle" title="Permanent link">&para;</a></h3>
-<p>Toggle de grabación (iniciar/detener). Este es el endpoint principal que usa el atajo de teclado.</p>
+<p>Recording toggle (start/stop). This is the main endpoint used by keyboard shortcuts.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:1"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Request</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block"></div>
@@ -2385,7 +2441,7 @@
 </div>
 <p><code>bash
     curl -X POST http://localhost:8765/toggle | jq</code></p>
-<div class="tabbed-set tabbed-alternate" data-tabs="2:1"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Response (Iniciando)</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:1"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Response (Starting)</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block"></div>
 </div>
@@ -2393,10 +2449,10 @@
 <p><code>json
     {
       "status": "recording",
-      "message": "Grabación iniciada",
+      "message": "Recording started",
       "text": null
     }</code></p>
-<div class="tabbed-set tabbed-alternate" data-tabs="3:1"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1">Response (Deteniendo)</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="3:1"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1">Response (Stopping)</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block"></div>
 </div>
@@ -2404,12 +2460,12 @@
 <p><code>json
     {
       "status": "idle",
-      "message": "Transcripción completada",
-      "text": "El texto transcrito aparece aquí..."
+      "message": "Transcription complete",
+      "text": "The transcribed text appears here..."
     }</code></p>
 <hr />
 <h3 id="post-start">POST <code>/start</code><a class="headerlink" href="#post-start" title="Permanent link">&para;</a></h3>
-<p>Inicia grabación explícitamente. Útil cuando necesitas control separado de inicio/fin.</p>
+<p>Explicitly start recording. Useful when you need separate start/stop control.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="4:1"><input checked="checked" id="__tabbed_4_1" name="__tabbed_4" type="radio" /><div class="tabbed-labels"><label for="__tabbed_4_1">Request</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block"></div>
@@ -2425,12 +2481,12 @@
 <p><code>json
     {
       "status": "recording",
-      "message": "Grabación iniciada",
+      "message": "Recording started",
       "text": null
     }</code></p>
 <hr />
 <h3 id="post-stop">POST <code>/stop</code><a class="headerlink" href="#post-stop" title="Permanent link">&para;</a></h3>
-<p>Detiene grabación y transcribe el audio capturado.</p>
+<p>Stop recording and transcribe captured audio.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="6:1"><input checked="checked" id="__tabbed_6_1" name="__tabbed_6" type="radio" /><div class="tabbed-labels"><label for="__tabbed_6_1">Request</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block"></div>
@@ -2446,12 +2502,12 @@
 <p><code>json
     {
       "status": "idle",
-      "message": "Transcripción completada",
-      "text": "El texto transcrito aparece aquí..."
+      "message": "Transcription complete",
+      "text": "The transcribed text appears here..."
     }</code></p>
 <hr />
 <h3 id="post-llmprocess">POST <code>/llm/process</code><a class="headerlink" href="#post-llmprocess" title="Permanent link">&para;</a></h3>
-<p>Procesa texto con LLM (limpieza, puntuación, formato). El backend se selecciona según <code>config.toml</code>.</p>
+<p>Process text with LLM (cleanup, punctuation, formatting). Backend is selected based on <code>config.toml</code>.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="8:1"><input checked="checked" id="__tabbed_8_1" name="__tabbed_8" type="radio" /><div class="tabbed-labels"><label for="__tabbed_8_1">Request</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block"></div>
@@ -2460,7 +2516,7 @@
 <p><code>bash
     curl -X POST http://localhost:8765/llm/process \
       -H "Content-Type: application/json" \
-      -d '{"text": "hola como estas espero que bien"}' | jq</code></p>
+      -d '{"text": "hello how are you hope youre well"}' | jq</code></p>
 <div class="tabbed-set tabbed-alternate" data-tabs="9:1"><input checked="checked" id="__tabbed_9_1" name="__tabbed_9" type="radio" /><div class="tabbed-labels"><label for="__tabbed_9_1">Response</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block"></div>
@@ -2468,12 +2524,12 @@
 </div>
 <p><code>json
     {
-      "text": "Hola, ¿cómo estás? Espero que bien.",
+      "text": "Hello, how are you? Hope you're well.",
       "backend": "gemini"
     }</code></p>
 <hr />
 <h3 id="post-llmtranslate">POST <code>/llm/translate</code><a class="headerlink" href="#post-llmtranslate" title="Permanent link">&para;</a></h3>
-<p>Traduce texto a otro idioma usando LLM.</p>
+<p>Translate text to another language using LLM.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="10:1"><input checked="checked" id="__tabbed_10_1" name="__tabbed_10" type="radio" /><div class="tabbed-labels"><label for="__tabbed_10_1">Request</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block"></div>
@@ -2482,7 +2538,7 @@
 <p><code>bash
     curl -X POST http://localhost:8765/llm/translate \
       -H "Content-Type: application/json" \
-      -d '{"text": "Buenos días", "target_lang": "en"}' | jq</code></p>
+      -d '{"text": "Good morning", "target_lang": "es"}' | jq</code></p>
 <div class="tabbed-set tabbed-alternate" data-tabs="11:1"><input checked="checked" id="__tabbed_11_1" name="__tabbed_11" type="radio" /><div class="tabbed-labels"><label for="__tabbed_11_1">Response</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block"></div>
@@ -2490,12 +2546,12 @@
 </div>
 <p><code>json
     {
-      "text": "Good morning",
+      "text": "Buenos días",
       "backend": "gemini"
     }</code></p>
 <hr />
 <h3 id="get-status">GET <code>/status</code><a class="headerlink" href="#get-status" title="Permanent link">&para;</a></h3>
-<p>Retorna el estado actual del daemon.</p>
+<p>Returns current daemon state.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="12:1"><input checked="checked" id="__tabbed_12_1" name="__tabbed_12" type="radio" /><div class="tabbed-labels"><label for="__tabbed_12_1">Request</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block"></div>
@@ -2514,32 +2570,32 @@
       "recording": false,
       "model_loaded": true
     }</code></p>
-<p><strong>Estados posibles:</strong></p>
+<p><strong>Possible States:</strong></p>
 <table>
 <thead>
 <tr>
-<th>Estado</th>
-<th>Descripción</th>
+<th>State</th>
+<th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>idle</code></td>
-<td>Esperando comandos</td>
+<td>Waiting for commands</td>
 </tr>
 <tr>
 <td><code>recording</code></td>
-<td>Grabando audio</td>
+<td>Recording audio</td>
 </tr>
 <tr>
 <td><code>processing</code></td>
-<td>Transcribiendo o procesando con LLM</td>
+<td>Transcribing or processing with LLM</td>
 </tr>
 </tbody>
 </table>
 <hr />
 <h3 id="get-health">GET <code>/health</code><a class="headerlink" href="#get-health" title="Permanent link">&para;</a></h3>
-<p>Health check para systemd/scripts de monitoreo.</p>
+<p>Health check for systemd/monitoring scripts.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="14:1"><input checked="checked" id="__tabbed_14_1" name="__tabbed_14" type="radio" /><div class="tabbed-labels"><label for="__tabbed_14_1">Request</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block"></div>
@@ -2560,8 +2616,8 @@
 <hr />
 <h2 id="websocket">WebSocket<a class="headerlink" href="#websocket" title="Permanent link">&para;</a></h2>
 <h3 id="ws-wsevents">WS <code>/ws/events</code><a class="headerlink" href="#ws-wsevents" title="Permanent link">&para;</a></h3>
-<p>Stream de eventos en tiempo real. Útil para mostrar transcripción provisional mientras el usuario habla.</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="16:1"><input checked="checked" id="__tabbed_16_1" name="__tabbed_16" type="radio" /><div class="tabbed-labels"><label for="__tabbed_16_1">Conexión (JavaScript)</label></div>
+<p>Real-time event stream. Useful for showing provisional transcription while user speaks.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="16:1"><input checked="checked" id="__tabbed_16_1" name="__tabbed_16" type="radio" /><div class="tabbed-labels"><label for="__tabbed_16_1">Connection (JavaScript)</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block"></div>
 </div>
@@ -2570,11 +2626,11 @@
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="nx">ws</span><span class="p">.</span><span class="nx">onmessage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">event</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">      </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">event</span><span class="o">:</span><span class="w"> </span><span class="nx">eventType</span><span class="p">,</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">data</span><span class="p">);</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">      </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`Evento: </span><span class="si">${</span><span class="nx">eventType</span><span class="si">}</span><span class="sb">`</span><span class="p">,</span><span class="w"> </span><span class="nx">data</span><span class="p">);</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">      </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`Event: </span><span class="si">${</span><span class="nx">eventType</span><span class="si">}</span><span class="sb">`</span><span class="p">,</span><span class="w"> </span><span class="nx">data</span><span class="p">);</span>
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="p">};</span>
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="sb">```</span>
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="sb">=== &quot;Conexión (Python)&quot;</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="sb">=== &quot;Connection (Python)&quot;</span>
 <a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="sb">```</span><span class="nx">python</span>
 <a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="k">import</span><span class="w"> </span><span class="nx">asyncio</span>
 <a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="k">import</span><span class="w"> </span><span class="nx">websockets</span>
@@ -2587,64 +2643,64 @@
 <a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">    </span><span class="nx">asyncio</span><span class="p">.</span><span class="nx">run</span><span class="p">(</span><span class="nx">listen</span><span class="p">())</span>
 <a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="w">    </span><span class="sb">```</span>
 <a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>
-<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="sb">**Eventos emitidos:**</span>
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="sb">**Emitted Events:**</span>
 <a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>
-<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="sb">| Evento                 | Campos                           | Descripción                                          |</span>
-<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="sb">| ---------------------- | -------------------------------- | ---------------------------------------------------- |</span>
-<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="sb">| `</span><span class="nx">transcription_update</span><span class="sb">` | `</span><span class="nx">text</span><span class="o">:</span><span class="w"> </span><span class="nx">str</span><span class="sb">`, `</span><span class="kr">final</span><span class="o">:</span><span class="w"> </span><span class="nx">bool</span><span class="sb">`       | Actualización de transcripción (provisional o final) |</span>
-<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a><span class="sb">| `</span><span class="nx">heartbeat</span><span class="sb">`            | `</span><span class="nx">timestamp</span><span class="o">:</span><span class="w"> </span><span class="kr">float</span><span class="sb">`, `</span><span class="nx">state</span><span class="o">:</span><span class="w"> </span><span class="nx">str</span><span class="sb">` | Latido para mantener conexión viva                   |</span>
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="sb">| Event                  | Fields                           | Description                                 |</span>
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="sb">| ---------------------- | -------------------------------- | ------------------------------------------- |</span>
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="sb">| `</span><span class="nx">transcription_update</span><span class="sb">` | `</span><span class="nx">text</span><span class="o">:</span><span class="w"> </span><span class="nx">str</span><span class="sb">`, `</span><span class="kr">final</span><span class="o">:</span><span class="w"> </span><span class="nx">bool</span><span class="sb">`       | Transcription update (provisional or final) |</span>
+<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a><span class="sb">| `</span><span class="nx">heartbeat</span><span class="sb">`            | `</span><span class="nx">timestamp</span><span class="o">:</span><span class="w"> </span><span class="kr">float</span><span class="sb">`, `</span><span class="nx">state</span><span class="o">:</span><span class="w"> </span><span class="nx">str</span><span class="sb">` | Heartbeat to keep connection alive          |</span>
 <a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>
 <a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span class="sb">---</span>
 <a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>
-<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a><span class="sb">## Modelos de Datos</span>
+<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a><span class="sb">## Data Models</span>
 <a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>
 <a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a><span class="sb">### ToggleResponse</span>
 <a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>
 <a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a><span class="sb">```</span><span class="nx">python</span>
 <a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a><span class="kd">class</span><span class="w"> </span><span class="nx">ToggleResponse</span><span class="p">(</span><span class="nx">BaseModel</span><span class="p">)</span><span class="o">:</span>
 <a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a><span class="w">    </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="nx">str</span><span class="w">      </span><span class="err">#</span><span class="w"> </span><span class="s1">&#39;recording&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;idle&#39;</span>
-<a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a><span class="w">    </span><span class="nx">message</span><span class="o">:</span><span class="w"> </span><span class="nx">str</span><span class="w">     </span><span class="err">#</span><span class="w"> </span><span class="nx">Mensaje</span><span class="w"> </span><span class="nx">descriptivo</span>
-<a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a><span class="w">    </span><span class="nx">text</span><span class="o">:</span><span class="w"> </span><span class="nx">str</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">None</span><span class="w"> </span><span class="err">#</span><span class="w"> </span><span class="nx">Texto</span><span class="w"> </span><span class="nx">transcrito</span><span class="w"> </span><span class="p">(</span><span class="nx">solo</span><span class="w"> </span><span class="nx">en</span><span class="w"> </span><span class="nx">stop</span><span class="p">)</span>
+<a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a><span class="w">    </span><span class="nx">message</span><span class="o">:</span><span class="w"> </span><span class="nx">str</span><span class="w">     </span><span class="err">#</span><span class="w"> </span><span class="nx">Descriptive</span><span class="w"> </span><span class="nx">message</span>
+<a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a><span class="w">    </span><span class="nx">text</span><span class="o">:</span><span class="w"> </span><span class="nx">str</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">None</span><span class="w"> </span><span class="err">#</span><span class="w"> </span><span class="nx">Transcribed</span><span class="w"> </span><span class="nx">text</span><span class="w"> </span><span class="p">(</span><span class="nx">only</span><span class="w"> </span><span class="nx">on</span><span class="w"> </span><span class="nx">stop</span><span class="p">)</span>
 </code></pre></div>
 <h3 id="statusresponse">StatusResponse<a class="headerlink" href="#statusresponse" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">StatusResponse</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="n">state</span><span class="p">:</span> <span class="nb">str</span>        <span class="c1"># &#39;idle&#39; | &#39;recording&#39; | &#39;processing&#39;</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="n">recording</span><span class="p">:</span> <span class="nb">bool</span>   <span class="c1"># True si está grabando</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="n">model_loaded</span><span class="p">:</span> <span class="nb">bool</span> <span class="c1"># True si Whisper está en VRAM</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="n">recording</span><span class="p">:</span> <span class="nb">bool</span>   <span class="c1"># True if recording</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="n">model_loaded</span><span class="p">:</span> <span class="nb">bool</span> <span class="c1"># True if Whisper is in VRAM</span>
 </code></pre></div>
 <h3 id="llmresponse">LLMResponse<a class="headerlink" href="#llmresponse" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">LLMResponse</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="n">text</span><span class="p">:</span> <span class="nb">str</span>    <span class="c1"># Texto procesado/traducido</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="n">text</span><span class="p">:</span> <span class="nb">str</span>    <span class="c1"># Processed/translated text</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="n">backend</span><span class="p">:</span> <span class="nb">str</span> <span class="c1"># &#39;gemini&#39; | &#39;ollama&#39; | &#39;local&#39;</span>
 </code></pre></div>
 <hr />
-<h2 id="codigos-de-error">Códigos de Error<a class="headerlink" href="#codigos-de-error" title="Permanent link">&para;</a></h2>
+<h2 id="error-codes">Error Codes<a class="headerlink" href="#error-codes" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
-<th>Código HTTP</th>
-<th>Significado</th>
+<th>HTTP Code</th>
+<th>Meaning</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>200</code></td>
-<td>Operación exitosa</td>
+<td>Successful operation</td>
 </tr>
 <tr>
 <td><code>422</code></td>
-<td>Error de validación (payload inválido)</td>
+<td>Validation error (invalid payload)</td>
 </tr>
 <tr>
 <td><code>500</code></td>
-<td>Error interno del servidor</td>
+<td>Internal server error</td>
 </tr>
 </tbody>
 </table>
 <div class="admonition tip">
-<p class="admonition-title">Depuración</p>
+<p class="admonition-title">Debugging</p>
 </div>
-<p>Usa la documentación interactiva en <code>http://localhost:8765/docs</code> para probar endpoints visualmente.</p>
+<p>Use the interactive documentation at <code>http://localhost:8765/docs</code> to test endpoints visually.</p>
 
 
 
@@ -2665,7 +2721,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="23 de enero de 2026 10:29:46 UTC"><span class="timeago" datetime="2026-01-23T10:29:46+00:00" locale="es"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="23 de enero de 2026 10:29:46 UTC">2026-01-23</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="January 23, 2026 10:29:46 UTC"><span class="timeago" datetime="2026-01-23T10:29:46+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="January 23, 2026 10:29:46 UTC">2026-01-23</span>
   </span>
 
     
