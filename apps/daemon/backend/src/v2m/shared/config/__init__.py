@@ -49,7 +49,7 @@ from pydantic_settings import (
 from v2m.shared.utils.paths import get_secure_runtime_dir
 
 # --- Ruta Base del Proyecto ---
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent.parent
 
 # --- Directorio Seguro de Ejecución ---
 RUNTIME_DIR = get_secure_runtime_dir()
