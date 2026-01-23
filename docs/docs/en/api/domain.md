@@ -1,48 +1,49 @@
+---
+title: Domain
+description: Data models and core business logic.
+status: stable
+last_update: 2026-01-23
+language: US English
+---
+
 # Domain
 
 This page documents domain models and data types.
 
----
+## Data Models (Pydantic V2)
 
-## Data Models
+Voice2Machine data models use Pydantic V2 for strict validation and fast serialization.
+
+### API Models (Schemas)
+
+Located in `v2m.api.schemas`, they define input/output contracts for the REST API and WebSockets.
+
+| Class | Purpose |
+|-------|---------|
+| `StatusResponse` | Current daemon state (idle, recording, etc) |
+| `ToggleResponse` | Result of starting/stopping recording |
+| `TranscriptionUpdate` | Streaming event with provisional text |
+| `LLMResponse` | Text processing result |
 
 ### CorrectionResult
 
-Structured output model for text refinement.
-
-This model forces LLMs to respond in a predictable JSON format, facilitating parsing and reducing format hallucinations.
+Structured output model for text refinement (used by LLM Workflows).
 
 ```python
-from pydantic import BaseModel, Field
-
 class CorrectionResult(BaseModel):
-    corrected_text: str = Field(
-        description="Corrected text with improved grammar and coherence"
-    )
-    explanation: str | None = Field(
-        default=None,
-        description="Changes made to the original text"
-    )
-```
-
-**Usage Example:**
-
-```python
-result = CorrectionResult(
-    corrected_text="Hello, how are you?",
-    explanation="Added punctuation and question marks"
-)
+    corrected_text: str = Field(description="Corrected text")
+    explanation: str | None = Field(default=None, description="Changes made")
 ```
 
 ---
 
-## Domain Errors
+## Exceptions
 
-The system defines specific exceptions for different error types:
+The system uses an exception hierarchy based on `ApplicationError`.
 
-| Exception            | Description                                     |
-| -------------------- | ----------------------------------------------- |
-| `TranscriptionError` | Error during audio transcription                |
-| `AudioCaptureError`  | Error in audio capture (microphone unavailable) |
-| `LLMError`           | Error communicating with LLM provider           |
-| `ConfigurationError` | System configuration error                      |
+| Exception | Context |
+|-----------|---------|
+| `AudioError` | Hardware or audio buffer failures |
+| `TranscriptionError` | Whisper model or VRAM failures |
+| `LLMProviderError` | Connection or quota errors with Gemini/Ollama |
+| `ConfigError` | Validation error in `config.toml` |

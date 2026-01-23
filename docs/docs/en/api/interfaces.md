@@ -1,68 +1,45 @@
-# Interfaces (Protocols)
-
-This page documents the protocols (interfaces) that define system contracts.
-
+---
+title: Protocols and Contracts
+description: Protocol (interfaces) and middleware contract definitions.
+status: stable
+last_update: 2026-01-23
+language: US English
 ---
 
-## Orchestrator
+# Protocols and Contracts
 
-The Orchestrator is the central component that coordinates the entire workflow.
+This page documents the protocols (interfaces) that define system contracts in "State of the Art 2026".
 
-### Main Methods
+## Workflows (Protocol)
+
+Workflows follow a standard protocol to ensure the API can interact with them generically.
 
 ```python
-class Orchestrator:
-    async def toggle(self) -> ToggleResponse:
-        """Recording toggle (start/stop)."""
+from typing import Protocol, runtime_checkable
 
-    async def start(self) -> ToggleResponse:
-        """Starts audio recording."""
-
-    async def stop(self) -> ToggleResponse:
-        """Stops recording and transcribes audio."""
-
-    async def warmup(self) -> None:
-        """Pre-loads Whisper model into VRAM."""
-
-    async def shutdown(self) -> None:
-        """Releases resources on server shutdown."""
-
-    def get_status(self) -> StatusResponse:
-        """Returns current daemon state."""
-
-    async def process_text(self, text: str) -> LLMResponse:
-        """Processes text with LLM (cleanup, punctuation)."""
-
-    async def translate_text(self, text: str, target_lang: str) -> LLMResponse:
-        """Translates text with LLM."""
+@runtime_checkable
+class Workflow(Protocol):
+    async def execute(self, *args, **kwargs):
+        """Main entry point for workflow execution."""
+        ...
 ```
 
----
+## Feature Adapters
 
-## Response Models
+Each `Feature` defines its own interface using Python protocols to allow switching implementations (e.g., swapping `Gemini` for `Ollama`).
 
-### ToggleResponse
+### LLMProvider
 
 ```python
-class ToggleResponse(BaseModel):
-    status: str      # 'recording' | 'idle'
-    message: str     # Descriptive message
-    text: str | None # Transcribed text (only on stop)
+class LLMProvider(Protocol):
+    async def process(self, text: str, system_prompt: str) -> str:
+        """Process text using a language model."""
 ```
 
-### StatusResponse
+### AudioSource
 
 ```python
-class StatusResponse(BaseModel):
-    state: str        # 'idle' | 'recording' | 'processing'
-    recording: bool   # True if recording
-    model_loaded: bool # True if Whisper is in VRAM
-```
-
-### LLMResponse
-
-```python
-class LLMResponse(BaseModel):
-    text: str    # Processed/translated text
-    backend: str # 'gemini' | 'ollama' | 'local'
+class AudioSource(Protocol):
+    def read(self, frames: int) -> np.ndarray:
+        """Reads audio frames from buffer."""
 ```
