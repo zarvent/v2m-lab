@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Sistema de dictado por voz local con Whisper">
+        <meta name="description" content="Resumen de flujos de trabajo (Workflows) y características (Features).">
       
       
         <meta name="author" content="zarvent">
@@ -15,6 +15,10 @@
         <link rel="canonical" href="https://zarvent.github.io/v2m-lab/api/services/">
       
       
+        <link rel="prev" href="../interfaces/">
+      
+      
+        <link rel="next" href="../backend/">
       
       
         
@@ -29,7 +33,7 @@
     
     
       
-        <title>Servicios - Voice2Machine</title>
+        <title>Servicios y Lógica de Aplicación - Voice2Machine</title>
       
     
     
@@ -86,7 +90,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#servicios" class="md-skip">
+        <a href="#servicios-y-logica-de-aplicacion" class="md-skip">
           Saltar a contenido
         </a>
       
@@ -121,7 +125,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Servicios
+              Servicios y Lógica de Aplicación
             
           </span>
         </div>
@@ -296,10 +300,12 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
+      <li class="md-tabs__item md-tabs__item--active">
         <a href="../../referencia_api/" class="md-tabs__link">
           
   
@@ -776,8 +782,10 @@
       
   
   
+    
   
   
+  
     
     
       
@@ -789,19 +797,22 @@
     
     
       
+        
+        
+      
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
             
   
   
@@ -819,7 +830,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -869,6 +880,8 @@
                 
   
   
+    
+  
   
   
     
@@ -880,20 +893,29 @@
       
         
       
+        
+      
+        
+      
+        
+      
     
     
     
       
       
         
+          
+          
+        
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" checked>
         
           
           <div class="md-nav__link md-nav__container">
@@ -922,13 +944,13 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_3_2" id="__nav_3_2_label" tabindex="">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3_2">
             <span class="md-nav__icon md-icon"></span>
             
@@ -939,6 +961,204 @@
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../domain/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dominios
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../interfaces/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Interfaces
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Servicios
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Servicios
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#flujos-de-trabajo-workflows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Flujos de Trabajo (Workflows)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#caracteristicas-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Características (Features)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Características (Features)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#inicializacion-lazy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inicialización Lazy
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
               
             
               
@@ -977,7 +1197,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_5" >
         
           
           <div class="md-nav__link md-nav__container">
@@ -1006,14 +1226,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_3_2_2" id="__nav_3_2_2_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_3_2_5" id="__nav_3_2_5_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_2_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_2_2">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_2_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_5">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1341,6 +1561,8 @@
       
         
       
+        
+      
     
     
     
@@ -1393,6 +1615,34 @@
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/template/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Plantilla
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
               
             
               
@@ -1777,44 +2027,33 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#orchestrator" class="md-nav__link">
+  <a href="#flujos-de-trabajo-workflows" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Orchestrator
+        Flujos de Trabajo (Workflows)
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Orchestrator">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#caracteristicas-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Características (Features)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Características (Features)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#responsabilidades" class="md-nav__link">
+  <a href="#inicializacion-lazy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Responsabilidades
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#lazy-initialization" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Lazy Initialization
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#servicios-coordinados" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Servicios Coordinados
+        Inicialización Lazy
       
     </span>
   </a>
@@ -1846,62 +2085,44 @@
   
 
 
-<h1 id="servicios">Servicios<a class="headerlink" href="#servicios" title="Permanent link">&para;</a></h1>
-<p>Esta página documenta los servicios de aplicación del backend.</p>
-<hr />
-<h2 id="orchestrator">Orchestrator<a class="headerlink" href="#orchestrator" title="Permanent link">&para;</a></h2>
-<p>El Orchestrator es el servicio central que coordina todo el flujo de trabajo de Voice2Machine.</p>
-<h3 id="responsabilidades">Responsabilidades<a class="headerlink" href="#responsabilidades" title="Permanent link">&para;</a></h3>
+<h1 id="servicios-y-logica-de-aplicacion">Servicios y Lógica de Aplicación<a class="headerlink" href="#servicios-y-logica-de-aplicacion" title="Permanent link">&para;</a></h1>
+<p>En el modelo 2026, la lógica de aplicación se divide en <strong>Flujos de Trabajo (Workflows)</strong> y <strong>Características (Features)</strong>.</p>
+<h2 id="flujos-de-trabajo-workflows">Flujos de Trabajo (Workflows)<a class="headerlink" href="#flujos-de-trabajo-workflows" title="Permanent link">&para;</a></h2>
+<p>Ubicados en <code>v2m.orchestration</code>. Son los coordinadores de alto nivel.</p>
 <ul>
-<li>Gestiona el ciclo de vida completo: grabación → transcripción → post-procesamiento</li>
-<li>Mantiene el estado del sistema (idle, recording, processing)</li>
-<li>Coordina la comunicación entre adaptadores sin acoplarlos directamente</li>
-<li>Emite eventos a clientes WebSocket conectados</li>
+<li><strong>RecordingWorkflow</strong>: Gestiona el ciclo audio -&gt; VAD -&gt; transcripción -&gt; pegado.</li>
+<li><strong>LLMWorkflow</strong>: Gestiona el ciclo texto -&gt; refinamiento/traducción -&gt; pegado.</li>
 </ul>
-<h3 id="lazy-initialization">Lazy Initialization<a class="headerlink" href="#lazy-initialization" title="Permanent link">&para;</a></h3>
-<p>Todos los sub-servicios se crean cuando se necesitan por primera vez:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nd">@property</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">worker</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WhisperWorker</span><span class="p">:</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Obtiene el worker de Whisper (lazy init).&quot;&quot;&quot;</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_worker</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_worker</span> <span class="o">=</span> <span class="n">WhisperWorker</span><span class="p">()</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_worker</span>
-</code></pre></div>
-<h3 id="servicios-coordinados">Servicios Coordinados<a class="headerlink" href="#servicios-coordinados" title="Permanent link">&para;</a></h3>
+<h2 id="caracteristicas-features">Características (Features)<a class="headerlink" href="#caracteristicas-features" title="Permanent link">&para;</a></h2>
+<p>Ubicados en <code>v2m.features</code>. Son los bloques de construcción funcionales del sistema.</p>
 <table>
 <thead>
 <tr>
-<th>Servicio</th>
-<th>Descripción</th>
+<th>Característica</th>
+<th>Propósito</th>
+<th>Implementación Principal</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>WhisperWorker</code></td>
-<td>Transcripción con faster-whisper</td>
+<td><strong>Audio</strong></td>
+<td>Captura y pre-procesamiento</td>
+<td><code>v2m_engine</code> (Rust)</td>
 </tr>
 <tr>
-<td><code>AudioRecorder</code></td>
-<td>Captura de audio (Rust extension)</td>
+<td><strong>Transcription</strong></td>
+<td>Conversión audio-a-texto</td>
+<td><code>faster-whisper</code></td>
 </tr>
 <tr>
-<td><code>StreamingTranscriber</code></td>
-<td>Transcripción en tiempo real</td>
-</tr>
-<tr>
-<td><code>ClipboardService</code></td>
-<td>Acceso al portapapeles del sistema</td>
-</tr>
-<tr>
-<td><code>NotificationService</code></td>
-<td>Notificaciones de escritorio</td>
-</tr>
-<tr>
-<td><code>LLMService</code></td>
-<td>Procesamiento con Gemini/Ollama</td>
+<td><strong>LLM</strong></td>
+<td>Procesamiento inteligente</td>
+<td><code>gemini</code> / <code>ollama</code></td>
 </tr>
 </tbody>
 </table>
+<h3 id="inicializacion-lazy">Inicialización Lazy<a class="headerlink" href="#inicializacion-lazy" title="Permanent link">&para;</a></h3>
+<p>Para minimizar el consumo de recursos (especialmente VRAM), los servicios pesados se inicializan solo al ser requeridos por primera vez.</p>
 
 
 
@@ -1922,7 +2143,7 @@
     <span class="md-icon" title="Última actualización">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="21 de enero de 2026 01:24:37 UTC"><span class="timeago" datetime="2026-01-21T01:24:37+00:00" locale="es"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="21 de enero de 2026 01:24:37 UTC">2026-01-21</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="23 de enero de 2026 10:37:13 UTC"><span class="timeago" datetime="2026-01-23T10:37:13+00:00" locale="es"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="23 de enero de 2026 10:37:13 UTC">2026-01-23</span>
   </span>
 
     
@@ -1992,7 +2213,7 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.instant.progress", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.top", "navigation.indexes", "content.code.copy", "content.code.annotate", "search.highlight", "search.suggest"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado al portapapeles", "clipboard.copy": "Copiar al portapapeles", "search.result.more.one": "1 m\u00e1s en esta p\u00e1gina", "search.result.more.other": "# m\u00e1s en esta p\u00e1gina", "search.result.none": "No se encontraron documentos", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Teclee para comenzar b\u00fasqueda", "search.result.term.missing": "Falta", "select.version": "Seleccionar versi\u00f3n"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant.progress", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.top", "navigation.indexes", "content.code.copy", "content.code.annotate", "search.highlight", "search.suggest"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado al portapapeles", "clipboard.copy": "Copiar al portapapeles", "search.result.more.one": "1 m\u00e1s en esta p\u00e1gina", "search.result.more.other": "# m\u00e1s en esta p\u00e1gina", "search.result.none": "No se encontraron documentos", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Teclee para comenzar b\u00fasqueda", "search.result.term.missing": "Falta", "select.version": "Seleccionar versi\u00f3n"}, "version": null}</script>
     
     
       <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
