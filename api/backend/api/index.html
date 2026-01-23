@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Sistema de dictado por voz local con Whisper">
+        <meta name="description" content="Documentación de los endpoints FastAPI y modelos de datos.">
       
       
         <meta name="author" content="zarvent">
@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://zarvent.github.io/v2m-lab/api/backend/api/">
       
       
-        <link rel="prev" href="../orchestrator/">
+        <link rel="prev" href="../workflows/">
       
       
         <link rel="next" href="../config/">
@@ -33,7 +33,7 @@
     
     
       
-        <title>API REST - Voice2Machine</title>
+        <title>API REST (Backend) - Voice2Machine</title>
       
     
     
@@ -90,7 +90,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#api-rest" class="md-skip">
+        <a href="#api-rest-backend" class="md-skip">
           Saltar a contenido
         </a>
       
@@ -125,7 +125,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              API REST
+              API REST (Backend)
             
           </span>
         </div>
@@ -466,6 +466,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
+  
 
             </a>
             
@@ -510,6 +517,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
+  
 
       </a>
     </li>
@@ -537,6 +551,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
   
 
       </a>
@@ -566,6 +587,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
+  
 
       </a>
     </li>
@@ -593,6 +621,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
   
 
       </a>
@@ -687,6 +722,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
+  
 
       </a>
     </li>
@@ -714,6 +756,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
   
 
       </a>
@@ -813,6 +862,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
+  
 
       </a>
     </li>
@@ -870,6 +926,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
   
 
             </a>
@@ -950,6 +1013,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
+  
 
             </a>
             
@@ -980,19 +1050,26 @@
   
   
     <li class="md-nav__item">
-      <a href="../orchestrator/" class="md-nav__link">
+      <a href="../workflows/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Orchestrator
+    Flujos (Workflows)
   
 
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
   
 
       </a>
@@ -1024,12 +1101,19 @@
   <span class="md-ellipsis">
     
   
-    API REST
+    Endpoints (FastAPI)
   
 
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
   
 
           <span class="md-nav__icon md-icon"></span>
@@ -1042,12 +1126,19 @@
   <span class="md-ellipsis">
     
   
-    API REST
+    Endpoints (FastAPI)
   
 
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
   
 
       </a>
@@ -1068,10 +1159,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#modelos-de-requestresponse" class="md-nav__link">
+  <a href="#modelos-de-requestresponse-schemas" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Modelos de Request/Response
+        Modelos de Request/Response (Schemas)
       
     </span>
   </a>
@@ -1079,7 +1170,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#v2m.api.ToggleResponse" class="md-nav__link">
+  <a href="#v2m.api.schemas.ToggleResponse" class="md-nav__link">
     <span class="md-ellipsis">
       
         ToggleResponse
@@ -1090,7 +1181,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#v2m.api.StatusResponse" class="md-nav__link">
+  <a href="#v2m.api.schemas.StatusResponse" class="md-nav__link">
     <span class="md-ellipsis">
       
         StatusResponse
@@ -1101,7 +1192,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#v2m.api.LLMResponse" class="md-nav__link">
+  <a href="#v2m.api.schemas.LLMResponse" class="md-nav__link">
     <span class="md-ellipsis">
       
         LLMResponse
@@ -1112,7 +1203,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#v2m.api.ProcessTextRequest" class="md-nav__link">
+  <a href="#v2m.api.schemas.ProcessTextRequest" class="md-nav__link">
     <span class="md-ellipsis">
       
         ProcessTextRequest
@@ -1123,7 +1214,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#v2m.api.TranslateTextRequest" class="md-nav__link">
+  <a href="#v2m.api.schemas.TranslateTextRequest" class="md-nav__link">
     <span class="md-ellipsis">
       
         TranslateTextRequest
@@ -1145,52 +1236,13 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#v2m.api.DaemonState" class="md-nav__link">
+  <a href="#v2m.api.app.DaemonState" class="md-nav__link">
     <span class="md-ellipsis">
       
         DaemonState
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="DaemonState">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#v2m.api.DaemonState.orchestrator" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        orchestrator
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#v2m.api.DaemonState.__init__" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        __init__
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#v2m.api.DaemonState.broadcast_event" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        broadcast_event
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -1203,10 +1255,27 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Endpoints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#grabacion-recording" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Grabación (Recording)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
-  <a href="#v2m.api.toggle_recording" class="md-nav__link">
+  <a href="#v2m.api.routes.recording.toggle_recording" class="md-nav__link">
     <span class="md-ellipsis">
       
         toggle_recording
@@ -1217,7 +1286,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#v2m.api.start_recording" class="md-nav__link">
+  <a href="#v2m.api.routes.recording.start_recording" class="md-nav__link">
     <span class="md-ellipsis">
       
         start_recording
@@ -1228,7 +1297,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#v2m.api.stop_recording" class="md-nav__link">
+  <a href="#v2m.api.routes.recording.stop_recording" class="md-nav__link">
     <span class="md-ellipsis">
       
         stop_recording
@@ -1236,10 +1305,27 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="stop_recording">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#estado-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Estado (Status)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
-  <a href="#v2m.api.get_status" class="md-nav__link">
+  <a href="#v2m.api.routes.status.get_status" class="md-nav__link">
     <span class="md-ellipsis">
       
         get_status
@@ -1250,7 +1336,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#v2m.api.health_check" class="md-nav__link">
+  <a href="#v2m.api.routes.status.health_check" class="md-nav__link">
     <span class="md-ellipsis">
       
         health_check
@@ -1258,10 +1344,27 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="health_check">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#llm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LLM
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
-  <a href="#v2m.api.process_text" class="md-nav__link">
+  <a href="#v2m.api.routes.llm.process_text" class="md-nav__link">
     <span class="md-ellipsis">
       
         process_text
@@ -1272,7 +1375,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#v2m.api.translate_text" class="md-nav__link">
+  <a href="#v2m.api.routes.llm.translate_text" class="md-nav__link">
     <span class="md-ellipsis">
       
         translate_text
@@ -1312,6 +1415,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1340,6 +1450,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1361,12 +1478,19 @@
   <span class="md-ellipsis">
     
   
-    Servicios LLM
+    LLM
   
 
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
   
 
       </a>
@@ -1470,12 +1594,19 @@
   <span class="md-ellipsis">
     
   
-    🧩 Arquitectura del Sistema
+    Arquitectura del Sistema
   
 
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
   
 
       </a>
@@ -1827,6 +1958,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1855,6 +1993,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1882,6 +2027,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
   
 
       </a>
@@ -1924,10 +2076,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#modelos-de-requestresponse" class="md-nav__link">
+  <a href="#modelos-de-requestresponse-schemas" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Modelos de Request/Response
+        Modelos de Request/Response (Schemas)
       
     </span>
   </a>
@@ -1935,7 +2087,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#v2m.api.ToggleResponse" class="md-nav__link">
+  <a href="#v2m.api.schemas.ToggleResponse" class="md-nav__link">
     <span class="md-ellipsis">
       
         ToggleResponse
@@ -1946,7 +2098,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#v2m.api.StatusResponse" class="md-nav__link">
+  <a href="#v2m.api.schemas.StatusResponse" class="md-nav__link">
     <span class="md-ellipsis">
       
         StatusResponse
@@ -1957,7 +2109,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#v2m.api.LLMResponse" class="md-nav__link">
+  <a href="#v2m.api.schemas.LLMResponse" class="md-nav__link">
     <span class="md-ellipsis">
       
         LLMResponse
@@ -1968,7 +2120,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#v2m.api.ProcessTextRequest" class="md-nav__link">
+  <a href="#v2m.api.schemas.ProcessTextRequest" class="md-nav__link">
     <span class="md-ellipsis">
       
         ProcessTextRequest
@@ -1979,7 +2131,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#v2m.api.TranslateTextRequest" class="md-nav__link">
+  <a href="#v2m.api.schemas.TranslateTextRequest" class="md-nav__link">
     <span class="md-ellipsis">
       
         TranslateTextRequest
@@ -2001,52 +2153,13 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#v2m.api.DaemonState" class="md-nav__link">
+  <a href="#v2m.api.app.DaemonState" class="md-nav__link">
     <span class="md-ellipsis">
       
         DaemonState
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="DaemonState">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#v2m.api.DaemonState.orchestrator" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        orchestrator
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#v2m.api.DaemonState.__init__" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        __init__
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#v2m.api.DaemonState.broadcast_event" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        broadcast_event
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -2059,10 +2172,27 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Endpoints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#grabacion-recording" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Grabación (Recording)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
-  <a href="#v2m.api.toggle_recording" class="md-nav__link">
+  <a href="#v2m.api.routes.recording.toggle_recording" class="md-nav__link">
     <span class="md-ellipsis">
       
         toggle_recording
@@ -2073,7 +2203,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#v2m.api.start_recording" class="md-nav__link">
+  <a href="#v2m.api.routes.recording.start_recording" class="md-nav__link">
     <span class="md-ellipsis">
       
         start_recording
@@ -2084,7 +2214,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#v2m.api.stop_recording" class="md-nav__link">
+  <a href="#v2m.api.routes.recording.stop_recording" class="md-nav__link">
     <span class="md-ellipsis">
       
         stop_recording
@@ -2092,10 +2222,27 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="stop_recording">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#estado-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Estado (Status)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
-  <a href="#v2m.api.get_status" class="md-nav__link">
+  <a href="#v2m.api.routes.status.get_status" class="md-nav__link">
     <span class="md-ellipsis">
       
         get_status
@@ -2106,7 +2253,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#v2m.api.health_check" class="md-nav__link">
+  <a href="#v2m.api.routes.status.health_check" class="md-nav__link">
     <span class="md-ellipsis">
       
         health_check
@@ -2114,10 +2261,27 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="health_check">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#llm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LLM
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
-  <a href="#v2m.api.process_text" class="md-nav__link">
+  <a href="#v2m.api.routes.llm.process_text" class="md-nav__link">
     <span class="md-ellipsis">
       
         process_text
@@ -2128,7 +2292,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#v2m.api.translate_text" class="md-nav__link">
+  <a href="#v2m.api.routes.llm.translate_text" class="md-nav__link">
     <span class="md-ellipsis">
       
         translate_text
@@ -2158,21 +2322,21 @@
   
 
 
-<h1 id="api-rest">API REST<a class="headerlink" href="#api-rest" title="Permanent link">&para;</a></h1>
+<h1 id="api-rest-backend">API REST (Backend)<a class="headerlink" href="#api-rest-backend" title="Permanent link">&para;</a></h1>
 <p>Documentación de los endpoints FastAPI y modelos de datos.</p>
 <hr />
-<h2 id="modelos-de-requestresponse">Modelos de Request/Response<a class="headerlink" href="#modelos-de-requestresponse" title="Permanent link">&para;</a></h2>
+<h2 id="modelos-de-requestresponse-schemas">Modelos de Request/Response (Schemas)<a class="headerlink" href="#modelos-de-requestresponse-schemas" title="Permanent link">&para;</a></h2>
 
 
 <div class="doc doc-object doc-class">
 
 
 
-<h2 id="v2m.api.ToggleResponse" class="doc doc-heading">
-            <code>v2m.api.ToggleResponse</code>
+<h2 id="v2m.api.schemas.ToggleResponse" class="doc doc-heading">
+            <code>v2m.api.schemas.ToggleResponse</code>
 
 
-<a href="#v2m.api.ToggleResponse" class="headerlink" title="Permanent link">&para;</a></h2>
+<a href="#v2m.api.schemas.ToggleResponse" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
     <div class="doc doc-contents first">
@@ -2191,18 +2355,18 @@
 
 
               <details class="mkdocstrings-source">
-                <summary>Source code in <code>apps/daemon/backend/src/v2m/api.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-40">40</a></span>
-<span class="normal"><a href="#__codelineno-0-41">41</a></span>
-<span class="normal"><a href="#__codelineno-0-42">42</a></span>
-<span class="normal"><a href="#__codelineno-0-43">43</a></span>
-<span class="normal"><a href="#__codelineno-0-44">44</a></span>
-<span class="normal"><a href="#__codelineno-0-45">45</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-40" name="__codelineno-0-40"></a><span class="k">class</span><span class="w"> </span><span class="nc">ToggleResponse</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<a id="__codelineno-0-41" name="__codelineno-0-41"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Respuesta del endpoint /toggle.&quot;&quot;&quot;</span>
-<a id="__codelineno-0-42" name="__codelineno-0-42"></a>
-<a id="__codelineno-0-43" name="__codelineno-0-43"></a>    <span class="n">status</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Estado actual: &#39;recording&#39; o &#39;idle&#39;&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-44" name="__codelineno-0-44"></a>    <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Mensaje descriptivo para el usuario&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-45" name="__codelineno-0-45"></a>    <span class="n">text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Texto transcrito (solo en stop)&quot;</span><span class="p">)</span>
+                <summary>Source code in <code>apps/daemon/backend/src/v2m/api/schemas.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-0-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-0-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-0-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-0-10">10</a></span>
+<span class="normal"><a href="#__codelineno-0-11">11</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="k">class</span><span class="w"> </span><span class="nc">ToggleResponse</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Respuesta del endpoint /toggle.&quot;&quot;&quot;</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8"></a>
+<a id="__codelineno-0-9" name="__codelineno-0-9"></a>    <span class="n">status</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Estado actual: &#39;recording&#39; o &#39;idle&#39;&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10"></a>    <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Mensaje descriptivo para el usuario&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11"></a>    <span class="n">text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Texto transcrito (solo en stop)&quot;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -2233,11 +2397,11 @@ show_source: false</p>
 
 
 
-<h2 id="v2m.api.StatusResponse" class="doc doc-heading">
-            <code>v2m.api.StatusResponse</code>
+<h2 id="v2m.api.schemas.StatusResponse" class="doc doc-heading">
+            <code>v2m.api.schemas.StatusResponse</code>
 
 
-<a href="#v2m.api.StatusResponse" class="headerlink" title="Permanent link">&para;</a></h2>
+<a href="#v2m.api.schemas.StatusResponse" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
     <div class="doc doc-contents first">
@@ -2256,18 +2420,18 @@ show_source: false</p>
 
 
               <details class="mkdocstrings-source">
-                <summary>Source code in <code>apps/daemon/backend/src/v2m/api.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-48">48</a></span>
-<span class="normal"><a href="#__codelineno-0-49">49</a></span>
-<span class="normal"><a href="#__codelineno-0-50">50</a></span>
-<span class="normal"><a href="#__codelineno-0-51">51</a></span>
-<span class="normal"><a href="#__codelineno-0-52">52</a></span>
-<span class="normal"><a href="#__codelineno-0-53">53</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-48" name="__codelineno-0-48"></a><span class="k">class</span><span class="w"> </span><span class="nc">StatusResponse</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<a id="__codelineno-0-49" name="__codelineno-0-49"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Respuesta del endpoint /status.&quot;&quot;&quot;</span>
-<a id="__codelineno-0-50" name="__codelineno-0-50"></a>
-<a id="__codelineno-0-51" name="__codelineno-0-51"></a>    <span class="n">state</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Estado del daemon: &#39;idle&#39;, &#39;recording&#39;, &#39;processing&#39;&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-52" name="__codelineno-0-52"></a>    <span class="n">recording</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;True si está grabando actualmente&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-53" name="__codelineno-0-53"></a>    <span class="n">model_loaded</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;True si el modelo Whisper está cargado&quot;</span><span class="p">)</span>
+                <summary>Source code in <code>apps/daemon/backend/src/v2m/api/schemas.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-14">14</a></span>
+<span class="normal"><a href="#__codelineno-0-15">15</a></span>
+<span class="normal"><a href="#__codelineno-0-16">16</a></span>
+<span class="normal"><a href="#__codelineno-0-17">17</a></span>
+<span class="normal"><a href="#__codelineno-0-18">18</a></span>
+<span class="normal"><a href="#__codelineno-0-19">19</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-14" name="__codelineno-0-14"></a><span class="k">class</span><span class="w"> </span><span class="nc">StatusResponse</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Respuesta del endpoint /status.&quot;&quot;&quot;</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16"></a>
+<a id="__codelineno-0-17" name="__codelineno-0-17"></a>    <span class="n">state</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Estado del daemon: &#39;idle&#39;, &#39;recording&#39;, &#39;processing&#39;&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18"></a>    <span class="n">recording</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;True si está grabando actualmente&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19"></a>    <span class="n">model_loaded</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;True si el modelo Whisper está cargado&quot;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -2298,11 +2462,11 @@ show_source: false</p>
 
 
 
-<h2 id="v2m.api.LLMResponse" class="doc doc-heading">
-            <code>v2m.api.LLMResponse</code>
+<h2 id="v2m.api.schemas.LLMResponse" class="doc doc-heading">
+            <code>v2m.api.schemas.LLMResponse</code>
 
 
-<a href="#v2m.api.LLMResponse" class="headerlink" title="Permanent link">&para;</a></h2>
+<a href="#v2m.api.schemas.LLMResponse" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
     <div class="doc doc-contents first">
@@ -2321,16 +2485,16 @@ show_source: false</p>
 
 
               <details class="mkdocstrings-source">
-                <summary>Source code in <code>apps/daemon/backend/src/v2m/api.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-69">69</a></span>
-<span class="normal"><a href="#__codelineno-0-70">70</a></span>
-<span class="normal"><a href="#__codelineno-0-71">71</a></span>
-<span class="normal"><a href="#__codelineno-0-72">72</a></span>
-<span class="normal"><a href="#__codelineno-0-73">73</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-69" name="__codelineno-0-69"></a><span class="k">class</span><span class="w"> </span><span class="nc">LLMResponse</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<a id="__codelineno-0-70" name="__codelineno-0-70"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Respuesta de endpoints LLM.&quot;&quot;&quot;</span>
-<a id="__codelineno-0-71" name="__codelineno-0-71"></a>
-<a id="__codelineno-0-72" name="__codelineno-0-72"></a>    <span class="n">text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Texto procesado/traducido&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-73" name="__codelineno-0-73"></a>    <span class="n">backend</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Backend usado: &#39;gemini&#39;, &#39;ollama&#39;, &#39;local&#39;&quot;</span><span class="p">)</span>
+                <summary>Source code in <code>apps/daemon/backend/src/v2m/api/schemas.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-35">35</a></span>
+<span class="normal"><a href="#__codelineno-0-36">36</a></span>
+<span class="normal"><a href="#__codelineno-0-37">37</a></span>
+<span class="normal"><a href="#__codelineno-0-38">38</a></span>
+<span class="normal"><a href="#__codelineno-0-39">39</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-35" name="__codelineno-0-35"></a><span class="k">class</span><span class="w"> </span><span class="nc">LLMResponse</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<a id="__codelineno-0-36" name="__codelineno-0-36"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Respuesta de endpoints LLM.&quot;&quot;&quot;</span>
+<a id="__codelineno-0-37" name="__codelineno-0-37"></a>
+<a id="__codelineno-0-38" name="__codelineno-0-38"></a>    <span class="n">text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Texto procesado/traducido&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-39" name="__codelineno-0-39"></a>    <span class="n">backend</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Backend usado: &#39;gemini&#39;, &#39;ollama&#39;, &#39;local&#39;&quot;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -2361,11 +2525,11 @@ show_source: false</p>
 
 
 
-<h2 id="v2m.api.ProcessTextRequest" class="doc doc-heading">
-            <code>v2m.api.ProcessTextRequest</code>
+<h2 id="v2m.api.schemas.ProcessTextRequest" class="doc doc-heading">
+            <code>v2m.api.schemas.ProcessTextRequest</code>
 
 
-<a href="#v2m.api.ProcessTextRequest" class="headerlink" title="Permanent link">&para;</a></h2>
+<a href="#v2m.api.schemas.ProcessTextRequest" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
     <div class="doc doc-contents first">
@@ -2384,14 +2548,14 @@ show_source: false</p>
 
 
               <details class="mkdocstrings-source">
-                <summary>Source code in <code>apps/daemon/backend/src/v2m/api.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-56">56</a></span>
-<span class="normal"><a href="#__codelineno-0-57">57</a></span>
-<span class="normal"><a href="#__codelineno-0-58">58</a></span>
-<span class="normal"><a href="#__codelineno-0-59">59</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-56" name="__codelineno-0-56"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessTextRequest</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<a id="__codelineno-0-57" name="__codelineno-0-57"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Request para /llm/process.&quot;&quot;&quot;</span>
-<a id="__codelineno-0-58" name="__codelineno-0-58"></a>
-<a id="__codelineno-0-59" name="__codelineno-0-59"></a>    <span class="n">text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">min_length</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Texto a procesar&quot;</span><span class="p">)</span>
+                <summary>Source code in <code>apps/daemon/backend/src/v2m/api/schemas.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-22">22</a></span>
+<span class="normal"><a href="#__codelineno-0-23">23</a></span>
+<span class="normal"><a href="#__codelineno-0-24">24</a></span>
+<span class="normal"><a href="#__codelineno-0-25">25</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-22" name="__codelineno-0-22"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessTextRequest</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<a id="__codelineno-0-23" name="__codelineno-0-23"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Request para /llm/process.&quot;&quot;&quot;</span>
+<a id="__codelineno-0-24" name="__codelineno-0-24"></a>
+<a id="__codelineno-0-25" name="__codelineno-0-25"></a>    <span class="n">text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">min_length</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Texto a procesar&quot;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -2422,11 +2586,11 @@ show_source: false</p>
 
 
 
-<h2 id="v2m.api.TranslateTextRequest" class="doc doc-heading">
-            <code>v2m.api.TranslateTextRequest</code>
+<h2 id="v2m.api.schemas.TranslateTextRequest" class="doc doc-heading">
+            <code>v2m.api.schemas.TranslateTextRequest</code>
 
 
-<a href="#v2m.api.TranslateTextRequest" class="headerlink" title="Permanent link">&para;</a></h2>
+<a href="#v2m.api.schemas.TranslateTextRequest" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
     <div class="doc doc-contents first">
@@ -2445,16 +2609,16 @@ show_source: false</p>
 
 
               <details class="mkdocstrings-source">
-                <summary>Source code in <code>apps/daemon/backend/src/v2m/api.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-62">62</a></span>
-<span class="normal"><a href="#__codelineno-0-63">63</a></span>
-<span class="normal"><a href="#__codelineno-0-64">64</a></span>
-<span class="normal"><a href="#__codelineno-0-65">65</a></span>
-<span class="normal"><a href="#__codelineno-0-66">66</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-62" name="__codelineno-0-62"></a><span class="k">class</span><span class="w"> </span><span class="nc">TranslateTextRequest</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<a id="__codelineno-0-63" name="__codelineno-0-63"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Request para /llm/translate.&quot;&quot;&quot;</span>
-<a id="__codelineno-0-64" name="__codelineno-0-64"></a>
-<a id="__codelineno-0-65" name="__codelineno-0-65"></a>    <span class="n">text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">min_length</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Texto a traducir&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-66" name="__codelineno-0-66"></a>    <span class="n">target_lang</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s2">&quot;en&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Idioma destino (ej. &#39;en&#39;, &#39;es&#39;)&quot;</span><span class="p">)</span>
+                <summary>Source code in <code>apps/daemon/backend/src/v2m/api/schemas.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-28">28</a></span>
+<span class="normal"><a href="#__codelineno-0-29">29</a></span>
+<span class="normal"><a href="#__codelineno-0-30">30</a></span>
+<span class="normal"><a href="#__codelineno-0-31">31</a></span>
+<span class="normal"><a href="#__codelineno-0-32">32</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-28" name="__codelineno-0-28"></a><span class="k">class</span><span class="w"> </span><span class="nc">TranslateTextRequest</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<a id="__codelineno-0-29" name="__codelineno-0-29"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Request para /llm/translate.&quot;&quot;&quot;</span>
+<a id="__codelineno-0-30" name="__codelineno-0-30"></a>
+<a id="__codelineno-0-31" name="__codelineno-0-31"></a>    <span class="n">text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">min_length</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Texto a traducir&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-32" name="__codelineno-0-32"></a>    <span class="n">target_lang</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s2">&quot;en&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Idioma destino (ej. &#39;en&#39;, &#39;es&#39;)&quot;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -2487,20 +2651,18 @@ show_source: false</p>
 
 
 
-<h2 id="v2m.api.DaemonState" class="doc doc-heading">
-            <code>v2m.api.DaemonState</code>
+<h2 id="v2m.api.app.DaemonState" class="doc doc-heading">
+            <code>v2m.api.app.DaemonState</code>
 
 
-<a href="#v2m.api.DaemonState" class="headerlink" title="Permanent link">&para;</a></h2>
+<a href="#v2m.api.app.DaemonState" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
     <div class="doc doc-contents first">
 
 
 
-        <p>Estado global del daemon.</p>
-<p>Lazy initialization: los servicios se crean cuando se necesitan por primera vez.
-Esto permite que el servidor arranque rápido y cargue el modelo en background.</p>
+        <p>Estado global del daemon (Singleton para la API).</p>
 
 
 
@@ -2510,106 +2672,76 @@ Esto permite que el servidor arranque rápido y cargue el modelo en background.<
 
 
               <details class="mkdocstrings-source">
-                <summary>Source code in <code>apps/daemon/backend/src/v2m/api.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-88"> 88</a></span>
-<span class="normal"><a href="#__codelineno-0-89"> 89</a></span>
-<span class="normal"><a href="#__codelineno-0-90"> 90</a></span>
-<span class="normal"><a href="#__codelineno-0-91"> 91</a></span>
-<span class="normal"><a href="#__codelineno-0-92"> 92</a></span>
-<span class="normal"><a href="#__codelineno-0-93"> 93</a></span>
-<span class="normal"><a href="#__codelineno-0-94"> 94</a></span>
-<span class="normal"><a href="#__codelineno-0-95"> 95</a></span>
-<span class="normal"><a href="#__codelineno-0-96"> 96</a></span>
-<span class="normal"><a href="#__codelineno-0-97"> 97</a></span>
-<span class="normal"><a href="#__codelineno-0-98"> 98</a></span>
-<span class="normal"><a href="#__codelineno-0-99"> 99</a></span>
-<span class="normal"><a href="#__codelineno-0-100">100</a></span>
-<span class="normal"><a href="#__codelineno-0-101">101</a></span>
-<span class="normal"><a href="#__codelineno-0-102">102</a></span>
-<span class="normal"><a href="#__codelineno-0-103">103</a></span>
-<span class="normal"><a href="#__codelineno-0-104">104</a></span>
-<span class="normal"><a href="#__codelineno-0-105">105</a></span>
-<span class="normal"><a href="#__codelineno-0-106">106</a></span>
-<span class="normal"><a href="#__codelineno-0-107">107</a></span>
-<span class="normal"><a href="#__codelineno-0-108">108</a></span>
-<span class="normal"><a href="#__codelineno-0-109">109</a></span>
-<span class="normal"><a href="#__codelineno-0-110">110</a></span>
-<span class="normal"><a href="#__codelineno-0-111">111</a></span>
-<span class="normal"><a href="#__codelineno-0-112">112</a></span>
-<span class="normal"><a href="#__codelineno-0-113">113</a></span>
-<span class="normal"><a href="#__codelineno-0-114">114</a></span>
-<span class="normal"><a href="#__codelineno-0-115">115</a></span>
-<span class="normal"><a href="#__codelineno-0-116">116</a></span>
-<span class="normal"><a href="#__codelineno-0-117">117</a></span>
-<span class="normal"><a href="#__codelineno-0-118">118</a></span>
-<span class="normal"><a href="#__codelineno-0-119">119</a></span>
-<span class="normal"><a href="#__codelineno-0-120">120</a></span>
-<span class="normal"><a href="#__codelineno-0-121">121</a></span>
-<span class="normal"><a href="#__codelineno-0-122">122</a></span>
-<span class="normal"><a href="#__codelineno-0-123">123</a></span>
-<span class="normal"><a href="#__codelineno-0-124">124</a></span>
-<span class="normal"><a href="#__codelineno-0-125">125</a></span>
-<span class="normal"><a href="#__codelineno-0-126">126</a></span>
-<span class="normal"><a href="#__codelineno-0-127">127</a></span>
-<span class="normal"><a href="#__codelineno-0-128">128</a></span>
-<span class="normal"><a href="#__codelineno-0-129">129</a></span>
-<span class="normal"><a href="#__codelineno-0-130">130</a></span>
-<span class="normal"><a href="#__codelineno-0-131">131</a></span>
-<span class="normal"><a href="#__codelineno-0-132">132</a></span>
-<span class="normal"><a href="#__codelineno-0-133">133</a></span>
-<span class="normal"><a href="#__codelineno-0-134">134</a></span>
-<span class="normal"><a href="#__codelineno-0-135">135</a></span>
-<span class="normal"><a href="#__codelineno-0-136">136</a></span>
-<span class="normal"><a href="#__codelineno-0-137">137</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-88" name="__codelineno-0-88"></a><span class="k">class</span><span class="w"> </span><span class="nc">DaemonState</span><span class="p">:</span>
-<a id="__codelineno-0-89" name="__codelineno-0-89"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Estado global del daemon.</span>
-<a id="__codelineno-0-90" name="__codelineno-0-90"></a>
-<a id="__codelineno-0-91" name="__codelineno-0-91"></a><span class="sd">    Lazy initialization: los servicios se crean cuando se necesitan por primera vez.</span>
-<a id="__codelineno-0-92" name="__codelineno-0-92"></a><span class="sd">    Esto permite que el servidor arranque rápido y cargue el modelo en background.</span>
-<a id="__codelineno-0-93" name="__codelineno-0-93"></a><span class="sd">    &quot;&quot;&quot;</span>
-<a id="__codelineno-0-94" name="__codelineno-0-94"></a>
-<a id="__codelineno-0-95" name="__codelineno-0-95"></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-0-96" name="__codelineno-0-96"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Inicializa el estado global con servicios diferidos.</span>
-<a id="__codelineno-0-97" name="__codelineno-0-97"></a>
-<a id="__codelineno-0-98" name="__codelineno-0-98"></a><span class="sd">        Los servicios pesados (Orchestrator, modelo Whisper) no se crean aquí.</span>
-<a id="__codelineno-0-99" name="__codelineno-0-99"></a><span class="sd">        Se instancian lazy la primera vez que se acceden.</span>
-<a id="__codelineno-0-100" name="__codelineno-0-100"></a><span class="sd">        &quot;&quot;&quot;</span>
-<a id="__codelineno-0-101" name="__codelineno-0-101"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_orchestrator</span><span class="p">:</span> <span class="n">Orchestrator</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-<a id="__codelineno-0-102" name="__codelineno-0-102"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_websocket_clients</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">WebSocket</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-<a id="__codelineno-0-103" name="__codelineno-0-103"></a>
-<a id="__codelineno-0-104" name="__codelineno-0-104"></a>    <span class="nd">@property</span>
-<a id="__codelineno-0-105" name="__codelineno-0-105"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">orchestrator</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Orchestrator</span><span class="p">:</span>
-<a id="__codelineno-0-106" name="__codelineno-0-106"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Lazy initialization del orquestador.&quot;&quot;&quot;</span>
-<a id="__codelineno-0-107" name="__codelineno-0-107"></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_orchestrator</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-0-108" name="__codelineno-0-108"></a>            <span class="kn">from</span><span class="w"> </span><span class="nn">v2m.services.orchestrator</span><span class="w"> </span><span class="kn">import</span> <span class="n">Orchestrator</span>
-<a id="__codelineno-0-109" name="__codelineno-0-109"></a>
-<a id="__codelineno-0-110" name="__codelineno-0-110"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_orchestrator</span> <span class="o">=</span> <span class="n">Orchestrator</span><span class="p">(</span><span class="n">broadcast_fn</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">broadcast_event</span><span class="p">)</span>
-<a id="__codelineno-0-111" name="__codelineno-0-111"></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_orchestrator</span>
-<a id="__codelineno-0-112" name="__codelineno-0-112"></a>
-<a id="__codelineno-0-113" name="__codelineno-0-113"></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">broadcast_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-0-114" name="__codelineno-0-114"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Envía evento a todos los clientes WebSocket conectados.</span>
-<a id="__codelineno-0-115" name="__codelineno-0-115"></a>
-<a id="__codelineno-0-116" name="__codelineno-0-116"></a><span class="sd">        Args:</span>
-<a id="__codelineno-0-117" name="__codelineno-0-117"></a><span class="sd">            event_type: Tipo de evento (ej. &#39;transcription_update&#39;, &#39;heartbeat&#39;).</span>
-<a id="__codelineno-0-118" name="__codelineno-0-118"></a><span class="sd">            data: Payload del evento como diccionario JSON-serializable.</span>
-<a id="__codelineno-0-119" name="__codelineno-0-119"></a>
-<a id="__codelineno-0-120" name="__codelineno-0-120"></a><span class="sd">        Note:</span>
-<a id="__codelineno-0-121" name="__codelineno-0-121"></a><span class="sd">            Las conexiones muertas se limpian automáticamente.</span>
-<a id="__codelineno-0-122" name="__codelineno-0-122"></a><span class="sd">        &quot;&quot;&quot;</span>
-<a id="__codelineno-0-123" name="__codelineno-0-123"></a>        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_websocket_clients</span><span class="p">:</span>
-<a id="__codelineno-0-124" name="__codelineno-0-124"></a>            <span class="k">return</span>
-<a id="__codelineno-0-125" name="__codelineno-0-125"></a>
-<a id="__codelineno-0-126" name="__codelineno-0-126"></a>        <span class="n">message</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;event&quot;</span><span class="p">:</span> <span class="n">event_type</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">data</span><span class="p">}</span>
-<a id="__codelineno-0-127" name="__codelineno-0-127"></a>        <span class="n">disconnected</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">WebSocket</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-<a id="__codelineno-0-128" name="__codelineno-0-128"></a>
-<a id="__codelineno-0-129" name="__codelineno-0-129"></a>        <span class="k">for</span> <span class="n">ws</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_websocket_clients</span><span class="p">:</span>
-<a id="__codelineno-0-130" name="__codelineno-0-130"></a>            <span class="k">try</span><span class="p">:</span>
-<a id="__codelineno-0-131" name="__codelineno-0-131"></a>                <span class="k">await</span> <span class="n">ws</span><span class="o">.</span><span class="n">send_json</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
-<a id="__codelineno-0-132" name="__codelineno-0-132"></a>            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-<a id="__codelineno-0-133" name="__codelineno-0-133"></a>                <span class="n">disconnected</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ws</span><span class="p">)</span>
-<a id="__codelineno-0-134" name="__codelineno-0-134"></a>
-<a id="__codelineno-0-135" name="__codelineno-0-135"></a>        <span class="c1"># Cleanup de conexiones muertas</span>
-<a id="__codelineno-0-136" name="__codelineno-0-136"></a>        <span class="k">for</span> <span class="n">ws</span> <span class="ow">in</span> <span class="n">disconnected</span><span class="p">:</span>
-<a id="__codelineno-0-137" name="__codelineno-0-137"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_websocket_clients</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="n">ws</span><span class="p">)</span>
+                <summary>Source code in <code>apps/daemon/backend/src/v2m/api/app.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-15">15</a></span>
+<span class="normal"><a href="#__codelineno-0-16">16</a></span>
+<span class="normal"><a href="#__codelineno-0-17">17</a></span>
+<span class="normal"><a href="#__codelineno-0-18">18</a></span>
+<span class="normal"><a href="#__codelineno-0-19">19</a></span>
+<span class="normal"><a href="#__codelineno-0-20">20</a></span>
+<span class="normal"><a href="#__codelineno-0-21">21</a></span>
+<span class="normal"><a href="#__codelineno-0-22">22</a></span>
+<span class="normal"><a href="#__codelineno-0-23">23</a></span>
+<span class="normal"><a href="#__codelineno-0-24">24</a></span>
+<span class="normal"><a href="#__codelineno-0-25">25</a></span>
+<span class="normal"><a href="#__codelineno-0-26">26</a></span>
+<span class="normal"><a href="#__codelineno-0-27">27</a></span>
+<span class="normal"><a href="#__codelineno-0-28">28</a></span>
+<span class="normal"><a href="#__codelineno-0-29">29</a></span>
+<span class="normal"><a href="#__codelineno-0-30">30</a></span>
+<span class="normal"><a href="#__codelineno-0-31">31</a></span>
+<span class="normal"><a href="#__codelineno-0-32">32</a></span>
+<span class="normal"><a href="#__codelineno-0-33">33</a></span>
+<span class="normal"><a href="#__codelineno-0-34">34</a></span>
+<span class="normal"><a href="#__codelineno-0-35">35</a></span>
+<span class="normal"><a href="#__codelineno-0-36">36</a></span>
+<span class="normal"><a href="#__codelineno-0-37">37</a></span>
+<span class="normal"><a href="#__codelineno-0-38">38</a></span>
+<span class="normal"><a href="#__codelineno-0-39">39</a></span>
+<span class="normal"><a href="#__codelineno-0-40">40</a></span>
+<span class="normal"><a href="#__codelineno-0-41">41</a></span>
+<span class="normal"><a href="#__codelineno-0-42">42</a></span>
+<span class="normal"><a href="#__codelineno-0-43">43</a></span>
+<span class="normal"><a href="#__codelineno-0-44">44</a></span>
+<span class="normal"><a href="#__codelineno-0-45">45</a></span>
+<span class="normal"><a href="#__codelineno-0-46">46</a></span>
+<span class="normal"><a href="#__codelineno-0-47">47</a></span>
+<span class="normal"><a href="#__codelineno-0-48">48</a></span>
+<span class="normal"><a href="#__codelineno-0-49">49</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-15" name="__codelineno-0-15"></a><span class="k">class</span><span class="w"> </span><span class="nc">DaemonState</span><span class="p">:</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Estado global del daemon (Singleton para la API).&quot;&quot;&quot;</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17"></a>
+<a id="__codelineno-0-18" name="__codelineno-0-18"></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_recording_workflow</span><span class="p">:</span> <span class="n">RecordingWorkflow</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_llm_workflow</span><span class="p">:</span> <span class="n">LLMWorkflow</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<a id="__codelineno-0-21" name="__codelineno-0-21"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_websocket_clients</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">WebSocket</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+<a id="__codelineno-0-22" name="__codelineno-0-22"></a>
+<a id="__codelineno-0-23" name="__codelineno-0-23"></a>    <span class="nd">@property</span>
+<a id="__codelineno-0-24" name="__codelineno-0-24"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">recording</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RecordingWorkflow</span><span class="p">:</span>
+<a id="__codelineno-0-25" name="__codelineno-0-25"></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_recording_workflow</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-0-26" name="__codelineno-0-26"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_recording_workflow</span> <span class="o">=</span> <span class="n">RecordingWorkflow</span><span class="p">(</span><span class="n">broadcast_fn</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">broadcast_event</span><span class="p">)</span>
+<a id="__codelineno-0-27" name="__codelineno-0-27"></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_recording_workflow</span>
+<a id="__codelineno-0-28" name="__codelineno-0-28"></a>
+<a id="__codelineno-0-29" name="__codelineno-0-29"></a>    <span class="nd">@property</span>
+<a id="__codelineno-0-30" name="__codelineno-0-30"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">llm</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LLMWorkflow</span><span class="p">:</span>
+<a id="__codelineno-0-31" name="__codelineno-0-31"></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_llm_workflow</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-0-32" name="__codelineno-0-32"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_llm_workflow</span> <span class="o">=</span> <span class="n">LLMWorkflow</span><span class="p">()</span>
+<a id="__codelineno-0-33" name="__codelineno-0-33"></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_llm_workflow</span>
+<a id="__codelineno-0-34" name="__codelineno-0-34"></a>
+<a id="__codelineno-0-35" name="__codelineno-0-35"></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">broadcast_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-0-36" name="__codelineno-0-36"></a>        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_websocket_clients</span><span class="p">:</span>
+<a id="__codelineno-0-37" name="__codelineno-0-37"></a>            <span class="k">return</span>
+<a id="__codelineno-0-38" name="__codelineno-0-38"></a>
+<a id="__codelineno-0-39" name="__codelineno-0-39"></a>        <span class="n">message</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;event&quot;</span><span class="p">:</span> <span class="n">event_type</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">data</span><span class="p">}</span>
+<a id="__codelineno-0-40" name="__codelineno-0-40"></a>        <span class="n">disconnected</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">WebSocket</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+<a id="__codelineno-0-41" name="__codelineno-0-41"></a>
+<a id="__codelineno-0-42" name="__codelineno-0-42"></a>        <span class="k">for</span> <span class="n">ws</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_websocket_clients</span><span class="p">:</span>
+<a id="__codelineno-0-43" name="__codelineno-0-43"></a>            <span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-0-44" name="__codelineno-0-44"></a>                <span class="k">await</span> <span class="n">ws</span><span class="o">.</span><span class="n">send_json</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+<a id="__codelineno-0-45" name="__codelineno-0-45"></a>            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+<a id="__codelineno-0-46" name="__codelineno-0-46"></a>                <span class="n">disconnected</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ws</span><span class="p">)</span>
+<a id="__codelineno-0-47" name="__codelineno-0-47"></a>
+<a id="__codelineno-0-48" name="__codelineno-0-48"></a>        <span class="k">for</span> <span class="n">ws</span> <span class="ow">in</span> <span class="n">disconnected</span><span class="p">:</span>
+<a id="__codelineno-0-49" name="__codelineno-0-49"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_websocket_clients</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="n">ws</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -2623,196 +2755,8 @@ Esto permite que el servidor arranque rápido y cargue el modelo en background.<
 
 
 
-<div class="doc doc-object doc-attribute">
 
 
-
-<h3 id="v2m.api.DaemonState.orchestrator" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">orchestrator</span></code>
-
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
-  </span>
-
-<a href="#v2m.api.DaemonState.orchestrator" class="headerlink" title="Permanent link">&para;</a></h3>
-
-
-    <div class="doc doc-contents ">
-
-        <p>Lazy initialization del orquestador.</p>
-
-    </div>
-
-</div>
-
-
-
-
-<div class="doc doc-object doc-function">
-
-
-<h3 id="v2m.api.DaemonState.__init__" class="doc doc-heading">
-            <code class="highlight language-python"><span class="fm">__init__</span><span class="p">()</span></code>
-
-<a href="#v2m.api.DaemonState.__init__" class="headerlink" title="Permanent link">&para;</a></h3>
-
-
-    <div class="doc doc-contents ">
-
-        <p>Inicializa el estado global con servicios diferidos.</p>
-<p>Los servicios pesados (Orchestrator, modelo Whisper) no se crean aquí.
-Se instancian lazy la primera vez que se acceden.</p>
-
-
-            <details class="mkdocstrings-source">
-              <summary>Source code in <code>apps/daemon/backend/src/v2m/api.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-95"> 95</a></span>
-<span class="normal"><a href="#__codelineno-0-96"> 96</a></span>
-<span class="normal"><a href="#__codelineno-0-97"> 97</a></span>
-<span class="normal"><a href="#__codelineno-0-98"> 98</a></span>
-<span class="normal"><a href="#__codelineno-0-99"> 99</a></span>
-<span class="normal"><a href="#__codelineno-0-100">100</a></span>
-<span class="normal"><a href="#__codelineno-0-101">101</a></span>
-<span class="normal"><a href="#__codelineno-0-102">102</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-95" name="__codelineno-0-95"></a><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-0-96" name="__codelineno-0-96"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Inicializa el estado global con servicios diferidos.</span>
-<a id="__codelineno-0-97" name="__codelineno-0-97"></a>
-<a id="__codelineno-0-98" name="__codelineno-0-98"></a><span class="sd">    Los servicios pesados (Orchestrator, modelo Whisper) no se crean aquí.</span>
-<a id="__codelineno-0-99" name="__codelineno-0-99"></a><span class="sd">    Se instancian lazy la primera vez que se acceden.</span>
-<a id="__codelineno-0-100" name="__codelineno-0-100"></a><span class="sd">    &quot;&quot;&quot;</span>
-<a id="__codelineno-0-101" name="__codelineno-0-101"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">_orchestrator</span><span class="p">:</span> <span class="n">Orchestrator</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-<a id="__codelineno-0-102" name="__codelineno-0-102"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">_websocket_clients</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">WebSocket</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-</code></pre></div></td></tr></table></div>
-            </details>
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-function">
-
-
-<h3 id="v2m.api.DaemonState.broadcast_event" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">broadcast_event</span><span class="p">(</span><span class="n">event_type</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></code>
-
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
-  </span>
-
-<a href="#v2m.api.DaemonState.broadcast_event" class="headerlink" title="Permanent link">&para;</a></h3>
-
-
-    <div class="doc doc-contents ">
-
-        <p>Envía evento a todos los clientes WebSocket conectados.</p>
-
-
-<p><span class="doc-section-title">Parameters:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Description</th>
-          <th>Default</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>event_type</code>
-            </td>
-            <td>
-                  <code><span title="str">str</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Tipo de evento (ej. 'transcription_update', 'heartbeat').</p>
-              </div>
-            </td>
-            <td>
-                <em>required</em>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>data</code>
-            </td>
-            <td>
-                  <code><span title="dict">dict</span>[<span title="str">str</span>, <span title="typing.Any">Any</span>]</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Payload del evento como diccionario JSON-serializable.</p>
-              </div>
-            </td>
-            <td>
-                <em>required</em>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-<details class="note" open>
-  <summary>Note</summary>
-  <p>Las conexiones muertas se limpian automáticamente.</p>
-</details>
-
-            <details class="mkdocstrings-source">
-              <summary>Source code in <code>apps/daemon/backend/src/v2m/api.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-113">113</a></span>
-<span class="normal"><a href="#__codelineno-0-114">114</a></span>
-<span class="normal"><a href="#__codelineno-0-115">115</a></span>
-<span class="normal"><a href="#__codelineno-0-116">116</a></span>
-<span class="normal"><a href="#__codelineno-0-117">117</a></span>
-<span class="normal"><a href="#__codelineno-0-118">118</a></span>
-<span class="normal"><a href="#__codelineno-0-119">119</a></span>
-<span class="normal"><a href="#__codelineno-0-120">120</a></span>
-<span class="normal"><a href="#__codelineno-0-121">121</a></span>
-<span class="normal"><a href="#__codelineno-0-122">122</a></span>
-<span class="normal"><a href="#__codelineno-0-123">123</a></span>
-<span class="normal"><a href="#__codelineno-0-124">124</a></span>
-<span class="normal"><a href="#__codelineno-0-125">125</a></span>
-<span class="normal"><a href="#__codelineno-0-126">126</a></span>
-<span class="normal"><a href="#__codelineno-0-127">127</a></span>
-<span class="normal"><a href="#__codelineno-0-128">128</a></span>
-<span class="normal"><a href="#__codelineno-0-129">129</a></span>
-<span class="normal"><a href="#__codelineno-0-130">130</a></span>
-<span class="normal"><a href="#__codelineno-0-131">131</a></span>
-<span class="normal"><a href="#__codelineno-0-132">132</a></span>
-<span class="normal"><a href="#__codelineno-0-133">133</a></span>
-<span class="normal"><a href="#__codelineno-0-134">134</a></span>
-<span class="normal"><a href="#__codelineno-0-135">135</a></span>
-<span class="normal"><a href="#__codelineno-0-136">136</a></span>
-<span class="normal"><a href="#__codelineno-0-137">137</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-113" name="__codelineno-0-113"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">broadcast_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-0-114" name="__codelineno-0-114"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Envía evento a todos los clientes WebSocket conectados.</span>
-<a id="__codelineno-0-115" name="__codelineno-0-115"></a>
-<a id="__codelineno-0-116" name="__codelineno-0-116"></a><span class="sd">    Args:</span>
-<a id="__codelineno-0-117" name="__codelineno-0-117"></a><span class="sd">        event_type: Tipo de evento (ej. &#39;transcription_update&#39;, &#39;heartbeat&#39;).</span>
-<a id="__codelineno-0-118" name="__codelineno-0-118"></a><span class="sd">        data: Payload del evento como diccionario JSON-serializable.</span>
-<a id="__codelineno-0-119" name="__codelineno-0-119"></a>
-<a id="__codelineno-0-120" name="__codelineno-0-120"></a><span class="sd">    Note:</span>
-<a id="__codelineno-0-121" name="__codelineno-0-121"></a><span class="sd">        Las conexiones muertas se limpian automáticamente.</span>
-<a id="__codelineno-0-122" name="__codelineno-0-122"></a><span class="sd">    &quot;&quot;&quot;</span>
-<a id="__codelineno-0-123" name="__codelineno-0-123"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_websocket_clients</span><span class="p">:</span>
-<a id="__codelineno-0-124" name="__codelineno-0-124"></a>        <span class="k">return</span>
-<a id="__codelineno-0-125" name="__codelineno-0-125"></a>
-<a id="__codelineno-0-126" name="__codelineno-0-126"></a>    <span class="n">message</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;event&quot;</span><span class="p">:</span> <span class="n">event_type</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">data</span><span class="p">}</span>
-<a id="__codelineno-0-127" name="__codelineno-0-127"></a>    <span class="n">disconnected</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">WebSocket</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-<a id="__codelineno-0-128" name="__codelineno-0-128"></a>
-<a id="__codelineno-0-129" name="__codelineno-0-129"></a>    <span class="k">for</span> <span class="n">ws</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_websocket_clients</span><span class="p">:</span>
-<a id="__codelineno-0-130" name="__codelineno-0-130"></a>        <span class="k">try</span><span class="p">:</span>
-<a id="__codelineno-0-131" name="__codelineno-0-131"></a>            <span class="k">await</span> <span class="n">ws</span><span class="o">.</span><span class="n">send_json</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
-<a id="__codelineno-0-132" name="__codelineno-0-132"></a>        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-<a id="__codelineno-0-133" name="__codelineno-0-133"></a>            <span class="n">disconnected</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ws</span><span class="p">)</span>
-<a id="__codelineno-0-134" name="__codelineno-0-134"></a>
-<a id="__codelineno-0-135" name="__codelineno-0-135"></a>    <span class="c1"># Cleanup de conexiones muertas</span>
-<a id="__codelineno-0-136" name="__codelineno-0-136"></a>    <span class="k">for</span> <span class="n">ws</span> <span class="ow">in</span> <span class="n">disconnected</span><span class="p">:</span>
-<a id="__codelineno-0-137" name="__codelineno-0-137"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_websocket_clients</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="n">ws</span><span class="p">)</span>
-</code></pre></div></td></tr></table></div>
-            </details>
-    </div>
-
-</div>
 
 
 
@@ -2822,53 +2766,35 @@ Se instancian lazy la primera vez que se acceden.</p>
 
 </div><p>options:
 show_source: true
-members: - <strong>init</strong> - orchestrator - broadcast_event</p>
+members: - <strong>init</strong> - recording_workflow - llm_workflow - broadcast_event</p>
 <hr />
 <h2 id="endpoints">Endpoints<a class="headerlink" href="#endpoints" title="Permanent link">&para;</a></h2>
+<h3 id="grabacion-recording">Grabación (Recording)<a class="headerlink" href="#grabacion-recording" title="Permanent link">&para;</a></h3>
 
 
 <div class="doc doc-object doc-function">
 
 
-<h2 id="v2m.api.toggle_recording" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">v2m</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">toggle_recording</span><span class="p">()</span></code>
+<h2 id="v2m.api.routes.recording.toggle_recording" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">v2m</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">routes</span><span class="o">.</span><span class="n">recording</span><span class="o">.</span><span class="n">toggle_recording</span><span class="p">()</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
-<a href="#v2m.api.toggle_recording" class="headerlink" title="Permanent link">&para;</a></h2>
+<a href="#v2m.api.routes.recording.toggle_recording" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
     <div class="doc doc-contents first">
 
-        <p>Toggle de grabación (iniciar/detener).</p>
-<p>Si no está grabando → inicia grabación.
-Si está grabando → detiene y transcribe.</p>
-<p>Este es el endpoint principal que usa el atajo de teclado.</p>
-
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>apps/daemon/backend/src/v2m/api.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-205">205</a></span>
-<span class="normal"><a href="#__codelineno-0-206">206</a></span>
-<span class="normal"><a href="#__codelineno-0-207">207</a></span>
-<span class="normal"><a href="#__codelineno-0-208">208</a></span>
-<span class="normal"><a href="#__codelineno-0-209">209</a></span>
-<span class="normal"><a href="#__codelineno-0-210">210</a></span>
-<span class="normal"><a href="#__codelineno-0-211">211</a></span>
-<span class="normal"><a href="#__codelineno-0-212">212</a></span>
-<span class="normal"><a href="#__codelineno-0-213">213</a></span>
-<span class="normal"><a href="#__codelineno-0-214">214</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-205" name="__codelineno-0-205"></a><span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/toggle&quot;</span><span class="p">,</span> <span class="n">response_model</span><span class="o">=</span><span class="n">ToggleResponse</span><span class="p">)</span>
-<a id="__codelineno-0-206" name="__codelineno-0-206"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">toggle_recording</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">ToggleResponse</span><span class="p">:</span>
-<a id="__codelineno-0-207" name="__codelineno-0-207"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Toggle de grabación (iniciar/detener).</span>
-<a id="__codelineno-0-208" name="__codelineno-0-208"></a>
-<a id="__codelineno-0-209" name="__codelineno-0-209"></a><span class="sd">    Si no está grabando → inicia grabación.</span>
-<a id="__codelineno-0-210" name="__codelineno-0-210"></a><span class="sd">    Si está grabando → detiene y transcribe.</span>
-<a id="__codelineno-0-211" name="__codelineno-0-211"></a>
-<a id="__codelineno-0-212" name="__codelineno-0-212"></a><span class="sd">    Este es el endpoint principal que usa el atajo de teclado.</span>
-<a id="__codelineno-0-213" name="__codelineno-0-213"></a><span class="sd">    &quot;&quot;&quot;</span>
-<a id="__codelineno-0-214" name="__codelineno-0-214"></a>    <span class="k">return</span> <span class="k">await</span> <span class="n">_state</span><span class="o">.</span><span class="n">orchestrator</span><span class="o">.</span><span class="n">toggle</span><span class="p">()</span>
+              <summary>Source code in <code>apps/daemon/backend/src/v2m/api/routes/recording.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-0-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-0-10">10</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-8" name="__codelineno-0-8"></a><span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/toggle&quot;</span><span class="p">,</span> <span class="n">response_model</span><span class="o">=</span><span class="n">ToggleResponse</span><span class="p">)</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">toggle_recording</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">ToggleResponse</span><span class="p">:</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10"></a>    <span class="k">return</span> <span class="k">await</span> <span class="n">state</span><span class="o">.</span><span class="n">recording</span><span class="o">.</span><span class="n">toggle</span><span class="p">()</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -2880,30 +2806,26 @@ show_source: true</p>
 <div class="doc doc-object doc-function">
 
 
-<h2 id="v2m.api.start_recording" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">v2m</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">start_recording</span><span class="p">()</span></code>
+<h2 id="v2m.api.routes.recording.start_recording" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">v2m</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">routes</span><span class="o">.</span><span class="n">recording</span><span class="o">.</span><span class="n">start_recording</span><span class="p">()</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
-<a href="#v2m.api.start_recording" class="headerlink" title="Permanent link">&para;</a></h2>
+<a href="#v2m.api.routes.recording.start_recording" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
     <div class="doc doc-contents first">
 
-        <p>Inicia grabación explícitamente.</p>
-
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>apps/daemon/backend/src/v2m/api.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-217">217</a></span>
-<span class="normal"><a href="#__codelineno-0-218">218</a></span>
-<span class="normal"><a href="#__codelineno-0-219">219</a></span>
-<span class="normal"><a href="#__codelineno-0-220">220</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-217" name="__codelineno-0-217"></a><span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/start&quot;</span><span class="p">,</span> <span class="n">response_model</span><span class="o">=</span><span class="n">ToggleResponse</span><span class="p">)</span>
-<a id="__codelineno-0-218" name="__codelineno-0-218"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">start_recording</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">ToggleResponse</span><span class="p">:</span>
-<a id="__codelineno-0-219" name="__codelineno-0-219"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Inicia grabación explícitamente.&quot;&quot;&quot;</span>
-<a id="__codelineno-0-220" name="__codelineno-0-220"></a>    <span class="k">return</span> <span class="k">await</span> <span class="n">_state</span><span class="o">.</span><span class="n">orchestrator</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+              <summary>Source code in <code>apps/daemon/backend/src/v2m/api/routes/recording.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-13">13</a></span>
+<span class="normal"><a href="#__codelineno-0-14">14</a></span>
+<span class="normal"><a href="#__codelineno-0-15">15</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-13" name="__codelineno-0-13"></a><span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/start&quot;</span><span class="p">,</span> <span class="n">response_model</span><span class="o">=</span><span class="n">ToggleResponse</span><span class="p">)</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">start_recording</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">ToggleResponse</span><span class="p">:</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15"></a>    <span class="k">return</span> <span class="k">await</span> <span class="n">state</span><span class="o">.</span><span class="n">recording</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -2915,30 +2837,58 @@ show_source: true</p>
 <div class="doc doc-object doc-function">
 
 
-<h2 id="v2m.api.stop_recording" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">v2m</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">stop_recording</span><span class="p">()</span></code>
+<h2 id="v2m.api.routes.recording.stop_recording" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">v2m</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">routes</span><span class="o">.</span><span class="n">recording</span><span class="o">.</span><span class="n">stop_recording</span><span class="p">()</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
-<a href="#v2m.api.stop_recording" class="headerlink" title="Permanent link">&para;</a></h2>
+<a href="#v2m.api.routes.recording.stop_recording" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
     <div class="doc doc-contents first">
 
-        <p>Detiene grabación y transcribe.</p>
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>apps/daemon/backend/src/v2m/api/routes/recording.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-18">18</a></span>
+<span class="normal"><a href="#__codelineno-0-19">19</a></span>
+<span class="normal"><a href="#__codelineno-0-20">20</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-18" name="__codelineno-0-18"></a><span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/stop&quot;</span><span class="p">,</span> <span class="n">response_model</span><span class="o">=</span><span class="n">ToggleResponse</span><span class="p">)</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">stop_recording</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">ToggleResponse</span><span class="p">:</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20"></a>    <span class="k">return</span> <span class="k">await</span> <span class="n">state</span><span class="o">.</span><span class="n">recording</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div><p>options:
+show_source: true</p>
+<h3 id="estado-status">Estado (Status)<a class="headerlink" href="#estado-status" title="Permanent link">&para;</a></h3>
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="v2m.api.routes.status.get_status" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">v2m</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">routes</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">get_status</span><span class="p">()</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
+  </span>
+
+<a href="#v2m.api.routes.status.get_status" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents first">
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>apps/daemon/backend/src/v2m/api.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-223">223</a></span>
-<span class="normal"><a href="#__codelineno-0-224">224</a></span>
-<span class="normal"><a href="#__codelineno-0-225">225</a></span>
-<span class="normal"><a href="#__codelineno-0-226">226</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-223" name="__codelineno-0-223"></a><span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/stop&quot;</span><span class="p">,</span> <span class="n">response_model</span><span class="o">=</span><span class="n">ToggleResponse</span><span class="p">)</span>
-<a id="__codelineno-0-224" name="__codelineno-0-224"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">stop_recording</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">ToggleResponse</span><span class="p">:</span>
-<a id="__codelineno-0-225" name="__codelineno-0-225"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Detiene grabación y transcribe.&quot;&quot;&quot;</span>
-<a id="__codelineno-0-226" name="__codelineno-0-226"></a>    <span class="k">return</span> <span class="k">await</span> <span class="n">_state</span><span class="o">.</span><span class="n">orchestrator</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+              <summary>Source code in <code>apps/daemon/backend/src/v2m/api/routes/status.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-0-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-0-10">10</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-8" name="__codelineno-0-8"></a><span class="nd">@router</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/status&quot;</span><span class="p">,</span> <span class="n">response_model</span><span class="o">=</span><span class="n">StatusResponse</span><span class="p">)</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_status</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">StatusResponse</span><span class="p">:</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10"></a>    <span class="k">return</span> <span class="n">state</span><span class="o">.</span><span class="n">recording</span><span class="o">.</span><span class="n">get_status</span><span class="p">()</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -2950,30 +2900,58 @@ show_source: true</p>
 <div class="doc doc-object doc-function">
 
 
-<h2 id="v2m.api.get_status" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">v2m</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get_status</span><span class="p">()</span></code>
+<h2 id="v2m.api.routes.status.health_check" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">v2m</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">routes</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">health_check</span><span class="p">()</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
-<a href="#v2m.api.get_status" class="headerlink" title="Permanent link">&para;</a></h2>
+<a href="#v2m.api.routes.status.health_check" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
     <div class="doc doc-contents first">
 
-        <p>Retorna estado actual del daemon.</p>
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>apps/daemon/backend/src/v2m/api/routes/status.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-13">13</a></span>
+<span class="normal"><a href="#__codelineno-0-14">14</a></span>
+<span class="normal"><a href="#__codelineno-0-15">15</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-13" name="__codelineno-0-13"></a><span class="nd">@router</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/health&quot;</span><span class="p">,</span> <span class="n">response_model</span><span class="o">=</span><span class="n">HealthResponse</span><span class="p">)</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">health_check</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">HealthResponse</span><span class="p">:</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15"></a>    <span class="k">return</span> <span class="n">HealthResponse</span><span class="p">()</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div><p>options:
+show_source: true</p>
+<h3 id="llm">LLM<a class="headerlink" href="#llm" title="Permanent link">&para;</a></h3>
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="v2m.api.routes.llm.process_text" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">v2m</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">routes</span><span class="o">.</span><span class="n">llm</span><span class="o">.</span><span class="n">process_text</span><span class="p">(</span><span class="n">request</span><span class="p">)</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
+  </span>
+
+<a href="#v2m.api.routes.llm.process_text" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents first">
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>apps/daemon/backend/src/v2m/api.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-244">244</a></span>
-<span class="normal"><a href="#__codelineno-0-245">245</a></span>
-<span class="normal"><a href="#__codelineno-0-246">246</a></span>
-<span class="normal"><a href="#__codelineno-0-247">247</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-244" name="__codelineno-0-244"></a><span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/status&quot;</span><span class="p">,</span> <span class="n">response_model</span><span class="o">=</span><span class="n">StatusResponse</span><span class="p">)</span>
-<a id="__codelineno-0-245" name="__codelineno-0-245"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_status</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">StatusResponse</span><span class="p">:</span>
-<a id="__codelineno-0-246" name="__codelineno-0-246"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Retorna estado actual del daemon.&quot;&quot;&quot;</span>
-<a id="__codelineno-0-247" name="__codelineno-0-247"></a>    <span class="k">return</span> <span class="n">_state</span><span class="o">.</span><span class="n">orchestrator</span><span class="o">.</span><span class="n">get_status</span><span class="p">()</span>
+              <summary>Source code in <code>apps/daemon/backend/src/v2m/api/routes/llm.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-0-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-0-10">10</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-8" name="__codelineno-0-8"></a><span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/process&quot;</span><span class="p">,</span> <span class="n">response_model</span><span class="o">=</span><span class="n">LLMResponse</span><span class="p">)</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">process_text</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">ProcessTextRequest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LLMResponse</span><span class="p">:</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10"></a>    <span class="k">return</span> <span class="k">await</span> <span class="n">state</span><span class="o">.</span><span class="n">llm</span><span class="o">.</span><span class="n">process_text</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -2985,107 +2963,26 @@ show_source: true</p>
 <div class="doc doc-object doc-function">
 
 
-<h2 id="v2m.api.health_check" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">v2m</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">health_check</span><span class="p">()</span></code>
+<h2 id="v2m.api.routes.llm.translate_text" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">v2m</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">routes</span><span class="o">.</span><span class="n">llm</span><span class="o">.</span><span class="n">translate_text</span><span class="p">(</span><span class="n">request</span><span class="p">)</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
-<a href="#v2m.api.health_check" class="headerlink" title="Permanent link">&para;</a></h2>
+<a href="#v2m.api.routes.llm.translate_text" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
     <div class="doc doc-contents first">
 
-        <p>Health check para systemd/scripts.</p>
-
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>apps/daemon/backend/src/v2m/api.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-250">250</a></span>
-<span class="normal"><a href="#__codelineno-0-251">251</a></span>
-<span class="normal"><a href="#__codelineno-0-252">252</a></span>
-<span class="normal"><a href="#__codelineno-0-253">253</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-250" name="__codelineno-0-250"></a><span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/health&quot;</span><span class="p">,</span> <span class="n">response_model</span><span class="o">=</span><span class="n">HealthResponse</span><span class="p">)</span>
-<a id="__codelineno-0-251" name="__codelineno-0-251"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">health_check</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">HealthResponse</span><span class="p">:</span>
-<a id="__codelineno-0-252" name="__codelineno-0-252"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Health check para systemd/scripts.&quot;&quot;&quot;</span>
-<a id="__codelineno-0-253" name="__codelineno-0-253"></a>    <span class="k">return</span> <span class="n">HealthResponse</span><span class="p">()</span>
-</code></pre></div></td></tr></table></div>
-            </details>
-    </div>
-
-</div><p>options:
-show_source: true</p>
-
-
-<div class="doc doc-object doc-function">
-
-
-<h2 id="v2m.api.process_text" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">v2m</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">process_text</span><span class="p">(</span><span class="n">request</span><span class="p">)</span></code>
-
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
-  </span>
-
-<a href="#v2m.api.process_text" class="headerlink" title="Permanent link">&para;</a></h2>
-
-
-    <div class="doc doc-contents first">
-
-        <p>Procesa texto con LLM (limpieza, puntuación, formato).</p>
-<p>El backend se selecciona según config.toml (gemini/ollama/local).</p>
-
-
-            <details class="mkdocstrings-source">
-              <summary>Source code in <code>apps/daemon/backend/src/v2m/api.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-229">229</a></span>
-<span class="normal"><a href="#__codelineno-0-230">230</a></span>
-<span class="normal"><a href="#__codelineno-0-231">231</a></span>
-<span class="normal"><a href="#__codelineno-0-232">232</a></span>
-<span class="normal"><a href="#__codelineno-0-233">233</a></span>
-<span class="normal"><a href="#__codelineno-0-234">234</a></span>
-<span class="normal"><a href="#__codelineno-0-235">235</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-229" name="__codelineno-0-229"></a><span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/llm/process&quot;</span><span class="p">,</span> <span class="n">response_model</span><span class="o">=</span><span class="n">LLMResponse</span><span class="p">)</span>
-<a id="__codelineno-0-230" name="__codelineno-0-230"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">process_text</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">ProcessTextRequest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LLMResponse</span><span class="p">:</span>
-<a id="__codelineno-0-231" name="__codelineno-0-231"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Procesa texto con LLM (limpieza, puntuación, formato).</span>
-<a id="__codelineno-0-232" name="__codelineno-0-232"></a>
-<a id="__codelineno-0-233" name="__codelineno-0-233"></a><span class="sd">    El backend se selecciona según config.toml (gemini/ollama/local).</span>
-<a id="__codelineno-0-234" name="__codelineno-0-234"></a><span class="sd">    &quot;&quot;&quot;</span>
-<a id="__codelineno-0-235" name="__codelineno-0-235"></a>    <span class="k">return</span> <span class="k">await</span> <span class="n">_state</span><span class="o">.</span><span class="n">orchestrator</span><span class="o">.</span><span class="n">process_text</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
-</code></pre></div></td></tr></table></div>
-            </details>
-    </div>
-
-</div><p>options:
-show_source: true</p>
-
-
-<div class="doc doc-object doc-function">
-
-
-<h2 id="v2m.api.translate_text" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">v2m</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">translate_text</span><span class="p">(</span><span class="n">request</span><span class="p">)</span></code>
-
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
-  </span>
-
-<a href="#v2m.api.translate_text" class="headerlink" title="Permanent link">&para;</a></h2>
-
-
-    <div class="doc doc-contents first">
-
-        <p>Traduce texto con LLM.</p>
-
-
-            <details class="mkdocstrings-source">
-              <summary>Source code in <code>apps/daemon/backend/src/v2m/api.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-238">238</a></span>
-<span class="normal"><a href="#__codelineno-0-239">239</a></span>
-<span class="normal"><a href="#__codelineno-0-240">240</a></span>
-<span class="normal"><a href="#__codelineno-0-241">241</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-238" name="__codelineno-0-238"></a><span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/llm/translate&quot;</span><span class="p">,</span> <span class="n">response_model</span><span class="o">=</span><span class="n">LLMResponse</span><span class="p">)</span>
-<a id="__codelineno-0-239" name="__codelineno-0-239"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">translate_text</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">TranslateTextRequest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LLMResponse</span><span class="p">:</span>
-<a id="__codelineno-0-240" name="__codelineno-0-240"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Traduce texto con LLM.&quot;&quot;&quot;</span>
-<a id="__codelineno-0-241" name="__codelineno-0-241"></a>    <span class="k">return</span> <span class="k">await</span> <span class="n">_state</span><span class="o">.</span><span class="n">orchestrator</span><span class="o">.</span><span class="n">translate_text</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">target_lang</span><span class="p">)</span>
+              <summary>Source code in <code>apps/daemon/backend/src/v2m/api/routes/llm.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-13">13</a></span>
+<span class="normal"><a href="#__codelineno-0-14">14</a></span>
+<span class="normal"><a href="#__codelineno-0-15">15</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-13" name="__codelineno-0-13"></a><span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/translate&quot;</span><span class="p">,</span> <span class="n">response_model</span><span class="o">=</span><span class="n">LLMResponse</span><span class="p">)</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">translate_text</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">TranslateTextRequest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LLMResponse</span><span class="p">:</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15"></a>    <span class="k">return</span> <span class="k">await</span> <span class="n">state</span><span class="o">.</span><span class="n">llm</span><span class="o">.</span><span class="n">translate_text</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">target_lang</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -3112,7 +3009,7 @@ show_source: true</p>
     <span class="md-icon" title="Última actualización">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="21 de enero de 2026 02:04:24 UTC"><span class="timeago" datetime="2026-01-21T02:04:24+00:00" locale="es"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="21 de enero de 2026 02:04:24 UTC">2026-01-21</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="23 de enero de 2026 10:29:46 UTC"><span class="timeago" datetime="2026-01-23T10:29:46+00:00" locale="es"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="23 de enero de 2026 10:29:46 UTC">2026-01-23</span>
   </span>
 
     

@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Sistema de dictado por voz local con Whisper">
+        <meta name="description" content="Language model providers for text processing.">
       
       
         <meta name="author" content="zarvent">
@@ -470,6 +470,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
+  
 
             </a>
             
@@ -514,6 +521,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
+  
 
       </a>
     </li>
@@ -541,6 +555,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
   
 
       </a>
@@ -570,6 +591,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
+  
 
       </a>
     </li>
@@ -597,6 +625,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
   
 
       </a>
@@ -691,6 +726,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
+  
 
       </a>
     </li>
@@ -718,6 +760,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
   
 
       </a>
@@ -817,6 +866,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
+  
 
       </a>
     </li>
@@ -874,6 +930,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
   
 
             </a>
@@ -954,6 +1017,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
+  
 
             </a>
             
@@ -984,19 +1054,26 @@
   
   
     <li class="md-nav__item">
-      <a href="../orchestrator/" class="md-nav__link">
+      <a href="../workflows/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Orchestrator
+    Workflows
   
 
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
   
 
       </a>
@@ -1019,12 +1096,19 @@
   <span class="md-ellipsis">
     
   
-    REST API
+    Endpoints (FastAPI)
   
 
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
   
 
       </a>
@@ -1054,6 +1138,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1081,6 +1172,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
   
 
       </a>
@@ -1112,12 +1210,19 @@
   <span class="md-ellipsis">
     
   
-    LLM Services
+    LLM
   
 
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
   
 
           <span class="md-nav__icon md-icon"></span>
@@ -1130,12 +1235,19 @@
   <span class="md-ellipsis">
     
   
-    LLM Services
+    LLM
   
 
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
   
 
       </a>
@@ -1303,12 +1415,19 @@
   <span class="md-ellipsis">
     
   
-    🧩 Arquitectura del Sistema
+    Arquitectura del Sistema
   
 
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
   
 
       </a>
@@ -1660,6 +1779,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1688,6 +1814,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1715,6 +1848,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
   
 
       </a>
@@ -1825,7 +1965,7 @@
 <hr />
 <h2 id="google-gemini-cloud">Google Gemini (Cloud)<a class="headerlink" href="#google-gemini-cloud" title="Permanent link">&para;</a></h2>
 <p>LLM service connecting to Google Gemini API for text processing and translations.</p>
-<p><strong>Location:</strong> <code>v2m/infrastructure/gemini_llm_service.py</code></p>
+<p><strong>Location:</strong> <code>v2m/features/llm/gemini_service.py</code></p>
 <p><strong>Main methods:</strong></p>
 <ul>
 <li><code>process_text(text: str) -&gt; str</code> - Refines text with punctuation and grammar</li>
@@ -1834,25 +1974,25 @@
 <hr />
 <h2 id="ollama-local">Ollama (Local)<a class="headerlink" href="#ollama-local" title="Permanent link">&para;</a></h2>
 <p>Local LLM service connecting to Ollama server for total privacy.</p>
-<p><strong>Location:</strong> <code>v2m/infrastructure/ollama_llm_service.py</code></p>
+<p><strong>Location:</strong> <code>v2m/features/llm/ollama_service.py</code></p>
 <p><strong>Configuration:</strong> <code>http://localhost:11434</code></p>
 <hr />
 <h2 id="local-llamacpp">Local (llama.cpp)<a class="headerlink" href="#local-llamacpp" title="Permanent link">&para;</a></h2>
 <p>Embedded LLM service using llama-cpp-python directly.</p>
-<p><strong>Location:</strong> <code>v2m/infrastructure/local_llm_service.py</code></p>
+<p><strong>Location:</strong> <code>v2m/features/llm/local_service.py</code></p>
 <hr />
 <h2 id="design-pattern">Design Pattern<a class="headerlink" href="#design-pattern" title="Permanent link">&para;</a></h2>
-<p>All LLM services implement a common interface:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">LLMService</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">process_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<p>All LLM services implement a common interface (Protocol):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ILLMService</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">process_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Refines text with grammar and punctuation.&quot;&quot;&quot;</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>        <span class="o">...</span>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">translate_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">target_lang</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">translate_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">target_lang</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Translates text to specified language.&quot;&quot;&quot;</span>
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>        <span class="o">...</span>
 </code></pre></div>
-<p>The <code>Orchestrator</code> selects the backend based on <code>config.llm.backend</code>:</p>
+<p>The <code>LLMWorkflow</code> selects the backend based on <code>config.llm.provider</code>:</p>
 <ul>
 <li><code>"gemini"</code> → GeminiLLMService</li>
 <li><code>"ollama"</code> → OllamaLLMService</li>
@@ -1878,7 +2018,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="January 21, 2026 02:04:24 UTC"><span class="timeago" datetime="2026-01-21T02:04:24+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="January 21, 2026 02:04:24 UTC">2026-01-21</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="January 23, 2026 10:29:46 UTC"><span class="timeago" datetime="2026-01-23T10:29:46+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="January 23, 2026 10:29:46 UTC">2026-01-23</span>
   </span>
 
     

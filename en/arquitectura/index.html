@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Sistema de dictado por voz local con Whisper">
+        <meta name="description" content="Descripción de la arquitectura basada en Workflows y Features de Voice2Machine.">
       
       
         <meta name="author" content="zarvent">
@@ -33,7 +33,7 @@
     
     
       
-        <title>🧩 Arquitectura del Sistema - Voice2Machine</title>
+        <title>Arquitectura del Sistema - Voice2Machine</title>
       
     
     
@@ -129,7 +129,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              🧩 Arquitectura del Sistema
+              Arquitectura del Sistema
             
           </span>
         </div>
@@ -470,6 +470,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
+  
 
             </a>
             
@@ -514,6 +521,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
+  
 
       </a>
     </li>
@@ -541,6 +555,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
   
 
       </a>
@@ -570,6 +591,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
+  
 
       </a>
     </li>
@@ -597,6 +625,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
   
 
       </a>
@@ -691,6 +726,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
+  
 
       </a>
     </li>
@@ -718,6 +760,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
   
 
       </a>
@@ -812,6 +861,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
+  
 
       </a>
     </li>
@@ -864,6 +920,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
   
 
             </a>
@@ -942,6 +1005,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
+  
 
             </a>
             
@@ -972,19 +1042,26 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/backend/orchestrator/" class="md-nav__link">
+      <a href="../api/backend/workflows/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Orchestrator
+    Workflows
   
 
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
   
 
       </a>
@@ -1007,12 +1084,19 @@
   <span class="md-ellipsis">
     
   
-    REST API
+    Endpoints (FastAPI)
   
 
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
   
 
       </a>
@@ -1042,6 +1126,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1070,6 +1161,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1091,12 +1189,19 @@
   <span class="md-ellipsis">
     
   
-    LLM Services
+    LLM
   
 
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
   
 
       </a>
@@ -1214,12 +1319,19 @@
   <span class="md-ellipsis">
     
   
-    🧩 Arquitectura del Sistema
+    Arquitectura del Sistema
   
 
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
   
 
           <span class="md-nav__icon md-icon"></span>
@@ -1232,12 +1344,19 @@
   <span class="md-ellipsis">
     
   
-    🧩 Arquitectura del Sistema
+    Arquitectura del Sistema
   
 
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
   
 
       </a>
@@ -1292,10 +1411,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-orchestrator-coordinacion" class="md-nav__link">
+  <a href="#2-workflows-orquestacion" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Orchestrator (Coordinación)
+        2. Workflows (Orquestación)
       
     </span>
   </a>
@@ -1303,10 +1422,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-core-el-hexagono" class="md-nav__link">
+  <a href="#3-features-dominios" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. Core (El Hexágono)
+        3. Features (Dominios)
       
     </span>
   </a>
@@ -1314,10 +1433,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#4-infrastructure-adapters" class="md-nav__link">
+  <a href="#4-shared-base-comun" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4. Infrastructure (Adapters)
+        4. Shared (Base Común)
       
     </span>
   </a>
@@ -1756,6 +1875,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1784,6 +1910,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1811,6 +1944,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--stable"></span>
+  
+
   
 
       </a>
@@ -1887,10 +2027,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-orchestrator-coordinacion" class="md-nav__link">
+  <a href="#2-workflows-orquestacion" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Orchestrator (Coordinación)
+        2. Workflows (Orquestación)
       
     </span>
   </a>
@@ -1898,10 +2038,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-core-el-hexagono" class="md-nav__link">
+  <a href="#3-features-dominios" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. Core (El Hexágono)
+        3. Features (Dominios)
       
     </span>
   </a>
@@ -1909,10 +2049,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#4-infrastructure-adapters" class="md-nav__link">
+  <a href="#4-shared-base-comun" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4. Infrastructure (Adapters)
+        4. Shared (Base Común)
       
     </span>
   </a>
@@ -2029,112 +2169,108 @@
     end
 
     subgraph Backend ["🐍 Backend Daemon (Python + FastAPI)"]
-        API["FastAPI Server&lt;br&gt;(api.py)"]
+        API["FastAPI Package&lt;br&gt;(api/)"]
 
-        subgraph Hexagon ["Hexagon (Core)"]
-            Orchestrator["Orchestrator&lt;br&gt;(Coordinación)"]
-            Domain["Domain&lt;br&gt;(Interfaces/Models)"]
+        subgraph Workflows ["🧠 Workflows (Orchestration)"]
+            RecWF["RecordingWorkflow"]
+            LLMWF["LLMWorkflow"]
         end
 
-        subgraph Infra ["Infrastructure (Adapters)"]
-            Whisper["Whisper Adapter&lt;br&gt;(faster-whisper)"]
-            Audio["Audio Engine&lt;br&gt;(Rust v2m_engine)"]
-            LLM["LLM Providers&lt;br&gt;(Gemini/Ollama)"]
+        subgraph Features ["🧩 Features (Domain + Logic)"]
+            AudioFeat["Audio Service"]
+            TranscFeat["Transcription Service"]
+            LLMFeat["LLM Service"]
+        end
+
+        subgraph Shared ["⚙️ Shared (Foundation)"]
+            Config["Config"]
+            Errors["Errors"]
+            Interfaces["Interfaces"]
         end
     end
 
     ClientApp &lt;--&gt;|REST + WebSocket| API
-    API --&gt; Orchestrator
-    Orchestrator --&gt; Domain
-    Whisper -.-&gt;|Implements| Domain
-    Audio -.-&gt;|Implements| Domain
-    LLM -.-&gt;|Implements| Domain
+    API --&gt; Workflows
+    Workflows --&gt; Features
+    Features --&gt; Shared
 
     style Clients fill:#e3f2fd,stroke:#1565c0
     style Backend fill:#e8f5e9,stroke:#2e7d32
-    style Hexagon fill:#fff3e0,stroke:#ef6c00
-    style Infra fill:#f3e5f5,stroke:#7b1fa2</code></pre>
+    style Workflows fill:#fff3e0,stroke:#ef6c00
+    style Features fill:#f3e5f5,stroke:#7b1fa2
+    style Shared fill:#eceff1,stroke:#455a64</code></pre>
 <hr />
 <h2 id="componentes-del-backend">📦 Componentes del Backend<a class="headerlink" href="#componentes-del-backend" title="Permanent link">&para;</a></h2>
 <h3 id="1-api-layer-fastapi">1. API Layer (FastAPI)<a class="headerlink" href="#1-api-layer-fastapi" title="Permanent link">&para;</a></h3>
-<p>Ubicado en <code>apps/daemon/backend/src/v2m/api.py</code>.</p>
+<p>Ubicado en <code>apps/daemon/backend/src/v2m/api/</code>.</p>
 <ul>
+<li><strong>Módulos</strong>: <code>app.py</code>, <code>routes/</code>, <code>schemas.py</code></li>
 <li><strong>Endpoints REST</strong>: <code>/toggle</code>, <code>/start</code>, <code>/stop</code>, <code>/status</code>, <code>/health</code></li>
 <li><strong>WebSocket</strong>: <code>/ws/events</code> para streaming de transcripción en tiempo real</li>
 <li><strong>Documentación automática</strong>: Swagger UI en <code>/docs</code></li>
 </ul>
 <div class="admonition info">
-<p class="admonition-title">Migración Completada</p>
+<p class="admonition-title">Estructura Moderna</p>
 </div>
-<p>El sistema anterior usaba Unix Domain Sockets con protocolo binario personalizado. Desde v0.2.0, usamos FastAPI para simplicidad y compatibilidad con cualquier cliente HTTP.</p>
-<h3 id="2-orchestrator-coordinacion">2. Orchestrator (Coordinación)<a class="headerlink" href="#2-orchestrator-coordinacion" title="Permanent link">&para;</a></h3>
-<p>Ubicado en <code>apps/daemon/backend/src/v2m/services/orchestrator.py</code>.</p>
-<p>El Orchestrator es el punto central de coordinación que:</p>
+<p>A partir de la v0.3.0, la API se organiza como un paquete completo, separando rutas y esquemas para mayor mantenibilidad.</p>
+<h3 id="2-workflows-orquestacion">2. Workflows (Orquestación)<a class="headerlink" href="#2-workflows-orquestacion" title="Permanent link">&para;</a></h3>
+<p>Ubicado en <code>apps/daemon/backend/src/v2m/orchestration/</code>.</p>
+<p>En lugar de un Orchestrator monolítico, el sistema utiliza Workflows especializados para cada flujo de negocio:</p>
 <ul>
-<li>Gestiona el ciclo de vida completo: grabación → transcripción → post-procesamiento</li>
-<li>Mantiene el estado del sistema (idle, recording, processing)</li>
-<li>Coordina la comunicación entre adaptadores sin acoplarlos directamente</li>
-<li>Emite eventos a clientes WebSocket conectados</li>
+<li><strong>RecordingWorkflow</strong>: Gestiona el ciclo de vida de captura y transcripción.</li>
+<li><strong>LLMWorkflow</strong>: Coordina el procesamiento de texto y traducción.</li>
 </ul>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">Orchestrator</span><span class="p">:</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">toggle</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ToggleResponse</span><span class="p">:</span> <span class="o">...</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ToggleResponse</span><span class="p">:</span> <span class="o">...</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ToggleResponse</span><span class="p">:</span> <span class="o">...</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">warmup</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
-</code></pre></div>
-<h3 id="3-core-el-hexagono">3. Core (El Hexágono)<a class="headerlink" href="#3-core-el-hexagono" title="Permanent link">&para;</a></h3>
-<p>Ubicado en <code>apps/daemon/backend/src/v2m/core/</code> y <code>domain/</code>.</p>
-<ul>
-<li><strong>Puertos (Interfaces)</strong>: Definidos usando <code>typing.Protocol</code> + <code>@runtime_checkable</code> para chequeo estructural en tiempo de ejecución</li>
-<li><strong>Modelos de Dominio</strong>: DTOs con Pydantic V2 para validación automática</li>
-<li><strong>Contratos estrictos</strong>: Los adaptadores implementan interfaces, no clases concretas</li>
-</ul>
-<h3 id="4-infrastructure-adapters">4. Infrastructure (Adapters)<a class="headerlink" href="#4-infrastructure-adapters" title="Permanent link">&para;</a></h3>
-<p>Ubicado en <code>apps/daemon/backend/src/v2m/infrastructure/</code>.</p>
+<p>Este enfoque permite que cada flujo evolucione de forma independiente sin afectar al resto del sistema.</p>
+<h3 id="3-features-dominios">3. Features (Dominios)<a class="headerlink" href="#3-features-dominios" title="Permanent link">&para;</a></h3>
+<p>Ubicado en <code>apps/daemon/backend/src/v2m/features/</code>.</p>
+<p>Cada carpeta en <code>features/</code> representa un dominio de conocimiento autocontenido que incluye sus propios servicios y lógica:</p>
 <table>
 <thead>
 <tr>
-<th>Adapter</th>
+<th>Feature</th>
 <th>Responsabilidad</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><strong>WhisperAdapter</strong></td>
-<td>Transcripción con <code>faster-whisper</code>. Lazy loading para ahorrar VRAM</td>
+<td><strong>transcription</strong></td>
+<td>Implementaciones de Whisper (<code>faster-whisper</code>).</td>
 </tr>
 <tr>
-<td><strong>AudioRecorder</strong></td>
-<td>Captura de audio usando extensión Rust (<code>v2m_engine</code>)</td>
+<td><strong>audio</strong></td>
+<td>Captura de audio y manejo del motor Rust (<code>v2m_engine</code>).</td>
 </tr>
 <tr>
-<td><strong>LLMProviders</strong></td>
-<td>Factory para Gemini/Ollama según configuración</td>
-</tr>
-<tr>
-<td><strong>SystemMonitor</strong></td>
-<td>Telemetría de GPU/CPU en tiempo real</td>
+<td><strong>llm</strong></td>
+<td>Integraciones con Gemini, Ollama y otros proveedores.</td>
 </tr>
 </tbody>
 </table>
+<h3 id="4-shared-base-comun">4. Shared (Base Común)<a class="headerlink" href="#4-shared-base-comun" title="Permanent link">&para;</a></h3>
+<p>Ubicado en <code>apps/daemon/backend/src/v2m/shared/</code>.</p>
+<ul>
+<li><strong>Interfaces</strong>: Definiciones globales mediante <code>typing.Protocol</code>.</li>
+<li><strong>Config</strong>: Gestión de <code>config.toml</code> mediante Pydantic Settings.</li>
+<li><strong>Errors</strong>: Jerarquías de excepciones compartidas.</li>
+</ul>
 <hr />
 <h2 id="comunicacion-cliente-backend">⚡ Comunicación Cliente-Backend<a class="headerlink" href="#comunicacion-cliente-backend" title="Permanent link">&para;</a></h2>
 <p>Voice2Machine utiliza <strong>FastAPI REST + WebSocket</strong> para la comunicación:</p>
 <h3 id="rest-sincrono">REST (Síncrono)<a class="headerlink" href="#rest-sincrono" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Toggle grabación</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8765/toggle<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1"># Verificar estado</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>curl<span class="w"> </span>http://localhost:8765/status<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Toggle grabación</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8765/toggle<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Verificar estado</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>curl<span class="w"> </span>http://localhost:8765/status<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq
 </code></pre></div>
 <h3 id="websocket-streaming">WebSocket (Streaming)<a class="headerlink" href="#websocket-streaming" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kd">const</span><span class="w"> </span><span class="nx">ws</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">WebSocket</span><span class="p">(</span><span class="s2">&quot;ws://localhost:8765/ws/events&quot;</span><span class="p">);</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nx">ws</span><span class="p">.</span><span class="nx">onmessage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">event</span><span class="p">,</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">e</span><span class="p">.</span><span class="nx">data</span><span class="p">);</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">event</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s2">&quot;transcription_update&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">text</span><span class="p">,</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="kr">final</span><span class="p">);</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">  </span><span class="p">}</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="p">};</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kd">const</span><span class="w"> </span><span class="nx">ws</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">WebSocket</span><span class="p">(</span><span class="s2">&quot;ws://localhost:8765/ws/events&quot;</span><span class="p">);</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nx">ws</span><span class="p">.</span><span class="nx">onmessage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">event</span><span class="p">,</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">e</span><span class="p">.</span><span class="nx">data</span><span class="p">);</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">event</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s2">&quot;transcription_update&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">text</span><span class="p">,</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="kr">final</span><span class="p">);</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="p">};</span>
 </code></pre></div>
 <hr />
 <h2 id="extensiones-nativas-rust">🦀 Extensiones Nativas (Rust)<a class="headerlink" href="#extensiones-nativas-rust" title="Permanent link">&para;</a></h2>
@@ -2167,24 +2303,24 @@
     participant User
     participant Client as Cliente HTTP
     participant API as FastAPI
-    participant Orch as Orchestrator
-    participant Audio as AudioRecorder
-    participant Whisper as WhisperAdapter
+    participant WF as Workflows
+    participant Audio as AudioService
+    participant Whisper as TranscriptionService
 
     User-&gt;&gt;Client: Presiona atajo
     Client-&gt;&gt;API: POST /toggle
-    API-&gt;&gt;Orch: toggle()
+    API-&gt;&gt;WF: toggle() (RecordingWorkflow)
 
     alt No grabando
-        Orch-&gt;&gt;Audio: start_recording()
-        Audio--&gt;&gt;Orch: OK
-        Orch--&gt;&gt;API: status=recording
+        WF-&gt;&gt;Audio: start_recording()
+        Audio--&gt;&gt;WF: OK
+        WF--&gt;&gt;API: status=recording
     else Grabando
-        Orch-&gt;&gt;Audio: stop_recording()
-        Audio--&gt;&gt;Orch: audio_buffer
-        Orch-&gt;&gt;Whisper: transcribe(buffer)
-        Whisper--&gt;&gt;Orch: texto
-        Orch--&gt;&gt;API: status=idle, text=...
+        WF-&gt;&gt;Audio: stop_recording()
+        Audio--&gt;&gt;WF: audio_buffer
+        WF-&gt;&gt;Whisper: transcribe(buffer)
+        Whisper--&gt;&gt;WF: texto
+        WF--&gt;&gt;API: status=idle, text=...
     end
 
     API--&gt;&gt;Client: ToggleResponse
@@ -2241,7 +2377,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="21 de enero de 2026 01:24:37 UTC"><span class="timeago" datetime="2026-01-21T01:24:37+00:00" locale="es"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="21 de enero de 2026 01:24:37 UTC">2026-01-21</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="23 de enero de 2026 10:29:46 UTC"><span class="timeago" datetime="2026-01-23T10:29:46+00:00" locale="es"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="23 de enero de 2026 10:29:46 UTC">2026-01-23</span>
   </span>
 
     
