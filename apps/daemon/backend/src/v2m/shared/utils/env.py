@@ -3,7 +3,7 @@ import os
 import site
 from pathlib import Path
 
-from v2m.core.logging import logger
+from v2m.shared.logging import logger
 
 
 def configure_gpu_environment() -> None:

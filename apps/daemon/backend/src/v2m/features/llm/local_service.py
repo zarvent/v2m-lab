@@ -17,10 +17,10 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING
 
-from v2m.application.llm_service import LLMService
-from v2m.config import BASE_DIR, config
-from v2m.core.logging import logger
-from v2m.domain.errors import LLMError
+from v2m.features.llm.service import LLMService
+from v2m.shared.config import BASE_DIR, config
+from v2m.shared.logging import logger
+from v2m.shared.errors import LLMError
 
 if TYPE_CHECKING:
     from llama_cpp import Llama

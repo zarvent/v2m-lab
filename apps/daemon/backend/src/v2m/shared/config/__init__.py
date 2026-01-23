@@ -20,7 +20,7 @@ Ejemplo:
     Acceder a la configuración desde cualquier parte de la aplicación:
 
     ```python
-    from v2m.config import config
+    from v2m.shared.config import config
 
     # Acceder a la configuración de Whisper
     model = config.transcription.whisper.model
@@ -46,7 +46,7 @@ from pydantic_settings import (
     TomlConfigSettingsSource,
 )
 
-from v2m.utils.paths import get_secure_runtime_dir
+from v2m.shared.utils.paths import get_secure_runtime_dir
 
 # --- Ruta Base del Proyecto ---
 BASE_DIR = Path(__file__).resolve().parent.parent.parent

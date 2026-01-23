@@ -12,7 +12,7 @@ import time
 from pathlib import Path
 
 from v2m.core.interfaces import ClipboardInterface, NotificationInterface
-from v2m.core.logging import logger
+from v2m.shared.logging import logger
 
 
 class LinuxClipboardAdapter(ClipboardInterface):
@@ -201,7 +201,7 @@ class LinuxNotificationAdapter(NotificationInterface):
     """
 
     def __init__(self) -> None:
-        from v2m.infrastructure.notification_service import LinuxNotificationService
+        from v2m.features.desktop.notification_service import LinuxNotificationService
 
         self._service = LinuxNotificationService()
 

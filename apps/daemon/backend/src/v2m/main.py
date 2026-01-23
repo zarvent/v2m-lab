@@ -18,8 +18,8 @@ Para desarrollo:
 import argparse
 import sys
 
-from v2m.core.logging import logger
-from v2m.utils.env import configure_gpu_environment
+from v2m.shared.logging import logger
+from v2m.shared.utils.env import configure_gpu_environment
 
 # Puerto por defecto para el servidor HTTP
 DEFAULT_PORT = 8765

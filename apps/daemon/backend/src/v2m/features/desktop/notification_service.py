@@ -24,10 +24,10 @@ from typing import TYPE_CHECKING, ClassVar
 from weakref import WeakSet
 
 from v2m.core.interfaces import NotificationInterface
-from v2m.core.logging import logger
+from v2m.shared.logging import logger
 
 if TYPE_CHECKING:
-    from v2m.config import NotificationsConfig
+    from v2m.shared.config import NotificationsConfig
 
 
 @dataclass(frozen=True, slots=True)
@@ -76,7 +76,7 @@ class LinuxNotificationService(NotificationInterface):
                 automáticamente desde la configuración global.
         """
         if config is None:
-            from v2m.config import config as app_config
+            from v2m.shared.config import config as app_config
 
             config = app_config.notifications
 
